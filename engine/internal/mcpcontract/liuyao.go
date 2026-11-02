@@ -20,24 +20,42 @@ type LiuyaoCoinRoundInput struct {
 
 type LiuyaoYaoValuesInput []LiuyaoYaoValue
 
-type LiuyaoQiguaInput struct {
-	Mode   LiuyaoQiguaMode       `json:"mode,omitempty" jsonschema:"起卦模式：auto 安全随机，coins 传六组铜钱，yaos 传六个爻值。"`
+// LiuyaoCastingRequestInput is the domain-owned source fact for one casting.
+// It is the request form of LiuyaoCastingOutput.
+type LiuyaoCastingRequestInput struct {
+	Mode   LiuyaoQiguaMode       `json:"mode" jsonschema:"起卦模式：auto 安全随机，coins 传六组铜钱，yaos 传六个爻值。"`
 	Rounds LiuyaoCoinRoundsInput `json:"rounds,omitempty" jsonschema:"coins 模式：六组三枚铜钱，初爻到上爻。"`
 	Yaos   LiuyaoYaoValuesInput  `json:"yaos,omitempty" jsonschema:"yaos 模式：六个爻值，初爻到上爻。"`
 }
 
-type LiuyaoQiguaAutoForm struct {
+type LiuyaoQiguaInput struct {
+	Casting LiuyaoCastingRequestInput `json:"casting" jsonschema:"起卦源事实。"`
+}
+
+type LiuyaoAutoCastingRequest struct {
 	Mode LiuyaoQiguaMode `json:"mode" jsonschema:"起卦模式；auto 使用安全随机。"`
 }
 
-type LiuyaoQiguaCoinsForm struct {
+type LiuyaoCoinsCastingRequest struct {
 	Mode   LiuyaoQiguaMode       `json:"mode" jsonschema:"起卦模式；coins 要求六组铜钱记录。"`
 	Rounds LiuyaoCoinRoundsInput `json:"rounds" jsonschema:"六组三枚铜钱，初爻到上爻。"`
 }
 
-type LiuyaoQiguaYaosForm struct {
+type LiuyaoYaosCastingRequest struct {
 	Mode LiuyaoQiguaMode      `json:"mode" jsonschema:"起卦模式；yaos 要求六个爻值。"`
 	Yaos LiuyaoYaoValuesInput `json:"yaos" jsonschema:"六个爻值，初爻到上爻。"`
+}
+
+type LiuyaoQiguaAutoForm struct {
+	Casting LiuyaoAutoCastingRequest `json:"casting" jsonschema:"起卦源事实。"`
+}
+
+type LiuyaoQiguaCoinsForm struct {
+	Casting LiuyaoCoinsCastingRequest `json:"casting" jsonschema:"起卦源事实。"`
+}
+
+type LiuyaoQiguaYaosForm struct {
+	Casting LiuyaoYaosCastingRequest `json:"casting" jsonschema:"起卦源事实。"`
 }
 
 func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
@@ -46,6 +64,22 @@ func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
 	for _, mode := range modes {
 		var raw json.RawMessage
 		var err error
+		var nested json.RawMessage
+		switch mode {
+		case "auto":
+			_, nested, err = inputSchemaFor[LiuyaoAutoCastingRequest]()
+		case "coins":
+			_, nested, err = inputSchemaFor[LiuyaoCoinsCastingRequest]()
+		case "yaos":
+			_, nested, err = inputSchemaFor[LiuyaoYaosCastingRequest]()
+		}
+		if err != nil {
+			return nil, err
+		}
+		nested, err = withSchemaConst(nested, "mode", mode)
+		if err != nil {
+			return nil, err
+		}
 		switch mode {
 		case "auto":
 			_, raw, err = inputSchemaFor[LiuyaoQiguaAutoForm]()
@@ -57,7 +91,7 @@ func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
 		if err != nil {
 			return nil, err
 		}
-		raw, err = withSchemaConst(raw, "mode", mode)
+		raw, err = withSchemaProperty(raw, "casting", nested)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +128,7 @@ type LiuyaoCastingOutput struct {
 	Rounds         LiuyaoCoinRoundsOutput      `json:"rounds,omitempty" jsonschema:"coins 模式的六组审计记录。"`
 	Yaos           LiuyaoYaoValuesOutput       `json:"yaos" jsonschema:"六个爻值，初爻到上爻。"`
 	DongYao        LiuyaoPositions             `json:"dong_yao" jsonschema:"动爻位置列表，1-6。"`
-	CastingID      LiuyaoCastingID             `json:"casting_id" jsonschema:"canonical SHA-256 casting digest。"`
+	CastingDigest  LiuyaoCastingDigest         `json:"casting_digest" jsonschema:"canonical SHA-256 casting digest。"`
 }
 
 type LiuyaoQiguaOutput struct {
@@ -332,21 +366,22 @@ type LiuyaoChartOutput struct {
 func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, error) {
 	var casting liuyao.Casting
 	var err error
-	switch input.Mode {
+	request := input.Casting
+	switch request.Mode {
 	case "", "auto":
-		if input.Rounds != nil || input.Yaos != nil {
+		if request.Rounds != nil || request.Yaos != nil {
 			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: auto mode does not accept rounds or yaos")
 		}
 		casting, err = liuyao.SecureQigua()
 	case "coins":
-		if input.Yaos != nil {
+		if request.Yaos != nil {
 			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: coins mode accepts rounds only")
 		}
-		if len(input.Rounds) != 6 {
-			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: coins requires exactly 6 rounds, got %d", len(input.Rounds))
+		if len(request.Rounds) != 6 {
+			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: casting.coins requires exactly 6 rounds, got %d", len(request.Rounds))
 		}
 		rounds := make([][]string, 0, 6)
-		for _, round := range input.Rounds {
+		for _, round := range request.Rounds {
 			coins := make([]string, 0, 3)
 			for _, coin := range round.Coins {
 				coins = append(coins, string(coin))
@@ -355,19 +390,19 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 		}
 		casting, err = liuyao.NewCoinsCasting(rounds)
 	case "yaos":
-		if input.Rounds != nil {
+		if request.Rounds != nil {
 			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: yaos mode accepts yaos only")
 		}
-		if len(input.Yaos) != 6 {
-			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: yaos requires exactly 6 values, got %d", len(input.Yaos))
+		if len(request.Yaos) != 6 {
+			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: casting.yaos requires exactly 6 values, got %d", len(request.Yaos))
 		}
 		var values [6]int
-		for i, value := range input.Yaos {
+		for i, value := range request.Yaos {
 			values[i] = int(value)
 		}
 		casting, err = liuyao.NewValuesCasting(values)
 	default:
-		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: unsupported mode %q", string(input.Mode))
+		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: casting.mode unsupported %q", string(request.Mode))
 	}
 	if err != nil {
 		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: %w", err)
@@ -375,29 +410,34 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 	return LiuyaoQiguaOutput{Casting: liuyaoCastingWire(casting)}, nil
 }
 
-// LiuyaoChartInput takes qigua time/location. The chart domain derives
-// day/month from LAST and solar-term events.
+// LiuyaoQiGuaInput is one auditable divination event: the casting receipt plus
+// the local standard time and place used to derive day/month and hour facts.
+type LiuyaoQiGuaInput struct {
+	Time      StandardTime         `json:"time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude float64              `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
+	Casting   *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao.qigua 返回的完整可审计起卦收据。"`
+}
+
+// LiuyaoChartInput consumes the divination event and the requested focus.
 type LiuyaoChartInput struct {
-	QiGuaTime      StandardTime         `json:"qi_gua_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
-	QiGuaLongitude float64              `json:"qi_gua_longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
-	YongShen       LiuyaoYongShenName   `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
-	Casting        *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao.qigua 返回的完整可审计起卦收据。"`
+	QiGua    LiuyaoQiGuaInput   `json:"qi_gua" jsonschema:"六爻起卦事件。"`
+	YongShen LiuyaoYongShenName `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
 }
 
 func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, error) {
-	if input.Casting == nil {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: casting is required")
+	if input.QiGua.Casting == nil {
+		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: qi_gua.casting is required")
 	}
-	casting, err := liuyaoCastingDomain(*input.Casting)
+	casting, err := liuyaoCastingDomain(*input.QiGua.Casting)
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
 	}
-	standard, _, err := parseStandardTime(input.QiGuaTime)
+	standard, _, err := parseStandardTime(input.QiGua.Time)
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	if input.QiGuaLongitude < -180 || input.QiGuaLongitude > 180 {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: longitude must be within [-180,180], got %v", input.QiGuaLongitude)
+	if input.QiGua.Longitude < -180 || input.QiGua.Longitude > 180 {
+		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: qi_gua.longitude must be within [-180,180], got %v", input.QiGua.Longitude)
 	}
 	yongShen := string(input.YongShen)
 	if yongShen == "" {
@@ -407,7 +447,7 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, 
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	chart := liuyao.ComputeChartAt(standard, input.QiGuaLongitude, ys, casting.Yaos)
+	chart := liuyao.ComputeChartAt(standard, input.QiGua.Longitude, ys, casting.Yaos)
 	chart.Casting = &casting
 	return liuyaoChartWire(chart), nil
 }
@@ -417,11 +457,11 @@ func liuyaoCastingDomain(output LiuyaoCastingOutput) (liuyao.Casting, error) {
 		return liuyao.Casting{}, fmt.Errorf("yaos requires exactly 6 values, got %d", len(output.Yaos))
 	}
 	casting := liuyao.Casting{
-		Mode:      string(output.Mode),
-		Order:     string(output.Order),
-		Yaos:      [6]int{},
-		DongYao:   make([]int, 0, len(output.DongYao)),
-		CastingID: string(output.CastingID),
+		Mode:          string(output.Mode),
+		Order:         string(output.Order),
+		Yaos:          [6]int{},
+		DongYao:       make([]int, 0, len(output.DongYao)),
+		CastingDigest: string(output.CastingDigest),
 	}
 	for i, value := range output.Yaos {
 		casting.Yaos[i] = int(value)
@@ -698,11 +738,11 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 
 func liuyaoCastingWire(casting liuyao.Casting) LiuyaoCastingOutput {
 	output := LiuyaoCastingOutput{
-		Mode:      LiuyaoCastMode(casting.Mode),
-		Order:     LiuyaoOrderName(casting.Order),
-		Yaos:      make(LiuyaoYaoValuesOutput, 0, len(casting.Yaos)),
-		DongYao:   make(LiuyaoPositions, 0, len(casting.DongYao)),
-		CastingID: LiuyaoCastingID(casting.CastingID),
+		Mode:          LiuyaoCastMode(casting.Mode),
+		Order:         LiuyaoOrderName(casting.Order),
+		Yaos:          make(LiuyaoYaoValuesOutput, 0, len(casting.Yaos)),
+		DongYao:       make(LiuyaoPositions, 0, len(casting.DongYao)),
+		CastingDigest: LiuyaoCastingDigest(casting.CastingDigest),
 	}
 	if casting.CoinConvention != nil {
 		output.CoinConvention = &LiuyaoCoinConventionOutput{

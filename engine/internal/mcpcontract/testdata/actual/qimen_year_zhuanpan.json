@@ -1,10 +1,12 @@
 {
   "input": {
-    "qi_ju_time": "2026-03-02T18:30:00+08:00",
-    "qi_ju_longitude": 123.25,
     "method": {
       "school": "zhuanpan",
       "scope": "year"
+    },
+    "qi_ju": {
+      "time": "2026-03-02T18:30:00+08:00",
+      "longitude": 123.25
     }
   },
   "output": {

@@ -54,8 +54,10 @@ def qimen_chart(
     if not qi_ju_time:
         raise ValueError("qi_ju_time is required")
     params: dict[str, Any] = {
-        "qi_ju_time": qi_ju_time,
-        "qi_ju_longitude": qi_ju_longitude,
+        "qi_ju": {
+            "time": qi_ju_time,
+            "longitude": qi_ju_longitude,
+        },
         "method": method,
     }
     if subject is not None:

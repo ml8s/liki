@@ -95,16 +95,51 @@ func TestTimeInputsCanonical(t *testing.T) {
 			}
 
 			for schemaIndex, schema := range schemas {
-				timeField := map[string]string{
-					"liuyao_chart": "qi_gua_time", "qimen_chart": "qi_ju_time",
-					"huangli_days": "start_date", "bazhai_chart": "subject",
-					"xuankong_chart": "zhaiyun_start_time", "xuankong_liunian": "liu_nian_start_time",
+				timeObject := map[string]string{
+					"liuyao_chart": "qi_gua", "qimen_chart": "qi_ju",
+					"xuankong_chart": "zhai",
 				}[name]
-				if _, ok := schema.Properties[timeField]; !ok {
-					t.Fatalf("schema[%d]: missing %s", schemaIndex, timeField)
-				}
-				if !containsString(schema.Required, timeField) {
-					t.Fatalf("schema[%d]: %s must be required", schemaIndex, timeField)
+				if timeObject != "" {
+					object, ok := schema.Properties[timeObject]
+					if !ok {
+						t.Fatalf("schema[%d]: missing %s", schemaIndex, timeObject)
+					}
+					if !containsString(schema.Required, timeObject) {
+						t.Fatalf("schema[%d]: %s must be required", schemaIndex, timeObject)
+					}
+					var nested struct {
+						Required   []string `json:"required"`
+						Properties map[string]struct {
+							Type json.RawMessage `json:"type"`
+						} `json:"properties"`
+					}
+					if err := json.Unmarshal(object, &nested); err != nil {
+						t.Fatalf("decode %s: %v", timeObject, err)
+					}
+					fields := []string{"time", "longitude"}
+					if timeObject == "zhai" {
+						fields = []string{"yun_start_time", "zuo_shan", "xiang_shan"}
+					}
+					for _, field := range fields {
+						if _, ok := nested.Properties[field]; !ok {
+							t.Fatalf("%s missing %s", timeObject, field)
+						}
+						if !containsString(nested.Required, field) {
+							t.Fatalf("%s.%s must be required", timeObject, field)
+						}
+					}
+				} else {
+					timeField := map[string]string{
+						"huangli_days":     "start_date",
+						"bazhai_chart":     "subject",
+						"xuankong_liunian": "liu_nian_start_time",
+					}[name]
+					if _, ok := schema.Properties[timeField]; !ok {
+						t.Fatalf("schema[%d]: missing %s", schemaIndex, timeField)
+					}
+					if !containsString(schema.Required, timeField) {
+						t.Fatalf("schema[%d]: %s must be required", schemaIndex, timeField)
+					}
 				}
 				for _, forbidden := range []string{
 					"instant", "civil_time", "fold", "standard_time",

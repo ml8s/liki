@@ -14,7 +14,7 @@ def qigua(
     """调用 engine 的 liuyao.qigua；本函数不换算硬币、不判断动爻。"""
     if mode not in {"auto", "coins", "yaos"}:
         raise ValueError("mode must be auto, coins, or yaos")
-    params: dict[str, Any] = {"mode": mode}
+    params: dict[str, Any] = {"casting": {"mode": mode}}
     if mode == "auto":
         if rounds is not None or yaos is not None:
             raise ValueError("auto mode does not accept rounds or yaos")
@@ -28,7 +28,7 @@ def qigua(
         for index, round_coins in enumerate(rounds, 1):
             if not isinstance(round_coins, list) or len(round_coins) != 3:
                 raise ValueError(f"round {index} must contain exactly 3 coins")
-        params["rounds"] = rounds
+        params["casting"]["rounds"] = rounds
     else:
         if yaos is None:
             raise ValueError("yaos mode requires yaos")
@@ -36,7 +36,7 @@ def qigua(
             raise ValueError("yaos mode accepts yaos only")
         if not isinstance(yaos, list) or len(yaos) != 6:
             raise ValueError("yaos must contain exactly 6 values")
-        params["yaos"] = yaos
+        params["casting"]["yaos"] = yaos
 
     result = engine_data("liuyao.qigua", params)
     casting = result.get("casting")

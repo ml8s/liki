@@ -28,8 +28,8 @@ func TestNewCoinsCasting_NormalizesAndAudits(t *testing.T) {
 	if len(got.Rounds) != 6 || got.Rounds[2].Label != "老阳" || !got.Rounds[2].Changing {
 		t.Fatalf("unexpected rounds: %+v", got.Rounds)
 	}
-	if got.CastingID == "" {
-		t.Fatal("CastingID is empty")
+	if got.CastingDigest == "" {
+		t.Fatal("CastingDigest is empty")
 	}
 	if err := got.Validate(); err != nil {
 		t.Fatalf("Validate() error = %v", err)
@@ -71,19 +71,19 @@ func TestNewValuesCasting_RejectsInvalidYao(t *testing.T) {
 	}
 }
 
-func TestCastingValidate_RejectsMissingOrTamperedCastingID(t *testing.T) {
+func TestCastingValidate_RejectsMissingOrTamperedCastingDigest(t *testing.T) {
 	got, err := NewValuesCasting([6]int{7, 7, 7, 7, 7, 7})
 	if err != nil {
 		t.Fatal(err)
 	}
-	castingID := got.CastingID
-	got.CastingID = ""
-	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "casting_id is required") {
-		t.Fatalf("missing casting_id error = %v", err)
+	castingDigest := got.CastingDigest
+	got.CastingDigest = ""
+	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "casting_digest is required") {
+		t.Fatalf("missing casting_digest error = %v", err)
 	}
-	got.CastingID = castingID + "00"
-	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "casting_id mismatch") {
-		t.Fatalf("tampered casting_id error = %v", err)
+	got.CastingDigest = castingDigest + "00"
+	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "casting_digest mismatch") {
+		t.Fatalf("tampered casting_digest error = %v", err)
 	}
 }
 

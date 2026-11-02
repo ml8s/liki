@@ -51,11 +51,13 @@ def factors(
     resolved_longitude = qi_gua_longitude
 
     params: dict[str, Any] = {
-        "qi_gua_time": qi_gua_time,
-        "qi_gua_longitude": resolved_longitude,
         "yong_shen": resolved_yong_shen,
     }
-    params["casting"] = casting
+    params["qi_gua"] = {
+        "time": qi_gua_time,
+        "longitude": resolved_longitude,
+        "casting": casting,
+    }
     raw = engine_data("liuyao.chart", params)
     question_fact = {
         "text": question or "",

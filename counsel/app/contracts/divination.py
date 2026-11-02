@@ -132,7 +132,7 @@ class LiuyaoSnapshotOutputCoinsCasting(BaseModel):
     rounds: list[LiuyaoSnapshotOutputCastingRoundsItem] = Field(description="六组铜钱记录。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
     dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
-    casting_id: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
+    casting_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
 
 
 class LiuyaoSnapshotOutputYaosCasting(BaseModel):
@@ -142,7 +142,7 @@ class LiuyaoSnapshotOutputYaosCasting(BaseModel):
     order: Literal["bottom_up"] = Field(description="爻序。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
     dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
-    casting_id: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
+    casting_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
 
 
 LiuyaoSnapshotOutputCasting = LiuyaoSnapshotOutputCoinsCasting | LiuyaoSnapshotOutputYaosCasting

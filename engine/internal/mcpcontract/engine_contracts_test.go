@@ -152,23 +152,16 @@ func TestLiuyaoQiguaSchemaUsesMutuallyExclusiveForms(t *testing.T) {
 	registry := testEngine()
 
 	var input struct {
-		AdditionalProperties *bool               `json:"additionalProperties"`
-		Properties           map[string]struct{} `json:"properties"`
+		AdditionalProperties *bool `json:"additionalProperties"`
 		OneOf                []struct {
-			Required             []string `json:"required"`
-			AdditionalProperties *bool    `json:"additionalProperties"`
-			Properties           map[string]struct {
-				Const string `json:"const"`
-				Enum  []any  `json:"enum"`
-			} `json:"properties"`
+			Required             []string                   `json:"required"`
+			AdditionalProperties *bool                      `json:"additionalProperties"`
+			Properties           map[string]json.RawMessage `json:"properties"`
 		} `json:"oneOf"`
 	}
 	decode(t, mustDefinition(t, registry, "liuyao_qigua").InputSchema, &input)
 	if input.AdditionalProperties != nil && *input.AdditionalProperties {
 		t.Fatalf("liuyao.qigua composition root must let closed branches own properties: %#v", input.AdditionalProperties)
-	}
-	if len(input.Properties) != 0 {
-		t.Fatalf("liuyao.qigua root must not add union fields: %#v", input.Properties)
 	}
 	if len(input.OneOf) != 3 {
 		t.Fatalf("liuyao.qigua forms = %d, want 3", len(input.OneOf))
@@ -181,33 +174,40 @@ func TestLiuyaoQiguaSchemaUsesMutuallyExclusiveForms(t *testing.T) {
 	}
 	seen := make(map[string]bool, len(input.OneOf))
 	for _, form := range input.OneOf {
-		mode := form.Properties["mode"].Const
-		if mode == "" || form.Properties["mode"].Enum != nil {
-			t.Fatalf("liuyao.qigua mode must be a branch constant: %#v", form.Properties["mode"])
+		rawCasting, ok := form.Properties["casting"]
+		if !ok {
+			t.Fatalf("liuyao.qigua form lacks casting: %#v", form.Properties)
+		}
+		var casting struct {
+			Required   []string `json:"required"`
+			Properties map[string]struct {
+				Const string `json:"const"`
+				Enum  []any  `json:"enum"`
+			} `json:"properties"`
+		}
+		decode(t, rawCasting, &casting)
+		mode := casting.Properties["mode"].Const
+		if mode == "" || casting.Properties["mode"].Enum != nil {
+			t.Fatalf("liuyao.qigua casting.mode must be a branch constant: %#v", casting.Properties["mode"])
 		}
 		if seen[mode] {
 			t.Fatalf("duplicate liuyao.qigua form: %s", mode)
 		}
 		seen[mode] = true
 		want := wantRequired[mode]
-		if len(form.Required) != len(want) {
-			t.Fatalf("%s required = %#v, want %#v", mode, form.Required, want)
+		if len(casting.Required) != len(want) {
+			t.Fatalf("%s casting required = %#v, want %#v", mode, casting.Required, want)
 		}
 		for _, field := range want {
-			if !slices.Contains(form.Required, field) {
-				t.Fatalf("%s required = %#v, want %s", mode, form.Required, field)
+			if !slices.Contains(casting.Required, field) {
+				t.Fatalf("%s casting required = %#v, want %s", mode, casting.Required, field)
 			}
 		}
-		if _, unexpected := form.Properties["rounds"]; mode != "coins" && unexpected {
-			t.Fatalf("%s form must not expose rounds", mode)
+		if _, unexpected := casting.Properties["rounds"]; mode != "coins" && unexpected {
+			t.Fatalf("%s casting must not expose rounds", mode)
 		}
-		if _, unexpected := form.Properties["yaos"]; mode != "yaos" && unexpected {
-			t.Fatalf("%s form must not expose yaos", mode)
-		}
-	}
-	for mode := range wantRequired {
-		if !seen[mode] {
-			t.Fatalf("liuyao.qigua is missing the %s form", mode)
+		if _, unexpected := casting.Properties["yaos"]; mode != "yaos" && unexpected {
+			t.Fatalf("%s casting must not expose yaos", mode)
 		}
 	}
 }
@@ -262,10 +262,11 @@ func TestQimenChartSchemaUsesMethodForms(t *testing.T) {
 		}
 	}
 	for _, branch := range []rootForm{standard, jinhan} {
-		qijuLongitude := branch.Properties["qi_ju_longitude"]
+		qiju := branch.Properties["qi_ju"]
+		qijuLongitude := qiju.Properties["longitude"]
 		if qijuLongitude.Minimum == nil || *qijuLongitude.Minimum != -180 ||
 			qijuLongitude.Maximum == nil || *qijuLongitude.Maximum != 180 {
-			t.Fatalf("qimen qi_ju_longitude bounds = %#v", qijuLongitude)
+			t.Fatalf("qimen qi_ju.longitude bounds = %#v", qijuLongitude)
 		}
 	}
 	if len(standard.Properties["method"].OneOf) != 9 {
@@ -513,9 +514,11 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	chartRaw, err := registry.Call(context.Background(), "xuankong_chart", mustJSON(t, XuankongChartInput{
-		ZhaiYunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
-		ZuoShan:          2,
-		XiangShan:        14,
+		Zhai: XuankongZhaiInput{
+			YunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
+			ZuoShan:      2,
+			XiangShan:    14,
+		},
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
@@ -527,12 +530,16 @@ func TestEngineContractCalls(t *testing.T) {
 	if err := json.Unmarshal(chartRaw, &chart); err != nil {
 		t.Fatal(err)
 	}
-	if chart.ChartDigest == "" || len(chart.GongWei) != 9 || chart.ZuoShanName == "" || chart.XiangShanName == "" {
+	if len(chart.GongWei) != 9 || chart.ZuoShanName == "" || chart.XiangShanName == "" {
 		t.Fatalf("incomplete xuankong chart: %#v", chart)
 	}
 
 	liunianRaw, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart:            &chart,
+		Zhai: XuankongZhaiInput{
+			YunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
+			ZuoShan:      2,
+			XiangShan:    14,
+		},
 		LiuNianStartTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
 	}))
 	if err != nil {
@@ -553,18 +560,11 @@ func TestEngineContractCalls(t *testing.T) {
 		t.Fatalf("incomplete xuankong overlay: %#v", liunianDocument)
 	}
 
-	tampered := chart
-	tampered.ZuoShanName = "壬"
-	if _, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart:            &tampered,
-		LiuNianStartTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
-	})); err == nil || !strings.Contains(err.Error(), "digest mismatch") {
-		t.Fatalf("expected digest mismatch, got %v", err)
-	}
-
 	qiguaRaw, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
-		Mode: "yaos",
-		Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
+		Casting: LiuyaoCastingRequestInput{
+			Mode: "yaos",
+			Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
+		},
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.qigua: %v", err)
@@ -577,7 +577,7 @@ func TestEngineContractCalls(t *testing.T) {
 		t.Fatal(err)
 	}
 	if qigua.Casting.Mode != "yaos" || len(qigua.Casting.Yaos) != 6 ||
-		len(qigua.Casting.DongYao) != 0 || qigua.Casting.CastingID == "" {
+		len(qigua.Casting.DongYao) != 0 || qigua.Casting.CastingDigest == "" {
 		t.Fatalf("incomplete liuyao casting: %#v", qigua.Casting)
 	}
 	if qigua.Casting.CoinConvention != nil || qigua.Casting.Rounds != nil {
@@ -585,15 +585,20 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	if _, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
-		Yaos: LiuyaoYaoValuesInput{7, 7, 7, 7, 7, 7},
+		Casting: LiuyaoCastingRequestInput{
+			Mode: "auto",
+			Yaos: LiuyaoYaoValuesInput{7, 7, 7, 7, 7, 7},
+		},
 	})); err == nil || !strings.Contains(err.Error(), "auto mode does not accept") {
 		t.Fatalf("expected auto-mode extra input rejection, got %v", err)
 	}
 
 	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		QiGuaTime:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-		QiGuaLongitude: 116.4,
-		Casting:        &qigua.Casting,
+		QiGua: LiuyaoQiGuaInput{
+			Time:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+			Longitude: 116.4,
+			Casting:   &qigua.Casting,
+		},
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.chart: %v", err)
@@ -606,17 +611,19 @@ func TestEngineContractCalls(t *testing.T) {
 		t.Fatal(err)
 	}
 	if liuyaoChart.Name == "" || len(liuyaoChart.Lines) != 6 || len(liuyaoChart.BianLines) != 6 ||
-		liuyaoChart.Casting.CastingID == "" || liuyaoChart.TombSchool.School == "" {
+		liuyaoChart.Casting.CastingDigest == "" || liuyaoChart.TombSchool.School == "" {
 		t.Fatalf("incomplete liuyao chart: %#v", liuyaoChart)
 	}
 
 	tamperedQigua := qigua
 	tamperedQigua.Casting.Yaos[0] = 8
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		QiGuaTime:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-		QiGuaLongitude: 116.4,
-		Casting:        &tamperedQigua.Casting,
-	})); err == nil || (!strings.Contains(err.Error(), "casting_id mismatch") &&
+		QiGua: LiuyaoQiGuaInput{
+			Time:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+			Longitude: 116.4,
+			Casting:   &tamperedQigua.Casting,
+		},
+	})); err == nil || (!strings.Contains(err.Error(), "casting_digest mismatch") &&
 		!strings.Contains(err.Error(), "dong_yao mismatch")) {
 		t.Fatalf("expected tampered casting rejection, got %v", err)
 	}

@@ -330,10 +330,10 @@ func TestSeriesBatchOutputContractForEveryCountTool(t *testing.T) {
 		"birth_longitude": 116.4,
 		"gender":          "male",
 	}
-	xuankongChart := callSeries(t, reg, "xuankong_chart", map[string]any{
-		"zhaiyun_start_time": "2026-07-31T12:00:00+08:00",
-		"zuo_shan":           2, "xiang_shan": 14,
-	})
+	xuankongZhai := map[string]any{
+		"yun_start_time": "2026-07-31T12:00:00+08:00",
+		"zuo_shan":       2, "xiang_shan": 14,
+	}
 	ziweiDate := civilDateForLunar(t, 2026, 5, 10, false)
 	ziweiCivilTime := ziweiDate + "T11:00:00+08:00"
 
@@ -349,7 +349,7 @@ func TestSeriesBatchOutputContractForEveryCountTool(t *testing.T) {
 		{"ziwei_liuyue", map[string]any{"subject": ziweiChart, "liu_yue_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "liu_yue_count": 2}},
 		{"ziwei_liuri", map[string]any{"subject": ziweiChart, "liu_ri_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "liu_ri_count": 2}},
 		{"ziwei_liushi", map[string]any{"subject": ziweiChart, "liu_shi_start_time": ziweiCivilTime, "liu_shi_longitude": 116.4, "liu_shi_count": 2}},
-		{"xuankong_liunian", map[string]any{"chart": xuankongChart, "liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 2}},
+		{"xuankong_liunian", map[string]any{"zhai": xuankongZhai, "liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 2}},
 	}
 
 	for _, tc := range cases {

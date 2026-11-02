@@ -93,7 +93,6 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 			"收山、拨水入零堂俱未得，宜择时改向并验实际砂水",
 		},
 	},
-	reflect.TypeFor[ChartDigest](): {Type: "string", Pattern: "^[a-f0-9]{64}$"},
 	reflect.TypeFor[YinYangName](): {Type: "string", Enum: []any{"阳", "阴"}},
 	reflect.TypeFor[DirectionName](): {
 		Type: "string", Enum: []any{"北", "东北", "东", "东南", "南", "西南", "西", "西北"},
@@ -139,7 +138,7 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 	reflect.TypeFor[LiuyaoYaoLabel](): {
 		Type: "string", Enum: []any{"老阴", "少阳", "少阴", "老阳"},
 	},
-	reflect.TypeFor[LiuyaoCastingID](): {Type: "string", Pattern: "^[a-f0-9]{64}$"},
+	reflect.TypeFor[LiuyaoCastingDigest](): {Type: "string", Pattern: "^[a-f0-9]{64}$"},
 	reflect.TypeFor[LiuyaoGanName](): {
 		Type: "string", Enum: []any{"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"},
 	},

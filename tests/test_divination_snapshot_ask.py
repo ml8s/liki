@@ -27,7 +27,7 @@ def _coin_casting():
     return {
         "mode": "coins",
         "order": "bottom_up",
-        "casting_id": "a" * 64,
+        "casting_digest": "a" * 64,
         "rounds": [
             {
                 "position": index,
@@ -242,7 +242,7 @@ def test_liuyao_snapshot_matches_contract(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {
         "mode": "coins",
         "order": "bottom_up",
-        "casting_id": "a" * 64,
+        "casting_digest": "a" * 64,
         "rounds": [
             {"position": i, "coins": ["正", "正", "反"], "yao_value": 8, "yao_label": "少阴", "is_dong_yao": False}
             for i in range(1, 7)

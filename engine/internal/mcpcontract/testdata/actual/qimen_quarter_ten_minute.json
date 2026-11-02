@@ -1,11 +1,13 @@
 {
   "input": {
-    "qi_ju_time": "2026-09-07T00:00:00+08:00",
-    "qi_ju_longitude": 119.75,
     "method": {
       "quarter_rule": "ten_minute_sanyuan",
       "school": "zhuanpan",
       "scope": "quarter"
+    },
+    "qi_ju": {
+      "time": "2026-09-07T00:00:00+08:00",
+      "longitude": 119.75
     }
   },
   "output": {

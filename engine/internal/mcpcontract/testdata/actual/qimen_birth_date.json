@@ -1,7 +1,5 @@
 {
   "input": {
-    "qi_ju_time": "2026-03-02T18:30:00+08:00",
-    "qi_ju_longitude": 123.25,
     "method": {
       "scope": "hour",
       "school": "zhuanpan",
@@ -11,6 +9,10 @@
       "birth_time": "1990-01-01T00:00:00+08:00",
       "birth_longitude": 116.4,
       "gender": "male"
+    },
+    "qi_ju": {
+      "time": "2026-03-02T18:30:00+08:00",
+      "longitude": 123.25
     }
   },
   "output": {
@@ -1039,7 +1041,7 @@
     },
     "yong_shen": {
       "nian_gan_gong": "巽",
-      "nian_gan_palace_facts": [
+      "nian_gan_gong_facts": [
         {
           "layer": "heaven",
           "gong": "巽"

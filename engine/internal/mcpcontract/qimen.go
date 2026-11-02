@@ -18,12 +18,12 @@ type QimenYongShenSymbols []string
 
 // QimenChart computes a qimen chart for an explicitly selected method.
 func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, error) {
-	at, _, err := parseStandardTime(input.QiJuTime)
+	at, _, err := parseStandardTime(input.QiJu.Time)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
-	if input.QiJuLongitude < -180 || input.QiJuLongitude > 180 {
-		return nil, fmt.Errorf("qimen.chart: qi_ju_longitude must be within [-180,180], got %v", input.QiJuLongitude)
+	if input.QiJu.Longitude < -180 || input.QiJu.Longitude > 180 {
+		return nil, fmt.Errorf("qimen.chart: qi_ju.longitude must be within [-180,180], got %v", input.QiJu.Longitude)
 	}
 	methodInput := input.Method
 	method, err := qimen.ResolveMethodWithOptions(
@@ -38,7 +38,7 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 		if len(input.YongShen) > 0 || input.Subject != nil {
 			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or subject")
 		}
-		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, input.QiJuLongitude))
+		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, input.QiJu.Longitude))
 	}
 	var birthDate qimen.BirthDate
 	if input.Subject != nil {
@@ -57,13 +57,13 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 			}
 			symbols = append(symbols, symbol)
 		}
-		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, input.QiJuLongitude, symbols, birthDate, method)
+		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, input.QiJu.Longitude, symbols, birthDate, method)
 		if err != nil {
 			return nil, fmt.Errorf("qimen.chart: %w", err)
 		}
 		return marshalRawOutput("qimen.chart", result)
 	}
-	result, err := qimen.ComputeChartWithMethodAt(at, input.QiJuLongitude, method)
+	result, err := qimen.ComputeChartWithMethodAt(at, input.QiJu.Longitude, method)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}

@@ -152,7 +152,7 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 			method["scope"], method["school"], method["dingju_method"])
 	}
 	assertToolError(t, registry, "qimen_chart", map[string]any{
-		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
+		"qi_ju": map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 	}, "method")
 
 	method = callQimenChart(t, registry, map[string]any{
@@ -434,7 +434,7 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 	assertQimenChartError(t, registry, map[string]any{
 		"qi_ju_time":      "2024-06-15T12:00:00+08:00",
 		"qi_ju_longitude": 500,
-	}, "qi_ju_longitude")
+	}, "qi_ju.longitude")
 }
 
 func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {

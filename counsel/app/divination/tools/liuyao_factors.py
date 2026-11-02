@@ -257,7 +257,7 @@ def casting_projection(casting: dict) -> dict:
         "order": casting.get("order", "bottom_up"),
         "yaos": casting.get("yaos", []),
         "dong_yao": casting.get("dong_yao", []),
-        "casting_id": casting.get("casting_id"),
+        "casting_digest": casting.get("casting_digest"),
     }
     if projected["mode"] == "coins":
         projected["rounds"] = casting.get("rounds", [])

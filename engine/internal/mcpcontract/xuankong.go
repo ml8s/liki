@@ -5,15 +5,20 @@ import (
 	"fmt"
 
 	"liki-engine/internal/engine/fengshui"
-	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 	"liki-engine/internal/engine/xuankong"
 )
 
+// XuankongZhaiInput is the property identity required to recompute a Xuankong
+// chart: the period-start moment and opposite sitting/facing mountains.
+type XuankongZhaiInput struct {
+	YunStartTime StandardTime  `json:"yun_start_time" jsonschema:"宅运起盘地标准日期时间（无 DST），RFC3339 带 offset。"`
+	ZuoShan      MountainIndex `json:"zuo_shan" jsonschema:"坐山，二十四山 index：0=子,1=癸,2=丑,3=艮,4=寅,5=甲,6=卯,7=乙,8=辰,9=巽,10=巳,11=丙,12=午,13=丁,14=未,15=坤,16=申,17=庚,18=酉,19=辛,20=戌,21=乾,22=亥,23=壬。"`
+	XiangShan    MountainIndex `json:"xiang_shan" jsonschema:"朝向；必须等于坐山后 12 山（180°相对）。"`
+}
+
 type XuankongChartInput struct {
-	ZhaiYunStartTime StandardTime  `json:"zhaiyun_start_time" jsonschema:"宅运起盘地标准日期时间（无 DST），RFC3339 带 offset。"`
-	ZuoShan          MountainIndex `json:"zuo_shan" jsonschema:"坐山，二十四山 index：0=子,1=癸,2=丑,3=艮,4=寅,5=甲,6=卯,7=乙,8=辰,9=巽,10=巳,11=丙,12=午,13=丁,14=未,15=坤,16=申,17=庚,18=酉,19=辛,20=戌,21=乾,22=亥,23=壬。"`
-	XiangShan        MountainIndex `json:"xiang_shan" jsonschema:"朝向；必须等于坐山后 12 山（180°相对）。"`
+	Zhai XuankongZhaiInput `json:"zhai" jsonschema:"玄空宅的事实。"`
 }
 
 type XuankongYunOutput struct {
@@ -63,8 +68,8 @@ type XuankongShouShanOutput struct {
 	Assessment XuankongAssessment `json:"assessment" jsonschema:"收山出煞理气评估。"`
 }
 
-// XuankongChart is both the chart tool's public output and the audited
-// optional input to liunian. Its digest makes a caller-modified chart fail.
+// XuankongChart is the chart tool's public output. It is not a reusable method
+// input; callers pass zhai again when another Xuankong fact is needed.
 type XuankongChart struct {
 	Yun            XuankongYunOutput           `json:"yun" jsonschema:"三元九运。"`
 	GongWei        [9]XuankongPalaceOutput     `json:"gong_wei" jsonschema:"九宫运星/山星/向星。"`
@@ -72,7 +77,6 @@ type XuankongChart struct {
 	FuYinLayers    []XuankongFuYinLayer        `json:"fu_yin_layers" jsonschema:"伏吟层。"`
 	FanYinLayers   []XuankongFanYinLayer       `json:"fan_yin_layers" jsonschema:"反吟层。"`
 	XingJiaHui     [9]XuankongXingJiaHuiOutput `json:"xing_jia_hui" jsonschema:"星加会。"`
-	ChartDigest    ChartDigest                 `json:"chart_digest" jsonschema:"canonical SHA-256 chart digest。"`
 	ZuoShan        MountainIndex               `json:"zuo_shan" jsonschema:"坐山(0-23)。"`
 	ZuoShanName    MountainName                `json:"zuo_shan_name" jsonschema:"坐山名。"`
 	XiangShan      MountainIndex               `json:"xiang_shan" jsonschema:"向山(0-23)。"`
@@ -81,9 +85,9 @@ type XuankongChart struct {
 }
 
 type XuankongLiunianInput struct {
-	Chart            *XuankongChart `json:"chart,omitempty" jsonschema:"可选 xuankong.chart 宅盘；传入时 digest 必须匹配。"`
-	LiuNianStartTime StandardTime   `json:"liu_nian_start_time" jsonschema:"流年选择地标准时间（无 DST），RFC3339 带 offset。"`
-	LiuNianCount     *SeriesCount   `json:"liu_nian_count,omitempty" jsonschema:"连续查询年数。"`
+	Zhai             XuankongZhaiInput `json:"zhai" jsonschema:"玄空宅的事实；流年与其宅盘叠加。"`
+	LiuNianStartTime StandardTime      `json:"liu_nian_start_time" jsonschema:"流年选择地标准时间（无 DST），RFC3339 带 offset。"`
+	LiuNianCount     *SeriesCount      `json:"liu_nian_count,omitempty" jsonschema:"连续查询年数。"`
 }
 
 type XuankongLiuNianJie struct {
@@ -112,43 +116,20 @@ type XuankongLiunianOutput struct {
 	Year         XuankongYear                 `json:"year" jsonschema:"立春年份。"`
 	RuZhong      FlyingStarName               `json:"ru_zhong" jsonschema:"入中紫白星。"`
 	GongWei      [9]XuankongAnnualStarOutput  `json:"gong_wei" jsonschema:"九宫流年紫白星。"`
-	HouseOverlay []XuankongHouseOverlayOutput `json:"house_overlay,omitempty" jsonschema:"传入宅盘时，全部流年星落宫对照宅盘该宫三星；不预设星曜固有吉凶。"`
+	HouseOverlay []XuankongHouseOverlayOutput `json:"house_overlay,omitempty" jsonschema:"全部流年星落宫对照宅盘该宫三星；不预设星曜固有吉凶。"`
 	NianJie      XuankongLiuNianJie           `json:"nian_jie" jsonschema:"玄空流年立春年界。"`
 }
 
 func XuankongChartCompute(_ context.Context, input XuankongChartInput) (XuankongChart, error) {
-	at, _, err := parseStandardTime(input.ZhaiYunStartTime)
-	if err != nil {
-		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
-	}
-	if at.UTC().Year() < 1864 || at.UTC().Year() > 2200 {
-		return XuankongChart{}, fmt.Errorf("xuankong.chart: year %d out of range (1864-2200)", at.UTC().Year())
-	}
-	if (int(input.ZuoShan)+12)%24 != int(input.XiangShan) {
-		return XuankongChart{}, fmt.Errorf(
-			"xuankong.chart: xiang_shan must be opposite zuo_shan by 12 mountains, got %d/%d",
-			input.ZuoShan, input.XiangShan,
-		)
-	}
-	chart, err := xuankong.ComputeChartAtStandard(at, int(input.ZuoShan), int(input.XiangShan))
+	chart, err := xuankongComputeChart(input.Zhai)
 	if err != nil {
 		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
 	}
 	output := xuankongChartWire(chart)
-	digest, err := chartDigest(output)
-	if err != nil {
-		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
-	}
-	output.ChartDigest = ChartDigest(digest)
 	return output, nil
 }
 
 func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (XuankongLiuNianSeries, error) {
-	if input.Chart != nil {
-		if _, err := sourceChartDigest(*input.Chart); err != nil {
-			return XuankongLiuNianSeries{}, fmt.Errorf("xuankong.liunian: %w", err)
-		}
-	}
 	items, err := runSeries(input, seriesCountValue(input.LiuNianCount), MaxSeriesCount,
 		func(in XuankongLiunianInput) (XuankongLiunianOutput, error) {
 			return computeXuankongLiunian(in)
@@ -181,15 +162,11 @@ func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, 
 	if err != nil {
 		return XuankongLiunianOutput{}, fmt.Errorf("xuankong.liunian: %w", err)
 	}
-	var chart *xuankong.Chart
-	if input.Chart != nil {
-		domainChart, err := xuankongChartDomain(*input.Chart)
-		if err != nil {
-			return XuankongLiunianOutput{}, err
-		}
-		chart = &domainChart
+	chart, err := xuankongComputeChart(input.Zhai)
+	if err != nil {
+		return XuankongLiunianOutput{}, fmt.Errorf("xuankong.liunian: %w", err)
 	}
-	result := xuankong.ComputeLiuNian(ly.Year, chart)
+	result := xuankong.ComputeLiuNian(ly.Year, &chart)
 	output := xuankongLiunianWire(result)
 	startDate := tianwen.StandardDateAt(ly.Start, loc)
 	output.NianJie = XuankongLiuNianJie{
@@ -200,6 +177,23 @@ func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, 
 		BoundaryDay:      tianwen.StandardDateAt(at, loc) == startDate,
 	}
 	return output, nil
+}
+
+func xuankongComputeChart(input XuankongZhaiInput) (xuankong.Chart, error) {
+	at, _, err := parseStandardTime(input.YunStartTime)
+	if err != nil {
+		return xuankong.Chart{}, err
+	}
+	if at.UTC().Year() < 1864 || at.UTC().Year() > 2200 {
+		return xuankong.Chart{}, fmt.Errorf("year %d out of range (1864-2200)", at.UTC().Year())
+	}
+	if (int(input.ZuoShan)+12)%24 != int(input.XiangShan) {
+		return xuankong.Chart{}, fmt.Errorf(
+			"xiang_shan must be opposite zuo_shan by 12 mountains, got %d/%d",
+			input.ZuoShan, input.XiangShan,
+		)
+	}
+	return xuankong.ComputeChartAtStandard(at, int(input.ZuoShan), int(input.XiangShan))
 }
 
 func xuankongStarWire(star fengshui.FlyingStar) XuankongStarOutput {
@@ -264,81 +258,6 @@ func xuankongChartWire(chart xuankong.Chart) XuankongChart {
 		output.FanYinLayers = append(output.FanYinLayers, XuankongFanYinLayer(layer))
 	}
 	return output
-}
-
-func xuankongChartDomain(input XuankongChart) (xuankong.Chart, error) {
-	var chart xuankong.Chart
-	chart.Yun = xuankong.SanYuanYun{
-		Year:         int(input.Yun.Year),
-		Yuan:         string(input.Yun.Yuan),
-		YunNumber:    int(input.Yun.YunNumber),
-		YunName:      string(input.Yun.YunName),
-		StartYear:    input.Yun.StartYear,
-		EndYear:      input.Yun.EndYear,
-		YearBoundary: string(input.Yun.YearBoundary),
-	}
-	for i, palace := range input.GongWei {
-		yunXing, err := xuankongStarDomain(palace.YunXing)
-		if err != nil {
-			return xuankong.Chart{}, fmt.Errorf("xuankong.liunian: palace %d yun_xing: %w", palace.GongNum, err)
-		}
-		shanXing, err := xuankongStarDomain(palace.ShanXing)
-		if err != nil {
-			return xuankong.Chart{}, fmt.Errorf("xuankong.liunian: palace %d shan_xing: %w", palace.GongNum, err)
-		}
-		xiangXing, err := xuankongStarDomain(palace.XiangXing)
-		if err != nil {
-			return xuankong.Chart{}, fmt.Errorf("xuankong.liunian: palace %d xiang_xing: %w", palace.GongNum, err)
-		}
-		chart.Palaces[i].PalaceNum = int(palace.GongNum)
-		chart.Palaces[i].PeriodStar = yunXing
-		chart.Palaces[i].MountainStar = shanXing
-		chart.Palaces[i].FacingStar = xiangXing
-	}
-	chart.FourSituation = xuankong.FourSituation{
-		Name:               string(input.FourSituation.Name),
-		SitMountainTimely:  input.FourSituation.SitMountainTimely,
-		FaceFacingTimely:   input.FourSituation.FaceFacingTimely,
-		SitFacingTimely:    input.FourSituation.SitFacingTimely,
-		FaceMountainTimely: input.FourSituation.FaceMountainTimely,
-	}
-	chart.FuYinLayers = []string{}
-	chart.FanYinLayers = []string{}
-	for _, layer := range input.FuYinLayers {
-		chart.FuYinLayers = append(chart.FuYinLayers, string(layer))
-	}
-	for _, layer := range input.FanYinLayers {
-		chart.FanYinLayers = append(chart.FanYinLayers, string(layer))
-	}
-	for i, item := range input.XingJiaHui {
-		chart.XingJiaHui[i].ShanNum = int(item.ShanNum)
-		chart.XingJiaHui[i].XiangNum = int(item.XiangNum)
-		chart.XingJiaHui[i].Name = item.Name
-		chart.XingJiaHui[i].Meaning = item.Meaning
-	}
-	chart.SitMountain = int(input.ZuoShan)
-	chart.ZuoShanName = string(input.ZuoShanName)
-	chart.FaceMountain = int(input.XiangShan)
-	chart.XiangShanName = string(input.XiangShanName)
-	chart.ShouShanChuSha.ZhengShen = int(input.ShouShanChuSha.ZhengShen)
-	chart.ShouShanChuSha.LingShen = int(input.ShouShanChuSha.LingShen)
-	chart.ShouShanChuSha.ShouShanOK = input.ShouShanChuSha.ShouShan
-	chart.ShouShanChuSha.ChuShaOK = input.ShouShanChuSha.ChuSha
-	chart.ShouShanChuSha.Assessment = string(input.ShouShanChuSha.Assessment)
-	return chart, nil
-}
-
-func xuankongStarDomain(star XuankongStarOutput) (fengshui.FlyingStar, error) {
-	element, err := ganzhi.ParseWuxing(string(star.Wuxing))
-	if err != nil {
-		return fengshui.FlyingStar{}, err
-	}
-	return fengshui.FlyingStar{
-		Number:  int(star.Number),
-		Color:   string(star.Color),
-		Name:    string(star.Name),
-		Element: element,
-	}, nil
 }
 
 func xuankongLiunianWire(result xuankong.LiuNianResult) XuankongLiunianOutput {

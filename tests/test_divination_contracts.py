@@ -160,7 +160,7 @@ def test_liuyao_snapshot_contract_rejects_invalid_yao_values():
     contract = divination_contracts.load_contract("liuyao_snapshot")
     with pytest.raises(ValidationError):
         validate(
-            {"mode": "yaos", "order": "bottom_up", "casting_id": "a" * 64, "yaos": [1] * 6, "dong_yao": []},
+            {"mode": "yaos", "order": "bottom_up", "casting_digest": "a" * 64, "yaos": [1] * 6, "dong_yao": []},
             contract["properties"]["casting"],
         )
 
@@ -173,7 +173,7 @@ def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
     validate({
         "mode": "coins",
         "order": "bottom_up",
-        "casting_id": "a" * 64,
+        "casting_digest": "a" * 64,
         "rounds": [
             {
                 "position": index,
@@ -190,7 +190,7 @@ def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
     validate({
         "mode": "yaos",
         "order": "bottom_up",
-        "casting_id": "b" * 64,
+        "casting_digest": "b" * 64,
         "yaos": [7] * 6,
         "dong_yao": [],
     }, casting)
@@ -199,7 +199,7 @@ def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
         validate({
             "mode": "yaos",
             "order": "bottom_up",
-            "casting_id": "c" * 64,
+            "casting_digest": "c" * 64,
             "rounds": [
                 {
                     "position": 1,

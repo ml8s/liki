@@ -23,7 +23,6 @@ type (
 	XuankongFuYinLayer    string
 	XuankongFanYinLayer   string
 	XuankongAssessment    string
-	ChartDigest           string
 	ElementName           string
 	YinYangName           string
 	DirectionName         string
@@ -45,7 +44,7 @@ type (
 	LiuyaoYaoValue         int
 	LiuyaoPosition         int
 	LiuyaoYaoLabel         string
-	LiuyaoCastingID        string
+	LiuyaoCastingDigest    string
 	LiuyaoOptionalPosition int
 	LiuyaoDongRelationType string
 	LiuyaoHexagramName     string

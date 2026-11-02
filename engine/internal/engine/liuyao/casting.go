@@ -28,7 +28,7 @@ type Casting struct {
 	Rounds         []CoinRound    `json:"rounds,omitempty"`
 	Yaos           [6]int         `json:"yaos"`
 	DongYao        []int          `json:"dong_yao"`
-	CastingID      string         `json:"casting_id"`
+	CastingDigest  string         `json:"casting_digest"`
 }
 
 const (
@@ -99,7 +99,7 @@ func NewCoinsCasting(rounds [][]string) (Casting, error) {
 	}
 	receipt.Yaos = yaosToInts(values)
 	receipt.DongYao = dongYao(values)
-	receipt.CastingID = castingID(receipt)
+	receipt.CastingDigest = castingDigest(receipt)
 	return receipt, nil
 }
 
@@ -115,15 +115,15 @@ func NewValuesCasting(values [6]int) (Casting, error) {
 		Yaos:    values,
 		DongYao: dongYao(yts),
 	}
-	receipt.CastingID = castingID(receipt)
+	receipt.CastingDigest = castingDigest(receipt)
 	return receipt, nil
 }
 
 // Validate ensures a decoded casting can be bound to one and only one set of
 // six lines. It recomputes moving lines and never trusts the caller's array.
 func (c Casting) Validate() error {
-	if c.CastingID == "" {
-		return fmt.Errorf("casting_id is required")
+	if c.CastingDigest == "" {
+		return fmt.Errorf("casting_digest is required")
 	}
 	if c.Mode != "coins" && c.Mode != "yaos" {
 		return fmt.Errorf("unsupported casting mode %q", c.Mode)
@@ -180,8 +180,8 @@ func (c Casting) Validate() error {
 			return fmt.Errorf("yaos casting must not contain coin rounds")
 		}
 	}
-	if c.CastingID != castingID(c) {
-		return fmt.Errorf("casting_id mismatch")
+	if c.CastingDigest != castingDigest(c) {
+		return fmt.Errorf("casting_digest mismatch")
 	}
 	return nil
 }
@@ -235,9 +235,9 @@ func SecureQigua() (Casting, error) {
 	return NewCoinsCasting(rounds)
 }
 
-// castingID is the stable domain identity of one normalized cast. It excludes
-// the derived casting_id itself and engineering telemetry.
-func castingID(c Casting) string {
+// castingDigest is the stable domain identity of one normalized cast. It excludes
+// the derived casting_digest itself and engineering telemetry.
+func castingDigest(c Casting) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "%s\x1f%s", c.Mode, c.Order)
 	if len(c.Rounds) != 0 {

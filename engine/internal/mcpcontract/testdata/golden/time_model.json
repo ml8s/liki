@@ -24,9 +24,11 @@
       "name": "xuankong_2024_before_lichun",
       "tool": "xuankong_chart",
       "input": {
-        "zuo_shan": 2,
-        "xiang_shan": 14,
-        "zhaiyun_start_time": "2024-02-04T12:00:00+08:00"
+        "zhai": {
+          "yun_start_time": "2024-02-04T12:00:00+08:00",
+          "zuo_shan": 2,
+          "xiang_shan": 14
+        }
       },
       "expect": {
         "yun.year": 2023,
@@ -38,9 +40,11 @@
       "name": "xuankong_2024_after_lichun",
       "tool": "xuankong_chart",
       "input": {
-        "zuo_shan": 2,
-        "xiang_shan": 14,
-        "zhaiyun_start_time": "2024-02-04T18:00:00+08:00"
+        "zhai": {
+          "yun_start_time": "2024-02-04T18:00:00+08:00",
+          "zuo_shan": 2,
+          "xiang_shan": 14
+        }
       },
       "expect": {
         "yun.year": 2024,
@@ -297,7 +301,12 @@
       "tool": "xuankong_liunian",
       "input": {
         "liu_nian_start_time": "2024-02-03T21:27:07-11:00",
-        "liu_nian_count": 1
+        "liu_nian_count": 1,
+        "zhai": {
+          "yun_start_time": "2023-02-04T10:00:00-11:00",
+          "zuo_shan": 2,
+          "xiang_shan": 14
+        }
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2024,

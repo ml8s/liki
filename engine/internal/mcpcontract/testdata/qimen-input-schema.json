@@ -271,16 +271,26 @@
           ],
           "type": "object"
         },
-        "qi_ju_longitude": {
-          "description": "起局地经度。",
-          "maximum": 180,
-          "minimum": -180,
-          "type": "number"
-        },
-        "qi_ju_time": {
-          "description": "起局地标准时间。",
-          "format": "date-time",
-          "type": "string"
+        "qi_ju": {
+          "additionalProperties": false,
+          "properties": {
+            "longitude": {
+              "description": "起局地经度（-180..180）；真太阳时校正用于时柱与分钟分法。",
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            },
+            "time": {
+              "description": "起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "time",
+            "longitude"
+          ],
+          "type": "object"
         },
         "subject": {
           "additionalProperties": false,
@@ -325,8 +335,7 @@
         }
       },
       "required": [
-        "qi_ju_time",
-        "qi_ju_longitude",
+        "qi_ju",
         "method"
       ],
       "type": "object"
@@ -354,21 +363,30 @@
           ],
           "type": "object"
         },
-        "qi_ju_longitude": {
-          "description": "起局地经度。",
-          "maximum": 180,
-          "minimum": -180,
-          "type": "number"
-        },
-        "qi_ju_time": {
-          "description": "起局地标准时间。",
-          "format": "date-time",
-          "type": "string"
+        "qi_ju": {
+          "additionalProperties": false,
+          "properties": {
+            "longitude": {
+              "description": "起局地经度（-180..180）；真太阳时校正用于时柱与分钟分法。",
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            },
+            "time": {
+              "description": "起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "time",
+            "longitude"
+          ],
+          "type": "object"
         }
       },
       "required": [
-        "qi_ju_time",
-        "qi_ju_longitude",
+        "qi_ju",
         "method"
       ],
       "type": "object"

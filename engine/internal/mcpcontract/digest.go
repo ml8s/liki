@@ -2,8 +2,6 @@ package mcpcontract
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -99,61 +97,4 @@ func encodeCanonicalJSON(out *bytes.Buffer, value any) error {
 		return fmt.Errorf("unsupported canonical JSON value %T", value)
 	}
 	return nil
-}
-
-// digestExcluding hashes an object-valued artifact after removing metadata
-// fields such as the digest itself.
-func digestExcluding(value any, excluded ...string) (string, error) {
-	raw, err := marshalCompactJSON(value)
-	if err != nil {
-		return "", fmt.Errorf("marshal artifact: %w", err)
-	}
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.UseNumber()
-	var item map[string]any
-	if err := decoder.Decode(&item); err != nil {
-		return "", fmt.Errorf("decode artifact object: %w", err)
-	}
-	for _, field := range excluded {
-		delete(item, field)
-	}
-	canonical, err := canonicalJSON(item)
-	if err != nil {
-		return "", fmt.Errorf("canonical json: %w", err)
-	}
-	sum := sha256.Sum256(canonical)
-	return hex.EncodeToString(sum[:]), nil
-}
-
-// chartDigest computes the canonical digest of a chart while excluding its own
-// chart_digest metadata field.
-func chartDigest(chart any) (string, error) {
-	return digestExcluding(chart, "chart_digest")
-}
-
-// sourceChartDigest verifies the digest carried by a reusable source chart and
-// returns its canonical value.
-func sourceChartDigest(chart any) (string, error) {
-	raw, err := marshalCompactJSON(chart)
-	if err != nil {
-		return "", fmt.Errorf("marshal source chart: %w", err)
-	}
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.UseNumber()
-	var item map[string]any
-	if err := decoder.Decode(&item); err != nil {
-		return "", fmt.Errorf("decode source chart: %w", err)
-	}
-	provided, _ := item["chart_digest"].(string)
-	expected, err := chartDigest(item)
-	if err != nil {
-		return "", err
-	}
-	if provided == "" {
-		return "", fmt.Errorf("source chart has no chart_digest")
-	}
-	if provided != expected {
-		return "", fmt.Errorf("chart_digest mismatch: got %s, want %s", provided, expected)
-	}
-	return provided, nil
 }

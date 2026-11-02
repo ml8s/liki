@@ -44,20 +44,20 @@ func TestMigratedInputValidation(t *testing.T) {
 		{"bazi.liushi invalid longitude", "bazi_liushi", map[string]any{
 			"liu_shi_start_time": "2026-06-15T12:00:00+08:00", "liu_shi_longitude": 999, "subject": subject}, ""},
 		{"qimen.chart bad scope", "qimen_chart", map[string]any{
-			"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
+			"qi_ju":  map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 			"method": map[string]any{"scope": "ke", "school": "zhuanpan", "dingju_method": "chaibu"},
 		}, ""},
 		{"qimen.chart unknown yong_shen", "qimen_chart", map[string]any{
-			"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
+			"qi_ju":     map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 			"method":    map[string]any{"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
 			"yong_shen": []string{"不存在的符号"}}, ""},
 		{"qimen.chart unknown field", "qimen_chart", map[string]any{
-			"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
+			"qi_ju":      map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 			"method":     map[string]any{"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
 			"birth_year": 1984,
 		}, ""},
 		{"qimen.chart invalid utc", "qimen_chart", map[string]any{
-			"qi_ju_time": "not-a-time", "method": map[string]any{
+			"qi_ju": map[string]any{"time": "not-a-time"}, "method": map[string]any{
 				"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
 			},
 		}, ""},
