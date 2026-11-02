@@ -3,13 +3,15 @@
     "a": {
       "subject": {
         "birth_time": "2000-06-15T12:00:00+08:00",
-        "birth_longitude": 120.25
+        "birth_longitude": 120.25,
+        "gender": "male"
       }
     },
     "b": {
       "subject": {
         "birth_time": "2000-09-20T08:30:00+08:00",
-        "birth_longitude": 118.5
+        "birth_longitude": 118.5,
+        "gender": "female"
       }
     }
   },

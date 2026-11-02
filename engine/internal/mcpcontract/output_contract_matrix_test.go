@@ -79,15 +79,7 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 		if err := json.Unmarshal(raw, &fixture); err != nil {
 			t.Fatalf("%s: %v", entry.Name(), err)
 		}
-		var oldInput map[string]any
-		if err := json.Unmarshal(fixture.Input, &oldInput); err != nil {
-			t.Fatalf("%s: decode input: %v", entry.Name(), err)
-		}
-		input, err := json.Marshal(subjectFixtureInput(entry.Name(), name, oldInput))
-		if err != nil {
-			t.Fatal(err)
-		}
-		call(name, json.RawMessage(input))
+		call(name, fixture.Input)
 	}
 
 	for _, name := range registry.Names() {
