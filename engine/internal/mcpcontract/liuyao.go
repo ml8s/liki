@@ -191,7 +191,7 @@ type LiuyaoYongShenOutput struct {
 	Name             LiuyaoYongShenName     `json:"name" jsonschema:"用神类别：六亲或世爻/应爻。"`
 	Position         LiuyaoOptionalPosition `json:"position" jsonschema:"用神爻位；0 表示本卦不现。"`
 	IsHidden         bool                   `json:"is_hidden,omitempty" jsonschema:"本卦不现时是否取伏神。"`
-	WangShuai        LiuyaoWangShuai        `json:"wang_shuai" jsonschema:"用神旺衰。"`
+	WangShuai        WangShuaiName          `json:"wang_shuai" jsonschema:"用神旺衰。"`
 	YuePo            bool                   `json:"yue_po,omitempty" jsonschema:"用神是否月破。"`
 	XunKong          bool                   `json:"xun_kong,omitempty" jsonschema:"用神是否旬空。"`
 	MuKu             bool                   `json:"mu_ku,omitempty" jsonschema:"用神是否入墓。"`
@@ -323,7 +323,7 @@ type LiuyaoCandidateOutput struct {
 	Branch    ZhiName                `json:"branch" jsonschema:"候选地支。"`
 	IsHidden  bool                   `json:"is_hidden" jsonschema:"是否伏神候选。"`
 	Selected  bool                   `json:"selected" jsonschema:"是否当前确定性选用。"`
-	WangShuai LiuyaoWangShuai        `json:"wang_shuai,omitempty" jsonschema:"候选旺衰。"`
+	WangShuai WangShuaiName          `json:"wang_shuai,omitempty" jsonschema:"候选旺衰。"`
 	Reason    string                 `json:"reason" jsonschema:"选择或列出原因。"`
 	Basis     []string               `json:"basis,omitempty" jsonschema:"选择依据。"`
 }
@@ -347,7 +347,7 @@ type LiuyaoChartOutput struct {
 	YueGan                GanName                            `json:"yue_jian_gan" jsonschema:"月建天干。"`
 	YongShen              LiuyaoYongShenOutput               `json:"yong_shen" jsonschema:"用神分析。"`
 	GuaCi                 LiuyaoGuaCiOutput                  `json:"gua_ci" jsonschema:"周易卦爻辞。"`
-	WangShuai             [6]LiuyaoWangShuai                 `json:"wang_shuai" jsonschema:"六爻旺衰。"`
+	WangShuai             [6]WangShuaiName                   `json:"wang_shuai" jsonschema:"六爻旺衰。"`
 	DayRelations          [6]LiuyaoDayRelationOutput         `json:"ri_chen_relations" jsonschema:"日建与六爻关系。"`
 	XunKong               [2]ZhiName                         `json:"xun_kong" jsonschema:"日柱旬空地支。"`
 	TimingCandidates      []LiuyaoTimingOutput               `json:"timing_candidates,omitempty" jsonschema:"可审计应期候选。"`
@@ -549,7 +549,7 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 			Name:       LiuyaoYongShenName(chart.YongShen.Name),
 			Position:   LiuyaoOptionalPosition(chart.YongShen.Position),
 			IsHidden:   chart.YongShen.IsHidden,
-			WangShuai:  LiuyaoWangShuai(chart.YongShen.WangShuai),
+			WangShuai:  WangShuaiName(chart.YongShen.WangShuai),
 			YuePo:      chart.YongShen.YuePo,
 			XunKong:    chart.YongShen.XunKong,
 			MuKu:       chart.YongShen.MuKu,
@@ -609,7 +609,7 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 		output.YongShen.FuShenCandidates = append(output.YongShen.FuShenCandidates, liuyaoFuShenWire(value))
 	}
 	for i, value := range chart.WangShuai {
-		output.WangShuai[i] = LiuyaoWangShuai(value.String())
+		output.WangShuai[i] = WangShuaiName(value.String())
 	}
 	for i, value := range chart.DayRelations {
 		output.DayRelations[i] = LiuyaoDayRelationOutput{Relations: append([]string(nil), value.Relations...)}
@@ -725,7 +725,7 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 		output.YongShenCandidates = append(output.YongShenCandidates, LiuyaoCandidateOutput{
 			Position: LiuyaoOptionalPosition(value.Position), Branch: ZhiName(value.Branch),
 			IsHidden: value.IsHidden, Selected: value.Selected,
-			WangShuai: LiuyaoWangShuai(value.WangShuai), Reason: value.Reason,
+			WangShuai: WangShuaiName(value.WangShuai), Reason: value.Reason,
 			Basis: append([]string(nil), value.Basis...),
 		})
 	}

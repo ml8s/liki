@@ -10,42 +10,6 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-type BaziPillar struct {
-	Gan   GanName `json:"gan" jsonschema:"天干。"`
-	Zhi   ZhiName `json:"zhi" jsonschema:"地支。"`
-	NaYin string  `json:"na_yin" jsonschema:"干支纳音。"`
-}
-
-type BaziDaYunRootRef struct {
-	Source string `json:"source" jsonschema:"通根来源。"`
-	Pillar string `json:"pillar,omitempty" jsonschema:"相关柱。"`
-	Stem   string `json:"stem" jsonschema:"天干。"`
-	Branch string `json:"branch" jsonschema:"地支。"`
-}
-
-type BaziDaYunStep struct {
-	Gan       GanName            `json:"gan" jsonschema:"大运天干。"`
-	Zhi       ZhiName            `json:"zhi" jsonschema:"大运地支。"`
-	StartDate DateString         `json:"start_date" jsonschema:"起始公历日 YYYY-MM-DD。"`
-	EndDate   DateString         `json:"end_date" jsonschema:"结束公历日 YYYY-MM-DD。"`
-	StartYear int                `json:"start_year" jsonschema:"起始公历年。"`
-	EndYear   int                `json:"end_year" jsonschema:"结束公历年。"`
-	Name      string             `json:"name" jsonschema:"干支名称。"`
-	Element   ElementName        `json:"wuxing" jsonschema:"大运纳音五行。"`
-	ShiShen   string             `json:"shi_shen" jsonschema:"相对日主的十神运。"`
-	Rooted    *bool              `json:"rooted,omitempty" jsonschema:"大运干是否通根。"`
-	RootRefs  []BaziDaYunRootRef `json:"root_refs,omitempty" jsonschema:"通根依据。"`
-}
-
-type BaziDaYun struct {
-	StartDate       DateString      `json:"start_date" jsonschema:"起运公历日 YYYY-MM-DD。"`
-	StartYearAfter  int             `json:"start_year_after" jsonschema:"出生后整年数。"`
-	StartMonthAfter int             `json:"start_month_after" jsonschema:"出生后余月数。"`
-	StartDayAfter   int             `json:"start_day_after" jsonschema:"出生后余日数。"`
-	Direction       string          `json:"direction" jsonschema:"顺排或逆排。"`
-	Steps           []BaziDaYunStep `json:"steps" jsonschema:"大运步骤。"`
-}
-
 // BaziChartInput consumes a resolved natal subject. The chart domain derives
 // year/month from solar-term events and day/hour from LAST + 子时.
 type BaziChartInput struct {

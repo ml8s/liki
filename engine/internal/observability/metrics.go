@@ -233,7 +233,8 @@ func toolCounterKey(key toolKey) string {
 	return strings.Join([]string{key.domain, key.tool, key.status}, "\x1f")
 }
 
-// ResetMetrics clears all process metrics; intended for tests only.
+// ResetMetrics clears all process metrics. It is a test helper and must not
+// be called from request or lifecycle code.
 func ResetMetrics() {
 	mu.Lock()
 	defer mu.Unlock()

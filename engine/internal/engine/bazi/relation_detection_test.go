@@ -154,12 +154,12 @@ func chartFrom(ng, nz, yg, yz, rg, rz, sg, sz string) Chart {
 }
 
 // combinedTriple returns combined SanHe + SanHui from DetectRelations.
-func combinedTriple(bz ganzhi.Bazi) []TripleGroup {
+func combinedTriple(bz ganzhi.Bazi) []TripleRelationDetection {
 	r := DetectRelations(bz)
-	return append(append([]TripleGroup{}, r.SanHe...), r.SanHui...)
+	return append(append([]TripleRelationDetection{}, r.SanHe...), r.SanHui...)
 }
 
-func assertTripleLocation(t *testing.T, got TripleGroup, branches, pillars []string) {
+func assertTripleLocation(t *testing.T, got TripleRelationDetection, branches, pillars []string) {
 	t.Helper()
 	if len(got.Branches) != len(branches) {
 		t.Fatalf("branches = %v, want %v", got.Branches, branches)

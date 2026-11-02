@@ -146,7 +146,7 @@ func staticSchemaOptions() *jsonschema.ForOptions {
 		reflect.TypeFor[ZhiName](): {
 			Type: "string", Enum: []any{"子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"},
 		},
-		reflect.TypeFor[LiuyaoWangShuai](): {
+		reflect.TypeFor[WangShuaiName](): {
 			Type: "string", Enum: []any{"旺", "相", "休", "囚", "死"},
 		},
 		reflect.TypeFor[LiuyaoShiYing](): {Type: "string", Enum: []any{"世", "应", ""}},

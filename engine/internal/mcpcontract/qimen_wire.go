@@ -252,15 +252,15 @@ type QimenChartOutput struct {
 	MenPo               *[]QimenGongName                  `json:"men_po,omitempty" jsonschema:"men_po列表。"`
 	MenZhi              *[]QimenGongName                  `json:"men_zhi,omitempty" jsonschema:"men_zhi列表。"`
 	YingQi              *QimenChartYingQi                 `json:"ying_qi,omitempty" jsonschema:"ying_qi。"`
-	RiGanGong           *QimenGongName                    `json:"ri_gan_gong,omitempty" jsonschema:"枚举值。"`
-	ShiGanGong          *QimenGongName                    `json:"shi_gan_gong,omitempty" jsonschema:"枚举值。"`
+	RiGanGong           *QimenGongName                    `json:"ri_gan_gong,omitempty" jsonschema:"日干落宫。"`
+	ShiGanGong          *QimenGongName                    `json:"shi_gan_gong,omitempty" jsonschema:"时干落宫。"`
 	RiShiRelation       *QimenChartRiShiRelation          `json:"ri_shi_relation,omitempty" jsonschema:"ri_shi_relation。"`
 	KongWangAffected    *[]QimenChartKongWangAffectedItem `json:"kong_wang_affected,omitempty" jsonschema:"kong_wang_affected列表。"`
 	MaXingAffected      *[]QimenChartMaXingAffectedItem   `json:"ma_xing_affected,omitempty" jsonschema:"ma_xing_affected列表。"`
 	GongWangShuai       *[]QimenChartGongWangShuaiItem    `json:"gong_wang_shuai,omitempty" jsonschema:"gong_wang_shuai列表。"`
 	ShiGanGongWangShuai *QimenChartShiGanGongWangShuai    `json:"shi_gan_gong_wang_shuai,omitempty" jsonschema:"shi_gan_gong_wang_shuai。"`
-	ZhiFuXingGong       *QimenGongName                    `json:"zhi_fu_xing_gong,omitempty" jsonschema:"枚举值。"`
-	ZhiShiMenGong       *QimenGongName                    `json:"zhi_shi_men_gong,omitempty" jsonschema:"枚举值。"`
+	ZhiFuXingGong       *QimenGongName                    `json:"zhi_fu_xing_gong,omitempty" jsonschema:"值符星落宫。"`
+	ZhiShiMenGong       *QimenGongName                    `json:"zhi_shi_men_gong,omitempty" jsonschema:"值使门落宫。"`
 	YongShen            *QimenChartYongShen               `json:"yong_shen,omitempty" jsonschema:"yong_shen。"`
 	Specialized         *QimenChartSpecialFacts           `json:"special_facts,omitempty" jsonschema:"专占领域原子事实；Python 只做 projection"`
 	RiGanGongFacts      *[]QimenChartRiGanGongFactsItem   `json:"ri_gan_gong_facts,omitempty" jsonschema:"ri_gan_gong_facts列表。"`
@@ -301,8 +301,8 @@ type QimenChartMethod struct {
 
 type QimenChartMethodTianQin struct {
 	Star                  TianQinStarName    `json:"star" jsonschema:"枚举值：天禽。"`
-	HomeGong              QimenGongName      `json:"home_gong" jsonschema:"枚举值。"`
-	LodgingGong           QimenEightGongName `json:"lodging_gong" jsonschema:"枚举值。"`
+	HomeGong              QimenGongName      `json:"home_gong" jsonschema:"天禽本宫。"`
+	LodgingGong           QimenEightGongName `json:"lodging_gong" jsonschema:"天禽寄宫。"`
 	Follows               TianQinFollowsName `json:"follows" jsonschema:"枚举值：天芮。"`
 	CarriesCenterEarthGan bool               `json:"carries_center_earth_gan" jsonschema:"carries_center_earth_gan。"`
 	LodgingRule           string             `json:"lodging_rule" jsonschema:"lodging_rule。"`
@@ -377,7 +377,7 @@ type QimenChartPanGongWeiItemGong struct {
 
 type QimenChartPanGongWeiItemTianPanItem struct {
 	Gan  DiPanGanName  `json:"gan" jsonschema:"天干。"`
-	Xing QimenStarName `json:"xing" jsonschema:"枚举值。"`
+	Xing QimenStarName `json:"xing" jsonschema:"九星。"`
 }
 
 type QimenChartPanMaXing struct {
@@ -413,14 +413,14 @@ type QimenChartGanInteractionItem struct {
 }
 
 type QimenChartMenInteractionItem struct {
-	Door    QimenDoorName `json:"door" jsonschema:"枚举值。"`
+	Door    QimenDoorName `json:"door" jsonschema:"八门。"`
 	Gong    QimenGongName `json:"gong" jsonschema:"宫位。"`
 	Name    string        `json:"name" jsonschema:"名称。"`
 	Meaning string        `json:"meaning" jsonschema:"meaning。"`
 }
 
 type QimenChartXingInteractionItem struct {
-	Xing       QimenStarName `json:"xing" jsonschema:"枚举值。"`
+	Xing       QimenStarName `json:"xing" jsonschema:"九星。"`
 	Gong       QimenGongName `json:"gong" jsonschema:"宫位。"`
 	Name       string        `json:"name" jsonschema:"名称。"`
 	Meaning    string        `json:"meaning" jsonschema:"meaning。"`
@@ -428,7 +428,7 @@ type QimenChartXingInteractionItem struct {
 }
 
 type QimenChartXingGongWuXingItem struct {
-	Xing             QimenStarName              `json:"xing" jsonschema:"枚举值。"`
+	Xing             QimenStarName              `json:"xing" jsonschema:"九星。"`
 	Gong             QimenGongName              `json:"gong" jsonschema:"宫位。"`
 	Relation         XingGongWuXingRelationName `json:"relation" jsonschema:"关系。"`
 	RelationName     string                     `json:"relation_name" jsonschema:"relation_name。"`
@@ -484,19 +484,19 @@ type QimenChartMaXingAffectedItem struct {
 }
 
 type QimenChartGongWangShuaiItem struct {
-	Gong      QimenGongName   `json:"gong" jsonschema:"宫位。"`
-	Wuxing    ElementName     `json:"wuxing" jsonschema:"五行。"`
-	WangShuai LiuyaoWangShuai `json:"wang_shuai" jsonschema:"枚举值。"`
+	Gong      QimenGongName `json:"gong" jsonschema:"宫位。"`
+	Wuxing    ElementName   `json:"wuxing" jsonschema:"五行。"`
+	WangShuai WangShuaiName `json:"wang_shuai" jsonschema:"旺相休囚死状态。"`
 }
 
 type QimenChartShiGanGongWangShuai struct {
-	Gong      QimenGongName   `json:"gong" jsonschema:"宫位。"`
-	Wuxing    ElementName     `json:"wuxing" jsonschema:"五行。"`
-	WangShuai LiuyaoWangShuai `json:"wang_shuai" jsonschema:"枚举值。"`
+	Gong      QimenGongName `json:"gong" jsonschema:"宫位。"`
+	Wuxing    ElementName   `json:"wuxing" jsonschema:"五行。"`
+	WangShuai WangShuaiName `json:"wang_shuai" jsonschema:"旺相休囚死状态。"`
 }
 
 type QimenChartYongShen struct {
-	NianGanGong      *QimenGongName                            `json:"nian_gan_gong,omitempty" jsonschema:"枚举值。"`
+	NianGanGong      *QimenGongName                            `json:"nian_gan_gong,omitempty" jsonschema:"年干落宫。"`
 	Symbols          []QimenChartYongShenSymbolsItem           `json:"symbols" jsonschema:"symbols列表。"`
 	NianGanGongFacts *[]QimenChartYongShenNianGanGongFactsItem `json:"nian_gan_gong_facts,omitempty" jsonschema:"nian_gan_gong_facts列表。"`
 }
@@ -506,7 +506,7 @@ type QimenChartYongShenSymbolsItem struct {
 	Palace           QimenGongName  `json:"gong" jsonschema:"宫位。"`
 	TianGan          []DiPanGanName `json:"tian_gan" jsonschema:"tian_gan列表。"`
 	KongWangBranches []ZhiName      `json:"kong_wang_branches" jsonschema:"kong_wang_branches列表。"`
-	MaXingBranch     *ZhiName       `json:"ma_xing_branch,omitempty" jsonschema:"枚举值。"`
+	MaXingBranch     *ZhiName       `json:"ma_xing_branch,omitempty" jsonschema:"驿马落支。"`
 }
 
 type QimenChartYongShenNianGanGongFactsItem struct {
@@ -529,9 +529,9 @@ type QimenChartSpecialFactsGengGeItem struct {
 }
 
 type QimenChartSpecialFactsLostContextItem struct {
-	Gong      QimenGongName   `json:"gong" jsonschema:"宫位。"`
-	Door      *QimenDoorName  `json:"door,omitempty" jsonschema:"door。"`
-	WangShuai LiuyaoWangShuai `json:"wang_shuai" jsonschema:"wang_shuai。"`
+	Gong      QimenGongName  `json:"gong" jsonschema:"宫位。"`
+	Door      *QimenDoorName `json:"door,omitempty" jsonschema:"door。"`
+	WangShuai WangShuaiName  `json:"wang_shuai" jsonschema:"旺相休囚死状态。"`
 }
 
 type QimenChartSpecialFactsThiefContextItem struct {

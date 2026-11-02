@@ -112,7 +112,7 @@ func TestNatalRelationsCoverLegacyRelationArrays(t *testing.T) {
 				pair("an_he", relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, "")
 			}
 
-			triple := func(kind string, relations []TripleGroup) {
+			triple := func(kind string, relations []TripleRelationDetection) {
 				t.Helper()
 				for _, relation := range relations {
 					group := branchGroupLabel(parseZhiNames(relation.Branches))

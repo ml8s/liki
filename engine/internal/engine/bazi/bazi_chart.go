@@ -90,7 +90,7 @@ type Chart struct {
 	// 神煞双参照流派：年参照与日参照并取，不在解释层隐含二选一。
 	ShenShaSchool ShenShaSchool `json:"shen_sha_school"`
 
-	// 确定性命理原子事实：透干十神得十干禄位。
+	// 确定性命盘事实：透干十神得十干禄位。
 	LuRoots []LuRoot `json:"lu_roots"`
 	// 合会冲刑 canonical facts；旧并列数组是 detection evidence，待消费方迁移。
 	GuanXi []NatalRelationFact `json:"guan_xi"`

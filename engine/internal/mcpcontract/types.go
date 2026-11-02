@@ -50,7 +50,7 @@ type (
 	LiuyaoHexagramName     string
 	GanName                string
 	ZhiName                string
-	LiuyaoWangShuai        string
+	WangShuaiName          string
 	LiuyaoShiYing          string
 	LiuyaoLiuQinName       string
 	LiuyaoLiuShouName      string

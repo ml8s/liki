@@ -37,12 +37,12 @@ type RelationLink struct {
 // Targets are supplied by the calling evidence projection (for example
 // pattern/controller/generator).
 type TargetedRelationEvidence struct {
-	Field    string   `json:"field"`
-	Group    string   `json:"group"`
-	Pillars  []string `json:"pillars"`
-	Branches []string `json:"branches"`
-	Stems    []string `json:"-"`
-	Targets  []string `json:"targets"`
+	Kind     string
+	Group    string
+	Pillars  []string
+	Branches []string
+	Stems    []string
+	Targets  []string
 }
 
 // GeJuStructure records the month-command element, its controller and its
@@ -331,7 +331,7 @@ func buildTargetedRelationEvidence(
 			continue
 		}
 		facts = append(facts, TargetedRelationEvidence{
-			Field: relation.Kind, Group: relation.Group, Pillars: pillars,
+			Kind: relation.Kind, Group: relation.Group, Pillars: pillars,
 			Branches: branches, Stems: stems, Targets: targets,
 		})
 	}
@@ -377,14 +377,6 @@ func branchElementTargets(bz ganzhi.Bazi, pillar int, labels map[string]string) 
 	return targets
 }
 
-func pillarNames(indices ...int) []string {
-	names := make([]string, 0, len(indices))
-	for _, index := range indices {
-		names = append(names, zhuLabels[index])
-	}
-	return names
-}
-
 func appendUniqueStrings(values []string, additions ...string) []string {
 	for _, addition := range additions {
 		found := false
@@ -405,7 +397,7 @@ func dedupeTargetedRelationEvidence(values []TargetedRelationEvidence) []Targete
 	result := make([]TargetedRelationEvidence, 0, len(values))
 	seen := map[string]bool{}
 	for _, value := range values {
-		key := strings.Join([]string{value.Field, value.Group, strings.Join(value.Pillars, ","), strings.Join(value.Branches, ","), strings.Join(value.Targets, ",")}, "\x00")
+		key := strings.Join([]string{value.Kind, value.Group, strings.Join(value.Pillars, ","), strings.Join(value.Branches, ","), strings.Join(value.Targets, ",")}, "\x00")
 		if seen[key] {
 			continue
 		}
@@ -448,13 +440,13 @@ func canonicalRelationReference(value TargetedRelationEvidence) (NatalRelationFa
 	if value.Group == "" || len(value.Pillars) == 0 {
 		return NatalRelationFact{}, false
 	}
-	fact := NatalRelationFact{Kind: value.Field}
-	switch value.Field {
+	fact := NatalRelationFact{Kind: value.Kind}
+	switch value.Kind {
 	case "gan_he", "gan_he_candidate", "gan_chong", "gan_chong_candidate":
 		if len(value.Stems) != 2 || len(value.Pillars) != 2 {
 			return NatalRelationFact{}, false
 		}
-		if value.Field == "gan_he" || value.Field == "gan_he_candidate" {
+		if value.Kind == "gan_he" || value.Kind == "gan_he_candidate" {
 			fact.Group = ganHeGroupLabel(value.Stems[0], value.Stems[1])
 			if pillarDistance(value.Pillars[0], value.Pillars[1]) != 1 {
 				fact.Kind = "gan_he_candidate"
@@ -470,7 +462,7 @@ func canonicalRelationReference(value TargetedRelationEvidence) (NatalRelationFa
 		if len(value.Branches) != 2 || len(value.Pillars) != 2 {
 			return NatalRelationFact{}, false
 		}
-		fact.Group = canonicalZhiPairGroup(value.Field, value.Branches[0], value.Branches[1])
+		fact.Group = canonicalZhiPairGroup(value.Kind, value.Branches[0], value.Branches[1])
 		fact.Members = zhiMembers(value.Pillars, value.Branches)
 	case "liu_xing":
 		if len(value.Branches) != 2 || len(value.Pillars) != 2 {

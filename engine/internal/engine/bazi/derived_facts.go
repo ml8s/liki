@@ -459,7 +459,7 @@ func newZhiPairFact(kind, group, zhiA string, pillarA int, zhiB string, pillarB 
 	}
 }
 
-func newTripleRelationFact(kind string, bz ganzhi.Bazi, relation TripleGroup) NatalRelationFact {
+func newTripleRelationFact(kind string, bz ganzhi.Bazi, relation TripleRelationDetection) NatalRelationFact {
 	group := branchGroupLabel(parseZhiNames(relation.Branches))
 	members := make([]NatalRelationMember, 0, len(relation.Branches))
 	for _, branch := range relation.Branches {

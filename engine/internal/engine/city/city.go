@@ -14,17 +14,6 @@ import (
 //go:embed cities_data.json
 var citiesData []byte
 
-// Coords is the resolved place result. It is the typed domain boundary; MCP
-// applies its own public DTO on top of it.
-type Coords struct {
-	Name      string  `json:"name"`
-	Longitude float64 `json:"longitude"`
-	Latitude  float64 `json:"latitude"`
-	Country   string  `json:"country"`
-	Timezone  string  `json:"timezone,omitempty"`
-	BBox      *BBox   `json:"bbox,omitempty"`
-}
-
 // BBox is the raw administrative extent stored with a place record.
 type BBox struct {
 	West  float64 `json:"west"`

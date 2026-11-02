@@ -10,12 +10,12 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 	tests := []struct {
 		name    string
 		pillars []string
-		want    []GanPairRel
+		want    []GanChongDetection
 	}{
 		{
 			name:    "adjacent",
 			pillars: []string{"甲子", "庚午", "丙寅", "壬申"},
-			want: []GanPairRel{
+			want: []GanChongDetection{
 				{GanA: "甲", GanB: "庚", PillarA: 0, PillarB: 1, Position: "adjacent"},
 				{GanA: "丙", GanB: "壬", PillarA: 2, PillarB: 3, Position: "adjacent"},
 			},
@@ -23,7 +23,7 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 		{
 			name:    "separated",
 			pillars: []string{"甲子", "丙寅", "庚午", "壬申"},
-			want: []GanPairRel{
+			want: []GanChongDetection{
 				{GanA: "甲", GanB: "庚", PillarA: 0, PillarB: 2, Position: "separated"},
 				{GanA: "丙", GanB: "壬", PillarA: 1, PillarB: 3, Position: "separated"},
 			},
@@ -31,14 +31,14 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 		{
 			name:    "remote",
 			pillars: []string{"甲子", "丙寅", "戊辰", "庚午"},
-			want: []GanPairRel{
+			want: []GanChongDetection{
 				{GanA: "甲", GanB: "庚", PillarA: 0, PillarB: 3, Position: "remote"},
 			},
 		},
 		{
 			name:    "wu_ji_and_non_classic_pairs_are_not_chong",
 			pillars: []string{"戊子", "甲午", "己丑", "乙未"},
-			want:    []GanPairRel{},
+			want:    []GanChongDetection{},
 		},
 	}
 

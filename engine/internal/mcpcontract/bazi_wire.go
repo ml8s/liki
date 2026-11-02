@@ -48,7 +48,7 @@ type BaziChartOutput struct {
 	SanQiName     *string                      `json:"san_qi_name,omitempty" jsonschema:"三奇贵人"`
 	ShenShaSchool BaziChartShenShaSchool       `json:"shen_sha_school" jsonschema:"shen_sha_school。"`
 	LuRoots       []BaziChartLuRootsItem       `json:"lu_roots" jsonschema:"透干十神得十干禄"`
-	GuanXi        []BaziChartGuanXiItem        `json:"guan_xi" jsonschema:"完整命局关系集合；其他结构只引用 relation_id。"`
+	GuanXi        []BaziChartGuanXiItem        `json:"guan_xi" jsonschema:"canonical 命局关系事实；每条 occurrence 使用稳定 id。"`
 	TenGodStates  []BaziChartTenGodStatesItem  `json:"ten_god_states" jsonschema:"engine 十神显隐 / 通根 / 得令 / 旺弱状态"`
 	ElementStates []BaziChartElementStatesItem `json:"element_states" jsonschema:"engine 五行季节旺弱、组合旺弱与生克方向"`
 	GuanSha       BaziChartGuanSha             `json:"guan_sha" jsonschema:"官杀取清结论。"`
@@ -107,15 +107,15 @@ type BaziChartDaYunStepsItemRootRefsItem struct {
 }
 
 type BaziChartFuYi struct {
-	WuxingCount map[string]int             `json:"wuxing_count" jsonschema:"五行数量"`
-	WangShuai   map[string]LiuyaoWangShuai `json:"wang_shuai" jsonschema:"五行旺相休囚死"`
-	Yong        CandidateWuxingName        `json:"yong" jsonschema:"扶抑候选用神五行；缺省为 无候选"`
-	Xi          CandidateWuxingName        `json:"xi" jsonschema:"扶抑候选喜神五行；缺省为 无候选"`
-	Ji          CandidateWuxingName        `json:"ji" jsonschema:"扶抑候选忌神五行；缺省为 无候选"`
-	QiangRuo    string                     `json:"qiang_ruo" jsonschema:"身强弱"`
-	Pattern     *string                    `json:"pattern,omitempty" jsonschema:"从格标签"`
-	ModelID     string                     `json:"fu_yi_model_id" jsonschema:"扶抑候选模型 ID。"`
-	Basis       BaziChartFuYiBasis         `json:"basis" jsonschema:"强弱表输入"`
+	WuxingCount map[string]int           `json:"wuxing_count" jsonschema:"五行数量"`
+	WangShuai   map[string]WangShuaiName `json:"wang_shuai" jsonschema:"五行旺相休囚死"`
+	Yong        CandidateWuxingName      `json:"yong" jsonschema:"扶抑候选用神五行；缺省为 无候选"`
+	Xi          CandidateWuxingName      `json:"xi" jsonschema:"扶抑候选喜神五行；缺省为 无候选"`
+	Ji          CandidateWuxingName      `json:"ji" jsonschema:"扶抑候选忌神五行；缺省为 无候选"`
+	QiangRuo    string                   `json:"qiang_ruo" jsonschema:"身强弱"`
+	Pattern     *string                  `json:"pattern,omitempty" jsonschema:"从格标签"`
+	ModelID     string                   `json:"fu_yi_model_id" jsonschema:"扶抑候选模型 ID。"`
+	Basis       BaziChartFuYiBasis       `json:"basis" jsonschema:"强弱表输入"`
 }
 
 type BaziChartFuYiBasis struct {
@@ -202,7 +202,7 @@ type BaziChartGuanXiMember struct {
 type BaziChartGuanXiItem struct {
 	Contested bool                    `json:"contested,omitempty" jsonschema:"天干五合是否争合。"`
 	ID        string                  `json:"id" jsonschema:"稳定关系 ID：relation_kind:group。"`
-	Kind      RelationGroupsFieldName `json:"relation_kind" jsonschema:"关系类型。"`
+	Kind      RelationKindName        `json:"relation_kind" jsonschema:"关系类型。"`
 	Members   []BaziChartGuanXiMember `json:"members" jsonschema:"宫位解析后的参与干支。"`
 	Group     string                  `json:"group" jsonschema:"稳定匹配组。"`
 	Position  string                  `json:"position,omitempty" jsonschema:"天干关系位置。"`
@@ -212,8 +212,8 @@ type BaziChartGuanXiItem struct {
 type BaziChartTenGodStatesItem struct {
 	ShiShen     TenGodName   `json:"shi_shen" jsonschema:"十神。"`
 	Wuxing      ElementName  `json:"wuxing" jsonschema:"五行。"`
-	Transparent bool         `json:"transparent" jsonschema:"transparent。"`
-	Hidden      bool         `json:"hidden" jsonschema:"hidden。"`
+	Transparent bool         `json:"transparent" jsonschema:"是否透干。"`
+	Hidden      bool         `json:"hidden" jsonschema:"是否藏干。"`
 	Rooted      bool         `json:"rooted" jsonschema:"是否通根。"`
 	Timely      bool         `json:"timely" jsonschema:"是否得令。"`
 	Count       int          `json:"count" jsonschema:"数量。"`
@@ -221,16 +221,16 @@ type BaziChartTenGodStatesItem struct {
 }
 
 type BaziChartElementStatesItem struct {
-	Wuxing             ElementName     `json:"wuxing" jsonschema:"五行。"`
-	Season             LiuyaoWangShuai `json:"season" jsonschema:"季节状态。"`
-	SeasonStrength     StrengthName    `json:"season_strength" jsonschema:"枚举值。"`
-	Strength           StrengthName    `json:"strength" jsonschema:"强弱。"`
-	Transparent        bool            `json:"transparent" jsonschema:"transparent。"`
-	Rooted             bool            `json:"rooted" jsonschema:"是否通根。"`
-	Controls           ElementName     `json:"controls" jsonschema:"枚举值。"`
-	ControlledBy       ElementName     `json:"controlled_by" jsonschema:"枚举值。"`
-	ControllerStrength StrengthName    `json:"controller_strength" jsonschema:"枚举值。"`
-	Reasons            []string        `json:"reasons" jsonschema:"reasons列表。"`
+	Wuxing             ElementName   `json:"wuxing" jsonschema:"五行。"`
+	Season             WangShuaiName `json:"season" jsonschema:"季节状态。"`
+	SeasonStrength     StrengthName  `json:"season_strength" jsonschema:"月令强弱。"`
+	Strength           StrengthName  `json:"strength" jsonschema:"强弱。"`
+	Transparent        bool          `json:"transparent" jsonschema:"是否透干。"`
+	Rooted             bool          `json:"rooted" jsonschema:"是否通根。"`
+	Controls           ElementName   `json:"controls" jsonschema:"所克五行。"`
+	ControlledBy       ElementName   `json:"controlled_by" jsonschema:"所生/所克来源五行。"`
+	ControllerStrength StrengthName  `json:"controller_strength" jsonschema:"克神强弱。"`
+	Reasons            []string      `json:"reasons" jsonschema:"推导依据列表。"`
 }
 
 type BaziChartGuanSha struct {
@@ -255,8 +255,8 @@ type BaziChartTiaoHou struct {
 
 type BaziChartTiaoHouPrimary struct {
 	Stem        GanName                                  `json:"stem" jsonschema:"天干。"`
-	Transparent bool                                     `json:"transparent" jsonschema:"transparent。"`
-	Hidden      bool                                     `json:"hidden" jsonschema:"hidden。"`
+	Transparent bool                                     `json:"transparent" jsonschema:"是否透干。"`
+	Hidden      bool                                     `json:"hidden" jsonschema:"是否藏干。"`
 	Occurrences []BaziChartTiaoHouPrimaryOccurrencesItem `json:"occurrences" jsonschema:"出现位置。"`
 	GuanXiLinks []BaziChartRelationLink                  `json:"guan_xi_links" jsonschema:"canonical guan_xi 引用与本证据目标。"`
 }
@@ -269,11 +269,11 @@ type BaziChartTiaoHouPrimaryOccurrencesItem struct {
 }
 
 type BaziChartTiaoHouSecondary struct {
-	Hidden      *bool                                      `json:"hidden" jsonschema:"hidden。"`
+	Hidden      *bool                                      `json:"hidden" jsonschema:"是否藏干。"`
 	Occurrences []BaziChartTiaoHouSecondaryOccurrencesItem `json:"occurrences" jsonschema:"出现位置。"`
 	GuanXiLinks []BaziChartRelationLink                    `json:"guan_xi_links" jsonschema:"canonical guan_xi 引用与本证据目标。"`
 	Stem        *GanNameNullable                           `json:"stem" jsonschema:"天干。"`
-	Transparent *bool                                      `json:"transparent" jsonschema:"transparent。"`
+	Transparent *bool                                      `json:"transparent" jsonschema:"是否透干。"`
 }
 
 type BaziChartTiaoHouSecondaryOccurrencesItem struct {

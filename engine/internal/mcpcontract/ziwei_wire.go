@@ -14,18 +14,6 @@ type ZiweiChartInput struct {
 	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
-// ── ziwei.daxian input ──
-
-type ZiweiDaXianInput struct {
-	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
-}
-
-// ── ziwei.daxian output ──
-
-type ZiweiDaXianOutput struct {
-	DaXian []ZiweiDaXianItem `json:"da_xian" jsonschema:"十年大限数组；长度 = 大限段数。"`
-}
-
 type ZiweiDaXianItems []ZiweiDaXianItem
 
 type ZiweiDaXianItem struct {

@@ -90,7 +90,7 @@ func registerWireEnums(options *jsonschema.ForOptions) {
 	registerWireEnum[QimenSpiritName](options, "九地", "九天", "值符", "六合", "勾陈", "太常", "太阴", "朱雀", "玄武", "白虎", "螣蛇")
 	registerWireEnum[QimenStarName](options, "天任", "天冲", "天心", "天柱", "天禽", "天芮", "天英", "天蓬", "天辅")
 	registerWireEnum[RelatedToRoleName](options, "duty", "lead", "pillar", "yong_shen")
-	registerWireEnum[RelationGroupsFieldName](options, "an_he", "gan_chong", "gan_chong_candidate", "gan_he", "gan_he_candidate", "liu_chong", "liu_hai", "liu_po", "liu_xing", "san_he", "san_he_partial", "san_hui", "zhi_liu_he")
+	registerWireEnum[RelationKindName](options, "an_he", "gan_chong", "gan_chong_candidate", "gan_he", "gan_he_candidate", "liu_chong", "liu_hai", "liu_po", "liu_xing", "san_he", "san_he_partial", "san_hui", "zhi_liu_he")
 	registerWireEnum[RiShiRelationObjectName](options, "shi_gan_gong")
 	registerWireEnum[RiShiRelationRelationName](options, "ri_controls_shi", "ri_generates_shi", "same", "shi_controls_ri", "shi_generates_ri")
 	registerWireEnum[RiShiRelationSubjectName](options, "ri_gan_gong")
@@ -223,7 +223,7 @@ type QimenStarName string
 
 type RelatedToRoleName string
 
-type RelationGroupsFieldName string
+type RelationKindName string
 
 type RiShiRelationObjectName string
 
