@@ -1,19 +1,15 @@
 package ziwei
 
 type Bond struct {
-	AMingGong string `json:"a_ming_gong"`
-	BMingGong string `json:"b_ming_gong"`
-
-	FuQiGong *PairRef `json:"fu_qi_gong,omitempty"`
-	ZiNvGong *PairRef `json:"zi_nv_gong,omitempty"`
+	MingGong BondPalacePair `json:"ming_gong"`
+	FuQiGong BondPalacePair `json:"fu_qi_gong"`
+	ZiNvGong BondPalacePair `json:"zi_nv_gong"`
 }
 
-type PairRef struct {
-	AGongName string   `json:"a_gong_name"`
-	BGongName string   `json:"b_gong_name"`
-	AZhuXing  []string `json:"a_zhu_xing"`
-	BZhuXing  []string `json:"b_zhu_xing"`
-	Status    string   `json:"zhu_xing_status"`
+type BondPalacePair struct {
+	A      BondPalaceFacts `json:"a" jsonschema:"甲方。"`
+	B      BondPalaceFacts `json:"b" jsonschema:"乙方。"`
+	Status string          `json:"status" jsonschema:"主星状态说明。"`
 }
 
 // ComputeBond returns side-by-side natal palace facts. It deliberately does
@@ -21,27 +17,17 @@ type PairRef struct {
 // placement is not treated here as a stable classical Ziwei rule.
 func ComputeBond(a, b BondSideFacts) Bond {
 	return Bond{
-		AMingGong: a.MingGong.Name,
-		BMingGong: b.MingGong.Name,
-		FuQiGong:  gongWeiDuiZhao(a, b, "夫妻"),
-		ZiNvGong:  gongWeiDuiZhao(a, b, "子女"),
+		MingGong: bondPalacePair(a.MingGong, b.MingGong, "命宫"),
+		FuQiGong: bondPalacePair(a.FuQiGong, b.FuQiGong, "夫妻"),
+		ZiNvGong: bondPalacePair(a.ZiNvGong, b.ZiNvGong, "子女"),
 	}
 }
 
-func gongWeiDuiZhao(a, b BondSideFacts, kind string) *PairRef {
-	var aPalace, bPalace BondPalaceFacts
-	switch kind {
-	case "夫妻":
-		aPalace, bPalace = a.FuQiGong, b.FuQiGong
-	case "子女":
-		aPalace, bPalace = a.ZiNvGong, b.ZiNvGong
-	}
-	return &PairRef{
-		AGongName: aPalace.Name,
-		BGongName: bPalace.Name,
-		AZhuXing:  aPalace.MajorStars,
-		BZhuXing:  bPalace.MajorStars,
-		Status:    pairStatus(kind, aPalace.MajorStars, bPalace.MajorStars),
+func bondPalacePair(aPalace, bPalace BondPalaceFacts, kind string) BondPalacePair {
+	return BondPalacePair{
+		A:      aPalace,
+		B:      bPalace,
+		Status: pairStatus(kind, aPalace.MajorStars, bPalace.MajorStars),
 	}
 }
 

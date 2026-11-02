@@ -27,20 +27,22 @@ func TestBond_SideBySideFacts(t *testing.T) {
 			cb := chartFrom(t, tc.b, tc.bt, tc.bg)
 			bd := ComputeBond(ca.BondSideFacts(), cb.BondSideFacts())
 
-			if bd.AMingGong != ca.GongWei[int(ca.MingGong)].Name {
-				t.Fatalf("A ming gong = %q", bd.AMingGong)
+			if bd.MingGong.A.Palace != ca.GongWei[int(ca.MingGong)].Name {
+				t.Fatalf("A ming gong = %q", bd.MingGong.A.Palace)
 			}
-			if bd.BMingGong != cb.GongWei[int(cb.MingGong)].Name {
-				t.Fatalf("B ming gong = %q", bd.BMingGong)
+			if bd.MingGong.B.Palace != cb.GongWei[int(cb.MingGong)].Name {
+				t.Fatalf("B ming gong = %q", bd.MingGong.B.Palace)
 			}
-			if bd.FuQiGong == nil || bd.ZiNvGong == nil {
-				t.Fatalf("spouse/children pair missing: %+v", bd)
-			}
-			for _, ref := range []*PairRef{bd.FuQiGong, bd.ZiNvGong} {
-				if ref.AGongName == "" || ref.BGongName == "" || ref.Status == "" {
+			for _, ref := range []BondPalacePair{bd.FuQiGong, bd.ZiNvGong, bd.MingGong} {
+				if ref.A.Palace == "" || ref.B.Palace == "" {
 					t.Fatalf("incomplete pair reference: %+v", ref)
 				}
-				if ref.AGongName != ref.BGongName {
+			}
+			for _, ref := range []BondPalacePair{bd.FuQiGong, bd.ZiNvGong} {
+				if ref.Status == "" {
+					t.Fatalf("incomplete pair reference: %+v", ref)
+				}
+				if ref.A.Palace != ref.B.Palace {
 					t.Fatalf("same palace label expected: %+v", ref)
 				}
 			}
@@ -53,10 +55,7 @@ func TestBond_EmptySpousePalaceStatus(t *testing.T) {
 	ca := chartFrom(t, "1994-6-25", 11, "男")
 	cb := chartFrom(t, "1997-5-8", 2, "女")
 	bd := ComputeBond(ca.BondSideFacts(), cb.BondSideFacts())
-	if bd.FuQiGong == nil {
-		t.Fatal("spouse pair missing")
-	}
-	if len(bd.FuQiGong.AZhuXing) != 0 && len(bd.FuQiGong.BZhuXing) != 0 {
+	if len(bd.FuQiGong.A.MajorStars) != 0 && len(bd.FuQiGong.B.MajorStars) != 0 {
 		t.Fatalf("fixture expected at least one empty spouse palace: %+v", bd.FuQiGong)
 	}
 	if bd.FuQiGong.Status == "" {

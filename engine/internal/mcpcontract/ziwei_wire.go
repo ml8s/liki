@@ -6,6 +6,8 @@
 // green when a shape changes.
 package mcpcontract
 
+import "liki-engine/internal/engine/ziwei"
+
 // ── ziwei.chart input ──
 
 // ZiweiChartInput consumes a resolved natal subject. The chart domain derives
@@ -187,27 +189,14 @@ type ZiweiBondInput struct {
 // ── ziwei.bond output ──
 
 type ZiweiBondOutput struct {
-	AMingGong string            `json:"a_ming_gong" jsonschema:"a_ming_gong。"`
-	BMingGong string            `json:"b_ming_gong" jsonschema:"b_ming_gong。"`
-	FuQiGong  ZiweiBondFuQiGong `json:"fu_qi_gong" jsonschema:"fu_qi_gong。"`
-	ZiNvGong  ZiweiBondZiNvGong `json:"zi_nv_gong" jsonschema:"zi_nv_gong。"`
+	MingGong ZiweiBondPalacePair `json:"ming_gong" jsonschema:"双方本命宫。"`
+	FuQiGong ZiweiBondPalacePair `json:"fu_qi_gong" jsonschema:"双方夫妻宫。"`
+	ZiNvGong ZiweiBondPalacePair `json:"zi_nv_gong" jsonschema:"双方子女宫。"`
 }
 
-type ZiweiBondFuQiGong struct {
-	AGongName     string   `json:"a_gong_name" jsonschema:"a_gong_name。"`
-	BGongName     string   `json:"b_gong_name" jsonschema:"b_gong_name。"`
-	AZhuXing      []string `json:"a_zhu_xing" jsonschema:"a_zhu_xing列表。"`
-	BZhuXing      []string `json:"b_zhu_xing" jsonschema:"b_zhu_xing列表。"`
-	ZhuXingStatus string   `json:"zhu_xing_status" jsonschema:"zhu_xing_status。"`
-}
+type ZiweiBondPalaceFacts = ziwei.BondPalaceFacts
 
-type ZiweiBondZiNvGong struct {
-	AGongName     string   `json:"a_gong_name" jsonschema:"a_gong_name。"`
-	BGongName     string   `json:"b_gong_name" jsonschema:"b_gong_name。"`
-	AZhuXing      []string `json:"a_zhu_xing" jsonschema:"a_zhu_xing列表。"`
-	BZhuXing      []string `json:"b_zhu_xing" jsonschema:"b_zhu_xing列表。"`
-	ZhuXingStatus string   `json:"zhu_xing_status" jsonschema:"zhu_xing_status。"`
-}
+type ZiweiBondPalacePair = ziwei.BondPalacePair
 
 // ── ziwei.chart output ──
 

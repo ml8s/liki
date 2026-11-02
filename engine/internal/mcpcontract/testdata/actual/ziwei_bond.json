@@ -16,29 +16,51 @@
     }
   },
   "output": {
-    "a_ming_gong": "命宫",
-    "b_ming_gong": "命宫",
+    "ming_gong": {
+      "a": {
+        "palace": "命宫",
+        "major_stars": [
+          "紫微",
+          "破军"
+        ]
+      },
+      "b": {
+        "palace": "命宫",
+        "major_stars": [
+          "天机"
+        ]
+      },
+      "status": ""
+    },
     "fu_qi_gong": {
-      "a_gong_name": "夫妻",
-      "a_zhu_xing": [],
-      "b_gong_name": "夫妻",
-      "b_zhu_xing": [
-        "太阳",
-        "天梁"
-      ],
-      "zhu_xing_status": "A方夫妻宫无主星，按通例借对宫；B方夫妻宫有主星"
+      "a": {
+        "palace": "夫妻",
+        "major_stars": []
+      },
+      "b": {
+        "palace": "夫妻",
+        "major_stars": [
+          "太阳",
+          "天梁"
+        ]
+      },
+      "status": "A方夫妻宫无主星，按通例借对宫；B方夫妻宫有主星"
     },
     "zi_nv_gong": {
-      "a_gong_name": "子女",
-      "a_zhu_xing": [
-        "太阳"
-      ],
-      "b_gong_name": "子女",
-      "b_zhu_xing": [
-        "武曲",
-        "天相"
-      ],
-      "zhu_xing_status": "双方子女宫皆有主星"
+      "a": {
+        "palace": "子女",
+        "major_stars": [
+          "太阳"
+        ]
+      },
+      "b": {
+        "palace": "子女",
+        "major_stars": [
+          "武曲",
+          "天相"
+        ]
+      },
+      "status": "双方子女宫皆有主星"
     }
   }
 }
