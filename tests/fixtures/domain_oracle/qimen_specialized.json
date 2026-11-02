@@ -54,8 +54,8 @@
         "role": "大贼",
         "symbol": "天蓬",
         "gong": "坎",
-        "wang_shuai_label": "旺",
-        "lucky_pattern_names": ["青龙返首"]
+        "wang_shuai": "旺",
+        "lucky_ge_ju_names": ["青龙返首"]
       }]
     },
     {
@@ -80,8 +80,8 @@
         "role": "小贼",
         "symbol": "玄武",
         "gong": "坤",
-        "wang_shuai_label": "未知",
-        "lucky_pattern_names": []
+        "wang_shuai": "未知",
+        "lucky_ge_ju_names": []
       }]
     }
   ],

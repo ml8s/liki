@@ -62,8 +62,8 @@ def _pan(**changes):
         },
         "ri_gan_gong": "震",
         "shi_gan_gong": "兑",
-        "ri_gan_palace_facts": [{"palace": "震", "layer": "heaven"}],
-        "shi_gan_palace_facts": [{"palace": "兑", "layer": "heaven"}],
+        "ri_gan_gong_facts": [{"palace": "震", "layer": "heaven"}],
+        "shi_gan_gong_facts": [{"palace": "兑", "layer": "heaven"}],
         "shi_gan_domain": "outer",
         "ri_shi_relation": {
             "subject": "ri_gan_gong",
@@ -74,9 +74,9 @@ def _pan(**changes):
         "patterns": [],
         "kong_wang_affected": [],
         "ma_xing_affected": [],
-        "palace_wang_shuai": [],
+        "gong_wang_shuai": [],
         "shi_gan_gong_wang_shuai": {
-            "gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死",
+            "gong": "兑", "wuxing": "金", "wang_shuai": "死",
         },
         "ying_qi": {"candidates": []},
         "gan_interaction": [],
@@ -88,8 +88,8 @@ def _pan(**changes):
         "zhi_fu_xing_gong": "坎",
         "zhi_shi_men_gong": "坎",
         "specialized": {
-            "geng_ge": [], "lost_context": [],
-            "thief_context": [], "tianwang_context": [],
+            "geng_ge": [], "lost_facts": [],
+            "thief_facts": [], "tianwang_facts": [],
         },
     }
     chart.update(changes)
@@ -98,7 +98,7 @@ def _pan(**changes):
 
 def _lost_pan(**changes):
     natal_chart = _pan()
-    natal_chart["chart"]["specialized"]["lost_context"] = [{
+    natal_chart["chart"]["specialized"]["lost_facts"] = [{
         "gong": "兑", "wang_shuai": "旺",
     }]
     natal_chart["chart"].update({
@@ -119,17 +119,15 @@ def _lost_pan(**changes):
             "relation": "shi_generates_ri",
             "name": "时干宫生日干宫",
         },
-        "palace_wang_shuai": [{
+        "gong_wang_shuai": [{
             "gong": "兑",
             "wuxing": "金",
             "wang_shuai": "旺",
-            "wang_shuai_name": "旺",
         }],
         "shi_gan_gong_wang_shuai": {
             "gong": "兑",
             "wuxing": "金",
             "wang_shuai": "旺",
-            "wang_shuai_name": "旺",
         },
     })
     natal_chart["chart"].update(changes)
@@ -138,9 +136,9 @@ def _lost_pan(**changes):
 
 def _thief_pan(**changes):
     natal_chart = _pan()
-    natal_chart["chart"]["specialized"]["thief_context"] = [
-        {"role": "大贼", "symbol": "天蓬", "gong": "坎", "wang_shuai_label": "囚", "lucky_pattern_names": []},
-        {"role": "小贼", "symbol": "玄武", "gong": "坎", "wang_shuai_label": "囚", "lucky_pattern_names": []},
+    natal_chart["chart"]["specialized"]["thief_facts"] = [
+        {"role": "大贼", "symbol": "天蓬", "gong": "坎", "wang_shuai": "囚", "lucky_ge_ju_names": []},
+        {"role": "小贼", "symbol": "玄武", "gong": "坎", "wang_shuai": "囚", "lucky_ge_ju_names": []},
     ]
     natal_chart["chart"]["board"]["gong_wei"] = [
         {
@@ -161,10 +159,10 @@ def _thief_pan(**changes):
         },
     ]
     natal_chart["chart"].update({
-        "palace_wang_shuai": [
-            {"gong": "坤", "wuxing": "土", "wang_shuai": "相", "wang_shuai_name": "相"},
-            {"gong": "坎", "wuxing": "水", "wang_shuai": "囚", "wang_shuai_name": "囚"},
-            {"gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
+        "gong_wang_shuai": [
+            {"gong": "坤", "wuxing": "土", "wang_shuai": "相"},
+            {"gong": "坎", "wuxing": "水", "wang_shuai": "囚"},
+            {"gong": "兑", "wuxing": "金", "wang_shuai": "死"},
         ],
     })
     natal_chart["chart"].update(changes)
@@ -211,12 +209,12 @@ def _rich_pan():
             "xing": "天蓬", "gong": "离", "relation": "xing_controls_gong",
             "relation_name": "星克宫", "traditional_label": "囚",
         }],
-        palace_wang_shuai=[
-            {"gong": "离", "wuxing": "火", "wang_shuai": "旺", "wang_shuai_name": "旺"},
-            {"gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
+        gong_wang_shuai=[
+            {"gong": "离", "wuxing": "火", "wang_shuai": "旺"},
+            {"gong": "兑", "wuxing": "金", "wang_shuai": "死"},
         ],
         shi_gan_gong_wang_shuai={
-            "gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死",
+            "gong": "兑", "wuxing": "金", "wang_shuai": "死",
         },
         men_po=["坎"],
         men_zhi=["离"],
@@ -278,7 +276,7 @@ def _missing_pan(**changes):
 def _escape_pan(**changes):
     natal_chart = _pan()
     natal_chart["chart"].setdefault("specialized", {
-        "geng_ge": [], "lost_context": [], "thief_context": [], "tianwang_context": [],
+        "geng_ge": [], "lost_facts": [], "thief_facts": [], "tianwang_facts": [],
     })
     natal_chart["chart"]["board"]["gong_wei"] = [
         {
@@ -299,10 +297,10 @@ def _escape_pan(**changes):
         },
     ]
     natal_chart["chart"].update({
-        "palace_wang_shuai": [
-            {"gong": "坎", "wuxing": "水", "wang_shuai": "囚", "wang_shuai_name": "囚"},
-            {"gong": "震", "wuxing": "木", "wang_shuai": "休", "wang_shuai_name": "休"},
-            {"gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
+        "gong_wang_shuai": [
+            {"gong": "坎", "wuxing": "水", "wang_shuai": "囚"},
+            {"gong": "震", "wuxing": "木", "wang_shuai": "休"},
+            {"gong": "兑", "wuxing": "金", "wang_shuai": "死"},
         ],
         "gan_interaction": [{
             "name": "伏吟", "gong": "坎", "tian_pan_gan": "戊",
@@ -361,7 +359,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
         "2026-09-07T12:00:00+08:00",
         116.4,
         matter="wealth",
-        birth_standard_time="1984-02-15T00:00:00+08:00",
+        subject={"birth_time": "1984-02-15T00:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
         method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
     )
 
@@ -370,7 +368,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
     assert method == "qimen.chart"
     assert "matter" not in params
     assert params["yong_shen"] == ["生门", "戊"]
-    assert params["birth_standard_time"] == "1984-02-15T00:00:00+08:00"
+    assert params["subject"]["birth_time"] == "1984-02-15T00:00:00+08:00"
     assert result["matter"]["matter"] == "wealth"
     assert result["matter"]["name"] == "求财"
     assert result["chart"]["ri_gan_gong"] == "震"

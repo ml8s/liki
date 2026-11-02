@@ -26,7 +26,7 @@
       "input": {
         "zuo_shan": 2,
         "xiang_shan": 14,
-        "zhaiyun_date": "2024-02-04T12:00:00+08:00"
+        "zhaiyun_start_time": "2024-02-04T12:00:00+08:00"
       },
       "expect": {
         "yun.year": 2023,
@@ -40,7 +40,7 @@
       "input": {
         "zuo_shan": 2,
         "xiang_shan": 14,
-        "zhaiyun_date": "2024-02-04T18:00:00+08:00"
+        "zhaiyun_start_time": "2024-02-04T18:00:00+08:00"
       },
       "expect": {
         "yun.year": 2024,
@@ -58,7 +58,7 @@
         "liu_ri_longitude": 116.4
       },
       "expect": {
-        "liu_ri.0.date": "2026-06-01",
+        "liu_ri.0.liu_ri_date": "2026-06-01",
         "liu_ri.0.ri_gan": "丙",
         "liu_ri.0.ri_zhi": "午",
         "liu_ri.0.ri_jie.liu_ri_local_date": "2026-06-01",
@@ -171,7 +171,7 @@
         "liu_nian.0.nian_jie.lunar_year": 2024,
         "liu_nian.0.nian_jie.lunar_year_start": "2024-02-09",
         "liu_nian.0.nian_jie.boundary_day": true,
-        "liu_nian.0.nian_jie.liunian_start_date": "2024-02-09"
+        "liu_nian.0.nian_jie.liu_nian_start_date": "2024-02-09"
       }
     },
     {
@@ -189,7 +189,7 @@
         "liu_yue.0.yue_jie.lunar_month_start": "2024-02-09",
         "liu_yue.0.yue_jie.lunar_month_end": "2024-03-10",
         "liu_yue.0.yue_jie.boundary_day": true,
-        "liu_yue.0.yue_jie.liuyue_start_date": "2024-02-09"
+        "liu_yue.0.yue_jie.liu_yue_start_date": "2024-02-09"
       }
     },
     {
@@ -252,7 +252,7 @@
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2023,
-        "liu_nian.0.nian_jie.liunian_start_date": "2024-02-04"
+        "liu_nian.0.nian_jie.liu_nian_start_date": "2024-02-04"
       }
     },
     {
@@ -265,7 +265,7 @@
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2024,
-        "liu_nian.0.nian_jie.liunian_start_date": "2024-02-04"
+        "liu_nian.0.nian_jie.liu_nian_start_date": "2024-02-04"
       }
     },
     {
@@ -296,7 +296,7 @@
       "name": "xuankong_liunian_local_date",
       "tool": "xuankong_liunian",
       "input": {
-        "liunian_date": "2024-02-03T21:27:07-11:00",
+        "liu_nian_start_time": "2024-02-03T21:27:07-11:00",
         "liu_nian_count": 1
       },
       "expect": {

@@ -513,9 +513,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	chartRaw, err := registry.Call(context.Background(), "xuankong_chart", mustJSON(t, XuankongChartInput{
-		ZhaiYunDate: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
-		ZuoShan:     2,
-		XiangShan:   14,
+		ZhaiYunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
+		ZuoShan:          2,
+		XiangShan:        14,
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
@@ -532,8 +532,8 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liunianRaw, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart:       &chart,
-		LiuNianDate: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
+		Chart:            &chart,
+		LiuNianStartTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.liunian: %v", err)
@@ -556,8 +556,8 @@ func TestEngineContractCalls(t *testing.T) {
 	tampered := chart
 	tampered.ZuoShanName = "壬"
 	if _, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart:       &tampered,
-		LiuNianDate: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
+		Chart:            &tampered,
+		LiuNianStartTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
 	})); err == nil || !strings.Contains(err.Error(), "digest mismatch") {
 		t.Fatalf("expected digest mismatch, got %v", err)
 	}

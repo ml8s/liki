@@ -10,7 +10,7 @@ import (
 type GanRelation struct {
 	GanA     ganzhi.Gan `json:"gan_a"`
 	GanB     ganzhi.Gan `json:"gan_b"`
-	Type     string     `json:"type"`
+	Kind     string     `json:"relation_kind"`
 	Relation string     `json:"relation"`
 }
 
@@ -18,8 +18,8 @@ type GanRelation struct {
 type ZhiRelation struct {
 	ZhiA   ganzhi.Zhi `json:"zhi_a"`
 	ZhiB   ganzhi.Zhi `json:"zhi_b"`
-	Type   string     `json:"type"`
-	Detail string     `json:"detail"`
+	Kind   string     `json:"relation_kind"`
+	Detail string     `json:"relation_explanation"`
 }
 
 // Relation type constants for gan and zhi interactions.
@@ -53,14 +53,14 @@ type zhuInteraction struct {
 func analyzeGanRelation(a, b ganzhi.Gan) GanRelation {
 	r := GanRelation{GanA: a, GanB: b}
 	if a == b {
-		r.Type = relSame
+		r.Kind = relSame
 		r.Relation = fmt.Sprintf("%s%s同气", ganzhi.GanName(a), ganzhi.GanName(b))
 		return r
 	}
 
 	for _, p := range ganzhi.GanHes {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
-			r.Type = relGanHe
+			r.Kind = relGanHe
 			r.Relation = fmt.Sprintf("%s%s合化%s", ganzhi.GanName(a), ganzhi.GanName(b), p.Result.String())
 			return r
 		}
@@ -68,22 +68,22 @@ func analyzeGanRelation(a, b ganzhi.Gan) GanRelation {
 
 	aElem, bElem := ganzhi.GanWuxing(a), ganzhi.GanWuxing(b)
 	if aElem == bElem {
-		r.Type = relSame
+		r.Kind = relSame
 		r.Relation = fmt.Sprintf("%s%s同气", ganzhi.GanName(a), ganzhi.GanName(b))
 	} else if ganzhi.Sheng(aElem, bElem) {
-		r.Type = relSheng
+		r.Kind = relSheng
 		r.Relation = fmt.Sprintf("%s生%s", ganzhi.GanName(a), ganzhi.GanName(b))
 	} else if ganzhi.Sheng(bElem, aElem) {
-		r.Type = relSheng
+		r.Kind = relSheng
 		r.Relation = fmt.Sprintf("%s生%s", ganzhi.GanName(b), ganzhi.GanName(a))
 	} else if ganzhi.Ke(aElem, bElem) {
-		r.Type = relKe
+		r.Kind = relKe
 		r.Relation = fmt.Sprintf("%s克%s", ganzhi.GanName(a), ganzhi.GanName(b))
 	} else if ganzhi.Ke(bElem, aElem) {
-		r.Type = relKe
+		r.Kind = relKe
 		r.Relation = fmt.Sprintf("%s克%s", ganzhi.GanName(b), ganzhi.GanName(a))
 	} else {
-		r.Type = relNone
+		r.Kind = relNone
 		r.Relation = "无特殊关系"
 	}
 	return r
@@ -98,18 +98,18 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	if a == b {
 		// 同支：辰午酉亥 同支相见为自刑，其余为同气。
 		if ganzhi.IsXing(a, b) {
-			r.Type = relXing
+			r.Kind = relXing
 			r.Detail = fmt.Sprintf("%s%s自刑", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
 			return r
 		}
-		r.Type = relSame
+		r.Kind = relSame
 		r.Detail = fmt.Sprintf("%s%s同气", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
 		return r
 	}
 
 	for _, p := range ganzhi.ZhiHes {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
-			r.Type = relLiuHe
+			r.Kind = relLiuHe
 			r.Detail = fmt.Sprintf("%s%s合化%s", ganzhi.ZhiName(a), ganzhi.ZhiName(b), p.Result.String())
 			return r
 		}
@@ -121,7 +121,7 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 
 	for _, p := range ganzhi.ChongPairs {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
-			r.Type = relLiuChong
+			r.Kind = relLiuChong
 			r.Detail = fmt.Sprintf("%s%s相冲", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
 			return r
 		}
@@ -131,7 +131,7 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	// 组内不同支（如午亥、辰酉）不构成刑。
 	// 优先级：六合/半合 / 拱 / 六冲 > 相刑 > 六害（寅巳相刑显著于六害；寅申冲/丑未冲显著于刑）。
 	if ganzhi.IsXing(a, b) {
-		r.Type = relXing
+		r.Kind = relXing
 		xType := "刑"
 		for _, x := range ganzhi.XingGroups {
 			if containsPair(x.Zhi, a, b) {
@@ -145,7 +145,7 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 
 	for _, p := range ganzhi.HaiPairs {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
-			r.Type = relLiuHai
+			r.Kind = relLiuHai
 			r.Detail = fmt.Sprintf("%s%s相害", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
 			return r
 		}
@@ -156,18 +156,18 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	}
 
 	if ganzhi.IsAnHe(a, b) {
-		r.Type = relAnHe
+		r.Kind = relAnHe
 		r.Detail = fmt.Sprintf("%s%s暗合", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
 		return r
 	}
 
 	if ganzhi.IsPo(a, b) {
-		r.Type = relPo
+		r.Kind = relPo
 		r.Detail = fmt.Sprintf("%s%s相破", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
 		return r
 	}
 
-	r.Type = relNone
+	r.Kind = relNone
 	r.Detail = "无特殊关系"
 	return r
 }
@@ -190,12 +190,12 @@ func pairTripleHeRelation(a, b ganzhi.Zhi) (ZhiRelation, bool) {
 					break
 				}
 			}
-			r.Type = relSanHePartial
+			r.Kind = relSanHePartial
 			r.Detail = fmt.Sprintf("%s%s半合%s局，缺%s", ganzhi.ZhiName(a), ganzhi.ZhiName(b), tr.Element.String(), ganzhi.ZhiName(missing))
 			return r, true
 		}
 		if (a == tr.Zhi[0] && b == tr.Zhi[2]) || (a == tr.Zhi[2] && b == tr.Zhi[0]) {
-			r.Type = relSanHeGong
+			r.Kind = relSanHeGong
 			r.Detail = fmt.Sprintf("%s%s拱%s，%s局候选", ganzhi.ZhiName(a), ganzhi.ZhiName(b), ganzhi.ZhiName(imperial), tr.Element.String())
 			return r, true
 		}
@@ -209,7 +209,7 @@ func pairTripleHuiRelation(a, b ganzhi.Zhi) (ZhiRelation, bool) {
 	r := ZhiRelation{ZhiA: a, ZhiB: b}
 	for _, group := range ganzhi.TripleHuiList {
 		if (a == group.Zhi[0] && b == group.Zhi[2]) || (a == group.Zhi[2] && b == group.Zhi[0]) {
-			r.Type = relSanHuiGong
+			r.Kind = relSanHuiGong
 			r.Detail = fmt.Sprintf("%s%s拱%s，%s方候选", ganzhi.ZhiName(a), ganzhi.ZhiName(b), ganzhi.ZhiName(group.Zhi[1]), group.Element.String())
 			return r, true
 		}

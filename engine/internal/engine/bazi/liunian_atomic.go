@@ -72,10 +72,10 @@ func computeLiuNianAtomicFacts(bz ganzhi.Bazi, year int, yearGan ganzhi.Gan, yea
 	yearElement := ganzhi.GanWuxing(yearGan)
 	facts.YearGanControlsDayGan = ganzhi.Ke(yearElement, dayElement)
 	facts.DayGanControlsYearGan = ganzhi.Ke(dayElement, yearElement)
-	facts.GanCombines = analyzeGanRelation(yearGan, bz.Ri.Gan).Type == relGanHe
+	facts.GanCombines = analyzeGanRelation(yearGan, bz.Ri.Gan).Kind == relGanHe
 	if currentDaYun != nil {
-		facts.DayunGanCombines = analyzeGanRelation(currentDaYun.Gan, yearGan).Type == relGanHe
-		facts.DayunZhiClashesYear = analyzeZhiRelation(currentDaYun.Zhi, yearZhi).Type == relLiuChong
+		facts.DayunGanCombines = analyzeGanRelation(currentDaYun.Gan, yearGan).Kind == relGanHe
+		facts.DayunZhiClashesYear = analyzeZhiRelation(currentDaYun.Zhi, yearZhi).Kind == relLiuChong
 	}
 	facts.DayVoidBranches = dayVoidBranches(bz.Ri)
 	facts.YearEqualsDayPillar = yearGan == bz.Ri.Gan && yearZhi == bz.Ri.Zhi
@@ -204,11 +204,11 @@ func annualBranchRelations(bz ganzhi.Bazi, yearZhi ganzhi.Zhi) map[string]string
 	result := map[string]string{}
 	for _, pillar := range bz.Slice() {
 		relation := analyzeZhiRelation(yearZhi, pillar.Zhi)
-		if relation.Type == relNone || relation.Type == relSame {
+		if relation.Kind == relNone || relation.Kind == relSame {
 			continue
 		}
 		label := ""
-		switch relation.Type {
+		switch relation.Kind {
 		case relLiuHe:
 			label = "liu_he"
 		case relSanHePartial:

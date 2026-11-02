@@ -13,96 +13,84 @@
         "end_year": 2012,
         "qi_sui": 4,
         "zhi_sui": 13,
-        "gong": "命宫",
-        "name": "命宫"
+        "ming_gong": "命宫"
       },
       {
         "start_year": 2013,
         "end_year": 2022,
         "qi_sui": 14,
         "zhi_sui": 23,
-        "gong": "兄弟",
-        "name": "兄弟"
+        "ming_gong": "兄弟"
       },
       {
         "start_year": 2023,
         "end_year": 2032,
         "qi_sui": 24,
         "zhi_sui": 33,
-        "gong": "夫妻",
-        "name": "夫妻"
+        "ming_gong": "夫妻"
       },
       {
         "start_year": 2033,
         "end_year": 2042,
         "qi_sui": 34,
         "zhi_sui": 43,
-        "gong": "子女",
-        "name": "子女"
+        "ming_gong": "子女"
       },
       {
         "start_year": 2043,
         "end_year": 2052,
         "qi_sui": 44,
         "zhi_sui": 53,
-        "gong": "财帛",
-        "name": "财帛"
+        "ming_gong": "财帛"
       },
       {
         "start_year": 2053,
         "end_year": 2062,
         "qi_sui": 54,
         "zhi_sui": 63,
-        "gong": "疾厄",
-        "name": "疾厄"
+        "ming_gong": "疾厄"
       },
       {
         "start_year": 2063,
         "end_year": 2072,
         "qi_sui": 64,
         "zhi_sui": 73,
-        "gong": "迁移",
-        "name": "迁移"
+        "ming_gong": "迁移"
       },
       {
         "start_year": 2073,
         "end_year": 2082,
         "qi_sui": 74,
         "zhi_sui": 83,
-        "gong": "仆役",
-        "name": "仆役"
+        "ming_gong": "仆役"
       },
       {
         "start_year": 2083,
         "end_year": 2092,
         "qi_sui": 84,
         "zhi_sui": 93,
-        "gong": "官禄",
-        "name": "官禄"
+        "ming_gong": "官禄"
       },
       {
         "start_year": 2093,
         "end_year": 2102,
         "qi_sui": 94,
         "zhi_sui": 103,
-        "gong": "田宅",
-        "name": "田宅"
+        "ming_gong": "田宅"
       },
       {
         "start_year": 2103,
         "end_year": 2112,
         "qi_sui": 104,
         "zhi_sui": 113,
-        "gong": "福德",
-        "name": "福德"
+        "ming_gong": "福德"
       },
       {
         "start_year": 2113,
         "end_year": 2122,
         "qi_sui": 114,
         "zhi_sui": 123,
-        "gong": "父母",
-        "name": "父母"
+        "ming_gong": "父母"
       }
     ]
   }

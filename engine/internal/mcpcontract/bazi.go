@@ -73,8 +73,8 @@ type baziTiaoHouJSON struct {
 	PrimaryWuxing      string                      `json:"primary_wuxing"`
 	SecondaryWuxing    string                      `json:"secondary_wuxing"`
 	Season             string                      `json:"season"`
-	Detail             string                      `json:"detail"`
-	Model              string                      `json:"model"`
+	TiaoHouExplanation string                      `json:"tiao_hou_explanation"`
+	TiaoHouModelID     string                      `json:"tiao_hou_model_id"`
 	Primary            bazi.TiaoHouAvailability    `json:"primary"`
 	Secondary          requiredTiaoHouAvailability `json:"secondary"`
 	SecondaryCondition string                      `json:"secondary_condition,omitempty"`
@@ -100,8 +100,8 @@ func marshalRawBaziCompleteChart(full bazi.FullChart, ziShiRule string) (json.Ra
 			PrimaryWuxing:      full.TiaoHou.PrimaryWuxing,
 			SecondaryWuxing:    full.TiaoHou.SecondaryWuxing,
 			Season:             full.TiaoHou.Season,
-			Detail:             full.TiaoHou.Detail,
-			Model:              full.TiaoHou.Model,
+			TiaoHouExplanation: full.TiaoHou.TiaoHouExplanation,
+			TiaoHouModelID:     full.TiaoHou.ModelID,
 			Primary:            full.TiaoHou.Primary,
 			Secondary:          requiredTiaoHouAvailability{value: full.TiaoHou.Secondary},
 			SecondaryCondition: full.TiaoHou.SecondaryCondition,

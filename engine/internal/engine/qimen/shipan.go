@@ -21,24 +21,24 @@ type Chart struct {
 	YingQi              YingQi             `json:"ying_qi"`
 	RiGanPalace         GongIndex          `json:"ri_gan_gong"`  // 日干落宫（排盘固有）
 	ShiGanPalace        GongIndex          `json:"shi_gan_gong"` // 时干落宫（排盘固有）
-	RiGanPalaceFacts    []GanPalaceFact    `json:"ri_gan_palace_facts"`
-	ShiGanPalaceFacts   []GanPalaceFact    `json:"shi_gan_palace_facts"`
+	RiGanGongFacts      []GanGongFact      `json:"ri_gan_gong_facts"`
+	ShiGanGongFacts     []GanGongFact      `json:"shi_gan_gong_facts"`
 	RiShiRelation       RiShiRelation      `json:"ri_shi_relation"`
 	KongWangAffected    []AffectedSymbol   `json:"kong_wang_affected"`
 	MaXingAffected      []AffectedSymbol   `json:"ma_xing_affected"`
-	PalaceWangShuai     []PalaceWangShuai  `json:"palace_wang_shuai"`
-	ShiGanGongWangShuai PalaceWangShuai    `json:"shi_gan_gong_wang_shuai"`
+	GongWangShuai       []GongWangShuai    `json:"gong_wang_shuai"`
+	ShiGanGongWangShuai GongWangShuai      `json:"shi_gan_gong_wang_shuai"`
 	DutyStarPalace      GongIndex          `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
 	DutyDoorPalace      GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
 	YongShen            *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
 	Specialized         SpecializedContext `json:"special_facts"`
 }
 
-// GanPalaceFact records every palace layer occupied by a stem. The primary
+// GanGongFact records every palace layer occupied by a stem. The primary
 // ri_gan_gong/shi_gan_gong keeps the heaven-first rule; these facts preserve
 // the earth-stem palace that the single value previously discarded.
-type GanPalaceFact struct {
-	Palace GongIndex `json:"palace"`
+type GanGongFact struct {
+	Palace GongIndex `json:"gong"`
 	Layer  string    `json:"layer"` // heaven / earth
 }
 
@@ -56,12 +56,11 @@ type AffectedSymbol struct {
 	Gong   GongIndex  `json:"gong"`
 }
 
-// PalaceWangShuai 表示宫位五行在当前月令下的旺相休囚死状态。
-type PalaceWangShuai struct {
-	Gong          GongIndex        `json:"gong"`
-	Wuxing        ganzhi.Wuxing    `json:"wuxing"`
-	WangShuai     ganzhi.WangShuai `json:"wang_shuai"`
-	WangShuaiName string           `json:"wang_shuai_name"`
+// GongWangShuai 表示宫位五行在当前月令下的旺相休囚死状态。
+type GongWangShuai struct {
+	Gong      GongIndex        `json:"gong"`
+	Wuxing    ganzhi.Wuxing    `json:"wuxing"`
+	WangShuai ganzhi.WangShuai `json:"wang_shuai"`
 }
 
 // computeChart computes a qimen chart with the base timing focus.
@@ -95,8 +94,8 @@ func buildChart(bz ganzhi.Bazi, termTime, chartTime time.Time, method Method) Ch
 
 	riGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
 	shiGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Shi.Gan, bz.Shi.Zhi))
-	riGanFacts := findGanPalaceFacts(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
-	shiGanFacts := findGanPalaceFacts(p, resolveJiaDunGan(bz.Shi.Gan, bz.Shi.Zhi))
+	riGanFacts := findGanGongFacts(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
+	shiGanFacts := findGanGongFacts(p, resolveJiaDunGan(bz.Shi.Gan, bz.Shi.Zhi))
 	leadP := leadPillarPalace(p)
 
 	chart := Chart{
@@ -111,12 +110,12 @@ func buildChart(bz ganzhi.Bazi, termTime, chartTime time.Time, method Method) Ch
 		Patterns:            findPatterns(p),
 		RiGanPalace:         riGanP,
 		ShiGanPalace:        shiGanP,
-		RiGanPalaceFacts:    riGanFacts,
-		ShiGanPalaceFacts:   shiGanFacts,
+		RiGanGongFacts:      riGanFacts,
+		ShiGanGongFacts:     shiGanFacts,
 		RiShiRelation:       analyzeRiShiRelation(riGanP, shiGanP),
 		KongWangAffected:    affectedVoidSymbols(p, riGanP, shiGanP, leadP),
 		MaXingAffected:      affectedHorseSymbols(p, riGanP, shiGanP, leadP),
-		PalaceWangShuai:     palaceWangShuai(p, bz.Yue.Zhi),
+		GongWangShuai:       palaceWangShuai(p, bz.Yue.Zhi),
 		ShiGanGongWangShuai: palaceWangShuaiForPalace(p, bz.Yue.Zhi, shiGanP),
 		DutyStarPalace:      findStarPalace(p, p.DutyStar),
 		DutyDoorPalace:      findDoorPalaceIdx(p, p.DutyDoor),
@@ -222,31 +221,30 @@ func focusSymbols(dayPalace, hourPalace, leadPalace GongIndex) []focusSymbol {
 	}
 }
 
-func palaceWangShuai(p board, yueZhi ganzhi.Zhi) []PalaceWangShuai {
-	result := []PalaceWangShuai{}
+func palaceWangShuai(p board, yueZhi ganzhi.Zhi) []GongWangShuai {
+	result := []GongWangShuai{}
 	for i := range p.GongWei {
 		wuxing := luoshu.PalaceTable[i+1].Element
 		wangShuai := ganzhi.WangShuaiOf(wuxing, yueZhi)
-		result = append(result, PalaceWangShuai{
-			Gong:          GongIndex(i + 1),
-			Wuxing:        wuxing,
-			WangShuai:     wangShuai,
-			WangShuaiName: wangShuai.String(),
+		result = append(result, GongWangShuai{
+			Gong:      GongIndex(i + 1),
+			Wuxing:    wuxing,
+			WangShuai: wangShuai,
 		})
 	}
 	return result
 }
 
-func palaceWangShuaiForPalace(p board, yueZhi ganzhi.Zhi, palace GongIndex) PalaceWangShuai {
+func palaceWangShuaiForPalace(p board, yueZhi ganzhi.Zhi, palace GongIndex) GongWangShuai {
 	if palace < GongKan || palace > GongLi {
-		return PalaceWangShuai{}
+		return GongWangShuai{}
 	}
 	for _, item := range palaceWangShuai(p, yueZhi) {
 		if item.Gong == palace {
 			return item
 		}
 	}
-	return PalaceWangShuai{}
+	return GongWangShuai{}
 }
 
 func leadPillarPalace(p board) GongIndex {
@@ -273,18 +271,18 @@ func findGanPalaceIdx(p board, g ganzhi.Gan) GongIndex {
 	return 0
 }
 
-func findGanPalaceFacts(p board, g ganzhi.Gan) []GanPalaceFact {
-	facts := []GanPalaceFact{}
+func findGanGongFacts(p board, g ganzhi.Gan) []GanGongFact {
+	facts := []GanGongFact{}
 	for i := range p.GongWei {
 		for _, item := range p.GongWei[i].TianPan {
 			if item.Gan == g {
-				facts = append(facts, GanPalaceFact{Palace: GongIndex(i + 1), Layer: "heaven"})
+				facts = append(facts, GanGongFact{Palace: GongIndex(i + 1), Layer: "heaven"})
 			}
 		}
 	}
 	for i := range p.GongWei {
 		if p.GongWei[i].DiPanGan == g {
-			facts = append(facts, GanPalaceFact{Palace: GongIndex(i + 1), Layer: "earth"})
+			facts = append(facts, GanGongFact{Palace: GongIndex(i + 1), Layer: "earth"})
 		}
 	}
 	return facts

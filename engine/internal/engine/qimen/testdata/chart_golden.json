@@ -814,23 +814,23 @@
   },
   "ri_gan_gong": "震",
   "shi_gan_gong": "兑",
-  "ri_gan_palace_facts": [
+  "ri_gan_gong_facts": [
     {
-      "palace": "震",
+      "gong": "震",
       "layer": "heaven"
     },
     {
-      "palace": "兑",
+      "gong": "兑",
       "layer": "earth"
     }
   ],
-  "shi_gan_palace_facts": [
+  "shi_gan_gong_facts": [
     {
-      "palace": "兑",
+      "gong": "兑",
       "layer": "heaven"
     },
     {
-      "palace": "震",
+      "gong": "震",
       "layer": "earth"
     }
   ],
@@ -842,67 +842,57 @@
   },
   "kong_wang_affected": [],
   "ma_xing_affected": [],
-  "palace_wang_shuai": [
+  "gong_wang_shuai": [
     {
       "gong": "坎",
       "wuxing": "水",
-      "wang_shuai": "囚",
-      "wang_shuai_name": "囚"
+      "wang_shuai": "囚"
     },
     {
       "gong": "坤",
       "wuxing": "土",
-      "wang_shuai": "相",
-      "wang_shuai_name": "相"
+      "wang_shuai": "相"
     },
     {
       "gong": "震",
       "wuxing": "木",
-      "wang_shuai": "休",
-      "wang_shuai_name": "休"
+      "wang_shuai": "休"
     },
     {
       "gong": "巽",
       "wuxing": "木",
-      "wang_shuai": "休",
-      "wang_shuai_name": "休"
+      "wang_shuai": "休"
     },
     {
       "gong": "中",
       "wuxing": "土",
-      "wang_shuai": "相",
-      "wang_shuai_name": "相"
+      "wang_shuai": "相"
     },
     {
       "gong": "乾",
       "wuxing": "金",
-      "wang_shuai": "死",
-      "wang_shuai_name": "死"
+      "wang_shuai": "死"
     },
     {
       "gong": "兑",
       "wuxing": "金",
-      "wang_shuai": "死",
-      "wang_shuai_name": "死"
+      "wang_shuai": "死"
     },
     {
       "gong": "艮",
       "wuxing": "土",
-      "wang_shuai": "相",
-      "wang_shuai_name": "相"
+      "wang_shuai": "相"
     },
     {
       "gong": "离",
       "wuxing": "火",
-      "wang_shuai": "旺",
-      "wang_shuai_name": "旺"
+      "wang_shuai": "旺"
     }
   ],
   "shi_gan_gong_wang_shuai": {
     "gong": "兑",
     "wuxing": "金",
-    "wang_shuai": "死",
-    "wang_shuai_name": "死"
+    "wang_shuai": "死"
   },
   "zhi_fu_xing_gong": "震",
   "zhi_shi_men_gong": "震",
@@ -915,29 +905,29 @@
         "earth_gan": "辛"
       }
     ],
-    "lost_context": [
+    "lost_facts": [
       {
         "gong": "兑",
         "door": "伤门",
         "wang_shuai": "死"
       }
     ],
-    "thief_context": [
+    "thief_facts": [
       {
         "role": "小贼",
         "symbol": "玄武",
         "gong": "坤",
-        "wang_shuai_label": "相",
-        "lucky_pattern_names": []
+        "wang_shuai": "相",
+        "lucky_ge_ju_names": []
       },
       {
         "role": "大贼",
         "symbol": "天蓬",
         "gong": "离",
-        "wang_shuai_label": "囚",
-        "lucky_pattern_names": []
+        "wang_shuai": "囚",
+        "lucky_ge_ju_names": []
       }
     ],
-    "tianwang_context": []
+    "tianwang_facts": []
   }
 }

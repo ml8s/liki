@@ -45,7 +45,7 @@ func TestComputeLiuYue_WuHuDun(t *testing.T) {
 	if ly.ShiShen == "" {
 		t.Error("ShiShen is empty")
 	}
-	if ly.Element == "" {
+	if ly.YueGanWuxing == "" {
 		t.Error("Element is empty")
 	}
 }
@@ -145,9 +145,6 @@ func TestComputeLiuRi_HasRequiredFields(t *testing.T) {
 	if lr.RiZhi < 1 || lr.RiZhi > 12 {
 		t.Errorf("RiZhi = %d", lr.RiZhi)
 	}
-	if lr.DayName == "" {
-		t.Error("DayName is empty")
-	}
 	if lr.ShiShen == "" {
 		t.Error("ShiShen is empty")
 	}
@@ -221,9 +218,6 @@ func TestComputeLiuShi_HasRequiredFields(t *testing.T) {
 	}
 	if ls.ShiZhi < 1 || ls.ShiZhi > 12 {
 		t.Errorf("ShiZhi = %d", ls.ShiZhi)
-	}
-	if ls.HourName == "" {
-		t.Error("HourName is empty")
 	}
 	if ls.ShiShen == "" {
 		t.Error("ShiShen is empty")

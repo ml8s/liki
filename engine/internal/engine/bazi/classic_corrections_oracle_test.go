@@ -193,7 +193,7 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 		full.FuYi.Basis.RiGanGen == "" || len(full.FuYi.Basis.RiGanTongGen) == 0 {
 		t.Fatalf("fu yi model = %+v", full.FuYi)
 	}
-	if full.TiaoHou.Model != "qiongtong_primary_secondary_table" ||
+	if full.TiaoHou.ModelID != "qiongtong_primary_secondary_table" ||
 		(!full.TiaoHou.Primary.Transparent && !full.TiaoHou.Primary.Hidden) {
 		t.Fatalf("tiao hou model = %+v", full.TiaoHou)
 	}

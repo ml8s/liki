@@ -32,9 +32,9 @@ def _coin_casting():
             {
                 "position": index,
                 "coins": ["正", "正", "反"],
-                "value": 8,
-                "label": "少阴",
-                "changing": False,
+                "yao_value": 8,
+                "yao_label": "少阴",
+                "is_dong_yao": False,
             }
             for index in range(1, 7)
         ],
@@ -69,7 +69,7 @@ def _liuyao_projected():
         "facts": {
             "hidden_lines": [], "branch_relation_facts": [], "day_clash_facts": [],
             "moving_transformations": [], "san_he_candidates": [],
-            "force_chain": {"yong_shen": "官鬼", "yong_element": "火", "position": 4, "entries": []},
+            "yong_shen_force_chain": {"yong_shen": "官鬼", "yong_element": "火", "position": 4, "entries": []},
             "yong_shen_candidates": [],
         },
         "timing_candidates": [{"id": "timing-1", "mechanism": "动爻逢值"}],
@@ -244,7 +244,7 @@ def test_liuyao_snapshot_matches_contract(monkeypatch):
         "order": "bottom_up",
         "casting_id": "a" * 64,
         "rounds": [
-            {"position": i, "coins": ["正", "正", "反"], "value": 8, "label": "少阴", "changing": False}
+            {"position": i, "coins": ["正", "正", "反"], "yao_value": 8, "yao_label": "少阴", "is_dong_yao": False}
             for i in range(1, 7)
         ],
         "yaos": [8] * 6,

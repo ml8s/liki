@@ -66,14 +66,14 @@ func TestSourceChartDigestFailsClosed(t *testing.T) {
 func TestXuankongSeriesValidatesReusableChart(t *testing.T) {
 	registry := testEngine()
 	chartRaw, err := registry.Call(context.Background(), "xuankong_chart", mustJSON(t, XuankongChartInput{
-		ZhaiYunDate: "2026-07-31T12:00:00+08:00", ZuoShan: 2, XiangShan: 14,
+		ZhaiYunStartTime: "2026-07-31T12:00:00+08:00", ZuoShan: 2, XiangShan: 14,
 	}))
 	if err != nil {
 		t.Fatal(err)
 	}
 	var chart map[string]any
 	decode(t, chartRaw, &chart)
-	input := map[string]any{"chart": chart, "liunian_date": "2026-06-15T12:00:00+08:00"}
+	input := map[string]any{"chart": chart, "liu_nian_start_time": "2026-06-15T12:00:00+08:00"}
 	raw, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, input))
 	if err != nil {
 		t.Fatal(err)

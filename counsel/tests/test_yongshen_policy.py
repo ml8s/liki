@@ -71,7 +71,7 @@ def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
     assert result["alternatives"]["neutral"]["overstrong"]["value"] == "木"
     assert result["ge_ju_context"]["clear"] is True
     assert result["factors"]["phase"] == "pre_yongshen"
-    assert result["factors"]["direct"]["fu_yi"]["qiangruo"] == "中和"
+    assert result["factors"]["direct"]["fu_yi"]["qiang_ruo"] == "中和"
     assert result["factors"]["secondary"]["tiaohou_yong"] == "火"
 
 

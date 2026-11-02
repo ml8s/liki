@@ -96,7 +96,7 @@ func TestQueryDate_EventClassificationComesFromEngineTable(t *testing.T) {
 	if got.Event != "sign" || got.EventLabel != "签约" || got.Suitability != "recommended" {
 		t.Fatalf("event classification = %s/%s/%s, want sign/签约/recommended", got.Event, got.EventLabel, got.Suitability)
 	}
-	if got.Reason == "" {
+	if got.EventReason == "" {
 		t.Fatal("event reason is empty")
 	}
 }

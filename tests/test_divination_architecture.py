@@ -226,7 +226,7 @@ def test_qimen_standard_and_specialized_projections_are_split():
     projection = (TOOLS / "qimen_projection.py").read_text(encoding="utf-8")
     specialized = (TOOLS / "qimen_specialized.py").read_text(encoding="utf-8")
     route_names = (
-        "lost_context", "thief_context", "tianwang_context",
+        "lost_facts", "thief_facts", "tianwang_facts",
         "geng_ge", "geng_ge_levels", "geng_ge_status",
     )
     assert not any(f'projection == "{name}"' in projection for name in route_names)

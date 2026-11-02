@@ -175,7 +175,7 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 			if result.Season == "" {
 				t.Error("Season is empty")
 			}
-			if result.Detail == "" {
+			if result.TiaoHouExplanation == "" {
 				t.Error("Detail is empty")
 			}
 			// 用神值断言（穷通宝鉴 primary 五行，与 120 条原文参考表一致）。
@@ -721,7 +721,7 @@ func TestTiaoHou_AllEntriesValid(t *testing.T) {
 			}
 		}
 		// Detail should contain the day gan and month zhi names.
-		if result.Detail == "" {
+		if result.TiaoHouExplanation == "" {
 			t.Errorf("%s日%s月: Detail is empty",
 				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi))
 		}

@@ -314,8 +314,7 @@ type DaXianStep struct {
 	ZhiSui    int       `json:"zhi_sui"`
 	StartYear int       `json:"start_year"` // 本限起始公历年（birthYear + QiSui − 1）
 	EndYear   int       `json:"end_year"`   // 本限结束公历年（StartYear + 9）
-	Gong      gongIndex `json:"gong"`
-	Name      string    `json:"name"`
+	MingGong  gongIndex `json:"ming_gong"`
 }
 
 // LiuNian is the annual fate analysis.

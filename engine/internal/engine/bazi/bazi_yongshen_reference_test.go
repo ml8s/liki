@@ -38,7 +38,7 @@ func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
 	t.Logf("扶抑: yong=%s xi=%s ji=%s (strength=%s)",
 		fuYi.Yong, fuYi.Xi, fuYi.Ji, fuYi.Strength)
 	t.Logf("调候: yong=%s xi=%s (detail=%s)",
-		tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing, tiaoHou.Detail)
+		tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing, tiaoHou.TiaoHouExplanation)
 	t.Logf("格局候选: %s %s",
 		geJu.Pattern, geJu.Usage)
 }
@@ -92,7 +92,7 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 	t.Logf("  格局候选: %s %s",
 		geJu.Pattern, geJu.Usage)
 	t.Logf("  调候: yong=%s xi=%s detail=%s",
-		tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing, tiaoHou.Detail)
+		tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing, tiaoHou.TiaoHouExplanation)
 
 	// 滴天髓原文: 乙木秋生, 火旺制杀 → 具体格局取决于透干的火是食神/伤官: 食神→顺用, 伤官→逆用
 	if geJu.Usage != "逆用" {

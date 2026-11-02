@@ -93,13 +93,13 @@
       "type": "string",
       "required": true
     },
-    "ri_gan_palace_facts": {
+    "ri_gan_gong_facts": {
       "kind": "object_array",
-      "path": "ri_gan_palace_facts",
+      "path": "ri_gan_gong_facts",
       "required": true,
       "fields": {
-        "palace": {
-          "path": "palace",
+        "gong": {
+          "path": "gong",
           "type": "string",
           "required": true
         },
@@ -116,13 +116,13 @@
       "type": "string",
       "required": true
     },
-    "shi_gan_palace_facts": {
+    "shi_gan_gong_facts": {
       "kind": "object_array",
-      "path": "shi_gan_palace_facts",
+      "path": "shi_gan_gong_facts",
       "required": true,
       "fields": {
-        "palace": {
-          "path": "palace",
+        "gong": {
+          "path": "gong",
           "type": "string",
           "required": true
         },
@@ -590,9 +590,9 @@
         }
       }
     },
-    "palace_wang_shuai": {
+    "gong_wang_shuai": {
       "kind": "object_array",
-      "path": "palace_wang_shuai",
+      "path": "gong_wang_shuai",
       "required": true,
       "fields": {
         "gong": {
@@ -607,11 +607,6 @@
         },
         "wang_shuai": {
           "path": "wang_shuai",
-          "type": "string",
-          "required": true
-        },
-        "wang_shuai_name": {
-          "path": "wang_shuai_name",
           "type": "string",
           "required": true
         }
@@ -634,11 +629,6 @@
         },
         "wang_shuai": {
           "path": "wang_shuai",
-          "type": "string",
-          "required": true
-        },
-        "wang_shuai_name": {
-          "path": "wang_shuai_name",
           "type": "string",
           "required": true
         }
@@ -681,8 +671,8 @@
           "type": "string",
           "required": true
         },
-        "palace": {
-          "path": "palace",
+        "gong": {
+          "path": "gong",
           "type": "string",
           "required": true
         },
@@ -704,13 +694,13 @@
         }
       }
     },
-    "nian_gan_palace_facts": {
+    "nian_gan_gong_facts": {
       "kind": "object_array",
-      "path": "yong_shen.nian_gan_palace_facts",
+      "path": "yong_shen.nian_gan_gong_facts",
       "required": false,
       "fields": {
-        "palace": {
-          "path": "palace",
+        "gong": {
+          "path": "gong",
           "type": "string",
           "required": true
         },
@@ -721,7 +711,7 @@
         }
       }
     },
-    "yong_shen_palaces": {
+    "yong_shen_gong": {
       "kind": "object_array",
       "projection": "symbol_palaces",
       "path": "yong_shen.symbols",
@@ -732,8 +722,8 @@
           "type": "string",
           "required": true
         },
-        "palace": {
-          "path": "palace",
+        "gong": {
+          "path": "gong",
           "type": "string",
           "required": true
         },
@@ -794,7 +784,7 @@
     },
     "gong_domains": {
       "kind": "object_array",
-      "projection": "palace_domains",
+      "projection": "gong_domains",
       "path": "pan.gong_wei",
       "required": true,
       "fields": {
@@ -810,9 +800,9 @@
         }
       }
     },
-    "palace_directions": {
+    "gong_directions": {
       "kind": "object_array",
-      "projection": "palace_directions",
+      "projection": "gong_directions",
       "path": "pan.gong_wei",
       "required": true,
       "fields": {
@@ -835,10 +825,10 @@
       "type": "string",
       "required": true
     },
-    "lost_context": {
+    "lost_facts": {
       "kind": "object_array",
-      "projection": "lost_context",
-      "path": "special_facts.lost_context",
+      "projection": "lost_facts",
+      "path": "special_facts.lost_facts",
       "required": true,
       "fields": {
         "gong": {
@@ -920,10 +910,10 @@
       "type": "string",
       "required": true
     },
-    "thief_context": {
+    "thief_facts": {
       "kind": "object_array",
-      "projection": "thief_context",
-      "path": "special_facts.thief_context",
+      "projection": "thief_facts",
+      "path": "special_facts.thief_facts",
       "required": true,
       "fields": {
         "role": {
@@ -957,8 +947,8 @@
           "type": "string",
           "required": true
         },
-        "wang_shuai_label": {
-          "path": "wang_shuai_label",
+        "wang_shuai": {
+          "path": "wang_shuai",
           "type": "string",
           "required": true
         },
@@ -967,17 +957,17 @@
           "type": "boolean",
           "required": true
         },
-        "lucky_pattern_names": {
-          "path": "lucky_pattern_names",
+        "lucky_ge_ju_names": {
+          "path": "lucky_ge_ju_names",
           "type": "array",
           "required": true
         }
       }
     },
-    "tianwang_context": {
+    "tianwang_facts": {
       "kind": "object_array",
-      "projection": "tianwang_context",
-      "path": "special_facts.tianwang_context",
+      "projection": "tianwang_facts",
+      "path": "special_facts.tianwang_facts",
       "required": true,
       "fields": {
         "kind": {

@@ -64,15 +64,15 @@ func TestComputeBond_GoldenValues(t *testing.T) {
 		t.Errorf("ShiShenCross.BToA len=%d, want 4", len(bond.ShiShenCross.BToA))
 	}
 
-	// NayinCross: 4x4=16 pairs
-	if len(bond.NayinCross.Pairs) != 16 {
-		t.Errorf("NayinCross.Pairs len=%d, want 16", len(bond.NayinCross.Pairs))
+	// NaYinCross: 4x4=16 pairs
+	if len(bond.NaYinCross.Pairs) != 16 {
+		t.Errorf("NaYinCross.Pairs len=%d, want 16", len(bond.NaYinCross.Pairs))
 	}
 
 	// Each nayin pair should have a valid element relation
-	for i, pair := range bond.NayinCross.Pairs {
+	for i, pair := range bond.NaYinCross.Pairs {
 		if pair.Relation == "" {
-			t.Errorf("NayinCross pair %d: empty relation", i)
+			t.Errorf("NaYinCross pair %d: empty relation", i)
 		}
 	}
 

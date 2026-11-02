@@ -98,7 +98,7 @@ func TestTimeInputsCanonical(t *testing.T) {
 				timeField := map[string]string{
 					"liuyao_chart": "qi_gua_time", "qimen_chart": "qi_ju_time",
 					"huangli_days": "start_date", "bazhai_chart": "subject",
-					"xuankong_chart": "zhaiyun_date", "xuankong_liunian": "liunian_date",
+					"xuankong_chart": "zhaiyun_start_time", "xuankong_liunian": "liu_nian_start_time",
 				}[name]
 				if _, ok := schema.Properties[timeField]; !ok {
 					t.Fatalf("schema[%d]: missing %s", schemaIndex, timeField)

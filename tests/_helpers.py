@@ -83,8 +83,8 @@ def mock_yongshen_fields() -> dict:
         "fu_yi": {
             "wuxing_count": {"木": 1, "火": 1, "土": 1, "金": 1, "水": 1},
             "wang_shuai": {"木": "旺", "火": "相", "土": "死", "金": "囚", "水": "休"},
-            "yong": "木", "xi": "水", "ji": "金", "qiangruo": "身强",
-            "model": "support_control_with_day_master_strength",
+            "yong": "木", "xi": "水", "ji": "金", "qiang_ruo": "身强",
+            "fu_yi_model_id": "support_control_with_day_master_strength",
             "basis": {
                 "root_type": "month_main", "season": "旺", "yin_bi_count": 1,
                 "day_master_roots": [], "relation_facts": [],
@@ -92,7 +92,7 @@ def mock_yongshen_fields() -> dict:
         },
         "tiao_hou": {
             "primary_wuxing": "火", "secondary_wuxing": "木", "season": "春", "detail": "mock",
-            "model": "qiongtong_primary_secondary_table",
+            "tiao_hou_model_id": "qiongtong_primary_secondary_table",
             "primary": {
                 "stem": "丙", "transparent": True,
                 "hidden": False, "occurrences": [], "relation_facts": [],

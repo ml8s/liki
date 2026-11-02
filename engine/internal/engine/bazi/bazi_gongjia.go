@@ -6,11 +6,11 @@ import (
 
 // GongJia describes a recognized 三合拱 / 三会拱 between two bazi pillars.
 type GongJia struct {
-	ZhuA    int        `json:"pillar_a"` // index 0-3 of first pillar
-	ZhuB    int        `json:"pillar_b"` // index 0-3 of second pillar
-	Type    string     `json:"type"`     // "三合拱" / "三会拱"
-	Element string     `json:"wuxing"`   // 拱局五行
-	Zhi     ganzhi.Zhi `json:"zhi"`      // the hidden zhi between them
+	ZhuA    int        `json:"pillar_a"`      // index 0-3 of first pillar
+	ZhuB    int        `json:"pillar_b"`      // index 0-3 of second pillar
+	Kind    string     `json:"relation_kind"` // "三合拱" / "三会拱"
+	Element string     `json:"wuxing"`        // 拱局五行
+	Zhi     ganzhi.Zhi `json:"zhi"`           // the hidden zhi between them
 }
 
 // computeGongJia detects only the classical 八拱：三合局首墓二支拱旺支，
@@ -43,7 +43,7 @@ func computeGongJia(bz ganzhi.Bazi) []GongJia {
 		pA, pB := zhuIndexForZhi(bz, int(item.a)), zhuIndexForZhi(bz, int(item.b))
 		if pA >= 0 && pB >= 0 {
 			results = append(results, GongJia{
-				ZhuA: pA, ZhuB: pB, Type: meta.kind,
+				ZhuA: pA, ZhuB: pB, Kind: meta.kind,
 				Element: meta.element.String(), Zhi: item.mid,
 			})
 		}

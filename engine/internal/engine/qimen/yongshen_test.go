@@ -96,10 +96,10 @@ func TestYongShenBirthDateBoundary(t *testing.T) {
 	if before.NianGanPalace == nil || after.NianGanPalace == nil {
 		t.Fatal("year-stem palace missing")
 	}
-	if len(before.NianGanPalaceFacts) == 0 || len(after.NianGanPalaceFacts) == 0 {
+	if len(before.NianGanGongFacts) == 0 || len(after.NianGanGongFacts) == 0 {
 		t.Fatal("year-stem palace layer facts missing")
 	}
-	for _, fact := range append(append([]GanPalaceFact(nil), before.NianGanPalaceFacts...), after.NianGanPalaceFacts...) {
+	for _, fact := range append(append([]GanGongFact(nil), before.NianGanGongFacts...), after.NianGanGongFacts...) {
 		if fact.Palace == 0 || (fact.Layer != "heaven" && fact.Layer != "earth") {
 			t.Fatalf("year-stem palace fact = %+v", fact)
 		}

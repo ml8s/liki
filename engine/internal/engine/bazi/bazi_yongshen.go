@@ -17,7 +17,7 @@ type FuYiResult struct {
 	Yong        string            `json:"yong"`
 	Xi          string            `json:"xi"`
 	Ji          string            `json:"ji"`
-	Strength    string            `json:"qiangruo"`
+	Strength    string            `json:"qiang_ruo"`
 	Pattern     string            `json:"pattern,omitempty"`
 	ModelID     string            `json:"fu_yi_model_id"`
 	Basis       FuYiBasis         `json:"basis"`
@@ -28,8 +28,8 @@ type TiaoHouResult struct {
 	PrimaryWuxing      string               `json:"primary_wuxing"`
 	SecondaryWuxing    string               `json:"secondary_wuxing"`
 	Season             string               `json:"season"`
-	Detail             string               `json:"detail"`
-	Model              string               `json:"model"`
+	TiaoHouExplanation string               `json:"tiao_hou_explanation"`
+	ModelID            string               `json:"tiao_hou_model_id"`
 	Primary            TiaoHouAvailability  `json:"primary"`
 	Secondary          *TiaoHouAvailability `json:"secondary,omitempty"`
 	SecondaryCondition string               `json:"secondary_condition,omitempty"`

@@ -55,7 +55,6 @@ type HuangliShiChenOutput struct {
 type HuangliDayOutput struct {
 	Date        string                 `json:"date" jsonschema:"日期 YYYY-MM-DD。"`
 	RiZhu       HuangliRiZhuOutput     `json:"ri_zhu" jsonschema:"日柱信息。"`
-	NaYin       string                 `json:"na_yin" jsonschema:"日柱纳音。"`
 	Wuxing      string                 `json:"wuxing" jsonschema:"日支五行。"`
 	JianChu     string                 `json:"jian_chu" jsonschema:"建除十二神。"`
 	HuangDao    HuangliHuangDaoOutput  `json:"huangdao" jsonschema:"当日黄道/黑道。"`
@@ -72,7 +71,7 @@ type HuangliDayOutput struct {
 	Event       string                 `json:"event,omitempty" jsonschema:"查询事项。"`
 	EventLabel  string                 `json:"event_label,omitempty" jsonschema:"事项中文标签。"`
 	Suitability string                 `json:"suitability,omitempty" jsonschema:"事项适配结论。"`
-	Reason      string                 `json:"reason,omitempty" jsonschema:"事项适配依据。"`
+	EventReason string                 `json:"event_reason,omitempty" jsonschema:"事项适配依据。"`
 }
 
 // HuangliDays returns almanac facts for consecutive dates.
@@ -112,7 +111,6 @@ func huangliDayWire(day huangli.Day) HuangliDayOutput {
 			Zhi:   day.RiZhu.Zhi.String(),
 			NaYin: day.RiZhu.NaYin,
 		},
-		NaYin:       day.NaYin,
 		Wuxing:      day.Wuxing,
 		JianChu:     day.JianChu,
 		HuangDao:    HuangliHuangDaoOutput(day.HuangDao),
@@ -135,7 +133,7 @@ func huangliDayWire(day huangli.Day) HuangliDayOutput {
 		Event:       day.Event,
 		EventLabel:  day.EventLabel,
 		Suitability: day.Suitability,
-		Reason:      day.Reason,
+		EventReason: day.EventReason,
 	}
 	for _, item := range day.ShiChen {
 		output.ShiChen = append(output.ShiChen, HuangliShiChenOutput{

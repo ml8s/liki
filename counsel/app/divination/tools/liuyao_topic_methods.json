@@ -9,7 +9,7 @@
       "chou_shen": "官鬼",
       "primary_factors": [
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation",
         "world-state"
       ],
@@ -37,7 +37,7 @@
       "chou_shen": "父母",
       "primary_factors": [
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation",
         "world-state"
       ],
@@ -65,7 +65,7 @@
       "chou_shen": "兄弟",
       "primary_factors": [
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation",
         "world-state"
       ],
@@ -94,7 +94,7 @@
       "primary_factors": [
         "yong_shen.visibility",
         "hidden_lines",
-        "force_chain",
+        "yong_shen_force_chain",
         "world-state"
       ],
       "reference_factors": [
@@ -171,7 +171,7 @@
         "yong_shen.candidate-selection",
         "world-other-relation",
         "branch_relation",
-        "force_chain"
+        "yong_shen_force_chain"
       ],
       "reference_factors": [
         "liu_shou",
@@ -196,7 +196,7 @@
       "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "world-other-relation",
-        "force_chain",
+        "yong_shen_force_chain",
         "yong_shen.wang_shuai",
         "branch_relation"
       ],
@@ -223,7 +223,7 @@
       "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation",
         "world-state"
       ],
@@ -251,7 +251,7 @@
       "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation",
         "world-state"
       ],
@@ -280,7 +280,7 @@
       "primary_factors": [
         "world-other-relation",
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "branch_relation"
       ],
       "reference_factors": [
@@ -307,7 +307,7 @@
       "chou_shen": "妻财",
       "primary_factors": [
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation",
         "world-state"
       ],
@@ -337,7 +337,7 @@
       "primary_factors": [
         "yong_shen.candidate-selection",
         "world-other-relation",
-        "force_chain",
+        "yong_shen_force_chain",
         "branch_relation"
       ],
       "reference_factors": [
@@ -365,7 +365,7 @@
       "primary_factors": [
         "world-other-relation",
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation"
       ],
       "reference_factors": [
@@ -392,7 +392,7 @@
       "chou_shen": "父母",
       "primary_factors": [
         "yong_shen.wang_shuai",
-        "force_chain",
+        "yong_shen_force_chain",
         "moving-relation",
         "world-state"
       ],

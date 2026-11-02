@@ -178,9 +178,9 @@ def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
             {
                 "position": index,
                 "coins": ["正", "正", "反"],
-                "value": 8,
-                "label": "少阴",
-                "changing": False,
+                "yao_value": 8,
+                "yao_label": "少阴",
+                "is_dong_yao": False,
             }
             for index in range(1, 7)
         ],
@@ -204,9 +204,9 @@ def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
                 {
                     "position": 1,
                     "coins": ["正", "正", "反"],
-                    "value": 8,
-                    "label": "少阴",
-                    "changing": False,
+                    "yao_value": 8,
+                    "yao_label": "少阴",
+                    "is_dong_yao": False,
                 }
             ],
             "yaos": [7] * 6,

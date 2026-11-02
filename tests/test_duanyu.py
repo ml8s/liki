@@ -42,7 +42,7 @@ class TestEvaluateFactors(unittest.TestCase):
         f = mock_base_context(**ten_god_states)
         f["wuxing"] = {"wang_shuai": {"木": "旺", "火": "相", "土": "休", "金": "囚", "水": "死"},
                        "count": {"木": 2, "火": 1, "土": 1, "金": 1, "水": 0}}
-        f["fu_yi"] = {"qiangruo": "身强", "yong": "金", "xi": "土", "ji": "木"}
+        f["fu_yi"] = {"qiang_ruo": "身强", "yong": "金", "xi": "土", "ji": "木"}
         f["tiao_hou"] = {}
         f["ge_ju"] = {}
         return f

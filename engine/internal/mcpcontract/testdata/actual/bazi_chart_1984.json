@@ -496,8 +496,8 @@
       "yong": "无候选",
       "xi": "无候选",
       "ji": "无候选",
-      "qiangruo": "中和",
-      "model": "support_control_with_day_master_strength",
+      "qiang_ruo": "中和",
+      "fu_yi_model_id": "support_control_with_day_master_strength",
       "basis": {
         "root_type": "month_mid",
         "season": "死",
@@ -1043,7 +1043,7 @@
     "san_he": [],
     "san_he_partial": [
       {
-        "type": "半合",
+        "relation_kind": "半合",
         "name": "子辰水半合局",
         "wuxing": "水",
         "branches": [
@@ -1058,7 +1058,7 @@
     ],
     "san_hui": [
       {
-        "type": "三会",
+        "relation_kind": "三会",
         "name": "寅卯辰木方",
         "wuxing": "木",
         "branches": [
@@ -1098,8 +1098,8 @@
       "primary_wuxing": "火",
       "secondary_wuxing": "木",
       "season": "春",
-      "detail": "寅月己土，用丙调候，甲辅之",
-      "model": "qiongtong_primary_secondary_table",
+      "tiao_hou_explanation": "寅月己土，用丙调候，甲辅之",
+      "tiao_hou_model_id": "qiongtong_primary_secondary_table",
       "primary": {
         "stem": "丙",
         "transparent": true,

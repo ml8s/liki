@@ -19,8 +19,8 @@ def _rich_pan() -> dict:
         } | {
             "birth_year": 1990,
             "_yong_shen_wrapper": {
-                "fu_yi": {"model": "support_control_with_day_master_strength"},
-                "tiao_hou": {"model": "qiongtong_primary_secondary_table"},
+                "fu_yi": {"fu_yi_model_id": "support_control_with_day_master_strength"},
+                "tiao_hou": {"tiao_hou_model_id": "qiongtong_primary_secondary_table"},
                 "ge_ju": {"model": "ziping_month_command_candidate"},
             },
             "chang_sheng": [{"pillar": "nian", "stage": "长生"}],
@@ -52,8 +52,8 @@ def _rich_pan() -> dict:
                 "day_master_element": "木", "day_master_stem": "甲", "day_branch": "子",
                 "month_longevity": "沐浴", "pattern_god_transparent": False,
             },
-            "fu_yi": {"qiangruo": "身强", "yong": "木", "xi": "水", "ji": "金", "wuxing_count": {}, "wang_shuai": {}, "model": "test", "basis": {}},
-            "tiao_hou": {"primary_wuxing": "火", "season": "春", "model": "qiongtong_primary_secondary_table", "primary": {"stem": "丙", "transparent": True, "hidden": False, "occurrences": [], "relation_facts": []}},
+            "fu_yi": {"qiang_ruo": "身强", "yong": "木", "xi": "水", "ji": "金", "wuxing_count": {}, "wang_shuai": {}, "fu_yi_model_id": "test", "basis": {}},
+            "tiao_hou": {"primary_wuxing": "火", "season": "春", "tiao_hou_model_id": "qiongtong_primary_secondary_table", "primary": {"stem": "丙", "transparent": True, "hidden": False, "occurrences": [], "relation_facts": []}},
             "ge_ju": {"ge_ju": "正印格", "yong_fa": "顺用", "pattern_god_source": "main_qi", "structure": {}},
             "day_xun": "甲戌旬", "day_xun_kong": "申酉",
             "san_qi_name": "三奇", "gong_jia": ["拱夹"], "nayin_rel": [{"rel": "相生"}],
@@ -96,7 +96,7 @@ def test_domain_projection_does_not_mutate_pan():
 def test_fields_are_declared_when_present():
     facts = project_natal_facts(_rich_pan())
     assert facts["八字"]["大运"]["current_step_index"] == 0
-    assert facts["八字"]["tiao_hou"]["model"] == "qiongtong_primary_secondary_table"
+    assert facts["八字"]["tiao_hou"]["tiao_hou_model_id"] == "qiongtong_primary_secondary_table"
     assert facts["八字"]["稳定关系组"][0]["group"] == "甲己"
     assert facts["八字"]["命理原子事实"]["day_master_stem"] == "甲"
     assert facts["八字"]["天干相冲"][0]["gan_a"] == "甲"

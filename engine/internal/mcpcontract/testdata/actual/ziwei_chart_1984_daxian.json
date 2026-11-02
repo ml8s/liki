@@ -13,96 +13,84 @@
         "end_year": 1998,
         "qi_sui": 6,
         "zhi_sui": 15,
-        "gong": "命宫",
-        "name": "命宫"
+        "ming_gong": "命宫"
       },
       {
         "start_year": 1999,
         "end_year": 2008,
         "qi_sui": 16,
         "zhi_sui": 25,
-        "gong": "父母",
-        "name": "父母"
+        "ming_gong": "父母"
       },
       {
         "start_year": 2009,
         "end_year": 2018,
         "qi_sui": 26,
         "zhi_sui": 35,
-        "gong": "福德",
-        "name": "福德"
+        "ming_gong": "福德"
       },
       {
         "start_year": 2019,
         "end_year": 2028,
         "qi_sui": 36,
         "zhi_sui": 45,
-        "gong": "田宅",
-        "name": "田宅"
+        "ming_gong": "田宅"
       },
       {
         "start_year": 2029,
         "end_year": 2038,
         "qi_sui": 46,
         "zhi_sui": 55,
-        "gong": "官禄",
-        "name": "官禄"
+        "ming_gong": "官禄"
       },
       {
         "start_year": 2039,
         "end_year": 2048,
         "qi_sui": 56,
         "zhi_sui": 65,
-        "gong": "仆役",
-        "name": "仆役"
+        "ming_gong": "仆役"
       },
       {
         "start_year": 2049,
         "end_year": 2058,
         "qi_sui": 66,
         "zhi_sui": 75,
-        "gong": "迁移",
-        "name": "迁移"
+        "ming_gong": "迁移"
       },
       {
         "start_year": 2059,
         "end_year": 2068,
         "qi_sui": 76,
         "zhi_sui": 85,
-        "gong": "疾厄",
-        "name": "疾厄"
+        "ming_gong": "疾厄"
       },
       {
         "start_year": 2069,
         "end_year": 2078,
         "qi_sui": 86,
         "zhi_sui": 95,
-        "gong": "财帛",
-        "name": "财帛"
+        "ming_gong": "财帛"
       },
       {
         "start_year": 2079,
         "end_year": 2088,
         "qi_sui": 96,
         "zhi_sui": 105,
-        "gong": "子女",
-        "name": "子女"
+        "ming_gong": "子女"
       },
       {
         "start_year": 2089,
         "end_year": 2098,
         "qi_sui": 106,
         "zhi_sui": 115,
-        "gong": "夫妻",
-        "name": "夫妻"
+        "ming_gong": "夫妻"
       },
       {
         "start_year": 2099,
         "end_year": 2108,
         "qi_sui": 116,
         "zhi_sui": 125,
-        "gong": "兄弟",
-        "name": "兄弟"
+        "ming_gong": "兄弟"
       }
     ]
   }

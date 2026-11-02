@@ -15,9 +15,9 @@ import (
 type CoinRound struct {
 	Position int      `json:"position"`
 	Coins    []string `json:"coins"`
-	Value    int      `json:"value"`
-	Label    string   `json:"label"`
-	Changing bool     `json:"changing"`
+	Value    int      `json:"yao_value"`
+	Label    string   `json:"yao_label"`
+	Changing bool     `json:"is_dong_yao"`
 }
 
 // Casting is the complete, auditable input to one divination.

@@ -107,11 +107,11 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "conclusion_scope": CONCLUSION_SCOPE,
         })
 
-    force_chain = chart.get("force_chain")
-    if force_chain:
+    yong_shen_force_chain = chart.get("yong_shen_force_chain")
+    if yong_shen_force_chain:
         primary.append({
             "id": "force-chain",
-            "fact": force_chain,
+            "fact": yong_shen_force_chain,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
 
@@ -238,7 +238,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "day_clash_facts": chart.get("day_clash_facts", []),
             "moving_transformations": chart.get("moving_transformations", []),
             "san_he_candidates": chart.get("san_he_candidates", []),
-            "force_chain": chart.get("force_chain"),
+            "yong_shen_force_chain": chart.get("yong_shen_force_chain"),
             "yong_shen_candidates": chart.get("yong_shen_candidates", []),
         },
         "timing_candidates": timing_candidates,

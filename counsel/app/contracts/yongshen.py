@@ -88,7 +88,7 @@ class YongShenFuYiEvidence(BaseModel):
 
     model_config = ConfigDict(extra="allow")
     source: Literal["fu_yi"] = Field(description="证据来源。")
-    qiangruo: str = Field(description="身强弱。")
+    qiang_ruo: str = Field(description="身强弱。")
     pattern: str = Field(description="扶抑结构模式。")
     ri_gan_gen: str = Field(description="通根类型。")
     season: str = Field(description="季节状态。")

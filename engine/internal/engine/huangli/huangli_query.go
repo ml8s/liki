@@ -20,7 +20,6 @@ type ShiChenFortune struct {
 type Day struct {
 	Date        string           `json:"date"`
 	RiZhu       riZhuInfo        `json:"ri_zhu"`
-	NaYin       string           `json:"na_yin"`
 	Wuxing      string           `json:"wuxing"`
 	JianChu     string           `json:"jian_chu"`
 	HuangDao    huangDaoStar     `json:"huangdao"`
@@ -37,7 +36,7 @@ type Day struct {
 	Event       string           `json:"event,omitempty"`
 	EventLabel  string           `json:"event_label,omitempty"`
 	Suitability string           `json:"suitability,omitempty"`
-	Reason      string           `json:"reason,omitempty"`
+	EventReason string           `json:"event_reason,omitempty"`
 }
 
 // Month holds monthly huangli data.
@@ -70,7 +69,6 @@ func QueryDate(dateStr string, event ...string) (Day, error) {
 		FuShen:      fuShenDirection(dpi.Gan),
 		StemTaboo:   pengZuGanTaboo(dpi.Gan),
 		BranchTaboo: pengZuZhiTaboo(dpi.Zhi),
-		NaYin:       ganzhi.NayinLabel(dpi.Gan, dpi.Zhi),
 		Wuxing:      ganzhi.ZhiWuxing(dpi.Zhi).String(),
 		Mansion:     mansionForDay(ganzhi.Zhu{Gan: dpi.Gan, Zhi: dpi.Zhi}),
 		JieQi:       jq.TermName,
@@ -91,7 +89,7 @@ func QueryDate(dateStr string, event ...string) (Day, error) {
 func applyEventRule(entry *Day, event string) error {
 	if event == "" {
 		entry.Suitability = "unspecified"
-		entry.Reason = "未指定事项，仅列黄历事实。"
+		entry.EventReason = "未指定事项，仅列黄历事实。"
 		return nil
 	}
 	rule, ok := jianChuCfg.EventRules[event]
@@ -103,13 +101,13 @@ func applyEventRule(entry *Day, event string) error {
 	switch {
 	case containsJianChu(rule.Suitable, entry.JianChu):
 		entry.Suitability = "recommended"
-		entry.Reason = "建除「" + entry.JianChu + "」适合" + rule.Label + "。"
+		entry.EventReason = "建除「" + entry.JianChu + "」适合" + rule.Label + "。"
 	case containsJianChu(rule.Forbidden, entry.JianChu):
 		entry.Suitability = "unsuitable"
-		entry.Reason = "建除「" + entry.JianChu + "」忌" + rule.Label + "。"
+		entry.EventReason = "建除「" + entry.JianChu + "」忌" + rule.Label + "。"
 	default:
 		entry.Suitability = "possible"
-		entry.Reason = "建除「" + entry.JianChu + "」无明确适配或冲突。"
+		entry.EventReason = "建除「" + entry.JianChu + "」无明确适配或冲突。"
 	}
 	return nil
 }

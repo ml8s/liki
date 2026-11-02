@@ -126,7 +126,6 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 	for _, tc := range doc.Lost {
 		t.Run("lost/"+tc.ID, func(t *testing.T) {
 			chart := Chart{ShiGanPalace: oracleGong(t, tc.ShiGanGong)}
-			chart.ShiGanGongWangShuai.WangShuaiName = tc.WangShuai
 			palace := oracleGong(t, tc.ShiGanGong)
 			chart.ShiGanGongWangShuai.WangShuai = oracleWangShuai(t, tc.WangShuai)
 			chart.Board.GongWei[palace-1].DoorSet = true

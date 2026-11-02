@@ -34,7 +34,7 @@ func computeTiaoHou(c Chart) TiaoHouResult {
 	if !hasEntry {
 		return TiaoHouResult{
 			Season:  th.Season,
-			Model:   "qiongtong_primary_secondary_table",
+			ModelID: "qiongtong_primary_secondary_table",
 			Primary: TiaoHouAvailability{Occurrences: []StemOccurrence{}, GuanXiRefs: []string{}},
 		}
 	}
@@ -42,8 +42,8 @@ func computeTiaoHou(c Chart) TiaoHouResult {
 		PrimaryWuxing:      th.PrimaryWuxing,
 		SecondaryWuxing:    th.SecondaryWuxing,
 		Season:             th.Season,
-		Detail:             th.Detail,
-		Model:              "qiongtong_primary_secondary_table",
+		TiaoHouExplanation: th.Detail,
+		ModelID:            "qiongtong_primary_secondary_table",
 		Primary:            buildTiaoHouAvailability(c, entry.primary, "primary"),
 		Secondary:          tiaoHouSecondary(c, entry.secondary),
 		SecondaryCondition: th.SecondaryCondition,

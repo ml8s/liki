@@ -12,14 +12,13 @@
     "liu_nian": [
       {
         "year": 2026,
-        "nian_name": "丙午",
         "shi_shen": "比肩",
         "nian_gan": "丙",
         "nian_zhi": "午",
-        "wuxing": "火",
-        "na_yin": "天河水",
-        "sheng": 1,
-        "ke": 0,
+        "nian_gan_wuxing": "火",
+        "liu_nian_na_yin": "天河水",
+        "sheng_ri": 1,
+        "ke_ri": 0,
         "shen_sha": [
           {
             "name": "灾煞",
@@ -39,9 +38,9 @@
         ],
         "fu_yin_fan_yin": [
           {
-            "detail": "午地支伏吟",
+            "relation_explanation": "午地支伏吟",
             "natal_index": 0,
-            "type": "伏吟"
+            "relation_kind": "伏吟"
           }
         ],
         "da_yun_interactions": [
@@ -51,50 +50,50 @@
                 "gan_a": "癸",
                 "gan_b": "庚",
                 "relation": "庚生癸",
-                "type": "相生"
+                "relation_kind": "相生"
               },
               {
                 "gan_a": "癸",
                 "gan_b": "丙",
                 "relation": "癸克丙",
-                "type": "相克"
+                "relation_kind": "相克"
               },
               {
                 "gan_a": "癸",
                 "gan_b": "丙",
                 "relation": "癸克丙",
-                "type": "相克"
+                "relation_kind": "相克"
               },
               {
                 "gan_a": "癸",
                 "gan_b": "乙",
                 "relation": "癸生乙",
-                "type": "相生"
+                "relation_kind": "相生"
               }
             ],
             "pillar_label": "正官运(癸未)",
             "zhi_rels": [
               {
-                "detail": "未午合化土",
-                "type": "六合",
+                "relation_explanation": "未午合化土",
+                "relation_kind": "六合",
                 "zhi_a": "未",
                 "zhi_b": "午"
               },
               {
-                "detail": "未戌恃势之刑",
-                "type": "相刑",
+                "relation_explanation": "未戌恃势之刑",
+                "relation_kind": "相刑",
                 "zhi_a": "未",
                 "zhi_b": "戌"
               },
               {
-                "detail": "未子相害",
-                "type": "六害",
+                "relation_explanation": "未子相害",
+                "relation_kind": "六害",
                 "zhi_a": "未",
                 "zhi_b": "子"
               },
               {
-                "detail": "未未同气",
-                "type": "相同",
+                "relation_explanation": "未未同气",
+                "relation_kind": "相同",
                 "zhi_a": "未",
                 "zhi_b": "未"
               }
@@ -108,50 +107,50 @@
                 "gan_a": "丙",
                 "gan_b": "庚",
                 "relation": "丙克庚",
-                "type": "相克"
+                "relation_kind": "相克"
               },
               {
                 "gan_a": "丙",
                 "gan_b": "丙",
                 "relation": "丙丙同气",
-                "type": "相同"
+                "relation_kind": "相同"
               },
               {
                 "gan_a": "丙",
                 "gan_b": "丙",
                 "relation": "丙丙同气",
-                "type": "相同"
+                "relation_kind": "相同"
               },
               {
                 "gan_a": "丙",
                 "gan_b": "乙",
                 "relation": "乙生丙",
-                "type": "相生"
+                "relation_kind": "相生"
               }
             ],
             "pillar_label": "丙午",
             "zhi_rels": [
               {
-                "detail": "午午自刑",
-                "type": "相刑",
+                "relation_explanation": "午午自刑",
+                "relation_kind": "相刑",
                 "zhi_a": "午",
                 "zhi_b": "午"
               },
               {
-                "detail": "午戌半合火局，缺寅",
-                "type": "半合",
+                "relation_explanation": "午戌半合火局，缺寅",
+                "relation_kind": "半合",
                 "zhi_a": "午",
                 "zhi_b": "戌"
               },
               {
-                "detail": "午子相冲",
-                "type": "六冲",
+                "relation_explanation": "午子相冲",
+                "relation_kind": "六冲",
                 "zhi_a": "午",
                 "zhi_b": "子"
               },
               {
-                "detail": "午未合化土",
-                "type": "六合",
+                "relation_explanation": "午未合化土",
+                "relation_kind": "六合",
                 "zhi_a": "午",
                 "zhi_b": "未"
               }
@@ -164,7 +163,7 @@
           "lichun_end": "2027-02-04",
           "boundary_day": false,
           "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
-          "liunian_start_date": "2026-06-15"
+          "liu_nian_start_date": "2026-06-15"
         }
       }
     ]

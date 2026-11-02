@@ -76,7 +76,7 @@ def test_lost_property_stays_in_interpretation_layer() -> None:
     assert "反吟为复得候选" in text
     assert "时干落空亡为难复得候选" in text
     assert "乘旺相气为复得候选" in text
-    assert "`palace_wang_shuai` / `shi_gan_gong_wang_shuai` 输出" in text
+    assert "`gong_wang_shuai` / `shi_gan_gong_wang_shuai` 输出" in text
     assert "墓、绝未入表" in text
     assert "《奇门遁甲元灵经·卷十八·占失物》补方向与内外远近" in text
     assert "公共边界见 `references/divination-ENTRY.md`「流程产物与边界」" in text

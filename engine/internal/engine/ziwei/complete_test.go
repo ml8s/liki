@@ -127,7 +127,7 @@ func TestComplete(t *testing.T) {
 			for _, dx := range tc.DaXian {
 				var found bool
 				for _, s := range dxResult {
-					if s.Name == dx.Gong {
+					if gongLabels[s.MingGong] == dx.Gong {
 						found = true
 						if s.QiSui != dx.Start || s.ZhiSui != dx.End {
 							t.Errorf("大限%s: got %d-%d want %d-%d", dx.Gong, s.QiSui, s.ZhiSui, dx.Start, dx.End)

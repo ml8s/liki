@@ -177,7 +177,7 @@ type Chart struct {
 	DayClashFacts         []DayClashFact         `json:"day_clash_facts,omitempty"`
 	MovingTransformations []MovingTransformation `json:"moving_transformations,omitempty"`
 	SanHeCandidates       []SanHeCandidate       `json:"san_he_candidates,omitempty"`
-	ForceChain            *ForceChain            `json:"force_chain,omitempty"`
+	ForceChain            *ForceChain            `json:"yong_shen_force_chain,omitempty"`
 	YongShenCandidates    []YongShenCandidate    `json:"yong_shen_candidates,omitempty"`
 	Conflicts             []Conflict             `json:"conflicts,omitempty"`
 }

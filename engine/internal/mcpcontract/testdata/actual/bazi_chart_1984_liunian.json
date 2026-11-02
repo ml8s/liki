@@ -12,14 +12,13 @@
     "liu_nian": [
       {
         "year": 2026,
-        "nian_name": "丙午",
         "shi_shen": "正印",
         "nian_gan": "丙",
         "nian_zhi": "午",
-        "wuxing": "火",
-        "na_yin": "天河水",
-        "sheng": 1,
-        "ke": 0,
+        "nian_gan_wuxing": "火",
+        "liu_nian_na_yin": "天河水",
+        "sheng_ri": 1,
+        "ke_ri": 0,
         "shen_sha": [
           {
             "name": "灾煞",
@@ -45,50 +44,50 @@
                 "gan_a": "庚",
                 "gan_b": "甲",
                 "relation": "庚克甲",
-                "type": "相克"
+                "relation_kind": "相克"
               },
               {
                 "gan_a": "庚",
                 "gan_b": "丙",
                 "relation": "丙克庚",
-                "type": "相克"
+                "relation_kind": "相克"
               },
               {
                 "gan_a": "庚",
                 "gan_b": "己",
                 "relation": "己生庚",
-                "type": "相生"
+                "relation_kind": "相生"
               },
               {
                 "gan_a": "庚",
                 "gan_b": "戊",
                 "relation": "戊生庚",
-                "type": "相生"
+                "relation_kind": "相生"
               }
             ],
             "pillar_label": "伤官运(庚午)",
             "zhi_rels": [
               {
-                "detail": "午子相冲",
-                "type": "六冲",
+                "relation_explanation": "午子相冲",
+                "relation_kind": "六冲",
                 "zhi_a": "午",
                 "zhi_b": "子"
               },
               {
-                "detail": "午寅半合火局，缺戌",
-                "type": "半合",
+                "relation_explanation": "午寅半合火局，缺戌",
+                "relation_kind": "半合",
                 "zhi_a": "午",
                 "zhi_b": "寅"
               },
               {
-                "detail": "午卯相破",
-                "type": "破",
+                "relation_explanation": "午卯相破",
+                "relation_kind": "破",
                 "zhi_a": "午",
                 "zhi_b": "卯"
               },
               {
-                "detail": "无特殊关系",
-                "type": "无",
+                "relation_explanation": "无特殊关系",
+                "relation_kind": "无",
                 "zhi_a": "午",
                 "zhi_b": "辰"
               }
@@ -102,50 +101,50 @@
                 "gan_a": "丙",
                 "gan_b": "甲",
                 "relation": "甲生丙",
-                "type": "相生"
+                "relation_kind": "相生"
               },
               {
                 "gan_a": "丙",
                 "gan_b": "丙",
                 "relation": "丙丙同气",
-                "type": "相同"
+                "relation_kind": "相同"
               },
               {
                 "gan_a": "丙",
                 "gan_b": "己",
                 "relation": "丙生己",
-                "type": "相生"
+                "relation_kind": "相生"
               },
               {
                 "gan_a": "丙",
                 "gan_b": "戊",
                 "relation": "丙生戊",
-                "type": "相生"
+                "relation_kind": "相生"
               }
             ],
             "pillar_label": "丙午",
             "zhi_rels": [
               {
-                "detail": "午子相冲",
-                "type": "六冲",
+                "relation_explanation": "午子相冲",
+                "relation_kind": "六冲",
                 "zhi_a": "午",
                 "zhi_b": "子"
               },
               {
-                "detail": "午寅半合火局，缺戌",
-                "type": "半合",
+                "relation_explanation": "午寅半合火局，缺戌",
+                "relation_kind": "半合",
                 "zhi_a": "午",
                 "zhi_b": "寅"
               },
               {
-                "detail": "午卯相破",
-                "type": "破",
+                "relation_explanation": "午卯相破",
+                "relation_kind": "破",
                 "zhi_a": "午",
                 "zhi_b": "卯"
               },
               {
-                "detail": "无特殊关系",
-                "type": "无",
+                "relation_explanation": "无特殊关系",
+                "relation_kind": "无",
                 "zhi_a": "午",
                 "zhi_b": "辰"
               }
@@ -158,7 +157,7 @@
           "lichun_end": "2027-02-04",
           "boundary_day": false,
           "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
-          "liunian_start_date": "2026-06-15"
+          "liu_nian_start_date": "2026-06-15"
         }
       }
     ]

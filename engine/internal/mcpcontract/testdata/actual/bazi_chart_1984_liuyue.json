@@ -11,13 +11,12 @@
   "output": {
     "liu_yue": [
       {
-        "month_name": "午月",
         "shi_shen": "正官",
         "yue_gan": "甲",
         "yue_zhi": "午",
-        "wuxing": "木",
-        "sheng": 0,
-        "ke": 1,
+        "yue_gan_wuxing": "木",
+        "sheng_ri": 0,
+        "ke_ri": 1,
         "shen_sha": [
           {
             "name": "灾煞",
@@ -30,49 +29,49 @@
             "gan_a": "甲",
             "gan_b": "甲",
             "relation": "甲甲同气",
-            "type": "相同"
+            "relation_kind": "相同"
           },
           {
             "gan_a": "甲",
             "gan_b": "丙",
             "relation": "甲生丙",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           {
             "gan_a": "甲",
             "gan_b": "己",
             "relation": "甲己合化土",
-            "type": "天干五合"
+            "relation_kind": "天干五合"
           },
           {
             "gan_a": "甲",
             "gan_b": "戊",
             "relation": "甲克戊",
-            "type": "相克"
+            "relation_kind": "相克"
           }
         ],
         "zhi_rels": [
           {
-            "detail": "午子相冲",
-            "type": "六冲",
+            "relation_explanation": "午子相冲",
+            "relation_kind": "六冲",
             "zhi_a": "午",
             "zhi_b": "子"
           },
           {
-            "detail": "午寅半合火局，缺戌",
-            "type": "半合",
+            "relation_explanation": "午寅半合火局，缺戌",
+            "relation_kind": "半合",
             "zhi_a": "午",
             "zhi_b": "寅"
           },
           {
-            "detail": "午卯相破",
-            "type": "破",
+            "relation_explanation": "午卯相破",
+            "relation_kind": "破",
             "zhi_a": "午",
             "zhi_b": "卯"
           },
           {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "辰"
           }
@@ -82,7 +81,7 @@
           "jieqi_end": "2026-07-07",
           "boundary_day": false,
           "liu_yue_start_time": "2026-06-15T12:00:00+08:00",
-          "liuyue_start_date": "2026-06-15"
+          "liu_yue_start_date": "2026-06-15"
         }
       }
     ]

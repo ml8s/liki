@@ -41,12 +41,12 @@ def _lost_rows(chart: dict) -> list[dict]:
         "domain": _palace_domain(chart, row.get("gong")),
         "door": row.get("door"),
         "wang_shuai": row.get("wang_shuai"),
-    } for row in _context(chart, "lost_context")]
+    } for row in _context(chart, "lost_facts")]
 
 
 def _thief_rows(chart: dict) -> list[dict]:
     result = []
-    for row in _context(chart, "thief_context"):
+    for row in _context(chart, "thief_facts"):
         gong = row.get("gong")
         result.append({
             "role": row.get("role"),
@@ -55,16 +55,16 @@ def _thief_rows(chart: dict) -> list[dict]:
             "direction": _palace_direction(gong),
             "domain": _palace_domain(chart, gong),
             "person_image": _load_palace_person()[gong],
-            "wang_shuai_label": row.get("wang_shuai_label"),
-            "lucky_pattern": bool(row.get("lucky_pattern_names")),
-            "lucky_pattern_names": row.get("lucky_pattern_names", []),
+            "wang_shuai": row.get("wang_shuai"),
+            "lucky_pattern": bool(row.get("lucky_ge_ju_names")),
+            "lucky_ge_ju_names": row.get("lucky_ge_ju_names", []),
         })
     return result
 
 
 def _tianwang_rows(chart: dict) -> list[dict]:
     result = []
-    for row in _context(chart, "tianwang_context"):
+    for row in _context(chart, "tianwang_facts"):
         gong, hour_gong = row.get("gong"), row.get("hour_gong")
         result.append({
             "kind": row.get("kind"),
@@ -89,10 +89,10 @@ def project(projection: str, source, chart: dict):
         return sorted({row["level"] for row in _geng_levels(chart)}, key=order.get)
     if projection == "geng_ge_status":
         return "present" if _geng_levels(chart) else "absent"
-    if projection == "lost_context":
+    if projection == "lost_facts":
         return _lost_rows(chart)
-    if projection == "thief_context":
+    if projection == "thief_facts":
         return _thief_rows(chart)
-    if projection == "tianwang_context":
+    if projection == "tianwang_facts":
         return _tianwang_rows(chart)
     raise ValueError(f"special_facts qimen projection invalid: {projection}")

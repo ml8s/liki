@@ -492,8 +492,8 @@
       "yong": "水",
       "xi": "木",
       "ji": "金",
-      "qiangruo": "身弱",
-      "model": "support_control_with_day_master_strength",
+      "qiang_ruo": "身弱",
+      "fu_yi_model_id": "support_control_with_day_master_strength",
       "basis": {
         "root_type": "zhi_mid",
         "season": "休",
@@ -1026,8 +1026,8 @@
       "primary_wuxing": "水",
       "secondary_wuxing": "金",
       "season": "夏",
-      "detail": "午月甲木，用癸调候，庚辅之",
-      "model": "qiongtong_primary_secondary_table",
+      "tiao_hou_explanation": "午月甲木，用癸调候，庚辅之",
+      "tiao_hou_model_id": "qiongtong_primary_secondary_table",
       "primary": {
         "stem": "癸",
         "transparent": false,

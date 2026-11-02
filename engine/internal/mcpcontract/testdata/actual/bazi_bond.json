@@ -29,10 +29,10 @@
         "gan_a": "甲",
         "gan_b": "辛",
         "relation": "辛克甲",
-        "type": "相克"
+        "relation_kind": "相克"
       }
     },
-    "nayin_cross": {
+    "na_yin_cross": {
       "pairs": [
         {
           "a_na_yin": "白蜡金",
@@ -212,8 +212,8 @@
       "a_zhi": "辰",
       "b_zhi": "巳",
       "relation": {
-        "detail": "无特殊关系",
-        "type": "无",
+        "relation_explanation": "无特殊关系",
+        "relation_kind": "无",
         "zhi_a": "辰",
         "zhi_b": "巳"
       }
@@ -306,7 +306,7 @@
         "a": {
           "ji": "金",
           "ji_in_other": 4,
-          "model": "support_control_with_day_master_strength",
+          "fu_yi_model_id": "support_control_with_day_master_strength",
           "xi": "木",
           "xi_in_other": 3,
           "yong": "水",
@@ -315,7 +315,7 @@
         "b": {
           "ji": "土",
           "ji_in_other": 4,
-          "model": "support_control_with_day_master_strength",
+          "fu_yi_model_id": "support_control_with_day_master_strength",
           "xi": "木",
           "xi_in_other": 3,
           "yong": "火",
@@ -336,11 +336,11 @@
             "gan_a": "庚",
             "gan_b": "庚",
             "relation": "庚庚同气",
-            "type": "相同"
+            "relation_kind": "相同"
           },
           "zhi_guan_xi": {
-            "detail": "辰辰自刑",
-            "type": "相刑",
+            "relation_explanation": "辰辰自刑",
+            "relation_kind": "相刑",
             "zhi_a": "辰",
             "zhi_b": "辰"
           }
@@ -356,11 +356,11 @@
             "gan_a": "庚",
             "gan_b": "乙",
             "relation": "庚乙合化金",
-            "type": "天干五合"
+            "relation_kind": "天干五合"
           },
           "zhi_guan_xi": {
-            "detail": "辰酉合化金",
-            "type": "六合",
+            "relation_explanation": "辰酉合化金",
+            "relation_kind": "六合",
             "zhi_a": "辰",
             "zhi_b": "酉"
           }
@@ -376,11 +376,11 @@
             "gan_a": "庚",
             "gan_b": "辛",
             "relation": "庚辛同气",
-            "type": "相同"
+            "relation_kind": "相同"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "辰",
             "zhi_b": "巳"
           }
@@ -396,11 +396,11 @@
             "gan_a": "庚",
             "gan_b": "壬",
             "relation": "庚生壬",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           "zhi_guan_xi": {
-            "detail": "辰辰自刑",
-            "type": "相刑",
+            "relation_explanation": "辰辰自刑",
+            "relation_kind": "相刑",
             "zhi_a": "辰",
             "zhi_b": "辰"
           }
@@ -416,11 +416,11 @@
             "gan_a": "壬",
             "gan_b": "庚",
             "relation": "庚生壬",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "辰"
           }
@@ -436,11 +436,11 @@
             "gan_a": "壬",
             "gan_b": "乙",
             "relation": "壬生乙",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "酉"
           }
@@ -456,11 +456,11 @@
             "gan_a": "壬",
             "gan_b": "辛",
             "relation": "辛生壬",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "巳"
           }
@@ -476,11 +476,11 @@
             "gan_a": "壬",
             "gan_b": "壬",
             "relation": "壬壬同气",
-            "type": "相同"
+            "relation_kind": "相同"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "辰"
           }
@@ -496,11 +496,11 @@
             "gan_a": "甲",
             "gan_b": "庚",
             "relation": "庚克甲",
-            "type": "相克"
+            "relation_kind": "相克"
           },
           "zhi_guan_xi": {
-            "detail": "辰辰自刑",
-            "type": "相刑",
+            "relation_explanation": "辰辰自刑",
+            "relation_kind": "相刑",
             "zhi_a": "辰",
             "zhi_b": "辰"
           }
@@ -516,11 +516,11 @@
             "gan_a": "甲",
             "gan_b": "乙",
             "relation": "甲乙同气",
-            "type": "相同"
+            "relation_kind": "相同"
           },
           "zhi_guan_xi": {
-            "detail": "辰酉合化金",
-            "type": "六合",
+            "relation_explanation": "辰酉合化金",
+            "relation_kind": "六合",
             "zhi_a": "辰",
             "zhi_b": "酉"
           }
@@ -536,11 +536,11 @@
             "gan_a": "甲",
             "gan_b": "辛",
             "relation": "辛克甲",
-            "type": "相克"
+            "relation_kind": "相克"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "辰",
             "zhi_b": "巳"
           }
@@ -556,11 +556,11 @@
             "gan_a": "甲",
             "gan_b": "壬",
             "relation": "壬生甲",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           "zhi_guan_xi": {
-            "detail": "辰辰自刑",
-            "type": "相刑",
+            "relation_explanation": "辰辰自刑",
+            "relation_kind": "相刑",
             "zhi_a": "辰",
             "zhi_b": "辰"
           }
@@ -576,11 +576,11 @@
             "gan_a": "庚",
             "gan_b": "庚",
             "relation": "庚庚同气",
-            "type": "相同"
+            "relation_kind": "相同"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "辰"
           }
@@ -596,11 +596,11 @@
             "gan_a": "庚",
             "gan_b": "乙",
             "relation": "庚乙合化金",
-            "type": "天干五合"
+            "relation_kind": "天干五合"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "酉"
           }
@@ -616,11 +616,11 @@
             "gan_a": "庚",
             "gan_b": "辛",
             "relation": "庚辛同气",
-            "type": "相同"
+            "relation_kind": "相同"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "巳"
           }
@@ -636,11 +636,11 @@
             "gan_a": "庚",
             "gan_b": "壬",
             "relation": "庚生壬",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           "zhi_guan_xi": {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "辰"
           }

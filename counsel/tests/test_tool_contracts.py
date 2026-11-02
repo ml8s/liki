@@ -141,7 +141,7 @@ def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
     from app.contracts.yongshen import YongShenFuYiEvidence, YongShenTiaoHouEvidence
 
     fu_yi = {
-        "source": "fu_yi", "qiangruo": "身强", "pattern": "",
+        "source": "fu_yi", "qiang_ruo": "身强", "pattern": "",
         "ri_gan_gen": "month_main", "season": "旺", "yin_bi_shu_liang": 1,
         "yong": "无候选", "xi": "无候选", "ji": "无候选",
     }
@@ -150,7 +150,7 @@ def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
         "secondary_condition": "", "condition_ok": False, "secondary_usable": False,
         "primary_present": False, "primary_visible": False,
         "secondary_present": False, "secondary_visible": False,
-        "season": "春", "detail": "test", "model": "test", "yong": "无候选",
+        "season": "春", "detail": "test", "tiao_hou_model_id": "test", "yong": "无候选",
         "yong_source": "none", "yong_present": False, "yong_visible": False,
         "control_wuxing": "无候选",
     }

@@ -10,9 +10,9 @@ import (
 // Python may add fixed palace presentation metadata, but never reselect facts.
 type SpecializedContext struct {
 	GengGe      []GengGeFact      `json:"geng_ge"`
-	LostContext []LostContextFact `json:"lost_context"`
-	Thief       []ThiefFact       `json:"thief_context"`
-	Tianwang    []TianwangFact    `json:"tianwang_context"`
+	LostContext []LostContextFact `json:"lost_facts"`
+	Thief       []ThiefFact       `json:"thief_facts"`
+	Tianwang    []TianwangFact    `json:"tianwang_facts"`
 }
 
 type GengGeFact struct {
@@ -32,8 +32,8 @@ type ThiefFact struct {
 	Role              string    `json:"role"`
 	Symbol            string    `json:"symbol"`
 	Gong              GongIndex `json:"gong"`
-	WangShuaiLabel    string    `json:"wang_shuai_label"`
-	LuckyPatternNames []string  `json:"lucky_pattern_names"`
+	WangShuaiLabel    string    `json:"wang_shuai"`
+	LuckyPatternNames []string  `json:"lucky_ge_ju_names"`
 }
 
 type TianwangFact struct {
@@ -152,8 +152,8 @@ func computeThiefFacts(chart Chart) []ThiefFact {
 		}
 	}
 	palaceWang := map[GongIndex]string{}
-	for _, row := range chart.PalaceWangShuai {
-		palaceWang[row.Gong] = row.WangShuaiName
+	for _, row := range chart.GongWangShuai {
+		palaceWang[row.Gong] = row.WangShuai.String()
 	}
 
 	result := []ThiefFact{}

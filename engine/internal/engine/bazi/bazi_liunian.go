@@ -9,12 +9,11 @@ type LiuNian struct {
 	Year              int                 `json:"year"`
 	NianGan           ganzhi.Gan          `json:"nian_gan"`
 	NianZhi           ganzhi.Zhi          `json:"nian_zhi"`
-	YearName          string              `json:"nian_name"`
-	Element           string              `json:"wuxing"`
-	NaYin             string              `json:"na_yin"`
+	NianGanWuxing     string              `json:"nian_gan_wuxing"`
+	LiuNianNaYin      string              `json:"liu_nian_na_yin"`
 	ShiShen           string              `json:"shi_shen"`
-	Generates         int                 `json:"sheng"`
-	Restrains         int                 `json:"ke"`
+	ShengRi           int                 `json:"sheng_ri"`
+	KeRi              int                 `json:"ke_ri"`
 	NatalInteractions []zhuInteraction    `json:"natal_interactions"`
 	DaYunInteractions []zhuInteraction    `json:"da_yun_interactions"`
 	ShenSha           []ShenShaProjection `json:"shen_sha"`
@@ -38,15 +37,14 @@ func computeLiuNian(bz ganzhi.Bazi, t LiuNianTime, currentDaYun *DaYunStep) (*Li
 	naYin := ganzhi.NayinLabel(nianGan, nianZhi)
 
 	r := &LiuNian{
-		Year:      t.LichunYear,
-		NianGan:   nianGan,
-		NianZhi:   nianZhi,
-		YearName:  ganzhi.GanName(nianGan) + ganzhi.ZhiName(nianZhi),
-		Element:   yearElem.String(),
-		NaYin:     naYin,
-		ShiShen:   tgName.String(),
-		Generates: gen,
-		Restrains: rest,
+		Year:          t.LichunYear,
+		NianGan:       nianGan,
+		NianZhi:       nianZhi,
+		NianGanWuxing: yearElem.String(),
+		LiuNianNaYin:  naYin,
+		ShiShen:       tgName.String(),
+		ShengRi:       gen,
+		KeRi:          rest,
 	}
 
 	// Three-layer analysis when bazi chart and current dayun are available.
@@ -54,7 +52,7 @@ func computeLiuNian(bz ganzhi.Bazi, t LiuNianTime, currentDaYun *DaYunStep) (*Li
 	r.NatalInteractions = make([]zhuInteraction, 1)
 	ganRels, zhiRels := analyzeZhuWithBazi(liuNianZhu, bz)
 	r.NatalInteractions[0] = zhuInteraction{
-		ZhuLabel: r.YearName,
+		ZhuLabel: ganzhi.GanName(nianGan) + ganzhi.ZhiName(nianZhi),
 		GanRels:  ganRels,
 		ZhiRels:  zhiRels,
 	}

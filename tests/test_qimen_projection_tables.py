@@ -20,12 +20,12 @@ def _rows(name: str) -> list[dict]:
         return list(csv.DictReader(fh))
 
 
-def test_palace_directions_match_luoshu():
+def test_gong_directions_match_luoshu():
     luoshu = {
         p["name"]: ("center" if p["direction"] == "中" else p["direction"])
         for p in json.loads(LUOSHU.read_text(encoding="utf-8"))
     }
-    got = {r["gong"]: r["direction"] for r in _rows("qimen_palace_directions.csv")}
+    got = {r["gong"]: r["direction"] for r in _rows("qimen_gong_directions.csv")}
     assert got == luoshu, "方位表与 luoshu 不一致"
 
 

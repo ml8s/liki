@@ -362,8 +362,8 @@ func appendTripleRelationFacts(
 		if len(targets) == 0 {
 			continue
 		}
-		field := relation.Type
-		switch relation.Type {
+		field := relation.Kind
+		switch relation.Kind {
 		case relSanHe:
 			field = "san_he"
 		case "半合":

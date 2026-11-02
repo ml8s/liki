@@ -13,9 +13,9 @@ type LiuyaoCoinRoundsInput []LiuyaoCoinRoundInput
 type LiuyaoCoinRoundInput struct {
 	Position LiuyaoPosition      `json:"position" jsonschema:"爻位，初爻到上爻 1-6。"`
 	Coins    [3]LiuyaoCoinSymbol `json:"coins" jsonschema:"三枚铜钱记录，正/反按调用顺序保留。"`
-	Value    LiuyaoYaoValue      `json:"value" jsonschema:"三币合计爻值 6-9。"`
-	Label    LiuyaoYaoLabel      `json:"label" jsonschema:"老阴/少阳/少阴/老阳。"`
-	Changing bool                `json:"changing" jsonschema:"是否动爻。"`
+	Value    LiuyaoYaoValue      `json:"yao_value" jsonschema:"三币合计爻值 6-9。"`
+	Label    LiuyaoYaoLabel      `json:"yao_label" jsonschema:"老阴/少阳/少阴/老阳。"`
+	Changing bool                `json:"is_dong_yao" jsonschema:"是否动爻。"`
 }
 
 type LiuyaoYaoValuesInput []LiuyaoYaoValue
@@ -79,9 +79,9 @@ type LiuyaoCoinRoundsOutput []LiuyaoCoinRoundOutput
 type LiuyaoCoinRoundOutput struct {
 	Position LiuyaoPosition      `json:"position" jsonschema:"爻位，初爻到上爻 1-6。"`
 	Coins    [3]LiuyaoCoinSymbol `json:"coins" jsonschema:"三枚铜钱记录，正/反按调用顺序保留。"`
-	Value    LiuyaoYaoValue      `json:"value" jsonschema:"三币合计爻值 6-9。"`
-	Label    LiuyaoYaoLabel      `json:"label" jsonschema:"老阴/少阳/少阴/老阳。"`
-	Changing bool                `json:"changing" jsonschema:"是否动爻。"`
+	Value    LiuyaoYaoValue      `json:"yao_value" jsonschema:"三币合计爻值 6-9。"`
+	Label    LiuyaoYaoLabel      `json:"yao_label" jsonschema:"老阴/少阳/少阴/老阳。"`
+	Changing bool                `json:"is_dong_yao" jsonschema:"是否动爻。"`
 }
 
 type LiuyaoYaoValuesOutput []LiuyaoYaoValue
@@ -248,7 +248,7 @@ type LiuyaoMovingTransformationOutput struct {
 type LiuyaoSanHeOutput struct {
 	Positions       []LiuyaoPosition `json:"positions" jsonschema:"参与三合候选的爻位。"`
 	Branches        []LiuyaoZhiName  `json:"branches" jsonschema:"参与三合候选的地支。"`
-	Element         ElementName      `json:"element" jsonschema:"三合局五行。"`
+	Element         ElementName      `json:"wuxing" jsonschema:"三合局五行。"`
 	Complete        bool             `json:"complete" jsonschema:"卦爻与日月补支后三支是否齐。"`
 	MovingCount     int              `json:"moving_count" jsonschema:"候选中发动爻数。"`
 	Qualification   string           `json:"qualification" jsonschema:"成局资格限定。"`
@@ -266,7 +266,7 @@ type LiuyaoSanHeOutput struct {
 
 type LiuyaoForceEntryOutput struct {
 	Role      LiuyaoForceRole  `json:"role" jsonschema:"力量链角色。"`
-	Element   ElementName      `json:"element" jsonschema:"角色五行。"`
+	Element   ElementName      `json:"wuxing" jsonschema:"角色五行。"`
 	Positions []LiuyaoPosition `json:"positions,omitempty" jsonschema:"同五行爻位。"`
 	Branches  []LiuyaoZhiName  `json:"branches,omitempty" jsonschema:"同五行地支。"`
 	Relations []string         `json:"relations,omitempty" jsonschema:"日建关系。"`
@@ -324,7 +324,7 @@ type LiuyaoChartOutput struct {
 	DayClashFacts         []LiuyaoDayClashOutput             `json:"day_clash_facts,omitempty" jsonschema:"日冲事实。"`
 	MovingTransformations []LiuyaoMovingTransformationOutput `json:"moving_transformations,omitempty" jsonschema:"动爻机械变化。"`
 	SanHeCandidates       []LiuyaoSanHeOutput                `json:"san_he_candidates,omitempty" jsonschema:"三合结构候选。"`
-	ForceChain            *LiuyaoForceChainOutput            `json:"force_chain,omitempty" jsonschema:"用神生克力量链。"`
+	ForceChain            *LiuyaoForceChainOutput            `json:"yong_shen_force_chain,omitempty" jsonschema:"用神生克力量链。"`
 	YongShenCandidates    []LiuyaoCandidateOutput            `json:"yong_shen_candidates,omitempty" jsonschema:"用神候选。"`
 	Conflicts             []LiuyaoConflictOutput             `json:"conflicts,omitempty" jsonschema:"并列或矛盾信号。"`
 }

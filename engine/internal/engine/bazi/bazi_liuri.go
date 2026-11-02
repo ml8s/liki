@@ -7,10 +7,9 @@ import (
 // LiuRi holds the daily flow (流日) analysis: today's pillar
 // and its interactions with the bazi chart, dayun, and liunian pillars.
 type LiuRi struct {
-	Date        string              `json:"date"`
+	Date        string              `json:"liu_ri_date"`
 	RiGan       ganzhi.Gan          `json:"ri_gan"`
 	RiZhi       ganzhi.Zhi          `json:"ri_zhi"`
-	DayName     string              `json:"day_name"`
 	DayNaYin    string              `json:"liu_ri_na_yin"`
 	ShiShen     string              `json:"shi_shen"`
 	GanRels     []GanRelation       `json:"gan_rels"`
@@ -28,8 +27,6 @@ func computeLiuRi(bz ganzhi.Bazi, t LiuRiTime, daYunZhu *ganzhi.Zhu, liuNianZhu 
 
 	dp := ganzhi.Zhu{Gan: t.RiGan, Zhi: t.RiZhi}
 	tgName := ganzhi.ShiShenFromGan(riYuan, dp.Gan)
-
-	dayName := ganzhi.GanName(dp.Gan) + ganzhi.ZhiName(dp.Zhi)
 
 	// Day vs bazi (gan + zhi relations) — all 4 pillars, consistent with liunian.
 	ganRels, zhiRels := analyzeZhuWithBazi(dp, bz)
@@ -96,7 +93,6 @@ func computeLiuRi(bz ganzhi.Bazi, t LiuRiTime, daYunZhu *ganzhi.Zhu, liuNianZhu 
 		Date:        t.Date.String(),
 		RiGan:       dp.Gan,
 		RiZhi:       dp.Zhi,
-		DayName:     dayName,
 		DayNaYin:    naYin,
 		ShiShen:     tgName.String(),
 		GanRels:     ganRels,

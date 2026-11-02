@@ -6,18 +6,17 @@ import (
 
 // LiuYue holds the monthly (流月) analysis output.
 type LiuYue struct {
-	Year      int                 `json:"year"`
-	Month     int                 `json:"month"`
-	YueGan    ganzhi.Gan          `json:"yue_gan"`
-	YueZhi    ganzhi.Zhi          `json:"yue_zhi"`
-	MonthName string              `json:"month_name"`
-	Element   string              `json:"wuxing"`
-	ShiShen   string              `json:"shi_shen"`
-	Generates int                 `json:"sheng"`
-	Restrains int                 `json:"ke"`
-	GanRels   []GanRelation       `json:"gan_rels"`
-	ZhiRels   []ZhiRelation       `json:"zhi_rels"`
-	ShenSha   []ShenShaProjection `json:"shen_sha"`
+	Year         int                 `json:"year"`
+	Month        int                 `json:"month"`
+	YueGan       ganzhi.Gan          `json:"yue_gan"`
+	YueZhi       ganzhi.Zhi          `json:"yue_zhi"`
+	YueGanWuxing string              `json:"yue_gan_wuxing"`
+	ShiShen      string              `json:"shi_shen"`
+	ShengRi      int                 `json:"sheng_ri"`
+	KeRi         int                 `json:"ke_ri"`
+	GanRels      []GanRelation       `json:"gan_rels"`
+	ZhiRels      []ZhiRelation       `json:"zhi_rels"`
+	ShenSha      []ShenShaProjection `json:"shen_sha"`
 }
 
 // ComputeLiuYue computes the month pillar for a resolved solar-term month and
@@ -43,17 +42,16 @@ func computeLiuYue(bz ganzhi.Bazi, t LiuYueTime) (*LiuYue, error) {
 	monthElemStr := monthElem.String()
 
 	return &LiuYue{
-		Year:      t.Date.Year,
-		Month:     t.Date.Month,
-		YueGan:    mp.Gan,
-		YueZhi:    mp.Zhi,
-		MonthName: ganzhi.ZhiName(mp.Zhi) + "月",
-		Element:   monthElemStr,
-		ShiShen:   tgName.String(),
-		Generates: gen,
-		Restrains: rest,
-		GanRels:   ganRels,
-		ZhiRels:   zhiRels,
-		ShenSha:   shensha,
+		Year:         t.Date.Year,
+		Month:        t.Date.Month,
+		YueGan:       mp.Gan,
+		YueZhi:       mp.Zhi,
+		YueGanWuxing: monthElemStr,
+		ShiShen:      tgName.String(),
+		ShengRi:      gen,
+		KeRi:         rest,
+		GanRels:      ganRels,
+		ZhiRels:      zhiRels,
+		ShenSha:      shensha,
 	}, nil
 }

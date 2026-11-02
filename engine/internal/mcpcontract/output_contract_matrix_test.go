@@ -39,11 +39,11 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 		MingGua: "乾", DoorGua: "坤", MasterGua: "艮", StoveGua: "兑",
 	})
 	xuankongRaw := call("xuankong_chart", XuankongChartInput{
-		ZhaiYunDate: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14,
+		ZhaiYunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14,
 	})
 	var xuankongChart XuankongChart
 	decode(t, xuankongRaw, &xuankongChart)
-	call("xuankong_liunian", XuankongLiunianInput{Chart: &xuankongChart, LiuNianDate: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai")})
+	call("xuankong_liunian", XuankongLiunianInput{Chart: &xuankongChart, LiuNianStartTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai")})
 	qiguaRaw := call("liuyao_qigua", LiuyaoQiguaInput{
 		Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
 	})

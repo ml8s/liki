@@ -251,13 +251,10 @@ func TestLiuNian_YearFields(t *testing.T) {
 	if ln.Year != 2026 {
 		t.Errorf("Year = %d, want 2026", ln.Year)
 	}
-	if ln.YearName != "丙午" {
-		t.Errorf("YearName = %q, want 丙午", ln.YearName)
-	}
 	if ln.ShiShen == "" {
 		t.Error("ShiShen is empty")
 	}
-	if ln.NaYin == "" {
+	if ln.LiuNianNaYin == "" {
 		t.Error("NaYin is empty")
 	}
 	if len(ln.NatalInteractions) < 1 {

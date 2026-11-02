@@ -517,8 +517,8 @@
       "yong": "水",
       "xi": "金",
       "ji": "木",
-      "qiangruo": "身强",
-      "model": "support_control_with_day_master_strength",
+      "qiang_ruo": "身强",
+      "fu_yi_model_id": "support_control_with_day_master_strength",
       "basis": {
         "root_type": "month_mid",
         "season": "休",
@@ -1208,7 +1208,7 @@
     "san_he": [],
     "san_he_partial": [
       {
-        "type": "半合",
+        "relation_kind": "半合",
         "name": "午戌火半合局",
         "wuxing": "火",
         "branches": [
@@ -1268,8 +1268,8 @@
       "primary_wuxing": "木",
       "secondary_wuxing": "水",
       "season": "秋",
-      "detail": "戌月丙火，用甲调候，壬辅之",
-      "model": "qiongtong_primary_secondary_table",
+      "tiao_hou_explanation": "戌月丙火，用甲调候，壬辅之",
+      "tiao_hou_model_id": "qiongtong_primary_secondary_table",
       "primary": {
         "stem": "甲",
         "transparent": false,

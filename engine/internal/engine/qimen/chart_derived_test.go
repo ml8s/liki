@@ -73,10 +73,10 @@ func TestChartDerived_Anchors(t *testing.T) {
 	}
 }
 
-func TestPalaceWangShuaiUsesMonthBranch(t *testing.T) {
+func TestGongWangShuaiUsesMonthBranch(t *testing.T) {
 	chart := chartAt(t, "2026-06-28", 12)
-	if len(chart.PalaceWangShuai) != 9 {
-		t.Fatalf("palace wangshuai count = %d, want 9", len(chart.PalaceWangShuai))
+	if len(chart.GongWangShuai) != 9 {
+		t.Fatalf("palace wangshuai count = %d, want 9", len(chart.GongWangShuai))
 	}
 	want := map[GongIndex]ganzhi.WangShuai{
 		GongLi:    ganzhi.WSWang,
@@ -89,7 +89,7 @@ func TestPalaceWangShuaiUsesMonthBranch(t *testing.T) {
 		GongQian:  ganzhi.WSSi,
 		GongDui:   ganzhi.WSSi,
 	}
-	for _, item := range chart.PalaceWangShuai {
+	for _, item := range chart.GongWangShuai {
 		if item.WangShuai != want[item.Gong] {
 			t.Fatalf("%s wangshuai = %s, want %s", item.Gong.String(), item.WangShuai.String(), want[item.Gong].String())
 		}

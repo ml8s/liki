@@ -84,7 +84,7 @@ def _project_stable_factors(source, chart: dict, spec: dict):
         for field, field_spec in spec.get("fields", {}).items()
     } if projection not in {"gong_domain", "hour_polarity"} else {}
 
-    if projection in {"geng_ge", "geng_ge_levels", "geng_ge_status", "lost_context", "thief_context", "tianwang_context"}:
+    if projection in {"geng_ge", "geng_ge_levels", "geng_ge_status", "lost_facts", "thief_facts", "tianwang_facts"}:
         return project_specialized_context(projection, source, chart)
 
     if projection == "stars":
@@ -120,7 +120,7 @@ def _project_stable_factors(source, chart: dict, spec: dict):
 
     if projection in {"spirit_star_relations", "spirit_spirit_relations"}:
         palace_wuxing = {}
-        for item in chart.get("palace_wang_shuai", []):
+        for item in chart.get("gong_wang_shuai", []):
             if isinstance(item, dict) and _type_matches(item.get("gong"), "string") \
                     and _type_matches(item.get("wuxing"), "string"):
                 palace_wuxing[item["gong"]] = item["wuxing"]
@@ -172,7 +172,7 @@ def _project_stable_factors(source, chart: dict, spec: dict):
                 })
         return result
 
-    if projection == "palace_domains":
+    if projection == "gong_domains":
         result = []
         for palace in source:
             gong = _palace_name(palace)
@@ -181,7 +181,7 @@ def _project_stable_factors(source, chart: dict, spec: dict):
             result.append({"gong": gong, "domain": _palace_domain(chart, gong)})
         return result
 
-    if projection == "palace_directions":
+    if projection == "gong_directions":
         result = []
         for palace in source:
             gong = _palace_name(palace)
@@ -210,12 +210,12 @@ def _project_stable_factors(source, chart: dict, spec: dict):
             if not isinstance(item, dict):
                 raise ValueError("chart source symbol invalid")
             symbol = item.get("symbol")
-            palace = item.get("palace")
-            if not _type_matches(symbol, "string") or not _type_matches(palace, "string"):
+            gong = item.get("gong")
+            if not _type_matches(symbol, "string") or not _type_matches(gong, "string"):
                 raise ValueError("chart source symbol palace invalid")
             self_palace = next((
                 row for row in source_palaces
-                if _palace_name(row) == palace
+                if _palace_name(row) == gong
             ), {})
             stars = [
                 symbol_row.get("xing")
@@ -225,14 +225,14 @@ def _project_stable_factors(source, chart: dict, spec: dict):
             for star in stars:
                 result.append({
                     "symbol": symbol,
-                    "palace": palace,
-                    "domain": _palace_domain(chart, palace),
-                    "direction": _palace_direction(palace),
+                    "gong": gong,
+                    "domain": _palace_domain(chart, gong),
+                    "direction": _palace_direction(gong),
                     "spirit": self_palace.get("shen"),
                     "door": self_palace.get("men"),
                     "wang_shuai": next((
-                        row.get("wang_shuai") for row in chart.get("palace_wang_shuai", [])
-                        if isinstance(row, dict) and row.get("gong") == palace
+                        row.get("wang_shuai") for row in chart.get("gong_wang_shuai", [])
+                        if isinstance(row, dict) and row.get("gong") == gong
                     ), None),
                     "star": star,
                     "star_traditional_label": star_states.get(star),

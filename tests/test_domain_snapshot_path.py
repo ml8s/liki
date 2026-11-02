@@ -51,7 +51,7 @@ def _cmp_bazi_pan() -> dict:
             "chang_sheng": [{"index": "子", "name": "沐浴"}],
         },
         "yongshen": {"fu_yi": {"wuxing_count": {"木": 1, "火": 2}, "wang_shuai": {"木": "旺", "火": "相", "土": "死", "金": "囚", "水": "休"},
-            "yong": "木", "xi": "水", "ji": "金", "qiangruo": "身强"}, "tiao_hou": {"season": "冬"}, "ge_ju": {"ge_ju": "正印格"}},
+            "yong": "木", "xi": "水", "ji": "金", "qiang_ruo": "身强"}, "tiao_hou": {"season": "冬"}, "ge_ju": {"ge_ju": "正印格"}},
         "ziwei": {"palace_facts": [], "gong_wei": [{"index": "命宫", "name": "命宫", "xing_yao": [{"name": "七杀", "xing": "七杀", "is_major": True}]}],
             "si_hua": {"七杀": "禄"}, "patterns": [{"name": "杀破狼"}]},
         "gender": "male",

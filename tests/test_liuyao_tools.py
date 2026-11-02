@@ -99,7 +99,7 @@ def test_factors_maps_matter_and_projection(monkeypatch):
         "san_he_candidates": [],
         "hidden_lines": [{"position": 1, "liu_qin": "妻财"}],
         "branch_relation_facts": [{"left_position": 1, "right_position": 2, "relations": ["六冲"]}],
-        "force_chain": {"yong_shen": "官鬼", "yong_element": "火", "position": 1, "entries": []},
+        "yong_shen_force_chain": {"yong_shen": "官鬼", "yong_element": "火", "position": 1, "entries": []},
         "yong_shen_candidates": [{"position": 1, "selected": True}],
         "timing_candidates": [{
             "id": "moving-value-1-子",
@@ -204,7 +204,7 @@ def test_factors_projects_hidden_yong_shen_without_flying_line_facts():
             "wang_shuai": "死",
             "fu_shen": {"position": 2, "liu_qin": "妻财", "zhi": "寅"},
         },
-        "force_chain": {
+        "yong_shen_force_chain": {
             "yong_shen": "妻财",
             "yong_element": "木",
             "position": 2,

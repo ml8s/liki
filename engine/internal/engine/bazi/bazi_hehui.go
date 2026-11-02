@@ -54,7 +54,7 @@ type ZhiPairRel struct {
 
 // TripleGroup describes a complete 三合局 or 三会方.
 type TripleGroup struct {
-	Type     string   `json:"type"`
+	Kind     string   `json:"relation_kind"`
 	Name     string   `json:"name"`
 	Element  string   `json:"wuxing"`
 	Branches []string `json:"branches"`
@@ -188,7 +188,7 @@ func detectTriple(bz ganzhi.Bazi, list []ganzhi.SanHeHui, typ, suffix string) []
 	for _, tr := range list {
 		if countZhi(bs, tr.Zhi...) == len(tr.Zhi) {
 			results = append(results, TripleGroup{
-				Type:     typ,
+				Kind:     typ,
 				Name:     tripleName(tr.Zhi, tr.Element, suffix),
 				Element:  tr.Element.String(),
 				Branches: zhiNames(tr.Zhi),
@@ -225,7 +225,7 @@ func detectPartialTriple(bz ganzhi.Bazi) []TripleGroup {
 			}
 		}
 		results = append(results, TripleGroup{
-			Type:     "半合",
+			Kind:     "半合",
 			Name:     tripleName(present, tr.Element, "半合局"),
 			Element:  tr.Element.String(),
 			Branches: zhiNames(present),

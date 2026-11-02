@@ -454,7 +454,7 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
     ten_god = raw_ten_god or "杂格"
     return {
         "fu_yi": {
-            "qiangruo": fu_yi.get("qiangruo", ""),
+            "qiang_ruo": fu_yi.get("qiang_ruo", ""),
             "yong": _candidate(fu_yi.get("yong")),
             "xi": _candidate(fu_yi.get("xi")),
             "ji": _candidate(fu_yi.get("ji")),
@@ -517,7 +517,7 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
         },
         {
             "source": "fu_yi",
-            "qiangruo": (facts.get("fu_yi") or {}).get("qiangruo", ""),
+            "qiang_ruo": (facts.get("fu_yi") or {}).get("qiang_ruo", ""),
             "pattern": (facts.get("fu_yi") or {}).get("pattern", ""),
             "ri_gan_gen": ((facts.get("fu_yi") or {}).get("basis") or {}).get("ri_gan_gen", ""),
             "season": ((facts.get("fu_yi") or {}).get("basis") or {}).get("season", ""),

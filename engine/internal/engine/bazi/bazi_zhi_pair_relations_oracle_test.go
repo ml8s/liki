@@ -44,8 +44,8 @@ func TestDomainOracle_ZhiPairRelations(t *testing.T) {
 				t.Fatal(err)
 			}
 			got := analyzeZhiRelation(a, b)
-			if got.Type != tc.ExpectedType {
-				t.Fatalf("type = %q, want %q; detail=%q", got.Type, tc.ExpectedType, got.Detail)
+			if got.Kind != tc.ExpectedType {
+				t.Fatalf("type = %q, want %q; detail=%q", got.Kind, tc.ExpectedType, got.Detail)
 			}
 			for _, part := range tc.ExpectedDetailParts {
 				if !strings.Contains(got.Detail, part) {
@@ -64,7 +64,7 @@ func TestDomainOracle_ZhiPairRelations(t *testing.T) {
 		for b := 1; b <= 12; b++ {
 			got := analyzeZhiRelation(ganzhi.Zhi(a), ganzhi.Zhi(b))
 			for _, forbidden := range doc.ForbidCompleteTypesForPairOnly {
-				if got.Type == forbidden {
+				if got.Kind == forbidden {
 					t.Fatalf("pair-only analyzer emitted %s for %s%s: %+v", forbidden, ganzhi.ZhiName(ganzhi.Zhi(a)), ganzhi.ZhiName(ganzhi.Zhi(b)), got)
 				}
 			}

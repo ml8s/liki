@@ -12,8 +12,7 @@
   "output": {
     "liu_ri": [
       {
-        "date": "2026-06-15",
-        "day_name": "庚申",
+        "liu_ri_date": "2026-06-15",
         "shi_shen": "伤官",
         "ri_gan": "庚",
         "ri_zhi": "申",
@@ -24,65 +23,65 @@
             "gan_a": "庚",
             "gan_b": "甲",
             "relation": "庚克甲",
-            "type": "相克"
+            "relation_kind": "相克"
           },
           {
             "gan_a": "庚",
             "gan_b": "丙",
             "relation": "丙克庚",
-            "type": "相克"
+            "relation_kind": "相克"
           },
           {
             "gan_a": "庚",
             "gan_b": "己",
             "relation": "己生庚",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           {
             "gan_a": "庚",
             "gan_b": "戊",
             "relation": "戊生庚",
-            "type": "相生"
+            "relation_kind": "相生"
           }
         ],
         "zhi_rels": [
           {
-            "detail": "申子半合水局，缺辰",
-            "type": "半合",
+            "relation_explanation": "申子半合水局，缺辰",
+            "relation_kind": "半合",
             "zhi_a": "申",
             "zhi_b": "子"
           },
           {
-            "detail": "申寅相冲",
-            "type": "六冲",
+            "relation_explanation": "申寅相冲",
+            "relation_kind": "六冲",
             "zhi_a": "申",
             "zhi_b": "寅"
           },
           {
-            "detail": "申卯暗合",
-            "type": "暗合",
+            "relation_explanation": "申卯暗合",
+            "relation_kind": "暗合",
             "zhi_a": "申",
             "zhi_b": "卯"
           },
           {
-            "detail": "申辰拱子，水局候选",
-            "type": "三合拱",
+            "relation_explanation": "申辰拱子，水局候选",
+            "relation_kind": "三合拱",
             "zhi_a": "申",
             "zhi_b": "辰"
           }
         ],
         "da_yun_rels": [
           {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "申",
             "zhi_b": "午"
           }
         ],
         "liu_nian_rels": [
           {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "申",
             "zhi_b": "午"
           }

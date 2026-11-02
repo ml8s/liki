@@ -130,8 +130,8 @@ func TestQueryDate_NotEmpty(t *testing.T) {
 	if got.Wuxing == "" {
 		t.Error("Wuxing should not be empty")
 	}
-	if got.NaYin == "" {
-		t.Error("NaYin should not be empty")
+	if got.RiZhu.NaYin == "" {
+		t.Error("RiZhu.NaYin should not be empty")
 	}
 	if got.JianChu == "" {
 		t.Error("JianChu should not be empty")

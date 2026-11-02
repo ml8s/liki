@@ -48,7 +48,7 @@ func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 					return
 				}
 				t.Errorf("调候用神 = %q, want %q (冬季需火调候)\n  detail: %s",
-					result.PrimaryWuxing, tt.wantYong, result.Detail)
+					result.PrimaryWuxing, tt.wantYong, result.TiaoHouExplanation)
 			}
 		})
 	}
@@ -64,7 +64,7 @@ func TestTiaoHou_WinterWater_ShouldHaveFire(t *testing.T) {
 		t.Errorf("壬日子月调候 = yong=%s, 应为土或火", result.PrimaryWuxing)
 	}
 	t.Logf("壬日子月: yong=%s xi=%s detail=%s",
-		result.PrimaryWuxing, result.SecondaryWuxing, result.Detail)
+		result.PrimaryWuxing, result.SecondaryWuxing, result.TiaoHouExplanation)
 }
 
 func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
@@ -73,7 +73,7 @@ func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
 	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanBing, ganzhi.ZhiWu))
 
 	t.Logf("丙午月: yong=%s xi=%s detail=%s",
-		result.PrimaryWuxing, result.SecondaryWuxing, result.Detail)
+		result.PrimaryWuxing, result.SecondaryWuxing, result.TiaoHouExplanation)
 
 	if result.PrimaryWuxing != "水" {
 		t.Errorf("丙午月调候 = %q, want 水 (穷通宝鉴: 壬水)", result.PrimaryWuxing)

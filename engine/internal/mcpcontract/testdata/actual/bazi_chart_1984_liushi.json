@@ -20,49 +20,49 @@
             "gan_a": "壬",
             "gan_b": "甲",
             "relation": "壬生甲",
-            "type": "相生"
+            "relation_kind": "相生"
           },
           {
             "gan_a": "壬",
             "gan_b": "丙",
             "relation": "壬克丙",
-            "type": "相克"
+            "relation_kind": "相克"
           },
           {
             "gan_a": "壬",
             "gan_b": "己",
             "relation": "己克壬",
-            "type": "相克"
+            "relation_kind": "相克"
           },
           {
             "gan_a": "壬",
             "gan_b": "戊",
             "relation": "戊克壬",
-            "type": "相克"
+            "relation_kind": "相克"
           }
         ],
         "zhi_rels": [
           {
-            "detail": "午子相冲",
-            "type": "六冲",
+            "relation_explanation": "午子相冲",
+            "relation_kind": "六冲",
             "zhi_a": "午",
             "zhi_b": "子"
           },
           {
-            "detail": "午寅半合火局，缺戌",
-            "type": "半合",
+            "relation_explanation": "午寅半合火局，缺戌",
+            "relation_kind": "半合",
             "zhi_a": "午",
             "zhi_b": "寅"
           },
           {
-            "detail": "午卯相破",
-            "type": "破",
+            "relation_explanation": "午卯相破",
+            "relation_kind": "破",
             "zhi_a": "午",
             "zhi_b": "卯"
           },
           {
-            "detail": "无特殊关系",
-            "type": "无",
+            "relation_explanation": "无特殊关系",
+            "relation_kind": "无",
             "zhi_a": "午",
             "zhi_b": "辰"
           }
@@ -72,8 +72,7 @@
           "liu_shi_start_time": "2026-06-15T12:00:00+08:00",
           "liu_shi_local_date": "2026-06-15"
         },
-        "liu_shi_time": "11:00-13:00",
-        "shi_chen_name": "壬午"
+        "liu_shi_time": "11:00-13:00"
       }
     ]
   }

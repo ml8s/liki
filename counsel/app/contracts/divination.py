@@ -213,7 +213,7 @@ class LiuyaoSnapshotOutputFacts(BaseModel):
     day_clash_facts: Any
     moving_transformations: Any
     san_he_candidates: Any
-    force_chain: Any
+    yong_shen_force_chain: Any
     yong_shen_candidates: Any
 
 

@@ -80,15 +80,15 @@ def _validate_daxian(daxian: object, action: str) -> None:
     for index, step in enumerate(daxian):
         if not isinstance(step, dict):
             raise ChartSchemaError(f"{action} ziwei_daxian[{index}] 必须是 object。")
-        for key in ("gong", "name", "start_year", "end_year", "qi_sui", "zhi_sui"):
+        for key in ("ming_gong", "start_year", "end_year", "qi_sui", "zhi_sui"):
             if key not in step:
                 raise ChartSchemaError(f"{action} ziwei_daxian[{index}] 缺少 {key}。")
-        if not isinstance(step["gong"], str) or not step["gong"]:
-            raise ChartSchemaError(f"{action} ziwei_daxian[{index}].gong 必须是非空字符串。")
+        if not isinstance(step["ming_gong"], str) or not step["ming_gong"]:
+            raise ChartSchemaError(f"{action} ziwei_daxian[{index}].ming_gong 必须是非空字符串。")
         integer_fields = ("start_year", "end_year", "qi_sui", "zhi_sui")
         if any(not isinstance(step[key], int) or isinstance(step[key], bool) for key in integer_fields):
             raise ChartSchemaError(f"{action} ziwei_daxian[{index}] 年段/虚岁必须是整数。")
-        palaces.append(step["gong"])
+        palaces.append(step["ming_gong"])
     if len(set(palaces)) != count:
         raise ChartSchemaError(f"{action} ziwei_daxian 的 {count} 个宫位必须唯一。")
 

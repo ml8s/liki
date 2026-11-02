@@ -3,7 +3,7 @@
 本层把 engine `qimen.chart` 的盘面事实投影为稳定字段，数据分三类：
 - 通用术数常识（方位/时干阴阳/五行生克）：非 engine 数据，各层可各自持有，
   由 `tests/test_qimen_projection_tables.py` 一致性绑定到 luoshu/干支/五行权威源，防漂移。
-- 奇门投影规则（内外盘 `palace_domains` / 宫位高低 `palace_ranges` / 方位呈现）：
+- 奇门投影规则（内外盘 `gong_domains` / 宫位高低 `palace_ranges` / 方位呈现）：
   对 engine 已给事实（`yin_dun`/`gong`/`wuxing`）施加固定布局规则，属投影层职责。
 - 解读性知识（门星吉凶本质/神将原型/宫象人物）：属判断/解读层，保留在 counsel。
 """
@@ -15,18 +15,18 @@ from pathlib import Path
 CONTRACT_PATH = Path(__file__).with_name("qimen_projection_contract.json")
 SPIRIT_ARCHETYPES_PATH = Path(__file__).with_name("data") / "qimen_spirit_archetypes.csv"
 WUXING_RELATIONS_PATH = Path(__file__).with_name("data") / "qimen_wuxing_relations.csv"
-PALACE_DOMAINS_PATH = Path(__file__).with_name("data") / "qimen_palace_domains.csv"
-PALACE_DIRECTIONS_PATH = Path(__file__).with_name("data") / "qimen_palace_directions.csv"
-PALACE_RANGES_PATH = Path(__file__).with_name("data") / "qimen_palace_ranges.csv"
-PALACE_PERSON_PATH = Path(__file__).with_name("data") / "qimen_palace_person.csv"
+GONG_DOMAINS_PATH = Path(__file__).with_name("data") / "qimen_gong_domains.csv"
+GONG_DIRECTIONS_PATH = Path(__file__).with_name("data") / "qimen_gong_directions.csv"
+GONG_RANGES_PATH = Path(__file__).with_name("data") / "qimen_gong_ranges.csv"
+GONG_PERSON_PATH = Path(__file__).with_name("data") / "qimen_gong_person.csv"
 HOUR_POLARITIES_PATH = Path(__file__).with_name("data") / "qimen_hour_polarities.csv"
 _CONTRACT = None
 _SPIRIT_ARCHETYPES = None
 _WUXING_RELATIONS = None
-_PALACE_DOMAINS = None
-_PALACE_DIRECTIONS = None
-_PALACE_RANGES = None
-_PALACE_PERSON = None
+_GONG_DOMAINS = None
+_GONG_DIRECTIONS = None
+_GONG_RANGES = None
+_GONG_PERSON = None
 _HOUR_POLARITIES = None
 
 
@@ -82,42 +82,42 @@ def _load_wuxing_relations() -> dict[tuple[str, str], str]:
         )
     return _WUXING_RELATIONS
 
-def _load_palace_domains() -> dict[tuple[bool, str], str]:
-    global _PALACE_DOMAINS
-    if _PALACE_DOMAINS is None:
-        _PALACE_DOMAINS = _load_lookup(
-            PALACE_DOMAINS_PATH,
+def _load_gong_domains() -> dict[tuple[bool, str], str]:
+    global _GONG_DOMAINS
+    if _GONG_DOMAINS is None:
+        _GONG_DOMAINS = _load_lookup(
+            GONG_DOMAINS_PATH,
             ("yin_dun", "gong"),
             "domain",
             {"inner", "outer", "center"},
             18,
             lambda yin_dun, gong: (yin_dun.lower() == "true", gong),
         )
-    return _PALACE_DOMAINS
+    return _GONG_DOMAINS
 
 def _load_palace_ranges() -> dict[str, str]:
-    global _PALACE_RANGES
-    if _PALACE_RANGES is None:
-        _PALACE_RANGES = _load_lookup(
-            PALACE_RANGES_PATH, ("gong",), "range", {"low", "high"}, 9
+    global _GONG_RANGES
+    if _GONG_RANGES is None:
+        _GONG_RANGES = _load_lookup(
+            GONG_RANGES_PATH, ("gong",), "range", {"low", "high"}, 9
         )
-    return _PALACE_RANGES
+    return _GONG_RANGES
 
-def _load_palace_directions() -> dict[str, str]:
-    global _PALACE_DIRECTIONS
-    if _PALACE_DIRECTIONS is None:
-        _PALACE_DIRECTIONS = _load_lookup(
-            PALACE_DIRECTIONS_PATH, ("gong",), "direction", None, 9
+def _load_gong_directions() -> dict[str, str]:
+    global _GONG_DIRECTIONS
+    if _GONG_DIRECTIONS is None:
+        _GONG_DIRECTIONS = _load_lookup(
+            GONG_DIRECTIONS_PATH, ("gong",), "direction", None, 9
         )
-    return _PALACE_DIRECTIONS
+    return _GONG_DIRECTIONS
 
 def _load_palace_person() -> dict[str, str]:
-    global _PALACE_PERSON
-    if _PALACE_PERSON is None:
-        _PALACE_PERSON = _load_lookup(
-            PALACE_PERSON_PATH, ("gong",), "person_image", None, 8
+    global _GONG_PERSON
+    if _GONG_PERSON is None:
+        _GONG_PERSON = _load_lookup(
+            GONG_PERSON_PATH, ("gong",), "person_image", None, 8
         )
-    return _PALACE_PERSON
+    return _GONG_PERSON
 
 def _load_hour_polarities() -> dict[str, str]:
     global _HOUR_POLARITIES
@@ -276,7 +276,7 @@ def _yin_dun(chart: dict) -> bool:
     return value
 
 def _palace_domain(chart: dict, gong: str) -> str:
-    domain = _load_palace_domains().get((_yin_dun(chart), gong))
+    domain = _load_gong_domains().get((_yin_dun(chart), gong))
     if domain is None:
         raise ValueError(f"qimen palace domain missing: {gong}")
     return domain
@@ -288,13 +288,13 @@ def _palace_range(gong: str) -> str:
     return palace_range
 
 def _palace_direction(gong: str) -> str | None:
-    direction = _load_palace_directions().get(gong)
+    direction = _load_gong_directions().get(gong)
     if direction is None:
         raise ValueError(f"qimen palace direction missing: {gong}")
     return direction
 
 def _palace_wuxing(chart: dict, gong: str) -> str:
-    for item in chart.get("palace_wang_shuai", []):
+    for item in chart.get("gong_wang_shuai", []):
         if isinstance(item, dict) and item.get("gong") == gong:
             wuxing = item.get("wuxing")
             if _type_matches(wuxing, "string"):

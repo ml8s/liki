@@ -136,59 +136,50 @@
       "yong_ju_jie_qi": "年家定局",
       "yuan": "下元"
     },
-    "palace_wang_shuai": [
+    "gong_wang_shuai": [
       {
         "gong": "坎",
         "wang_shuai": "休",
-        "wang_shuai_name": "休",
         "wuxing": "水"
       },
       {
         "gong": "坤",
         "wang_shuai": "死",
-        "wang_shuai_name": "死",
         "wuxing": "土"
       },
       {
         "gong": "震",
         "wang_shuai": "旺",
-        "wang_shuai_name": "旺",
         "wuxing": "木"
       },
       {
         "gong": "巽",
         "wang_shuai": "旺",
-        "wang_shuai_name": "旺",
         "wuxing": "木"
       },
       {
         "gong": "中",
         "wang_shuai": "死",
-        "wang_shuai_name": "死",
         "wuxing": "土"
       },
       {
         "gong": "乾",
         "wang_shuai": "囚",
-        "wang_shuai_name": "囚",
         "wuxing": "金"
       },
       {
         "gong": "兑",
         "wang_shuai": "囚",
-        "wang_shuai_name": "囚",
         "wuxing": "金"
       },
       {
         "gong": "艮",
         "wang_shuai": "死",
-        "wang_shuai_name": "死",
         "wuxing": "土"
       },
       {
         "gong": "离",
         "wang_shuai": "相",
-        "wang_shuai_name": "相",
         "wuxing": "火"
       }
     ],
@@ -422,14 +413,14 @@
       }
     ],
     "ri_gan_gong": "巽",
-    "ri_gan_palace_facts": [
+    "ri_gan_gong_facts": [
       {
         "layer": "heaven",
-        "palace": "巽"
+        "gong": "巽"
       },
       {
         "layer": "earth",
-        "palace": "艮"
+        "gong": "艮"
       }
     ],
     "ri_shi_relation": {
@@ -442,17 +433,16 @@
     "shi_gan_gong_wang_shuai": {
       "gong": "巽",
       "wang_shuai": "旺",
-      "wang_shuai_name": "旺",
       "wuxing": "木"
     },
-    "shi_gan_palace_facts": [
+    "shi_gan_gong_facts": [
       {
         "layer": "heaven",
-        "palace": "巽"
+        "gong": "巽"
       },
       {
         "layer": "earth",
-        "palace": "艮"
+        "gong": "艮"
       }
     ],
     "special_facts": {
@@ -463,32 +453,32 @@
           "level": "month"
         }
       ],
-      "lost_context": [
+      "lost_facts": [
         {
           "door": "死门",
           "gong": "巽",
           "wang_shuai": "旺"
         }
       ],
-      "thief_context": [
+      "thief_facts": [
         {
           "gong": "震",
-          "lucky_pattern_names": [
+          "lucky_ge_ju_names": [
             "三奇得使"
           ],
           "role": "大贼",
           "symbol": "天蓬",
-          "wang_shuai_label": "休"
+          "wang_shuai": "休"
         },
         {
           "gong": "乾",
-          "lucky_pattern_names": [],
+          "lucky_ge_ju_names": [],
           "role": "小贼",
           "symbol": "玄武",
-          "wang_shuai_label": "囚"
+          "wang_shuai": "囚"
         }
       ],
-      "tianwang_context": []
+      "tianwang_facts": []
     },
     "xing_gong_wu_xing": [
       {

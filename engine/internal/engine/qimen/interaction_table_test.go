@@ -99,7 +99,7 @@ func TestGanInteractionDisplayNameIsMechanical(t *testing.T) {
 	}
 }
 
-func TestGanPalaceFactsPreserveHeavenAndEarthLayers(t *testing.T) {
+func TestGanGongFactsPreserveHeavenAndEarthLayers(t *testing.T) {
 	heavenMoving, err := ganzhi.ParseGan("壬")
 	if err != nil {
 		t.Fatal(err)
@@ -109,7 +109,7 @@ func TestGanPalaceFactsPreserveHeavenAndEarthLayers(t *testing.T) {
 		{TianPan: []TianPanSymbol{{Gan: heavenMoving, Star: StarTianPeng}}},
 	}}
 
-	got := findGanPalaceFacts(p, heavenMoving)
+	got := findGanGongFacts(p, heavenMoving)
 	if len(got) != 2 || got[0].Palace != GongKun || got[0].Layer != "heaven" ||
 		got[1].Palace != GongKan || got[1].Layer != "earth" {
 		t.Fatalf("gan palace facts = %+v, want heaven@坤 and earth@坎", got)

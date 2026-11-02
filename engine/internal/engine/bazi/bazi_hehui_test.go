@@ -18,8 +18,8 @@ func TestComputeFullTripleHeHui_SanHeWater(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
-	if got[0].Type != relSanHe {
-		t.Errorf("Type = %q, want %q", got[0].Type, relSanHe)
+	if got[0].Kind != relSanHe {
+		t.Errorf("Type = %q, want %q", got[0].Kind, relSanHe)
 	}
 	if got[0].Element != "水" {
 		t.Errorf("Element = %q, want 水", got[0].Element)
@@ -39,8 +39,8 @@ func TestComputeFullTripleHeHui_SanHeFire(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
-	if got[0].Type != relSanHe {
-		t.Errorf("Type = %q, want %q", got[0].Type, relSanHe)
+	if got[0].Kind != relSanHe {
+		t.Errorf("Type = %q, want %q", got[0].Kind, relSanHe)
 	}
 	if got[0].Element != "火" {
 		t.Errorf("Element = %q, want 火", got[0].Element)
@@ -59,8 +59,8 @@ func TestComputeFullTripleHeHui_SanHeWood(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
-	if got[0].Type != relSanHe {
-		t.Errorf("Type = %q, want %q", got[0].Type, relSanHe)
+	if got[0].Kind != relSanHe {
+		t.Errorf("Type = %q, want %q", got[0].Kind, relSanHe)
 	}
 	if got[0].Element != "木" {
 		t.Errorf("Element = %q, want 木", got[0].Element)
@@ -79,8 +79,8 @@ func TestComputeFullTripleHeHui_SanHeMetal(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
-	if got[0].Type != relSanHe {
-		t.Errorf("Type = %q, want %q", got[0].Type, relSanHe)
+	if got[0].Kind != relSanHe {
+		t.Errorf("Type = %q, want %q", got[0].Kind, relSanHe)
 	}
 	if got[0].Element != "金" {
 		t.Errorf("Element = %q, want 金", got[0].Element)
@@ -99,8 +99,8 @@ func TestComputeFullTripleHeHui_SanHuiWood(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
-	if got[0].Type != relSanHui {
-		t.Errorf("Type = %q, want %q", got[0].Type, relSanHui)
+	if got[0].Kind != relSanHui {
+		t.Errorf("Type = %q, want %q", got[0].Kind, relSanHui)
 	}
 	if got[0].Element != "木" {
 		t.Errorf("Element = %q, want 木", got[0].Element)
@@ -119,8 +119,8 @@ func TestComputeFullTripleHeHui_SanHuiWater(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
-	if got[0].Type != relSanHui {
-		t.Errorf("Type = %q, want %q", got[0].Type, relSanHui)
+	if got[0].Kind != relSanHui {
+		t.Errorf("Type = %q, want %q", got[0].Kind, relSanHui)
 	}
 	if got[0].Element != "水" {
 		t.Errorf("Element = %q, want 水", got[0].Element)
@@ -324,8 +324,8 @@ func TestZhiRelation_Xing_Authoritative(t *testing.T) {
 	}
 	for _, tt := range pos {
 		r := analyzeZhiRelation(tt.a, tt.b)
-		if r.Type != relXing {
-			t.Errorf("%s%s: type = %s, want 相刑", ganzhi.ZhiName(tt.a), ganzhi.ZhiName(tt.b), r.Type)
+		if r.Kind != relXing {
+			t.Errorf("%s%s: type = %s, want 相刑", ganzhi.ZhiName(tt.a), ganzhi.ZhiName(tt.b), r.Kind)
 			continue
 		}
 		if r.Detail != ganzhi.ZhiName(tt.a)+ganzhi.ZhiName(tt.b)+tt.want {
@@ -343,8 +343,8 @@ func TestZhiRelation_Xing_Authoritative(t *testing.T) {
 	}
 	for _, tt := range notXing {
 		r := analyzeZhiRelation(tt.a, tt.b)
-		if r.Type != tt.want {
-			t.Errorf("%s%s: type = %s, want %s（合/冲优先于刑）", ganzhi.ZhiName(tt.a), ganzhi.ZhiName(tt.b), r.Type, tt.want)
+		if r.Kind != tt.want {
+			t.Errorf("%s%s: type = %s, want %s（合/冲优先于刑）", ganzhi.ZhiName(tt.a), ganzhi.ZhiName(tt.b), r.Kind, tt.want)
 		}
 	}
 	// 反例：自刑组内不同支不构成刑（午亥、辰酉、午辰等）
@@ -359,7 +359,7 @@ func TestZhiRelation_Xing_Authoritative(t *testing.T) {
 	}
 	for _, tt := range neg {
 		r := analyzeZhiRelation(tt[0], tt[1])
-		if r.Type == relXing {
+		if r.Kind == relXing {
 			t.Errorf("%s%s: 不应判为相刑（实际 %s）", ganzhi.ZhiName(tt[0]), ganzhi.ZhiName(tt[1]), r.Detail)
 		}
 	}

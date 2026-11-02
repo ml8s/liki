@@ -32,8 +32,7 @@ type ZiweiDaXianItem struct {
 	EndYear   *int            `json:"end_year,omitempty" jsonschema:"本限结束公历年"`
 	QiSui     int             `json:"qi_sui" jsonschema:"qi_sui。"`
 	ZhiSui    int             `json:"zhi_sui" jsonschema:"zhi_sui。"`
-	Gong      ZiweiPalaceName `json:"gong" jsonschema:"宫位。"`
-	Name      ZiweiPalaceName `json:"name" jsonschema:"名称。"`
+	MingGong  ZiweiPalaceName `json:"ming_gong" jsonschema:"大限命宫。"`
 }
 
 // ── ziwei.liunian input ──
@@ -58,7 +57,7 @@ type ZiweiLiuNianOutput struct {
 
 type ZiweiLiuNianResolved struct {
 	LiuNianStartTime StandardTime `json:"liu_nian_start_time" jsonschema:"流年选择器时区标准时间（无 DST）。"`
-	LiuNianStartDate DateString   `json:"liunian_start_date" jsonschema:"按选定农历基准取的流年选择日期。"`
+	LiuNianStartDate DateString   `json:"liu_nian_start_date" jsonschema:"按选定农历基准取的流年选择日期。"`
 	LunarYear        int          `json:"lunar_year" jsonschema:"该日期所在的农历年。"`
 	LunarYearStart   DateString   `json:"lunar_year_start" jsonschema:"正月初一公历日（含）。"`
 	LunarYearEnd     DateString   `json:"lunar_year_end" jsonschema:"下一正月初一公历日（不含）。"`
@@ -91,7 +90,7 @@ type ZiweiLunarDate struct {
 
 type ZiweiYueJie struct {
 	LiuYueStartTime StandardTime                            `json:"liu_yue_start_time" jsonschema:"流月选择器时区标准时间（无 DST）。"`
-	LiuYueStartDate DateString                              `json:"liuyue_start_date" jsonschema:"按选定农历基准取的流月选择日期。"`
+	LiuYueStartDate DateString                              `json:"liu_yue_start_date" jsonschema:"按选定农历基准取的流月选择日期。"`
 	Lunar           ZiweiLunarDate                          `json:"lunar" jsonschema:"该日期对应的农历日期。"`
 	LunarMonthStart DateString                              `json:"lunar_month_start" jsonschema:"农历月初一公历日（含）。"`
 	LunarMonthEnd   DateString                              `json:"lunar_month_end" jsonschema:"下一农历月初一公历日（不含）。"`

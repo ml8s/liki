@@ -16,14 +16,14 @@ func TestGongJia_ClassicOnly(t *testing.T) {
 			name:    "san-he-first-and-tomb-growth-center",
 			pillars: []string{"甲申", "乙丑", "丙辰", "丁卯"},
 			want: []GongJia{{
-				ZhuA: 0, ZhuB: 2, Type: "三合拱", Element: "水", Zhi: ganzhi.ZhiZi,
+				ZhuA: 0, ZhuB: 2, Kind: "三合拱", Element: "水", Zhi: ganzhi.ZhiZi,
 			}},
 		},
 		{
 			name:    "san-hui-first-and-last-middle",
 			pillars: []string{"乙亥", "己丑", "丙辰", "庚戌"},
 			want: []GongJia{{
-				ZhuA: 0, ZhuB: 1, Type: "三会拱", Element: "水", Zhi: ganzhi.ZhiZi,
+				ZhuA: 0, ZhuB: 1, Kind: "三会拱", Element: "水", Zhi: ganzhi.ZhiZi,
 			}},
 		},
 		{

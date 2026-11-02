@@ -34,7 +34,7 @@ type shiShenCross struct {
 	AToB map[string]string `json:"a_to_b"`
 	BToA map[string]string `json:"b_to_a"`
 }
-type nayinPairEntry struct {
+type naYinPairEntry struct {
 	AZhu     string `json:"a_zhu"`
 	BZhu     string `json:"b_zhu"`
 	ANaYin   string `json:"a_na_yin"`
@@ -51,7 +51,7 @@ type elementCross struct {
 	} `json:"fu_yi_in_other"`
 }
 type yongShenFitEntry struct {
-	Model       string `json:"model"`
+	ModelID     string `json:"fu_yi_model_id"`
 	Yong        string `json:"yong"`
 	Xi          string `json:"xi"`
 	Ji          string `json:"ji"`
@@ -60,7 +60,7 @@ type yongShenFitEntry struct {
 	JiInOther   int    `json:"ji_in_other"`
 }
 type nayinCross struct {
-	Pairs    []nayinPairEntry `json:"pairs"`
+	Pairs    []naYinPairEntry `json:"pairs"`
 	Elements struct {
 		A map[string]int `json:"a"`
 		B map[string]int `json:"b"`
@@ -110,7 +110,7 @@ type Bond struct {
 	ZhuCross     zhuCross          `json:"zhu_cross"`
 	ShiShenCross shiShenCross      `json:"shi_shen_cross"`
 	ElementCross elementCross      `json:"wuxing_cross"`
-	NayinCross   nayinCross        `json:"nayin_cross"`
+	NaYinCross   nayinCross        `json:"na_yin_cross"`
 	SpouseStar   spouseStarCross   `json:"spouse_star"`
 	ShenshaCross shenshaCross      `json:"shen_sha_cross"`
 }
@@ -134,7 +134,7 @@ func computeBondFromFacts(aBazi, bBazi Chart, aFacts, bFacts bondChartFacts) Bon
 		ZhuCross:     computeZhuCross(aBazi, bBazi),
 		ShiShenCross: computeShiShenCross(aBazi, bBazi),
 		ElementCross: computeElementCross(aFacts, bFacts),
-		NayinCross:   computeNayinCross(aBazi, bBazi),
+		NaYinCross:   computeNaYinCross(aBazi, bBazi),
 		SpouseStar:   computeSpouseStarCross(aFacts, bFacts),
 		ShenshaCross: computeShenshaCross(aBazi, bBazi),
 	}
@@ -215,7 +215,7 @@ func yongShenFit(f FuYiResult, other map[string]int) yongShenFitEntry {
 		return other[value]
 	}
 	return yongShenFitEntry{
-		Model: f.ModelID, Yong: f.Yong, Xi: f.Xi, Ji: f.Ji,
+		ModelID: f.ModelID, Yong: f.Yong, Xi: f.Xi, Ji: f.Ji,
 		YongInOther: inOther(f.Yong), XiInOther: inOther(f.Xi), JiInOther: inOther(f.Ji),
 	}
 }
@@ -305,9 +305,9 @@ func computeShiShenCross(a, b Chart) shiShenCross {
 	return shiShenCross{AToB: aToB, BToA: bToA}
 }
 
-func computeNayinCross(a, b Chart) nayinCross {
+func computeNaYinCross(a, b Chart) nayinCross {
 	aNy, bNy := a.NaYinArray(), b.NaYinArray()
-	pairs := make([]nayinPairEntry, 0, 16)
+	pairs := make([]naYinPairEntry, 0, 16)
 	for i := 0; i < 4; i++ {
 		ae := ganzhi.NayinWuxing(aNy[i])
 		for j := 0; j < 4; j++ {
@@ -320,7 +320,7 @@ func computeNayinCross(a, b Chart) nayinCross {
 					rel = "相克"
 				}
 			}
-			pairs = append(pairs, nayinPairEntry{AZhu: zhuLabels[i], BZhu: zhuLabels[j], ANaYin: aNy[i], BNaYin: bNy[j], Relation: rel})
+			pairs = append(pairs, naYinPairEntry{AZhu: zhuLabels[i], BZhu: zhuLabels[j], ANaYin: aNy[i], BNaYin: bNy[j], Relation: rel})
 		}
 	}
 	nc := nayinCross{Pairs: pairs}
