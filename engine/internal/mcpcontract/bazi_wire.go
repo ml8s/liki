@@ -35,10 +35,10 @@ type BaziPillarShenShaItem struct {
 
 type BaziChartOutput struct {
 	ZiShiRule     string                       `json:"zi_shi_rule" jsonschema:"子时换日规则。"`
-	Nian          BaziChartNian                `json:"nian" jsonschema:"年柱: gan/zhi/na_yin"`
-	Yue           BaziChartYue                 `json:"yue" jsonschema:"月柱: gan/zhi/na_yin"`
-	Ri            BaziChartRi                  `json:"ri" jsonschema:"日柱: gan/zhi/na_yin"`
-	Shi           BaziChartShi                 `json:"shi" jsonschema:"时柱: gan/zhi/na_yin"`
+	Nian          BaziChartPillar              `json:"nian" jsonschema:"年柱: gan/zhi/na_yin"`
+	Yue           BaziChartPillar              `json:"yue" jsonschema:"月柱: gan/zhi/na_yin"`
+	Ri            BaziChartPillar              `json:"ri" jsonschema:"日柱: gan/zhi/na_yin"`
+	Shi           BaziChartPillar              `json:"shi" jsonschema:"时柱: gan/zhi/na_yin"`
 	DaYun         BaziChartDaYun               `json:"da_yun" jsonschema:"大运。root_refs 说明坐支本气与原局藏干通根。"`
 	BirthYear     *int                         `json:"birth_year,omitempty" jsonschema:"出生公历年份"`
 	FuYi          BaziChartFuYi                `json:"fu_yi" jsonschema:"扶抑候选：用/喜/忌与身强弱；最终用神由 counsel 裁决"`
@@ -73,58 +73,7 @@ type BaziChartOutput struct {
 	DayXunKong    string                       `json:"ri_xun_kong" jsonschema:"日柱旬空二支；各柱 is_void 均按此判断"`
 }
 
-type BaziChartNian struct {
-	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
-	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
-	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
-	CangGan        BaziPillarCangGan        `json:"cang_gan" jsonschema:"藏干"`
-	ShiShens       []BaziPillarShiShensItem `json:"shi_shens" jsonschema:"十神"`
-	DayMasterTrend ChangShengStageName      `json:"day_master_trend" jsonschema:"日主在此柱地支的十二长生（地势）"`
-	Xun            string                   `json:"xun" jsonschema:"该柱所在旬"`
-	XunKong        string                   `json:"xun_kong" jsonschema:"该柱所在旬的旬空二支；is_void 另指该柱值日柱旬空"`
-	SelfSitting    ChangShengStageName      `json:"self_sitting" jsonschema:"自坐长生（该柱天干在自己的地支上的十二长生阶段）"`
-	ShenSha        []BaziPillarShenShaItem  `json:"shen_sha" jsonschema:"神煞（天乙贵人/羊刃/桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天罗地网/十恶大败等——按盘动态计算）"`
-	IsVoid         bool                     `json:"is_void" jsonschema:"旬空"`
-	IsSelfHe       bool                     `json:"is_self_he" jsonschema:"自合"`
-	IsKuiGang      bool                     `json:"is_kui_gang" jsonschema:"魁罡"`
-	SelfHeName     string                   `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
-}
-
-type BaziChartYue struct {
-	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
-	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
-	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
-	CangGan        BaziPillarCangGan        `json:"cang_gan" jsonschema:"藏干"`
-	ShiShens       []BaziPillarShiShensItem `json:"shi_shens" jsonschema:"十神"`
-	DayMasterTrend ChangShengStageName      `json:"day_master_trend" jsonschema:"日主在此柱地支的十二长生（地势）"`
-	Xun            string                   `json:"xun" jsonschema:"该柱所在旬"`
-	XunKong        string                   `json:"xun_kong" jsonschema:"该柱所在旬的旬空二支；is_void 另指该柱值日柱旬空"`
-	SelfSitting    ChangShengStageName      `json:"self_sitting" jsonschema:"自坐长生（该柱天干在自己的地支上的十二长生阶段）"`
-	ShenSha        []BaziPillarShenShaItem  `json:"shen_sha" jsonschema:"神煞（天乙贵人/羊刃/桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天罗地网/十恶大败等——按盘动态计算）"`
-	IsVoid         bool                     `json:"is_void" jsonschema:"旬空"`
-	IsSelfHe       bool                     `json:"is_self_he" jsonschema:"自合"`
-	IsKuiGang      bool                     `json:"is_kui_gang" jsonschema:"魁罡"`
-	SelfHeName     string                   `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
-}
-
-type BaziChartRi struct {
-	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
-	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
-	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
-	CangGan        BaziPillarCangGan        `json:"cang_gan" jsonschema:"藏干"`
-	ShiShens       []BaziPillarShiShensItem `json:"shi_shens" jsonschema:"十神"`
-	DayMasterTrend ChangShengStageName      `json:"day_master_trend" jsonschema:"日主在此柱地支的十二长生（地势）"`
-	Xun            string                   `json:"xun" jsonschema:"该柱所在旬"`
-	XunKong        string                   `json:"xun_kong" jsonschema:"该柱所在旬的旬空二支；is_void 另指该柱值日柱旬空"`
-	SelfSitting    ChangShengStageName      `json:"self_sitting" jsonschema:"自坐长生（该柱天干在自己的地支上的十二长生阶段）"`
-	ShenSha        []BaziPillarShenShaItem  `json:"shen_sha" jsonschema:"神煞（天乙贵人/羊刃/桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天罗地网/十恶大败等——按盘动态计算）"`
-	IsVoid         bool                     `json:"is_void" jsonschema:"旬空"`
-	IsSelfHe       bool                     `json:"is_self_he" jsonschema:"自合"`
-	IsKuiGang      bool                     `json:"is_kui_gang" jsonschema:"魁罡"`
-	SelfHeName     string                   `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
-}
-
-type BaziChartShi struct {
+type BaziChartPillar struct {
 	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
 	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
 	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
