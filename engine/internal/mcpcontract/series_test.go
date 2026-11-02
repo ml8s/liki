@@ -224,6 +224,9 @@ func TestSeriesRollovers(t *testing.T) {
 	if len(hours) != 2 {
 		t.Fatalf("want 2 hours, got %d", len(hours))
 	}
+	if hourRange, ok := hours[0]["hour_range"].(string); !ok || hourRange == "" {
+		t.Fatalf("bazi liu shi hour_range = %#v, want a non-empty time range", hours[0]["hour_range"])
+	}
 	first, _ := hours[0]["shi_chen"].(map[string]any)["shichen"].(string)
 	second, _ := hours[1]["shi_chen"].(map[string]any)["shichen"].(string)
 	firstZhi, err := ganzhi.ParseZhi(first)

@@ -774,7 +774,7 @@ type BaziLiuShiChen struct {
 }
 
 type BaziLiuShiOutput struct {
-	LiuShiTime string                       `json:"time" jsonschema:"流时时点。"`
+	LiuShiTime string                       `json:"hour_range" jsonschema:"流时时辰区间。"`
 	ShiShen    TenGodName                   `json:"shi_shen" jsonschema:"十神。"`
 	ShiGan     *string                      `json:"gan,omitempty" jsonschema:"流时天干"`
 	ShiZhi     *string                      `json:"zhi,omitempty" jsonschema:"流时地支"`
