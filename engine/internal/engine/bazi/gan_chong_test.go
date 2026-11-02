@@ -61,21 +61,25 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 func TestGanChong_GuanXiDistinguishTightPairs(t *testing.T) {
 	chart := pillarsCoreFromStrings(t, []string{"甲子", "丙寅", "庚午", "壬申"})
 	full := ComputeChartFromCore(chart)
-	want := map[RelationGroup]bool{
-		{Field: "gan_chong_candidate", Group: "甲庚"}: true,
-		{Field: "liu_chong", Group: "子午"}:           true,
-		{Field: "san_he_partial", Group: "寅午"}:      true,
+	type relationKey struct {
+		Kind  string
+		Group string
 	}
-	got := make(map[RelationGroup]bool, len(full.GuanXi))
+	want := map[relationKey]bool{
+		{Kind: "gan_chong_candidate", Group: "甲庚"}: true,
+		{Kind: "liu_chong", Group: "子午"}:           true,
+		{Kind: "san_he_partial", Group: "寅午"}:      true,
+	}
+	got := make(map[relationKey]bool, len(full.GuanXi))
 	for _, group := range full.GuanXi {
-		got[RelationGroup{Field: group.Field, Group: group.Group}] = true
+		got[relationKey{Kind: group.Kind, Group: group.Group}] = true
 	}
 	for group := range want {
 		if !got[group] {
 			t.Fatalf("missing relation group %#v; got %#v", group, full.GuanXi)
 		}
 	}
-	if got[RelationGroup{Field: "gan_chong", Group: "甲庚"}] {
+	if got[relationKey{Kind: "gan_chong", Group: "甲庚"}] {
 		t.Fatalf("separated 甲庚 must be candidate, not tight gan_chong")
 	}
 }

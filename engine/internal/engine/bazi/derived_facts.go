@@ -15,12 +15,24 @@ type LuRoot struct {
 	Zhi     string `json:"zhi"`
 }
 
-// RelationGroup is a complete natal relation group. Pair relations are
-// complete when present; triple groups require every member branch.
-type RelationGroup struct {
-	ID    string `json:"id"`
-	Field string `json:"relation_kind"`
-	Group string `json:"name"`
+// NatalRelationMember locates one stem or branch participant in its palace.
+type NatalRelationMember struct {
+	Pillar string `json:"pillar"`
+	Gan    string `json:"gan,omitempty"`
+	Zhi    string `json:"zhi,omitempty"`
+}
+
+// NatalRelationFact is the canonical natal relation projection. Group is the
+// stable match key; members carry palace-resolved evidence. Name-like text is
+// presentation and is intentionally not part of the domain fact.
+type NatalRelationFact struct {
+	ID        string                `json:"id"`
+	Kind      string                `json:"relation_kind"`
+	Group     string                `json:"group"`
+	Members   []NatalRelationMember `json:"members"`
+	Wuxing    string                `json:"wuxing,omitempty"`
+	Position  string                `json:"position,omitempty"`
+	Contested bool                  `json:"contested,omitempty"`
 }
 
 // TenGodState aggregates all visible and hidden occurrences of one ten god.
@@ -297,110 +309,258 @@ func computeChartConclusions(c Chart) ChartConclusions {
 	return conclusions
 }
 
-func computeGuanXi(c Chart) []RelationGroup {
-	bz := c.ToBazi()
-	pillars := bz.Slice()
-	ganCounts := map[ganzhi.Gan]int{}
-	zhiCounts := map[ganzhi.Zhi]int{}
-	for _, pillar := range pillars {
-		ganCounts[pillar.Gan]++
-		zhiCounts[pillar.Zhi]++
-	}
-	groups := make([]RelationGroup, 0, 8)
-	seen := map[RelationGroup]bool{}
-	add := func(field, group string) {
-		groupModel := RelationGroup{ID: field + ":" + group, Field: field, Group: group}
-		if group != "" && !seen[groupModel] {
-			groups = append(groups, groupModel)
-			seen[groupModel] = true
+func computeGuanXi(c Chart) []NatalRelationFact {
+	facts := make([]NatalRelationFact, 0, 8)
+	seen := map[string]bool{}
+	add := func(fact NatalRelationFact) {
+		if fact.Group == "" || len(fact.Members) == 0 {
+			return
 		}
+		fact.ID = natalRelationFactID(fact)
+		if seen[fact.ID] {
+			return
+		}
+		seen[fact.ID] = true
+		facts = append(facts, fact)
 	}
 
 	for _, relation := range c.GanHe {
-		if group := ganHeGroupLabel(relation.GanA, relation.GanB); group != "" {
-			field := "gan_he_candidate"
-			if relation.Position == "adjacent" {
-				field = "gan_he"
-			}
-			add(field, group)
+		kind := "gan_he_candidate"
+		if relation.Position == "adjacent" {
+			kind = "gan_he"
 		}
+		add(NatalRelationFact{
+			ID:    kind + ":" + ganHeGroupLabel(relation.GanA, relation.GanB),
+			Kind:  kind,
+			Group: ganHeGroupLabel(relation.GanA, relation.GanB),
+			Members: []NatalRelationMember{
+				{Pillar: zhuLabels[relation.PillarA], Gan: relation.GanA},
+				{Pillar: zhuLabels[relation.PillarB], Gan: relation.GanB},
+			},
+			Wuxing:    relation.HeElement,
+			Position:  relation.Position,
+			Contested: relation.Contested,
+		})
 	}
 	for _, relation := range c.GanChong {
-		if group := ganChongGroupLabel(relation.GanA, relation.GanB); group != "" {
-			field := "gan_chong_candidate"
-			if relation.Position == "adjacent" {
-				field = "gan_chong"
-			}
-			add(field, group)
+		kind := "gan_chong_candidate"
+		if relation.Position == "adjacent" {
+			kind = "gan_chong"
 		}
+		group := ganChongGroupLabel(relation.GanA, relation.GanB)
+		add(NatalRelationFact{
+			ID:    kind + ":" + group,
+			Kind:  kind,
+			Group: group,
+			Members: []NatalRelationMember{
+				{Pillar: zhuLabels[relation.PillarA], Gan: relation.GanA},
+				{Pillar: zhuLabels[relation.PillarB], Gan: relation.GanB},
+			},
+			Position: relation.Position,
+		})
 	}
-	for _, relation := range ganzhi.ZhiHes {
-		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
-			add("zhi_liu_he", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
-		}
+	for _, relation := range c.ZhiLiuHe {
+		group := canonicalZhiPairGroup("zhi_liu_he", relation.ZhiA, relation.ZhiB)
+		add(newZhiPairFact("zhi_liu_he", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
 	}
-	for _, group := range ganzhi.TripleHeList {
-		if allBranchesPresent(zhiCounts, group.Zhi) {
-			add("san_he", branchGroupLabel(group.Zhi))
+	for _, relation := range c.SanHe {
+		add(newTripleRelationFact("san_he", c.ToBazi(), relation))
+	}
+	for _, relation := range c.SanHePartial {
+		add(newTripleRelationFact("san_he_partial", c.ToBazi(), relation))
+	}
+	for _, relation := range c.SanHui {
+		add(newTripleRelationFact("san_hui", c.ToBazi(), relation))
+	}
+	for _, relation := range c.LiuChong {
+		group := canonicalZhiPairGroup("liu_chong", relation.ZhiA, relation.ZhiB)
+		add(newZhiPairFact("liu_chong", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
+	}
+	for _, relation := range c.LiuHai {
+		group := canonicalZhiPairGroup("liu_hai", relation.ZhiA, relation.ZhiB)
+		add(newZhiPairFact("liu_hai", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
+	}
+	for _, relation := range c.LiuXing {
+		group := canonicalXingGroup(relation.ZhiA, relation.ZhiB)
+		add(newZhiPairFact("liu_xing", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
+	}
+	// LiuXing detection keeps pairwise evidence. A complete three-branch 刑组
+	// is an additional canonical fact and must not be lost when the pairwise
+	// projection is later retired.
+	bz := c.ToBazi()
+	zhiCounts := map[ganzhi.Zhi]int{}
+	for _, pillar := range bz.Slice() {
+		zhiCounts[pillar.Zhi]++
+	}
+	for _, group := range ganzhi.XingGroups {
+		if group.Type == "zi" || !allBranchesPresent(zhiCounts, group.Zhi) {
 			continue
 		}
-		if zhiCounts[group.Zhi[1]] > 0 {
-			present := []ganzhi.Zhi{}
-			for _, branch := range group.Zhi {
-				if zhiCounts[branch] > 0 {
-					present = append(present, branch)
-				}
+		groupLabel := xingGroupLabel(group.Zhi)
+		members := make([]NatalRelationMember, 0, len(group.Zhi))
+		for _, branch := range group.Zhi {
+			members = append(members, NatalRelationMember{
+				Pillar: pillarWithZhi(bz, ganzhi.ZhiName(branch)),
+				Zhi:    ganzhi.ZhiName(branch),
+			})
+		}
+		add(NatalRelationFact{
+			ID: "liu_xing:" + groupLabel, Kind: "liu_xing", Group: groupLabel, Members: members,
+		})
+	}
+	for _, relation := range c.LiuPo {
+		group := canonicalZhiPairGroup("liu_po", relation.ZhiA, relation.ZhiB)
+		add(newZhiPairFact("liu_po", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
+	}
+	for _, relation := range c.AnHe {
+		group := canonicalZhiPairGroup("an_he", relation.ZhiA, relation.ZhiB)
+		add(newZhiPairFact("an_he", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
+	}
+	sort.Slice(facts, func(i, j int) bool {
+		if facts[i].Kind != facts[j].Kind {
+			return facts[i].Kind < facts[j].Kind
+		}
+		if facts[i].Group != facts[j].Group {
+			return facts[i].Group < facts[j].Group
+		}
+		return facts[i].ID < facts[j].ID
+	})
+	return facts
+}
+
+func natalRelationFactID(fact NatalRelationFact) string {
+	keys := make([]string, 0, len(fact.Members))
+	for _, member := range fact.Members {
+		value := member.Gan
+		if value == "" {
+			value = member.Zhi
+		}
+		keys = append(keys, member.Pillar+":"+value)
+	}
+	return fact.Kind + ":" + fact.Group + "@" + strings.Join(keys, "|")
+}
+
+func newZhiPairFact(kind, group, zhiA string, pillarA int, zhiB string, pillarB int, wuxing string) NatalRelationFact {
+	return NatalRelationFact{
+		ID:    kind + ":" + group,
+		Kind:  kind,
+		Group: group,
+		Members: []NatalRelationMember{
+			{Pillar: zhuLabels[pillarA], Zhi: zhiA},
+			{Pillar: zhuLabels[pillarB], Zhi: zhiB},
+		},
+		Wuxing: wuxing,
+	}
+}
+
+func newTripleRelationFact(kind string, bz ganzhi.Bazi, relation TripleGroup) NatalRelationFact {
+	group := branchGroupLabel(parseZhiNames(relation.Branches))
+	members := make([]NatalRelationMember, 0, len(relation.Branches))
+	for _, branch := range relation.Branches {
+		members = append(members, NatalRelationMember{
+			Pillar: pillarWithZhi(bz, branch),
+			Zhi:    branch,
+		})
+	}
+	return NatalRelationFact{
+		ID:      kind + ":" + group,
+		Kind:    kind,
+		Group:   group,
+		Members: members,
+		Wuxing:  relation.Element,
+	}
+}
+
+func canonicalZhiPairGroup(kind, zhiA, zhiB string) string {
+	a, errA := ganzhi.ParseZhi(zhiA)
+	b, errB := ganzhi.ParseZhi(zhiB)
+	if errA != nil || errB != nil {
+		return ""
+	}
+	switch kind {
+	case "zhi_liu_he":
+		for _, relation := range ganzhi.ZhiHes {
+			if (relation.A == a && relation.B == b) || (relation.A == b && relation.B == a) {
+				return ganzhi.ZhiName(relation.A) + ganzhi.ZhiName(relation.B)
 			}
-			if len(present) == 2 {
-				add("san_he_partial", branchGroupLabel(present))
+		}
+	case "liu_chong":
+		for _, relation := range ganzhi.ChongPairs {
+			if (relation.A == a && relation.B == b) || (relation.A == b && relation.B == a) {
+				return ganzhi.ZhiName(relation.A) + ganzhi.ZhiName(relation.B)
+			}
+		}
+	case "liu_hai":
+		for _, relation := range ganzhi.HaiPairs {
+			if (relation.A == a && relation.B == b) || (relation.A == b && relation.B == a) {
+				return ganzhi.ZhiName(relation.A) + ganzhi.ZhiName(relation.B)
+			}
+		}
+	case "liu_po":
+		for _, relation := range ganzhi.PoPairs {
+			if (relation.A == a && relation.B == b) || (relation.A == b && relation.B == a) {
+				return ganzhi.ZhiName(relation.A) + ganzhi.ZhiName(relation.B)
+			}
+		}
+	case "an_he":
+		for _, relation := range ganzhi.AnHePairs {
+			if (relation.A == a && relation.B == b) || (relation.A == b && relation.B == a) {
+				return ganzhi.ZhiName(relation.A) + ganzhi.ZhiName(relation.B)
 			}
 		}
 	}
-	for _, group := range ganzhi.TripleHuiList {
-		if allBranchesPresent(zhiCounts, group.Zhi) {
-			add("san_hui", branchGroupLabel(group.Zhi))
-		}
+	return ""
+}
+
+func canonicalXingGroup(zhiA, zhiB string) string {
+	a, errA := ganzhi.ParseZhi(zhiA)
+	b, errB := ganzhi.ParseZhi(zhiB)
+	if errA != nil || errB != nil {
+		return ""
 	}
-	for _, relation := range ganzhi.ChongPairs {
-		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
-			add("liu_chong", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
-		}
-	}
-	for _, relation := range ganzhi.HaiPairs {
-		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
-			add("liu_hai", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
-		}
+	if a == b {
+		return ganzhi.ZhiName(a) + ganzhi.ZhiName(b)
 	}
 	for _, group := range ganzhi.XingGroups {
 		if group.Type == "zi" {
-			for _, branch := range group.Zhi {
-				if zhiCounts[branch] >= 2 {
-					add("liu_xing", ganzhi.ZhiName(branch)+ganzhi.ZhiName(branch))
-				}
-			}
 			continue
 		}
-		if allBranchesPresent(zhiCounts, group.Zhi) {
-			add("liu_xing", xingGroupLabel(group.Zhi))
+		present := make([]ganzhi.Zhi, 0, len(group.Zhi))
+		for _, branch := range group.Zhi {
+			if branch == a || branch == b {
+				present = append(present, branch)
+			}
+		}
+		if len(present) == 2 {
+			return branchGroupLabel(present)
 		}
 	}
-	for _, relation := range ganzhi.PoPairs {
-		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
-			add("liu_po", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
+	return ""
+}
+
+func parseZhiNames(names []string) []ganzhi.Zhi {
+	values := make([]ganzhi.Zhi, 0, len(names))
+	for _, name := range names {
+		value, err := ganzhi.ParseZhi(name)
+		if err != nil {
+			continue
+		}
+		values = append(values, value)
+	}
+	return values
+}
+
+func pillarWithZhi(bz ganzhi.Bazi, zhiName string) string {
+	target, err := ganzhi.ParseZhi(zhiName)
+	if err != nil {
+		return ""
+	}
+	for index, pillar := range bz.Slice() {
+		if pillar.Zhi == target {
+			return zhuLabels[index]
 		}
 	}
-	for _, relation := range ganzhi.AnHePairs {
-		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
-			add("an_he", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
-		}
-	}
-	sort.Slice(groups, func(i, j int) bool {
-		if groups[i].Field != groups[j].Field {
-			return groups[i].Field < groups[j].Field
-		}
-		return groups[i].Group < groups[j].Group
-	})
-	return groups
+	return ""
 }
 
 // ganHeGroupLabel canonicalizes an observed adjacent stem pair to the table's

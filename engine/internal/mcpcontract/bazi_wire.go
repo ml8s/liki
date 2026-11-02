@@ -288,10 +288,20 @@ type BaziChartLuRootsItem struct {
 	Zhi     string `json:"zhi" jsonschema:"地支。"`
 }
 
+type BaziChartGuanXiMember struct {
+	Gan    GanName    `json:"gan,omitempty" jsonschema:"参与天干。"`
+	Pillar PillarName `json:"pillar" jsonschema:"所在柱。"`
+	Zhi    ZhiName    `json:"zhi,omitempty" jsonschema:"参与地支。"`
+}
+
 type BaziChartGuanXiItem struct {
-	ID   string                  `json:"id" jsonschema:"稳定关系 ID：relation_kind:name。"`
-	Kind RelationGroupsFieldName `json:"relation_kind" jsonschema:"关系类型。"`
-	Name string                  `json:"name" jsonschema:"关系名称。"`
+	Contested bool                    `json:"contested,omitempty" jsonschema:"天干五合是否争合。"`
+	ID        string                  `json:"id" jsonschema:"稳定关系 ID：relation_kind:group。"`
+	Kind      RelationGroupsFieldName `json:"relation_kind" jsonschema:"关系类型。"`
+	Members   []BaziChartGuanXiMember `json:"members" jsonschema:"宫位解析后的参与干支。"`
+	Group     string                  `json:"group" jsonschema:"稳定匹配组。"`
+	Position  string                  `json:"position,omitempty" jsonschema:"天干关系位置。"`
+	Wuxing    ElementName             `json:"wuxing,omitempty" jsonschema:"关系化局五行。"`
 }
 
 type BaziChartTenGodStatesItem struct {

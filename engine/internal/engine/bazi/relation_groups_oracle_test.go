@@ -8,6 +8,10 @@ import (
 )
 
 func TestDomainOracle_GuanXi(t *testing.T) {
+	type relationKey struct {
+		Kind  string
+		Group string
+	}
 	raw, err := os.ReadFile("../../../../tests/fixtures/domain_oracle/bazi_relation_groups.json")
 	if err != nil {
 		t.Fatalf("read oracle: %v", err)
@@ -31,13 +35,18 @@ func TestDomainOracle_GuanXi(t *testing.T) {
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
 			full := ComputeChartFromCore(pillarsCoreFromStrings(t, tc.Pillars))
-			got := make([]RelationGroup, 0, len(full.GuanXi))
+			gotSeen := map[relationKey]bool{}
+			got := make([]relationKey, 0, len(full.GuanXi))
 			for _, group := range full.GuanXi {
-				got = append(got, RelationGroup{Field: group.Field, Group: group.Group})
+				key := relationKey{Kind: group.Kind, Group: group.Group}
+				if !gotSeen[key] {
+					gotSeen[key] = true
+					got = append(got, key)
+				}
 			}
-			want := make([]RelationGroup, 0, len(tc.Expected))
+			want := make([]relationKey, 0, len(tc.Expected))
 			for _, group := range tc.Expected {
-				want = append(want, RelationGroup{Field: group.Field, Group: group.Group})
+				want = append(want, relationKey{Kind: group.Field, Group: group.Group})
 			}
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("relation groups = %#v, want %#v", got, want)
