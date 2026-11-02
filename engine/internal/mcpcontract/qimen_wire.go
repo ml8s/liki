@@ -7,7 +7,11 @@
 
 package mcpcontract
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/google/jsonschema-go/jsonschema"
+)
 
 // ── qimen.chart input ──
 
@@ -78,10 +82,10 @@ type qimenChartJinhanForm struct {
 	Method qimenScopeSchoolForm `json:"method" jsonschema:"金函玉镜方法事实。"`
 }
 
-func qimenMethodFormSchema[T any](
+func qimenMethodFormSchema[T any](options *jsonschema.ForOptions,
 	constraints map[string]string, enums map[string][]string,
 ) (json.RawMessage, error) {
-	_, raw, err := inputSchemaFor[T]()
+	_, raw, err := inputSchemaFor[T](options)
 	if err != nil {
 		return nil, err
 	}
@@ -100,51 +104,51 @@ func qimenMethodFormSchema[T any](
 	return raw, nil
 }
 
-func qimenMethodFormsSchema() (json.RawMessage, error) {
+func qimenMethodFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
 	builders := []func() (json.RawMessage, error){
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "hour", "school": "zhuanpan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun", "maoshan"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "hour", "school": "luoshu_feipan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolForm](
+			return qimenMethodFormSchema[qimenScopeSchoolForm](options,
 				map[string]string{"scope": "hour", "school": "mingfa_feipan"}, nil,
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "day", "school": "zhuanpan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "day", "school": "luoshu_feipan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolForm](
+			return qimenMethodFormSchema[qimenScopeSchoolForm](options,
 				map[string]string{"scope": "month"},
 				map[string][]string{"school": {"zhuanpan", "luoshu_feipan"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolForm](
+			return qimenMethodFormSchema[qimenScopeSchoolForm](options,
 				map[string]string{"scope": "year"},
 				map[string][]string{"school": {"zhuanpan", "luoshu_feipan"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenQuarterTenMethodForm](
+			return qimenMethodFormSchema[qimenQuarterTenMethodForm](options,
 				map[string]string{
 					"scope": "quarter", "school": "zhuanpan",
 					"quarter_rule": "ten_minute_sanyuan",
@@ -152,7 +156,7 @@ func qimenMethodFormsSchema() (json.RawMessage, error) {
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenQuarterTwelveMethodForm](
+			return qimenMethodFormSchema[qimenQuarterTwelveMethodForm](options,
 				map[string]string{
 					"scope": "quarter", "school": "zhuanpan",
 					"quarter_rule": "twelve_minute_ten_division",
@@ -174,18 +178,18 @@ func qimenMethodFormsSchema() (json.RawMessage, error) {
 	})
 }
 
-func qimenJinhanMethodSchema() (json.RawMessage, error) {
-	return qimenMethodFormSchema[qimenScopeSchoolForm](
+func qimenJinhanMethodSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	return qimenMethodFormSchema[qimenScopeSchoolForm](options,
 		map[string]string{"scope": "day", "school": "jinhan_yujing"}, nil,
 	)
 }
 
-func qimenChartFormsSchema() (json.RawMessage, error) {
-	methodForms, err := qimenMethodFormsSchema()
+func qimenChartFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	methodForms, err := qimenMethodFormsSchema(options)
 	if err != nil {
 		return nil, err
 	}
-	_, standard, err := inputSchemaFor[qimenChartStandardForm]()
+	_, standard, err := inputSchemaFor[qimenChartStandardForm](options)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +197,7 @@ func qimenChartFormsSchema() (json.RawMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, standardQiJu, err := inputSchemaFor[QimenQiJuInput]()
+	_, standardQiJu, err := inputSchemaFor[QimenQiJuInput](options)
 	if err != nil {
 		return nil, err
 	}
@@ -206,11 +210,11 @@ func qimenChartFormsSchema() (json.RawMessage, error) {
 		return nil, err
 	}
 
-	jinhanMethod, err := qimenJinhanMethodSchema()
+	jinhanMethod, err := qimenJinhanMethodSchema(options)
 	if err != nil {
 		return nil, err
 	}
-	_, jinhan, err := inputSchemaFor[qimenChartJinhanForm]()
+	_, jinhan, err := inputSchemaFor[qimenChartJinhanForm](options)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +222,7 @@ func qimenChartFormsSchema() (json.RawMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, jinhanQiJu, err := inputSchemaFor[QimenQiJuInput]()
+	_, jinhanQiJu, err := inputSchemaFor[QimenQiJuInput](options)
 	if err != nil {
 		return nil, err
 	}

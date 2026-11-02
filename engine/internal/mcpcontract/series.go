@@ -88,8 +88,8 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 // seriesOutputSchema publishes a named domain root. The MCP root remains an
 // object for every negotiated protocol version, but the property is domain
 // vocabulary rather than a generic transport word.
-func seriesOutputSchema[Out any](root string) (json.RawMessage, error) {
-	schema, err := jsonschema.For[Out](forOptions)
+func seriesOutputSchema[Out any](options *jsonschema.ForOptions, root string) (json.RawMessage, error) {
+	schema, err := jsonschema.For[Out](options)
 	if err != nil {
 		return nil, err
 	}

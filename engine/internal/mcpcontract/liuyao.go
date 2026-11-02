@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/jsonschema-go/jsonschema"
+
 	"liki-engine/internal/engine/liuyao"
 )
 
@@ -58,7 +60,7 @@ type LiuyaoQiguaYaosForm struct {
 	Casting LiuyaoYaosCastingRequest `json:"casting" jsonschema:"起卦源事实。"`
 }
 
-func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
+func liuyaoQiguaFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
 	modes := []string{"auto", "coins", "yaos"}
 	forms := make([]json.RawMessage, 0, len(modes))
 	for _, mode := range modes {
@@ -67,11 +69,11 @@ func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
 		var nested json.RawMessage
 		switch mode {
 		case "auto":
-			_, nested, err = inputSchemaFor[LiuyaoAutoCastingRequest]()
+			_, nested, err = inputSchemaFor[LiuyaoAutoCastingRequest](options)
 		case "coins":
-			_, nested, err = inputSchemaFor[LiuyaoCoinsCastingRequest]()
+			_, nested, err = inputSchemaFor[LiuyaoCoinsCastingRequest](options)
 		case "yaos":
-			_, nested, err = inputSchemaFor[LiuyaoYaosCastingRequest]()
+			_, nested, err = inputSchemaFor[LiuyaoYaosCastingRequest](options)
 		}
 		if err != nil {
 			return nil, err
@@ -82,11 +84,11 @@ func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
 		}
 		switch mode {
 		case "auto":
-			_, raw, err = inputSchemaFor[LiuyaoQiguaAutoForm]()
+			_, raw, err = inputSchemaFor[LiuyaoQiguaAutoForm](options)
 		case "coins":
-			_, raw, err = inputSchemaFor[LiuyaoQiguaCoinsForm]()
+			_, raw, err = inputSchemaFor[LiuyaoQiguaCoinsForm](options)
 		case "yaos":
-			_, raw, err = inputSchemaFor[LiuyaoQiguaYaosForm]()
+			_, raw, err = inputSchemaFor[LiuyaoQiguaYaosForm](options)
 		}
 		if err != nil {
 			return nil, err

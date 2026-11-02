@@ -96,8 +96,8 @@ func (s *lazyToolSchemas) get() (derivedSchemas, error) {
 	return s.schemas, s.err
 }
 
-func deriveToolSchemas[In, Out any](publicInputSchema json.RawMessage, publicOutputSchema json.RawMessage) (derivedSchemas, error) {
-	inputTree, inputResolved, inputSchema, err := inputSchemaTreeFor[In]()
+func deriveToolSchemas[In, Out any](options *jsonschema.ForOptions, publicInputSchema json.RawMessage, publicOutputSchema json.RawMessage) (derivedSchemas, error) {
+	inputTree, inputResolved, inputSchema, err := inputSchemaTreeFor[In](options)
 	if err != nil {
 		return derivedSchemas{}, err
 	}
@@ -113,7 +113,7 @@ func deriveToolSchemas[In, Out any](publicInputSchema json.RawMessage, publicOut
 			return derivedSchemas{}, fmt.Errorf("derive output schema: %w", err)
 		}
 	} else {
-		outputSchema, outputValidator, err = outputSchemaFor[Out]()
+		outputSchema, outputValidator, err = outputSchemaFor[Out](options)
 	}
 	if err != nil {
 		return derivedSchemas{}, err
@@ -154,7 +154,7 @@ func registerRaw[In, Out any](r *Registry, tool RawTool[In, Out]) error {
 
 	schemas := &lazyToolSchemas{
 		derive: func() (derivedSchemas, error) {
-			return deriveToolSchemas[In, Out](tool.InputSchema, nil)
+			return deriveToolSchemas[In, Out](r.schemaOptions, tool.InputSchema, nil)
 		},
 	}
 
@@ -180,13 +180,14 @@ func registerRaw[In, Out any](r *Registry, tool RawTool[In, Out]) error {
 
 // Registry holds typed MCP tools in registration order.
 type Registry struct {
-	tools map[string]*registration
-	names []string
+	tools         map[string]*registration
+	names         []string
+	schemaOptions *jsonschema.ForOptions
 }
 
 // New creates an empty typed registry.
-func New() *Registry {
-	return &Registry{tools: make(map[string]*registration)}
+func New(options *jsonschema.ForOptions) *Registry {
+	return &Registry{tools: make(map[string]*registration), schemaOptions: options}
 }
 
 // register creates a lazy schema derivation for In and Out. Input is validated
@@ -204,7 +205,7 @@ func register[In, Out any](r *Registry, tool Tool[In, Out]) error {
 
 	schemas := &lazyToolSchemas{
 		derive: func() (derivedSchemas, error) {
-			return deriveToolSchemas[In, Out](tool.InputSchema, tool.OutputSchema)
+			return deriveToolSchemas[In, Out](r.schemaOptions, tool.InputSchema, tool.OutputSchema)
 		},
 	}
 
@@ -361,13 +362,13 @@ func (r *Registry) ValidateOutput(name string, output json.RawMessage) error {
 
 // inputSchemaFor derives a tool's input schema: the typed, closed shape of the
 // DTO, used both as the documented contract and for boundary validation.
-func inputSchemaFor[T any]() (*jsonschema.Resolved, json.RawMessage, error) {
-	_, resolved, raw, err := inputSchemaTreeFor[T]()
+func inputSchemaFor[T any](options *jsonschema.ForOptions) (*jsonschema.Resolved, json.RawMessage, error) {
+	_, resolved, raw, err := inputSchemaTreeFor[T](options)
 	return resolved, raw, err
 }
 
-func inputSchemaTreeFor[T any]() (*jsonschema.Schema, *jsonschema.Resolved, json.RawMessage, error) {
-	schema, err := jsonschema.For[T](forOptions)
+func inputSchemaTreeFor[T any](options *jsonschema.ForOptions) (*jsonschema.Schema, *jsonschema.Resolved, json.RawMessage, error) {
+	schema, err := jsonschema.For[T](options)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -382,8 +383,8 @@ func inputSchemaTreeFor[T any]() (*jsonschema.Schema, *jsonschema.Resolved, json
 	return schema, resolved, json.RawMessage(documented), nil
 }
 
-func outputSchemaFor[T any]() (json.RawMessage, *lazyOutputValidator, error) {
-	schema, err := jsonschema.For[T](forOptions)
+func outputSchemaFor[T any](options *jsonschema.ForOptions) (json.RawMessage, *lazyOutputValidator, error) {
+	schema, err := jsonschema.For[T](options)
 	if err != nil {
 		return nil, nil, err
 	}

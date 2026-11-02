@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/jsonschema-go/jsonschema"
+
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
@@ -86,22 +88,22 @@ type TianwenRangeForm struct {
 	PlaceLongitudeRange *TianwenResolveLongitudeRangeInput `json:"place_longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
-func tianwenResolveFormsSchema() (json.RawMessage, error) {
+func tianwenResolveFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
 	builders := []func() (json.RawMessage, error){
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenDateTimeForm]()
+			_, raw, err := inputSchemaFor[TianwenDateTimeForm](options)
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenLunarForm]()
+			_, raw, err := inputSchemaFor[TianwenLunarForm](options)
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenShichenForm]()
+			_, raw, err := inputSchemaFor[TianwenShichenForm](options)
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenRangeForm]()
+			_, raw, err := inputSchemaFor[TianwenRangeForm](options)
 			return raw, err
 		},
 	}
