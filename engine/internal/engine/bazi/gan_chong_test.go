@@ -44,7 +44,7 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bz := atomicBaziFromStrings(t, tt.pillars)
+			bz := pillarsBaziFromStrings(t, tt.pillars)
 			got := detectGanChong(bz)
 			if len(got) != len(tt.want) {
 				t.Fatalf("pairs = %#v, want %#v", got, tt.want)
@@ -59,7 +59,7 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 }
 
 func TestGanChong_GuanXiDistinguishTightPairs(t *testing.T) {
-	chart := atomicCoreFromStrings(t, []string{"甲子", "丙寅", "庚午", "壬申"})
+	chart := pillarsCoreFromStrings(t, []string{"甲子", "丙寅", "庚午", "壬申"})
 	full := ComputeChartFromCore(chart)
 	want := map[RelationGroup]bool{
 		{Field: "gan_chong_candidate", Group: "甲庚"}: true,
@@ -80,11 +80,11 @@ func TestGanChong_GuanXiDistinguishTightPairs(t *testing.T) {
 	}
 }
 
-func atomicBaziFromStrings(t *testing.T, pillars []string) ganzhi.Bazi {
+func pillarsBaziFromStrings(t *testing.T, pillars []string) ganzhi.Bazi {
 	t.Helper()
 	if len(pillars) != 4 {
 		t.Fatalf("pillar count = %d, want 4", len(pillars))
 	}
-	chart := atomicCoreFromStrings(t, pillars)
+	chart := pillarsCoreFromStrings(t, pillars)
 	return chart.ToBazi()
 }

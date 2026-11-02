@@ -30,7 +30,7 @@ func TestDomainOracle_TenGodAndElementStates(t *testing.T) {
 	}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
-			full := ComputeChartFromCore(atomicCoreFromStrings(t, tc.Pillars))
+			full := ComputeChartFromCore(pillarsCoreFromStrings(t, tc.Pillars))
 			tenGods := map[string]map[string]any{}
 			for _, state := range full.TenGodStates {
 				tenGods[state.ShiShen] = map[string]any{
@@ -100,7 +100,7 @@ func TestDomainOracle_DaYunRootStates(t *testing.T) {
 	}
 	for _, tc := range doc.DayunCases {
 		t.Run(tc.ID, func(t *testing.T) {
-			chart := atomicCoreFromStrings(t, tc.Pillars)
+			chart := pillarsCoreFromStrings(t, tc.Pillars)
 			runes := []rune(tc.DaYun)
 			gan, err := ganzhi.ParseGan(string(runes[0]))
 			if err != nil {

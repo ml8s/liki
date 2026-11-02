@@ -25,7 +25,7 @@ type ganZhiPair struct {
 	zhi ganzhi.Zhi
 }
 
-// Package-level lookup maps, populated from data/shensha.json via data.go init().
+// Package-level lookup maps, populated by Load() from data/shensha.json.
 var (
 	taohuaZhiMap   map[ganzhi.Zhi]ganzhi.Zhi
 	yimaZhiMap     map[ganzhi.Zhi]ganzhi.Zhi

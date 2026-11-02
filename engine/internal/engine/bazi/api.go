@@ -179,10 +179,3 @@ func dayunStepForYear(dy *DaYun, birthYear, year int) *DaYunStep {
 func ComputeXiaoYun(core NatalCore, maxAge int) []XiaoYunSet {
 	return computeXiaoYun(core.ToBazi(), core.Gender, maxAge)
 }
-
-// ComputeDaYunAt is the explicit-time entry for the big-fortune cycle.
-// ComputeLiuNianAt is the explicit-time entry for a year's flow analysis.
-// ComputeLiuYueAt is the explicit-time entry for a month's flow analysis.
-// ComputeLiuRiAt is the explicit-time entry for a day's flow analysis.
-// ComputeLiuShiAt is the explicit-time entry for an hour's flow analysis.
-// ComputeXiaoYunAt is the explicit-time entry for minor-fortune analysis.

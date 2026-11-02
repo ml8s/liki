@@ -27,7 +27,7 @@ type ElementStructure struct {
 }
 
 // RelationFact is a targeted projection of a natal relation group. Targets are
-// supplied by the calling school (for example pattern/controller/generator).
+// supplied by the calling evidence projection (for example pattern/controller/generator).
 type RelationFact struct {
 	Field    string   `json:"field"`
 	Group    string   `json:"group"`

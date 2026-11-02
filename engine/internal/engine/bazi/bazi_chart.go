@@ -79,7 +79,7 @@ type Chart struct {
 	DaYun  *DaYun        `json:"da_yun"`
 	Gender ganzhi.Gender `json:"-"`
 
-	// 出生公历年份。供查询方法按年定位大运；不属于 wire 输出。
+	// 出生公历年份。derived methods 用它定位大运；bazi.chart 同时输出该字段。
 	BirthYear int `json:"birth_year"`
 
 	// 用神候选与结构证据独立输出：FuYi 是扶抑候选，

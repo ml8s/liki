@@ -30,7 +30,7 @@ func TestDomainOracle_NayinShenSha(t *testing.T) {
 	keys := []string{"nian", "yue", "ri", "shi"}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
-			chart := atomicCoreFromStrings(t, tc.Pillars)
+			chart := pillarsCoreFromStrings(t, tc.Pillars)
 			chart.Gender = ganzhi.Male
 			full := ComputeChartFromCore(chart)
 			pillars := [4][]ShenShaProjection{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}

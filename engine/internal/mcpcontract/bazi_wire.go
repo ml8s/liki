@@ -67,8 +67,8 @@ type BaziChartOutput struct {
 	ElementStates []BaziChartElementStatesItem `json:"element_states" jsonschema:"engine 五行季节旺弱、组合旺弱与生克方向"`
 	GuanSha       BaziChartGuanSha             `json:"guan_sha" jsonschema:"官杀取清结论。"`
 	CaiKu         BaziChartCaiKu               `json:"cai_ku" jsonschema:"财库结论。"`
-	TiaoHou       BaziChartTiaoHou             `json:"tiao_hou" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件"`
-	GeJu          BaziChartGeJu                `json:"ge_ju" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神）"`
+	TiaoHou       BaziChartTiaoHou             `json:"tiao_hou" jsonschema:"调候候选：主辅调候五行候选 + 季节 + 条件"`
+	GeJu          BaziChartGeJu                `json:"ge_ju" jsonschema:"月令结构证据：月令格神 + 顺逆用 + 结构（非用神）"`
 	DayXun        string                       `json:"ri_xun" jsonschema:"日柱所在旬"`
 	DayXunKong    string                       `json:"ri_xun_kong" jsonschema:"日柱旬空二支；各柱 is_void 均按此判断"`
 }
@@ -380,14 +380,14 @@ type BaziChartCaiKu struct {
 }
 
 type BaziChartTiaoHou struct {
-	PrimaryWuxing      ElementName               `json:"primary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 primary_wuxing。"`
-	SecondaryWuxing    SecondaryWuxingName       `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
+	PrimaryWuxing      ElementName               `json:"primary_wuxing" jsonschema:"调候候选：主辅调候五行候选 + 季节 + 条件 中的 primary_wuxing。"`
+	SecondaryWuxing    SecondaryWuxingName       `json:"secondary_wuxing" jsonschema:"调候候选：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
 	Season             string                    `json:"season" jsonschema:"季节状态。"`
 	TiaoHouExplanation string                    `json:"tiao_hou_explanation" jsonschema:"调候口径说明。"`
 	ModelID            string                    `json:"tiao_hou_model_id" jsonschema:"调候候选模型 ID。"`
 	Primary            BaziChartTiaoHouPrimary   `json:"primary" jsonschema:"主调候。"`
 	Secondary          BaziChartTiaoHouSecondary `json:"secondary" jsonschema:"辅调候。"`
-	SecondaryCondition *string                   `json:"secondary_condition,omitempty" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_condition。"`
+	SecondaryCondition *string                   `json:"secondary_condition,omitempty" jsonschema:"调候候选：主辅调候五行候选 + 季节 + 条件 中的 secondary_condition。"`
 }
 
 type BaziChartTiaoHouPrimary struct {
@@ -421,11 +421,11 @@ type BaziChartTiaoHouSecondaryOccurrencesItem struct {
 }
 
 type BaziChartGeJu struct {
-	GeJu             string                 `json:"ge_ju" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 ge_ju。"`
-	YongFa           string                 `json:"yong_fa" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 yong_fa。"`
-	PatternGod       *LiuyaoGanName         `json:"pattern_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god。"`
-	PatternGodTenGod *TenGodName            `json:"pattern_god_ten_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_ten_god。"`
-	PatternGodSource string                 `json:"pattern_god_source" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_source。"`
+	GeJu             string                 `json:"ge_ju" jsonschema:"月令结构证据：月令格神 + 顺逆用 + 结构（非用神） 中的 ge_ju。"`
+	YongFa           string                 `json:"yong_fa" jsonschema:"月令结构证据：月令格神 + 顺逆用 + 结构（非用神） 中的 yong_fa。"`
+	PatternGod       *LiuyaoGanName         `json:"pattern_god,omitempty" jsonschema:"月令结构证据：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god。"`
+	PatternGodTenGod *TenGodName            `json:"pattern_god_ten_god,omitempty" jsonschema:"月令结构证据：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_ten_god。"`
+	PatternGodSource string                 `json:"pattern_god_source" jsonschema:"月令结构证据：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_source。"`
 	GeShenTou        bool                   `json:"ge_shen_tou" jsonschema:"格神是否透干。"`
 	Structure        BaziChartGeJuStructure `json:"structure" jsonschema:"格局结构。"`
 }

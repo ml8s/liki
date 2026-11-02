@@ -12,10 +12,11 @@
 //
 // Core functions
 //
-//	ComputeTimeset(gt time.Time, lon) → Timeset
 //	ApparentSolarFromCivil(t time.Time, lon, tz) → time.Time
-//	LunarDateAt(gt time.Time) → LunarDate
-//	CivilTimeFromLunarDate(ld LunarDate) → time.Time
+//	ApparentSolarFromStandard(t time.Time, lon) → time.Time
+//	ShichenFromStandard(t time.Time, lon) → ganzhi.Zhi
+//	NewLunarProjector(basis, loc) → LunarProjector
+//	ResolveStandard(in ResolveInput) → ResolveResult
 //
 // Zhu computations
 //

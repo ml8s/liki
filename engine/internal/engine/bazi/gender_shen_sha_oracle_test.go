@@ -33,7 +33,7 @@ func TestDomainOracle_GenderShenSha(t *testing.T) {
 	pillarKey := []string{"nian", "yue", "ri", "shi"}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
-			chart := atomicCoreFromStrings(t, tc.Pillars)
+			chart := pillarsCoreFromStrings(t, tc.Pillars)
 			switch tc.Gender {
 			case string(ganzhi.Male):
 				chart.Gender = ganzhi.Male

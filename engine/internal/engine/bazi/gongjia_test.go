@@ -40,7 +40,7 @@ func TestGongJia_ClassicOnly(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			chart := atomicCoreFromStrings(t, tt.pillars)
+			chart := pillarsCoreFromStrings(t, tt.pillars)
 			got := ComputeChartFromCore(chart).GongJia
 			if len(got) != len(tt.want) {
 				t.Fatalf("gong = %#v, want %#v", got, tt.want)

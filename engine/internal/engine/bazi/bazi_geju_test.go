@@ -275,7 +275,7 @@ func TestGeJu_RealCharts(t *testing.T) {
 }
 
 // TestGeJu_StructuralContract verifies that every candidate has an exact
-// pattern god and source without emitting school-level yong/xi/ji.
+// pattern god and source without emitting candidate-level yong/xi/ji.
 func TestGeJu_StructuralContract(t *testing.T) {
 	allTests := []struct {
 		riGan  ganzhi.Gan

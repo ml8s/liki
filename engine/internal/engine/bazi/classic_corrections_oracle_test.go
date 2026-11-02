@@ -147,7 +147,7 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 	}
 	for _, tc := range doc.FeedbackCharts {
 		t.Run(tc.ID, func(t *testing.T) {
-			chart := atomicCoreFromStrings(t, tc.Pillars)
+			chart := pillarsCoreFromStrings(t, tc.Pillars)
 			full := ComputeChartFromCore(chart)
 			if hasShenShaName([4][]ShenShaProjection{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}, "羊刃") != tc.YangRen {
 				t.Fatalf("羊刃 fact is inconsistent with classic yin-stem boundary")
@@ -185,7 +185,7 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 	if hourZhiIndex(time.Date(2026, 1, 1, 23, 0, 0, 0, cstLocation)) != 0 {
 		t.Fatal("23:00 must be late Zi, not Hai")
 	}
-	full := ComputeChartFromCore(atomicCoreFromStrings(t, []string{"甲子", "丙寅", "戊午", "壬子"}))
+	full := ComputeChartFromCore(pillarsCoreFromStrings(t, []string{"甲子", "丙寅", "戊午", "壬子"}))
 	if full.ShenShaSchool.Policy != "union_of_year_and_day_references" || len(full.ShenShaSchool.DualReference) != 7 {
 		t.Fatalf("shen sha school = %+v", full.ShenShaSchool)
 	}

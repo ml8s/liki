@@ -10,7 +10,7 @@ func computeYongshenEvidence(core NatalCore) (FuYiResult, TiaoHouResult, GeJuRes
 	return computeYongShenEvidenceFromAnalysis(core, AnalyzePillars(core.ToBazi(), core.Gender))
 }
 
-func atomicCoreFromStrings(t *testing.T, pillars []string) NatalCore {
+func pillarsCoreFromStrings(t *testing.T, pillars []string) NatalCore {
 	t.Helper()
 	if len(pillars) != 4 {
 		t.Fatalf("pillars = %d, want 4", len(pillars))

@@ -273,7 +273,6 @@ func ResolveMethodWithOptions(
 	)
 }
 
-// ComputeChart computes the default hour-scope rotating chai-bu chart.
 // ComputeChartWithMethod computes a chart for a catalog method and rejects
 // combinations absent from the catalog.
 func ComputeChartWithMethod(gt time.Time, st time.Time, method Method) (Chart, error) {

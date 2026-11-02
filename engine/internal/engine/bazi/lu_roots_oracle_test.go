@@ -28,7 +28,7 @@ func TestDomainOracle_LuRoots(t *testing.T) {
 	}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
-			chart := atomicCoreFromStrings(t, tc.Pillars)
+			chart := pillarsCoreFromStrings(t, tc.Pillars)
 			full := ComputeChartFromCore(chart)
 			got := make([]LuRoot, 0, len(full.LuRoots))
 			for _, root := range full.LuRoots {

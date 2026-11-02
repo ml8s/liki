@@ -30,7 +30,7 @@ func TestDomainOracle_GuanXi(t *testing.T) {
 	}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
-			full := ComputeChartFromCore(atomicCoreFromStrings(t, tc.Pillars))
+			full := ComputeChartFromCore(pillarsCoreFromStrings(t, tc.Pillars))
 			got := make([]RelationGroup, 0, len(full.GuanXi))
 			for _, group := range full.GuanXi {
 				got = append(got, RelationGroup{Field: group.Field, Group: group.Group})
