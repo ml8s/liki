@@ -393,25 +393,25 @@ class TestLiuNianOps(unittest.TestCase):
 
     def test_流年宫化_星曜通配命中(self):
         # 星曜维度写「任意」＝该宫任一星化该四化即成立
-        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        ctx = {"zw_liunian": {"si_hua": [{"star": "廉贞", "hua": "忌", "palace": "官禄"}]}}
         self.assertEqual(_liu_op("流年宫化", ["官禄", "任意", "忌"], "male", {}, ctx), 1)
         self.assertEqual(_liu_op("流年宫化", ["官禄", "任意", "禄"], "male", {}, ctx), 0)
 
     def test_流年宫化_指定星曜在key内(self):
         # 星曜进 key 后，「廉贞化忌落流年官禄宫」由因子自身表达，不再依赖返回值外的旁路
-        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        ctx = {"zw_liunian": {"si_hua": [{"star": "廉贞", "hua": "忌", "palace": "官禄"}]}}
         self.assertEqual(_liu_op("流年宫化", ["官禄", "廉贞", "忌"], "male", {}, ctx), 1)
         self.assertEqual(_liu_op("流年宫化", ["官禄", "贪狼", "忌"], "male", {}, ctx), 0)
 
     def test_流年宫化_宫位通配命中(self):
         # 宫位维度同样支持「任意」，与「宫含」保持同一套通配语义
-        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        ctx = {"zw_liunian": {"si_hua": [{"star": "廉贞", "hua": "忌", "palace": "官禄"}]}}
         self.assertEqual(_liu_op("流年宫化", ["任意", "廉贞", "忌"], "male", {}, ctx), 1)
         self.assertEqual(_liu_op("流年宫化", ["任意", "廉贞", "禄"], "male", {}, ctx), 0)
 
     def test_流年宫化_缺星曜维度即报错(self):
         # 三维 key 是契约本身；2 参形态不得静默降级为「星曜任意」
-        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        ctx = {"zw_liunian": {"si_hua": [{"star": "廉贞", "hua": "忌", "palace": "官禄"}]}}
         with self.assertRaises(FactorEvaluateError):
             _liu_op("流年宫化", ["官禄", "忌"], "male", {}, ctx)
 

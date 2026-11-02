@@ -35,13 +35,11 @@ type ZiweiLiuNianInput struct {
 // ── ziwei.liunian output ──
 
 type ZiweiLiuNianOutput struct {
-	MingGong  ZiweiPalaceName             `json:"ming_gong" jsonschema:"命宫。"`
-	Zhi       ZhiName                     `json:"zhi" jsonschema:"流年地支"`
-	SiHua     map[string]SiHuaName        `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
-	SiHuaGong *map[string]ZiweiPalaceName `json:"si_hua_gong,omitempty" jsonschema:"四化落宫：{星名: 宫名}"`
-	FuXing    *map[string]ZhiName         `json:"fu_xing,omitempty" jsonschema:"流年辅星"`
-	GongWei   *[]ZiweiLiuNianGongWeiItem  `json:"gong_wei,omitempty" jsonschema:"流年十二宫盘"`
-	NianJie   ZiweiLiuNianResolved        `json:"nian_jie" jsonschema:"流年农历年界。"`
+	MingGong ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
+	Zhi      ZhiName                   `json:"zhi" jsonschema:"流年地支"`
+	SiHua    []ZiweiFlowTransformation `json:"si_hua" jsonschema:"四化事实：星、化、落宫。"`
+	GongWei  []ZiweiFlowPalace         `json:"gong_wei" jsonschema:"流年十二宫盘。"`
+	NianJie  ZiweiLiuNianResolved      `json:"nian_jie" jsonschema:"流年农历年界。"`
 }
 
 type ZiweiLiuNianResolved struct {
@@ -53,11 +51,17 @@ type ZiweiLiuNianResolved struct {
 	BoundaryDay      bool         `json:"boundary_day" jsonschema:"输入日期是否为正月初一边界日（归入新年）。"`
 }
 
-type ZiweiLiuNianGongWeiItem struct {
-	Zhi       ZhiName         `json:"zhi" jsonschema:"地支"`
-	Name      ZiweiPalaceName `json:"name" jsonschema:"宫名"`
-	XingYao   *[]string       `json:"xing_yao,omitempty" jsonschema:"流耀"`
-	IsLiuMing *bool           `json:"is_liu_ming,omitempty" jsonschema:"是否流年命宫。"`
+type ZiweiFlowTransformation struct {
+	Star   string          `json:"star" jsonschema:"被化的本命星。"`
+	Hua    SiHuaName       `json:"hua" jsonschema:"化禄/化权/化科/化忌。"`
+	Palace ZiweiPalaceName `json:"palace" jsonschema:"本命星所在宫。"`
+}
+
+type ZiweiFlowPalace struct {
+	Zhi       ZhiName         `json:"zhi" jsonschema:"地支。"`
+	Name      ZiweiPalaceName `json:"name" jsonschema:"宫名。"`
+	Stars     []string        `json:"stars" jsonschema:"流曜。"`
+	IsLiuMing bool            `json:"is_liu_ming" jsonschema:"是否流盘命宫。"`
 }
 
 // ── ziwei.liuyue input ──
@@ -89,12 +93,11 @@ type ZiweiYueJie struct {
 }
 
 type ZiweiLiuYueOutput struct {
-	YueJie   ZiweiYueJie             `json:"yue_jie" jsonschema:"流月农历月界与月令。"`
-	MingGong ZiweiPalaceName         `json:"ming_gong" jsonschema:"命宫。"`
-	Zhi      ZhiName                 `json:"zhi" jsonschema:"流月地支"`
-	SiHua    map[string]SiHuaName    `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
-	XingYao  *map[string]ZhiName     `json:"xing_yao,omitempty" jsonschema:"月星: {星名: zhiIdx}"`
-	GongWei  *[]ZiweiFlowGongWeiItem `json:"gong_wei,omitempty" jsonschema:"流月十二宫盘"`
+	YueJie   ZiweiYueJie               `json:"yue_jie" jsonschema:"流月农历月界与月令。"`
+	MingGong ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
+	Zhi      ZhiName                   `json:"zhi" jsonschema:"流月地支"`
+	SiHua    []ZiweiFlowTransformation `json:"si_hua" jsonschema:"四化事实：星、化、落宫。"`
+	GongWei  []ZiweiFlowPalace         `json:"gong_wei" jsonschema:"流月十二宫盘。"`
 }
 
 type ZiweiLiuYueTargetLunar struct {
@@ -119,13 +122,6 @@ type ZiweiLiuYueResolvedPeriodFlowMonth struct {
 	Leap  bool `json:"leap" jsonschema:"是否闰月。"`
 }
 
-type ZiweiFlowGongWeiItem struct {
-	Zhi       ZhiName         `json:"zhi" jsonschema:"地支。"`
-	Name      ZiweiPalaceName `json:"name" jsonschema:"名称。"`
-	XingYao   []string        `json:"xing_yao" jsonschema:"星曜。"`
-	IsLiuMing bool            `json:"is_liu_ming" jsonschema:"是否流年命宫。"`
-}
-
 // ── ziwei.liuri input ──
 
 type ZiweiLiuRiInput struct {
@@ -144,12 +140,11 @@ type ZiweiLiuRiJie struct {
 // ── ziwei.liuri output ──
 
 type ZiweiLiuRiOutput struct {
-	RiJie    ZiweiLiuRiJie           `json:"ri_jie" jsonschema:"流日日界。"`
-	MingGong ZiweiPalaceName         `json:"ming_gong" jsonschema:"命宫。"`
-	Zhi      ZhiName                 `json:"zhi" jsonschema:"流日地支"`
-	SiHua    map[string]SiHuaName    `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
-	XingYao  *map[string]ZhiName     `json:"xing_yao,omitempty" jsonschema:"日星: {星名: zhiIdx}"`
-	GongWei  *[]ZiweiFlowGongWeiItem `json:"gong_wei,omitempty" jsonschema:"流日十二宫盘"`
+	RiJie    ZiweiLiuRiJie             `json:"ri_jie" jsonschema:"流日日界。"`
+	MingGong ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
+	Zhi      ZhiName                   `json:"zhi" jsonschema:"流日地支"`
+	SiHua    []ZiweiFlowTransformation `json:"si_hua" jsonschema:"四化事实：星、化、落宫。"`
+	GongWei  []ZiweiFlowPalace         `json:"gong_wei" jsonschema:"流日十二宫盘。"`
 }
 
 // ── ziwei.liushi input ──
@@ -171,12 +166,11 @@ type ZiweiLiuShiChen struct {
 }
 
 type ZiweiLiuShiOutput struct {
-	MingGong ZiweiPalaceName         `json:"ming_gong" jsonschema:"命宫。"`
-	Zhi      ZhiName                 `json:"zhi" jsonschema:"流时地支"`
-	SiHua    map[string]SiHuaName    `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
-	XingYao  *map[string]ZhiName     `json:"xing_yao,omitempty" jsonschema:"时星: {星名: zhiIdx}"`
-	GongWei  *[]ZiweiFlowGongWeiItem `json:"gong_wei,omitempty" jsonschema:"流时十二宫盘"`
-	ShiChen  ZiweiLiuShiChen         `json:"shi_chen" jsonschema:"流时时辰定位。"`
+	MingGong ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
+	Zhi      ZhiName                   `json:"zhi" jsonschema:"流时地支"`
+	SiHua    []ZiweiFlowTransformation `json:"si_hua" jsonschema:"四化事实：星、化、落宫。"`
+	GongWei  []ZiweiFlowPalace         `json:"gong_wei" jsonschema:"流时十二宫盘。"`
+	ShiChen  ZiweiLiuShiChen           `json:"shi_chen" jsonschema:"流时时辰定位。"`
 }
 
 // ── ziwei.bond input ──

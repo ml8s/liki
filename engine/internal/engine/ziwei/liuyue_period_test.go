@@ -141,9 +141,6 @@ func assertSameLiuYueChart(t *testing.T, got, want LiuYue) {
 	if !reflect.DeepEqual(got.SiHua, want.SiHua) {
 		t.Fatalf("si hua = %#v, want %#v", got.SiHua, want.SiHua)
 	}
-	if !reflect.DeepEqual(got.Stars, want.Stars) {
-		t.Fatalf("stars = %#v, want %#v", got.Stars, want.Stars)
-	}
 	if !reflect.DeepEqual(got.GongWei, want.GongWei) {
 		t.Fatalf("gong wei = %#v, want %#v", got.GongWei, want.GongWei)
 	}

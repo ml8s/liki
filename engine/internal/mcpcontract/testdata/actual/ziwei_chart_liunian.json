@@ -13,120 +13,96 @@
       {
         "ming_gong": "仆役",
         "zhi": "午",
-        "si_hua": {
-          "天同": "禄",
-          "天机": "权",
-          "廉贞": "忌",
-          "文昌": "科"
-        },
-        "si_hua_gong": {
-          "天同": "疾厄",
-          "天机": "兄弟",
-          "廉贞": "官禄",
-          "文昌": "田宅"
-        },
-        "fu_xing": {
-          "天喜": "卯",
-          "天钺": "酉",
-          "天马": "申",
-          "天魁": "亥",
-          "擎羊": "午",
-          "文昌": "申",
-          "文曲": "午",
-          "禄存": "巳",
-          "红鸾": "酉",
-          "陀罗": "辰"
-        },
         "gong_wei": [
           {
             "zhi": "寅",
             "name": "财帛",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
           },
           {
             "zhi": "卯",
             "name": "子女",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "流喜"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "辰",
             "name": "夫妻",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "流陀",
               "年解"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "巳",
             "name": "兄弟",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "流禄"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "午",
             "name": "命宫",
-            "xing_yao": [
+            "is_liu_ming": true,
+            "stars": [
               "流羊",
               "流曲"
-            ],
-            "is_liu_ming": true
+            ]
           },
           {
             "zhi": "未",
             "name": "父母",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
           },
           {
             "zhi": "申",
             "name": "福德",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "流马",
               "流昌"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "酉",
             "name": "田宅",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "流钺",
               "流鸾"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "戌",
             "name": "官禄",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
           },
           {
             "zhi": "亥",
             "name": "仆役",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "流魁"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "子",
             "name": "迁移",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
           },
           {
             "zhi": "丑",
             "name": "疾厄",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
           }
         ],
         "nian_jie": {
@@ -136,7 +112,29 @@
           "boundary_day": false,
           "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
           "liu_nian_start_date": "2026-06-15"
-        }
+        },
+        "si_hua": [
+          {
+            "star": "天同",
+            "hua": "禄",
+            "palace": "疾厄"
+          },
+          {
+            "star": "天机",
+            "hua": "权",
+            "palace": "兄弟"
+          },
+          {
+            "star": "廉贞",
+            "hua": "忌",
+            "palace": "官禄"
+          },
+          {
+            "star": "文昌",
+            "hua": "科",
+            "palace": "田宅"
+          }
+        ]
       }
     ]
   }

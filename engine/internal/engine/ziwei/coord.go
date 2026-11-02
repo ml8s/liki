@@ -1,6 +1,8 @@
 package ziwei
 
-import "sort"
+import (
+	"sort"
+)
 
 // ── 坐标系统一辅助层 ──────────────────────────────────────────────
 // 内部坐标约定（全部领域根表达）：
@@ -40,7 +42,7 @@ func zhiIdxToAnXingIdx(zhiIdx int) int {
 type flowPalace struct {
 	Zhi    Zhi      `json:"zhi"`         // 地支
 	Name   string   `json:"name"`        // 宫名（命盘标签）
-	Stars  []string `json:"xing_yao"`    // 流耀星名（无则为空）
+	Stars  []string `json:"stars"`       // 流曜星名（无则为空）
 	IsMing bool     `json:"is_liu_ming"` // 是否流盘命宫
 }
 
@@ -69,6 +71,31 @@ func buildFlowPalaces(liuPanIdx int, starByAnXingIdx map[int][]string) [12]flowP
 		}
 	}
 	return out
+}
+
+// FlowTransformation is one complete flow-period transformation: the
+// transformed natal star, its Hua, and the natal palace where it lands.
+type FlowTransformation struct {
+	Star   starIndex
+	Hua    siHuaType
+	Palace gongIndex
+}
+
+// newFlowTransformations projects the transformation map into a stable,
+// palace-resolved fact list. It never emits two maps for one fact.
+func newFlowTransformations(
+	transformations siHuaResult, palaces map[starIndex]gongIndex,
+) []FlowTransformation {
+	result := make([]FlowTransformation, 0, len(transformations))
+	for star, hua := range transformations {
+		result = append(result, FlowTransformation{
+			Star: star, Hua: hua, Palace: palaces[star],
+		})
+	}
+	sort.Slice(result, func(i, j int) bool {
+		return starName(result[i].Star) < starName(result[j].Star)
+	})
+	return result
 }
 
 // flowStarKind extracts the stable star kind from a prefixed flow-star name

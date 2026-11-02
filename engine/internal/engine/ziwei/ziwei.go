@@ -320,11 +320,9 @@ type DaXianStep struct {
 
 // LiuNian is the annual fate analysis.
 type LiuNian struct {
-	MingGong     gongIndex               `json:"ming_gong"`
-	MingGongName string                  `json:"ming_gong_name"` // 流年命宫名
-	Zhi          Zhi                     `json:"zhi"`            // 流年地支
-	SiHua        siHuaResult             `json:"si_hua"`
-	SiHuaPalace  map[starIndex]gongIndex `json:"si_hua_gong"`
-	FuXing       map[starIndex]Zhi       `json:"fu_xing"`
-	GongWei      [12]flowPalace          `json:"gong_wei"` // 流年盘（地支坐标 12 宫）
+	MingGong     gongIndex            `json:"ming_gong"`
+	MingGongName string               `json:"ming_gong_name"` // 流年命宫名
+	Zhi          Zhi                  `json:"zhi"`            // 流年地支
+	SiHua        []FlowTransformation `json:"si_hua"`
+	GongWei      [12]flowPalace       `json:"gong_wei"` // 流年盘（地支坐标 12 宫）
 }

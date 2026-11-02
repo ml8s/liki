@@ -129,14 +129,13 @@ def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict
             )
         gong, star, hua = args
         zw = ctx.get('zw_liunian', {}) or {}
-        si_hua_gong = zw.get('si_hua_gong', {}) or {}
-        si_hua = zw.get('si_hua', {}) or {}
-        for hit_star, gname in si_hua_gong.items():
+        for fact in zw.get('si_hua', []) or []:
+            hit_star, gname = fact.get('star'), fact.get('palace')
             if gong not in (FACTOR_WILDCARD, gname):
                 continue
             if star not in (FACTOR_WILDCARD, hit_star):
                 continue
-            if si_hua.get(hit_star) == hua:
+            if fact.get('hua') == hua:
                 return 1
         return 0
 
@@ -153,7 +152,7 @@ def _liu_handler_flow_star(op: str, args: list, base: dict, gender: str, chart: 
     for item in (ctx.get('zw_liunian', {}).get('gong_wei', []) or []):
         if palace != item.get('name'):
             continue
-        if star in (item.get('xing_yao', []) or []):
+        if star in (item.get('stars', []) or []):
             return 1
     return 0
 

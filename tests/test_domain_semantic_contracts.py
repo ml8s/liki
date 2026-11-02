@@ -211,26 +211,25 @@ def test_current_daxian_requires_explicit_or_server_year():
 
 def test_flow_star_palace_is_mechanical():
     ctx = {"liunian": {}, "zw_liunian": {"gong_wei": [
-        {"name": "子女", "xing_yao": ["流羊"]},
-        {"name": "夫妻", "xing_yao": ["流鸾"]},
+        {"name": "子女", "stars": ["流羊"]},
+        {"name": "夫妻", "stars": ["流鸾"]},
     ]}}
     assert operators_liunian._liu_op("流曜入宫", ["流羊", "子女"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("流曜入宫", ["流鸾", "子女"], "male", {}, ctx) == 0
     assert operators_liunian._liu_op("流曜入宫", ["流羊", "子女宫"], "male", {}, ctx) == 0
 
 
-def test_flow_si_hua_uses_engine_star_indices_and_palace_labels():
+def test_flow_si_hua_uses_complete_engine_facts():
     ctx = {
         "liunian": {},
         "zw_liunian": {
-            "si_hua_gong": {"0": "夫妻"},
-            "si_hua": {"0": "禄"},
+            "si_hua": [{"star": "天梁", "hua": "禄", "palace": "夫妻"}],
         },
     }
     # [宫位, 星曜, 四化]——星曜是显式维度，与「宫含」同构
     assert operators_liunian._liu_op("流年宫化", ["夫妻", "任意", "禄"], "male", {}, ctx) == 1
-    assert operators_liunian._liu_op("流年宫化", ["夫妻", "0", "禄"], "male", {}, ctx) == 1
-    assert operators_liunian._liu_op("流年宫化", ["夫妻", "1", "禄"], "male", {}, ctx) == 0
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "天梁", "禄"], "male", {}, ctx) == 1
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "七杀", "禄"], "male", {}, ctx) == 0
     assert operators_liunian._liu_op("流年宫化", ["夫妻宫", "任意", "禄"], "male", {}, ctx) == 0
     assert operators_liunian._liu_op("流年宫化", ["夫妻", "任意", "忌"], "male", {}, ctx) == 0
 

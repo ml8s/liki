@@ -40,12 +40,7 @@ func liuNianMinors(yearZhu ganzhi.Zhu, _ Zhi) map[starIndex]Zhi {
 // ComputeLiuNian assembles the full annual analysis.
 func ComputeLiuNian(ctx FlowContext, liuNian int) LiuNian {
 	siHua := liuNianSiHua(liuNian)
-	siHuaPalace := make(map[starIndex]gongIndex)
-	for star, palace := range ctx.SiHuaPalaces {
-		if _, ok := siHua[star]; ok {
-			siHuaPalace[star] = palace
-		}
-	}
+	transformations := newFlowTransformations(siHua, ctx.SiHuaPalaces)
 	liuYearGan, liuYearZhi := yearGanZhi(liuNian)
 	minorStars := liuNianMinors(ganzhi.Zhu{Gan: liuYearGan, Zhi: liuYearZhi}, ctx.ShiZhi)
 
@@ -79,9 +74,7 @@ func ComputeLiuNian(ctx FlowContext, liuNian int) LiuNian {
 		MingGong:     flowMing,
 		MingGongName: ctx.MingGongName,
 		Zhi:          liuYearZhi,
-		SiHua:        siHua,
-		SiHuaPalace:  siHuaPalace,
-		FuXing:       minorStars,
+		SiHua:        transformations,
 		GongWei:      flowPalaces,
 	}
 }

@@ -165,8 +165,8 @@ func TestComplete(t *testing.T) {
 				t.Errorf("流年zhi: got %s want %s", lnZhi, tc.Yzhi)
 			}
 			for sidStr, stype := range tc.Ysihua {
-				if v, ok := ln.SiHua[starIndex(atoi(sidStr))]; !ok || string(v) != stype {
-					t.Errorf("流年四化%s: got %s want %s", sidStr, string(v), stype)
+				if !hasFlowTransformation(ln.SiHua, starIndex(atoi(sidStr)), siHuaType(stype)) {
+					t.Errorf("流年四化%s: missing %s", sidStr, stype)
 				}
 			}
 			// 流月四化+zhi+星
@@ -179,13 +179,8 @@ func TestComplete(t *testing.T) {
 				t.Errorf("流月zhi: got %s want %s", lyZhi, tc.Mzhi)
 			}
 			for sidStr, stype := range tc.Msihua {
-				if v, ok := ly.SiHua[starIndex(atoi(sidStr))]; !ok || string(v) != stype {
-					t.Errorf("流月四化%s: got %s want %s", sidStr, string(v), stype)
-				}
-			}
-			for sName, zhiM1 := range tc.Mstars {
-				if v, ok := ly.Stars[sName]; !ok || int(v)-1 != zhiM1 {
-					t.Errorf("流月星%s: got %d want %d", sName, v, zhiM1)
+				if !hasFlowTransformation(ly.SiHua, starIndex(atoi(sidStr)), siHuaType(stype)) {
+					t.Errorf("流月四化%s: missing %s", sidStr, stype)
 				}
 			}
 			// 流日四化+zhi+星
@@ -198,13 +193,8 @@ func TestComplete(t *testing.T) {
 				t.Errorf("流日zhi: got %s want %s", lrZhi, tc.Dzhi)
 			}
 			for sidStr, stype := range tc.Dsihua {
-				if v, ok := lr.SiHua[starIndex(atoi(sidStr))]; !ok || string(v) != stype {
-					t.Errorf("流日四化%s: got %s want %s", sidStr, string(v), stype)
-				}
-			}
-			for sName, zhiM1 := range tc.Dstars {
-				if v, ok := lr.Stars[sName]; !ok || int(v)-1 != zhiM1 {
-					t.Errorf("流日星%s: got %d want %d", sName, v, zhiM1)
+				if !hasFlowTransformation(lr.SiHua, starIndex(atoi(sidStr)), siHuaType(stype)) {
+					t.Errorf("流日四化%s: missing %s", sidStr, stype)
 				}
 			}
 			// 流时四化+zhi+星
@@ -217,16 +207,10 @@ func TestComplete(t *testing.T) {
 				t.Errorf("流时zhi: got %s want %s", lsZhi, tc.Hzhi)
 			}
 			for sidStr, stype := range tc.Hsihua {
-				if v, ok := ls.SiHua[starIndex(atoi(sidStr))]; !ok || string(v) != stype {
-					t.Errorf("流时四化%s: got %s want %s", sidStr, string(v), stype)
+				if !hasFlowTransformation(ls.SiHua, starIndex(atoi(sidStr)), siHuaType(stype)) {
+					t.Errorf("流时四化%s: missing %s", sidStr, stype)
 				}
 			}
-			for sName, zhiM1 := range tc.Hstars {
-				if v, ok := ls.Stars[sName]; !ok || int(v)-1 != zhiM1 {
-					t.Errorf("流时星%s: got %d want %d", sName, v, zhiM1)
-				}
-			}
-
 			// 每宫
 			for _, nm := range gongLabels {
 				ref, ok := tc.Palaces[nm]
@@ -368,6 +352,15 @@ func assertFlowPalaces(t *testing.T, label string, got [12]flowPalace, ref []flo
 		}
 		*pass++
 	}
+}
+
+func hasFlowTransformation(value []FlowTransformation, star starIndex, hua siHuaType) bool {
+	for _, item := range value {
+		if item.Star == star && item.Hua == hua {
+			return true
+		}
+	}
+	return false
 }
 
 func findPalace(p [12]gong, name string) *gong {

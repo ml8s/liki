@@ -14,14 +14,13 @@ func hongLuanPos(zhi Zhi) int {
 // ── 流月 ──
 
 type LiuYue struct {
-	TargetLunar    tianwen.LunarDate `json:"target_lunar"`
-	ResolvedPeriod FlowMonthPeriod   `json:"resolved_period"`
-	MingGong       gongIndex         `json:"ming_gong"`
-	MingGongName   string            `json:"ming_gong_name"`
-	Zhi            Zhi               `json:"zhi"`
-	SiHua          siHuaResult       `json:"si_hua"`
-	Stars          map[string]Zhi    `json:"xing_yao,omitempty"`
-	GongWei        [12]flowPalace    `json:"gong_wei,omitempty"`
+	TargetLunar    tianwen.LunarDate    `json:"target_lunar"`
+	ResolvedPeriod FlowMonthPeriod      `json:"resolved_period"`
+	MingGong       gongIndex            `json:"ming_gong"`
+	MingGongName   string               `json:"ming_gong_name"`
+	Zhi            Zhi                  `json:"zhi"`
+	SiHua          []FlowTransformation `json:"si_hua"`
+	GongWei        [12]flowPalace       `json:"gong_wei"`
 }
 
 // FlowMonthPeriod separates calendar truth from the Ziwei flow-month choice.
@@ -80,8 +79,7 @@ func ComputeLiuYueWith(ctx FlowContext, target tianwen.LunarDate, p tianwen.Luna
 		MingGong:       0,
 		MingGongName:   "命宫",
 		Zhi:            yueZhi,
-		SiHua:          computeSiHua(monthGan),
-		Stars:          stars,
+		SiHua:          newFlowTransformations(computeSiHua(monthGan), ctx.SiHuaPalaces),
 		GongWei:        buildFlowPalaces(mi, starByAnXingIdx),
 	}, nil
 }
@@ -139,12 +137,11 @@ func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {
 // ── 流日 ──
 
 type LiuRi struct {
-	MingGong     gongIndex      `json:"ming_gong"`
-	MingGongName string         `json:"ming_gong_name"`
-	Zhi          Zhi            `json:"zhi"`
-	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
-	GongWei      [12]flowPalace `json:"gong_wei,omitempty"`
+	MingGong     gongIndex            `json:"ming_gong"`
+	MingGongName string               `json:"ming_gong_name"`
+	Zhi          Zhi                  `json:"zhi"`
+	SiHua        []FlowTransformation `json:"si_hua"`
+	GongWei      [12]flowPalace       `json:"gong_wei"`
 }
 
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
@@ -179,8 +176,7 @@ func ComputeLiuRiWith(ctx FlowContext, target tianwen.LunarDate, p tianwen.Lunar
 		MingGong:     0,
 		MingGongName: "命宫",
 		Zhi:          riZhi,
-		SiHua:        computeSiHua(riGan),
-		Stars:        stars,
+		SiHua:        newFlowTransformations(computeSiHua(riGan), ctx.SiHuaPalaces),
 		GongWei:      buildFlowPalaces(di, starByAnXingIdx),
 	}, nil
 }
@@ -206,12 +202,11 @@ func liuRiStars(gan Gan, zhi Zhi) map[string]Zhi {
 // ── 流时 ──
 
 type LiuShi struct {
-	MingGong     gongIndex      `json:"ming_gong"`
-	MingGongName string         `json:"ming_gong_name"`
-	Zhi          Zhi            `json:"zhi"`
-	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
-	GongWei      [12]flowPalace `json:"gong_wei,omitempty"`
+	MingGong     gongIndex            `json:"ming_gong"`
+	MingGongName string               `json:"ming_gong_name"`
+	Zhi          Zhi                  `json:"zhi"`
+	SiHua        []FlowTransformation `json:"si_hua"`
+	GongWei      [12]flowPalace       `json:"gong_wei"`
 }
 
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.
@@ -247,8 +242,7 @@ func ComputeLiuShiWith(ctx FlowContext, target tianwen.LunarDate, shiZhi Zhi, p 
 		MingGong:     0,
 		MingGongName: "命宫",
 		Zhi:          shiZhi,
-		SiHua:        computeSiHua(shiGan),
-		Stars:        stars,
+		SiHua:        newFlowTransformations(computeSiHua(shiGan), ctx.SiHuaPalaces),
 		GongWei:      buildFlowPalaces(hi, starByAnXingIdx),
 	}, nil
 }

@@ -24,115 +24,119 @@
         },
         "ming_gong": "命宫",
         "zhi": "巳",
-        "si_hua": {
-          "天梁": "科",
-          "文曲": "忌",
-          "武曲": "禄",
-          "贪狼": "权"
-        },
-        "xing_yao": {
-          "日喜": "辰",
-          "日昌": "酉",
-          "日曲": "巳",
-          "日禄": "午",
-          "日羊": "未",
-          "日钺": "申",
-          "日陀": "巳",
-          "日马": "亥",
-          "日魁": "子",
-          "日鸾": "戌"
-        },
         "gong_wei": [
           {
             "zhi": "寅",
             "name": "田宅",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
           },
           {
             "zhi": "卯",
             "name": "官禄",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
           },
           {
             "zhi": "辰",
             "name": "仆役",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日喜"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "巳",
             "name": "迁移",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日陀",
               "日曲"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "午",
             "name": "疾厄",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日禄"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "未",
             "name": "财帛",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日羊"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "申",
             "name": "子女",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日钺"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "酉",
             "name": "夫妻",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日昌"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "戌",
             "name": "兄弟",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日鸾"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "亥",
             "name": "命宫",
-            "xing_yao": [
+            "is_liu_ming": true,
+            "stars": [
               "日马"
-            ],
-            "is_liu_ming": true
+            ]
           },
           {
             "zhi": "子",
             "name": "父母",
-            "xing_yao": [
+            "is_liu_ming": false,
+            "stars": [
               "日魁"
-            ],
-            "is_liu_ming": false
+            ]
           },
           {
             "zhi": "丑",
             "name": "福德",
-            "xing_yao": [],
-            "is_liu_ming": false
+            "is_liu_ming": false,
+            "stars": []
+          }
+        ],
+        "si_hua": [
+          {
+            "star": "天梁",
+            "hua": "科",
+            "palace": "夫妻"
+          },
+          {
+            "star": "文曲",
+            "hua": "忌",
+            "palace": "夫妻"
+          },
+          {
+            "star": "武曲",
+            "hua": "禄",
+            "palace": "兄弟"
+          },
+          {
+            "star": "贪狼",
+            "hua": "权",
+            "palace": "疾厄"
           }
         ]
       }
