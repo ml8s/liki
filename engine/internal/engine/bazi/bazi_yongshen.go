@@ -65,16 +65,16 @@ type CaiKu struct {
 // ComputeYongshenEvidence computes the FuYi/TiaoHou candidates and the GeJu
 // structural evidence. GeJu is not a Yongshen candidate.
 func computeYongShenEvidenceFromAnalysis(
-	core NatalCore, analysis PillarAnalysis,
+	core NatalCore, analysis PillarAnalysis, relations []NatalRelationFact,
 ) (FuYiResult, TiaoHouResult, GeJuResult) {
 	bz := core.ToBazi()
 	counts := WuxingCountsAt(bz, analysis.HiddenStems)
 	seasonStrength := SeasonStrengthAt(bz.Yue.Zhi)
 	strength := AnalyzeDayMasterStrength(bz, analysis.HiddenStems)
 
-	return FuYi(bz, counts, seasonStrength, strength),
-		TiaoHouAt(bz),
-		GeJuAt(bz, analysis)
+	return FuYi(bz, counts, seasonStrength, strength, relations),
+		TiaoHouAt(bz, relations),
+		GeJuAt(bz, analysis, relations)
 }
 
 // candidateString models an absent domain candidate as an explicit closure value.

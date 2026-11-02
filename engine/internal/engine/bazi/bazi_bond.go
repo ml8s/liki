@@ -151,9 +151,10 @@ func computeBondChartFacts(core NatalCore) bondChartFacts {
 	analysis := AnalyzePillars(bz, core.Gender)
 	counts := WuxingCountsAt(bz, analysis.HiddenStems)
 	strength := AnalyzeDayMasterStrength(bz, analysis.HiddenStems)
+	relations := computeNatalRelations(bz)
 	return bondChartFacts{
 		counts:     counts,
-		fuYi:       FuYi(bz, counts, SeasonStrengthAt(bz.Yue.Zhi), strength),
+		fuYi:       FuYi(bz, counts, SeasonStrengthAt(bz.Yue.Zhi), strength, relations),
 		spouseStar: buildSpouseStarFactFromAnalysis(core, bz, analysis),
 	}
 }

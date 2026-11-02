@@ -9,9 +9,10 @@ func FuYi(
 	counts WuxingCounts,
 	seasonStrength SeasonStrength,
 	strength DayMasterStrength,
+	relations []NatalRelationFact,
 ) FuYiResult {
 	riYuan := bz.Ri.Gan
-	basis := buildFuYiBasis(bz, strength.RootType, strength.YinBiCount)
+	basis := buildFuYiBasis(bz, strength.RootType, strength.YinBiCount, relations)
 
 	// Try congGe rules first (qualitative rule chain, not percentages).
 	pat, congYong, congXi, congJi := lookupCongGe(bz)

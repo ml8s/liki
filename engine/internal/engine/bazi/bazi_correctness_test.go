@@ -167,7 +167,7 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 	for _, tt := range tests {
 		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.yueZhi) + "月"
 		t.Run(name, func(t *testing.T) {
-			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi).ToBazi())
+			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi).ToBazi(), computeNatalRelations(mkTiaoHouChart(tt.riYuan, tt.yueZhi).ToBazi()))
 
 			if result.PrimaryWuxing == "" {
 				t.Skip("no tiaohou entry")
@@ -697,7 +697,7 @@ func TestTiaoHou_AllEntriesValid(t *testing.T) {
 		riYuan := ganzhi.Gan(key.gan)
 		yueZhi := ganzhi.Zhi(key.zhi)
 
-		result := computeTiaoHou(mkTiaoHouChart(riYuan, yueZhi).ToBazi())
+		result := computeTiaoHou(mkTiaoHouChart(riYuan, yueZhi).ToBazi(), computeNatalRelations(mkTiaoHouChart(riYuan, yueZhi).ToBazi()))
 
 		// Season must not be empty.
 		if result.Season == "" {

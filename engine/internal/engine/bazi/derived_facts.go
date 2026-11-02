@@ -296,11 +296,14 @@ func computeChartConclusions(c Chart) ChartConclusions {
 			}
 		}
 	}
-	for _, relation := range append(append([]ZhiPairRel{}, c.ZhiLiuHe...), c.LiuChong...) {
-		if killingPillars[relation.PillarA] || killingPillars[relation.PillarB] {
-			conclusions.OfficerKillingCleaned = hasOfficer && hasKilling
-			if conclusions.OfficerKillingCleaned {
-				break
+	for _, relation := range c.GuanXi {
+		if relation.Kind != "zhi_liu_he" && relation.Kind != "liu_chong" {
+			continue
+		}
+		for _, member := range relation.Members {
+			index := pillarIndex(member.Pillar)
+			if index >= 0 && killingPillars[index] {
+				conclusions.OfficerKillingCleaned = hasOfficer && hasKilling
 			}
 		}
 	}
@@ -309,7 +312,11 @@ func computeChartConclusions(c Chart) ChartConclusions {
 	return conclusions
 }
 
-func computeGuanXi(c Chart) []NatalRelationFact {
+func computeNatalRelations(bz ganzhi.Bazi) []NatalRelationFact {
+	return computeGuanXiFromHeHui(bz, ComputeHeHui(bz))
+}
+
+func computeGuanXiFromHeHui(bz ganzhi.Bazi, hehui HeHuiResult) []NatalRelationFact {
 	facts := make([]NatalRelationFact, 0, 8)
 	seen := map[string]bool{}
 	add := func(fact NatalRelationFact) {
@@ -324,7 +331,7 @@ func computeGuanXi(c Chart) []NatalRelationFact {
 		facts = append(facts, fact)
 	}
 
-	for _, relation := range c.GanHe {
+	for _, relation := range hehui.GanHe {
 		kind := "gan_he_candidate"
 		if relation.Position == "adjacent" {
 			kind = "gan_he"
@@ -342,7 +349,7 @@ func computeGuanXi(c Chart) []NatalRelationFact {
 			Contested: relation.Contested,
 		})
 	}
-	for _, relation := range c.GanChong {
+	for _, relation := range hehui.GanChong {
 		kind := "gan_chong_candidate"
 		if relation.Position == "adjacent" {
 			kind = "gan_chong"
@@ -359,35 +366,34 @@ func computeGuanXi(c Chart) []NatalRelationFact {
 			Position: relation.Position,
 		})
 	}
-	for _, relation := range c.ZhiLiuHe {
+	for _, relation := range hehui.ZhiLiuHe {
 		group := canonicalZhiPairGroup("zhi_liu_he", relation.ZhiA, relation.ZhiB)
 		add(newZhiPairFact("zhi_liu_he", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
 	}
-	for _, relation := range c.SanHe {
-		add(newTripleRelationFact("san_he", c.ToBazi(), relation))
+	for _, relation := range hehui.SanHe {
+		add(newTripleRelationFact("san_he", bz, relation))
 	}
-	for _, relation := range c.SanHePartial {
-		add(newTripleRelationFact("san_he_partial", c.ToBazi(), relation))
+	for _, relation := range hehui.SanHePartial {
+		add(newTripleRelationFact("san_he_partial", bz, relation))
 	}
-	for _, relation := range c.SanHui {
-		add(newTripleRelationFact("san_hui", c.ToBazi(), relation))
+	for _, relation := range hehui.SanHui {
+		add(newTripleRelationFact("san_hui", bz, relation))
 	}
-	for _, relation := range c.LiuChong {
+	for _, relation := range hehui.LiuChong {
 		group := canonicalZhiPairGroup("liu_chong", relation.ZhiA, relation.ZhiB)
 		add(newZhiPairFact("liu_chong", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
 	}
-	for _, relation := range c.LiuHai {
+	for _, relation := range hehui.LiuHai {
 		group := canonicalZhiPairGroup("liu_hai", relation.ZhiA, relation.ZhiB)
 		add(newZhiPairFact("liu_hai", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
 	}
-	for _, relation := range c.LiuXing {
+	for _, relation := range hehui.LiuXing {
 		group := canonicalXingGroup(relation.ZhiA, relation.ZhiB)
 		add(newZhiPairFact("liu_xing", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
 	}
 	// LiuXing detection keeps pairwise evidence. A complete three-branch 刑组
 	// is an additional canonical fact and must not be lost when the pairwise
 	// projection is later retired.
-	bz := c.ToBazi()
 	zhiCounts := map[ganzhi.Zhi]int{}
 	for _, pillar := range bz.Slice() {
 		zhiCounts[pillar.Zhi]++
@@ -408,11 +414,11 @@ func computeGuanXi(c Chart) []NatalRelationFact {
 			ID: "liu_xing:" + groupLabel, Kind: "liu_xing", Group: groupLabel, Members: members,
 		})
 	}
-	for _, relation := range c.LiuPo {
+	for _, relation := range hehui.LiuPo {
 		group := canonicalZhiPairGroup("liu_po", relation.ZhiA, relation.ZhiB)
 		add(newZhiPairFact("liu_po", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
 	}
-	for _, relation := range c.AnHe {
+	for _, relation := range hehui.AnHe {
 		group := canonicalZhiPairGroup("an_he", relation.ZhiA, relation.ZhiB)
 		add(newZhiPairFact("an_he", group, relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element))
 	}

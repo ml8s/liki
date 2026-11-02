@@ -152,4 +152,13 @@ func (c Chart) NaYinArray() [4]string {
 	return [4]string{c.Nian.NaYin, c.Yue.NaYin, c.Ri.NaYin, c.Shi.NaYin}
 }
 
+func pillarIndex(name string) int {
+	for index, label := range zhuLabels {
+		if label == name {
+			return index
+		}
+	}
+	return -1
+}
+
 var zhuLabels = [4]string{"nian", "yue", "ri", "shi"}

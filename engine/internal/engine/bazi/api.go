@@ -83,11 +83,12 @@ func applyInteractions(chart *Chart, bz ganzhi.Bazi) {
 	chart.LiuXing = hehui.LiuXing
 	chart.LiuPo = hehui.LiuPo
 	chart.AnHe = hehui.AnHe
+	chart.GuanXi = computeGuanXiFromHeHui(bz, hehui)
 }
 
 // applyYongshenEvidence derives FuYi/TiaoHou candidates and GeJu structure.
 func applyYongshenEvidence(chart *Chart, core NatalCore, analysis PillarAnalysis) {
-	chart.FuYi, chart.TiaoHou, chart.GeJu = computeYongShenEvidenceFromAnalysis(core, analysis)
+	chart.FuYi, chart.TiaoHou, chart.GeJu = computeYongShenEvidenceFromAnalysis(core, analysis, chart.GuanXi)
 	chart.ShenShaSchool = ShenShaSchool{
 		DualReference: []string{"天乙贵人", "桃花", "驿马", "华盖", "将星", "劫煞", "灾煞"},
 		Policy:        "union_of_year_and_day_references",
@@ -100,7 +101,6 @@ func applyDerivedFacts(chart *Chart) {
 	chart.TenGodStates, elementStates = computeTenGodStates(*chart)
 	chart.ElementStates = elementStateList(elementStates)
 	chart.LuRoots = computeLuRoots(*chart)
-	chart.GuanXi = computeGuanXi(*chart)
 	facts := computeChartConclusions(*chart)
 	chart.GuanSha = GuanSha{QuQing: facts.OfficerKillingCleaned}
 	chart.CaiKu = CaiKu{Xian: facts.WealthTombPresent, XingRuKu: facts.WealthStarInTomb}

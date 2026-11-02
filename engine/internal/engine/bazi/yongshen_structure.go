@@ -74,23 +74,25 @@ type TiaoHouAvailability struct {
 	GuanXiLinks []RelationLink   `json:"guan_xi_links"`
 }
 
-func buildGeJuStructure(bz ganzhi.Bazi, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxing) GeJuStructure {
+func buildGeJuStructure(
+	bz ganzhi.Bazi, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxing, relations []NatalRelationFact,
+) GeJuStructure {
 	controller := elementThatControls(patternElem)
 	generator := elementThatGenerates(patternElem)
 	return GeJuStructure{
 		Pattern:    buildElementStructure(bz, patternElem, patternGan),
 		Controller: buildElementStructure(bz, controller, nil),
 		Generator:  buildElementStructure(bz, generator, nil),
-		GuanXiLinks: relationLinks(buildRelationFacts(bz,
-			func(pillar int, _ ganzhi.Gan) []string {
-				return elementTargets(ganzhi.GanWuxing(chartStem(bz, pillar)), map[string]string{
+		GuanXiLinks: relationLinks(buildRelationFacts(relations,
+			func(pillar string, gan ganzhi.Gan) []string {
+				return elementTargets(ganzhi.GanWuxing(gan), map[string]string{
 					patternElem.String(): "pattern",
 					controller.String():  "controller",
 					generator.String():   "generator",
 				})
 			},
-			func(pillar int) []string {
-				return branchElementTargets(bz, pillar, map[string]string{
+			func(pillar string) []string {
+				return branchElementTargets(bz, pillarIndex(pillar), map[string]string{
 					patternElem.String(): "pattern",
 					controller.String():  "controller",
 					generator.String():   "generator",
@@ -100,31 +102,33 @@ func buildGeJuStructure(bz ganzhi.Bazi, patternGan *ganzhi.Gan, patternElem ganz
 	}
 }
 
-func buildFuYiBasis(bz ganzhi.Bazi, rootType string, yinBi int) FuYiBasis {
+func buildFuYiBasis(
+	bz ganzhi.Bazi, rootType string, yinBi int, relations []NatalRelationFact,
+) FuYiBasis {
 	dayMaster := ganzhi.GanWuxing(bz.Ri.Gan)
 	support := elementThatGenerates(dayMaster)
 	return FuYiBasis{
 		RiGanGen:      rootType,
 		YinBiShuLiang: yinBi,
 		RiGanTongGen:  hiddenStemOccurrences(bz, dayMaster),
-		GuanXiLinks: relationLinks(buildRelationFacts(bz,
-			func(pillar int, stem ganzhi.Gan) []string {
+		GuanXiLinks: relationLinks(buildRelationFacts(relations,
+			func(pillar string, stem ganzhi.Gan) []string {
 				targets := make([]string, 0, 2)
-				if pillar == zhuRi {
+				if pillar == zhuLabels[zhuRi] {
 					targets = append(targets, "day_master")
 				}
 				elem := ganzhi.GanWuxing(stem)
-				if pillar != zhuRi && (elem == dayMaster || elem == support) {
+				if pillar != zhuLabels[zhuRi] && (elem == dayMaster || elem == support) {
 					targets = append(targets, "yin_bi")
 				}
 				return targets
 			},
-			func(pillar int) []string {
+			func(pillar string) []string {
 				targets := make([]string, 0, 2)
-				if pillar == zhuRi {
+				if pillar == zhuLabels[zhuRi] {
 					targets = append(targets, "day_branch")
 				}
-				if len(branchElementTargets(bz, pillar, map[string]string{dayMaster.String(): "day_master_root"})) > 0 {
+				if len(branchElementTargets(bz, pillarIndex(pillar), map[string]string{dayMaster.String(): "day_master_root"})) > 0 {
 					targets = append(targets, "day_master_root")
 				}
 				return targets
@@ -133,7 +137,9 @@ func buildFuYiBasis(bz ganzhi.Bazi, rootType string, yinBi int) FuYiBasis {
 	}
 }
 
-func buildTiaoHouAvailability(bz ganzhi.Bazi, stem ganzhi.Gan, target string) TiaoHouAvailability {
+func buildTiaoHouAvailability(
+	bz ganzhi.Bazi, stem ganzhi.Gan, target string, relations []NatalRelationFact,
+) TiaoHouAvailability {
 	availability := TiaoHouAvailability{
 		Stem:        ganzhi.GanName(stem),
 		Occurrences: make([]StemOccurrence, 0),
@@ -189,15 +195,15 @@ func buildTiaoHouAvailability(bz ganzhi.Bazi, stem ganzhi.Gan, target string) Ti
 			}
 		}
 	}
-	availability.GuanXiLinks = relationLinks(buildRelationFacts(bz,
-		func(pillar int, _ ganzhi.Gan) []string {
-			if targetPillars[pillar] && chartStem(bz, pillar) == stem {
+	availability.GuanXiLinks = relationLinks(buildRelationFacts(relations,
+		func(pillar string, relationStem ganzhi.Gan) []string {
+			if targetPillars[pillarIndex(pillar)] && relationStem == stem {
 				return []string{target}
 			}
 			return nil
 		},
-		func(pillar int) []string {
-			if targetPillars[pillar] {
+		func(pillar string) []string {
+			if targetPillars[pillarIndex(pillar)] {
 				return []string{target}
 			}
 			return nil
@@ -277,125 +283,59 @@ func hiddenStemOccurrences(bz ganzhi.Bazi, elem ganzhi.Wuxing) []StemOccurrence 
 }
 
 func buildRelationFacts(
-	bz ganzhi.Bazi,
-	stemTargets func(pillar int, stem ganzhi.Gan) []string,
-	branchTargets func(pillar int) []string,
+	relations []NatalRelationFact,
+	stemTargets func(pillar string, stem ganzhi.Gan) []string,
+	branchTargets func(pillar string) []string,
 ) []RelationFact {
-	relations := ComputeHeHui(bz)
-	var branchMemo [4][]string
-	var branchMemoReady [4]bool
-	memoBranchTargets := func(pillar int) []string {
-		if pillar < zhuNian || pillar > zhuShi || branchTargets == nil {
+	branchMemo := map[string][]string{}
+	memoBranchTargets := func(pillar string) []string {
+		if branchTargets == nil {
 			return nil
 		}
-		if !branchMemoReady[pillar] {
-			branchMemo[pillar] = branchTargets(pillar)
-			branchMemoReady[pillar] = true
+		if value, ok := branchMemo[pillar]; ok {
+			return value
 		}
-		// appendUniqueStrings never changes an existing element; growing its
-		// backing array is invisible through the memoized slice length.
-		return branchMemo[pillar]
+		value := branchTargets(pillar)
+		branchMemo[pillar] = value
+		return value
 	}
-	facts := make([]RelationFact, 0, len(relations.GanHe)+len(relations.GanChong)+len(relations.ZhiLiuHe)+len(relations.SanHe)+len(relations.SanHePartial)+len(relations.SanHui)+len(relations.LiuChong)+len(relations.LiuHai)+len(relations.LiuXing)+len(relations.LiuPo)+len(relations.AnHe))
-	for _, relation := range relations.GanHe {
-		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(bz, relation.PillarA)), stemTargets(relation.PillarB, chartStem(bz, relation.PillarB))...)
-		if len(targets) == 0 {
-			continue
-		}
-		facts = append(facts, RelationFact{
-			Field:    "gan_he",
-			Group:    relation.GanA + relation.GanB + "合" + relation.HeElement,
-			Pillars:  pillarNames(relation.PillarA, relation.PillarB),
-			Branches: []string{},
-			Stems:    []string{relation.GanA, relation.GanB},
-			Targets:  targets,
-		})
-	}
-	for _, relation := range relations.GanChong {
-		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(bz, relation.PillarA)), stemTargets(relation.PillarB, chartStem(bz, relation.PillarB))...)
-		if len(targets) == 0 {
-			continue
-		}
-		field := "gan_chong_candidate"
-		if relation.Position == "adjacent" {
-			field = "gan_chong"
-		}
-		facts = append(facts, RelationFact{
-			Field: field, Group: relation.GanA + relation.GanB + "冲",
-			Pillars:  pillarNames(relation.PillarA, relation.PillarB),
-			Branches: []string{}, Stems: []string{relation.GanA, relation.GanB}, Targets: targets,
-		})
-	}
-	for _, relation := range relations.ZhiLiuHe {
-		appendPairRelationFact(&facts, "zhi_liu_he", relation.ZhiA+relation.ZhiB+"合"+relation.Element,
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
-	}
-	for _, relation := range relations.LiuChong {
-		appendPairRelationFact(&facts, "liu_chong", relation.ZhiA+relation.ZhiB+"冲",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
-	}
-	for _, relation := range relations.LiuHai {
-		appendPairRelationFact(&facts, "liu_hai", relation.ZhiA+relation.ZhiB+"害",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
-	}
-	for _, relation := range relations.LiuXing {
-		appendPairRelationFact(&facts, "liu_xing", relation.ZhiA+relation.ZhiB+"刑",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
-	}
-	for _, relation := range relations.LiuPo {
-		appendPairRelationFact(&facts, "liu_po", relation.ZhiA+relation.ZhiB+"破",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
-	}
-	for _, relation := range relations.AnHe {
-		appendPairRelationFact(&facts, "an_he", relation.ZhiA+relation.ZhiB+"暗合",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
-	}
-	appendTripleRelationFacts(&facts, relations.SanHe, memoBranchTargets)
-	appendTripleRelationFacts(&facts, relations.SanHePartial, memoBranchTargets)
-	appendTripleRelationFacts(&facts, relations.SanHui, memoBranchTargets)
-	return dedupeRelationFacts(facts)
-}
 
-func appendTripleRelationFacts(
-	facts *[]RelationFact, triples []TripleGroup, branchTargets func(int) []string,
-) {
-	for _, relation := range triples {
-		targets := make([]string, 0, 3)
-		for _, pillar := range relation.Pillars {
-			for index := range zhuLabels {
-				if zhuLabels[index] == pillar {
-					targets = appendUniqueStrings(targets, branchTargets(index)...)
+	facts := make([]RelationFact, 0, len(relations))
+	for _, relation := range relations {
+		targets := make([]string, 0, 4)
+		stems := make([]string, 0, len(relation.Members))
+		branches := make([]string, 0, len(relation.Members))
+		pillars := make([]string, 0, len(relation.Members))
+		for _, member := range relation.Members {
+			pillars = append(pillars, member.Pillar)
+			if member.Gan != "" {
+				stem, err := ganzhi.ParseGan(member.Gan)
+				if err != nil {
+					continue
 				}
+				stems = append(stems, member.Gan)
+				targets = appendUniqueStrings(targets, stemTargets(member.Pillar, stem)...)
+			}
+			if member.Zhi != "" {
+				if _, err := ganzhi.ParseZhi(member.Zhi); err != nil {
+					continue
+				}
+				branches = append(branches, member.Zhi)
+				targets = appendUniqueStrings(targets, memoBranchTargets(member.Pillar)...)
 			}
 		}
-		if len(targets) == 0 {
+		if len(targets) == 0 || len(stems)+len(branches) != len(relation.Members) {
 			continue
 		}
-		field := relation.Kind
-		switch relation.Kind {
-		case relSanHe:
-			field = "san_he"
-		case "半合":
-			field = "san_he_partial"
-		case relSanHui:
-			field = "san_hui"
+		if len(stems) > 0 && len(branches) > 0 {
+			continue
 		}
-		*facts = append(*facts, RelationFact{
-			Field: field, Group: relation.Name, Pillars: relation.Pillars,
-			Branches: relation.Branches, Targets: targets,
+		facts = append(facts, RelationFact{
+			Field: relation.Kind, Group: relation.Group, Pillars: pillars,
+			Branches: branches, Stems: stems, Targets: targets,
 		})
 	}
-}
-
-func appendPairRelationFact(facts *[]RelationFact, field, group string, pillarA, pillarB int, branchA, branchB string, branchTargets func(int) []string) {
-	targets := appendUniqueStrings(branchTargets(pillarA), branchTargets(pillarB)...)
-	if len(targets) == 0 {
-		return
-	}
-	*facts = append(*facts, RelationFact{
-		Field: field, Group: group, Pillars: pillarNames(pillarA, pillarB),
-		Branches: []string{branchA, branchB}, Targets: targets,
-	})
+	return dedupeRelationFacts(facts)
 }
 
 func elementTargets(elem ganzhi.Wuxing, labels map[string]string) []string {
@@ -435,20 +375,6 @@ func branchElementTargets(bz ganzhi.Bazi, pillar int, labels map[string]string) 
 		}
 	}
 	return targets
-}
-
-func chartStem(bz ganzhi.Bazi, pillar int) ganzhi.Gan {
-	switch pillar {
-	case zhuNian:
-		return bz.Nian.Gan
-	case zhuYue:
-		return bz.Yue.Gan
-	case zhuRi:
-		return bz.Ri.Gan
-	case zhuShi:
-		return bz.Shi.Gan
-	}
-	return 0
 }
 
 func pillarNames(indices ...int) []string {
@@ -524,20 +450,17 @@ func canonicalRelationReference(value RelationFact) (NatalRelationFact, bool) {
 	}
 	fact := NatalRelationFact{Kind: value.Field}
 	switch value.Field {
-	case "gan_he", "gan_chong":
+	case "gan_he", "gan_he_candidate", "gan_chong", "gan_chong_candidate":
 		if len(value.Stems) != 2 || len(value.Pillars) != 2 {
 			return NatalRelationFact{}, false
 		}
-		if value.Field == "gan_he" {
+		if value.Field == "gan_he" || value.Field == "gan_he_candidate" {
 			fact.Group = ganHeGroupLabel(value.Stems[0], value.Stems[1])
 			if pillarDistance(value.Pillars[0], value.Pillars[1]) != 1 {
 				fact.Kind = "gan_he_candidate"
 			}
 		} else {
 			fact.Group = ganChongGroupLabel(value.Stems[0], value.Stems[1])
-			if pillarDistance(value.Pillars[0], value.Pillars[1]) != 1 {
-				fact.Kind = "gan_chong_candidate"
-			}
 		}
 		fact.Members = []NatalRelationMember{
 			{Pillar: value.Pillars[0], Gan: value.Stems[0]},

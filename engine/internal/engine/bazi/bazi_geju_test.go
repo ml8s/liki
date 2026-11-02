@@ -331,5 +331,5 @@ func computeGeJu(c Chart, _ map[ganzhi.Wuxing]int) GeJuResult {
 	if gender == "" {
 		gender = ganzhi.Male
 	}
-	return GeJuAt(c.ToBazi(), AnalyzePillars(c.ToBazi(), gender))
+	return GeJuAt(c.ToBazi(), AnalyzePillars(c.ToBazi(), gender), computeNatalRelations(c.ToBazi()))
 }
