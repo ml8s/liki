@@ -1,10 +1,9 @@
-// Wire DTOs for the migrated bazi/ziwei/qimen engine tools.
+// Engine wire DTOs for the MCP contract layer.
 //
-// The shapes follow the legacy raw-JSON handlers and the captured engine
-// payloads under testdata/actual/. The file started as a generated
-// projection; it is ordinary source now, so edit it directly and keep
-// TestEngineContractWireFidelity green when a shape changes.
-
+// These types are ordinary source now, not generated artifacts. Captured
+// fixtures under testdata/actual protect compatibility with the published
+// engine payload; edit them directly and keep TestEngineContractWireFidelity
+// green when a shape changes.
 package mcpcontract
 
 import (
