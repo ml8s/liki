@@ -6,6 +6,8 @@
 // green when a shape changes.
 package mcpcontract
 
+import "liki-engine/internal/engine/bazi"
+
 // BaziPillarCangGan is the shared hidden-stem projection for all four pillars.
 type BaziPillarCangGan struct {
 	Main  *GanNameNullable `json:"main" jsonschema:"藏干 中的 main。"`
@@ -312,15 +314,11 @@ type BaziChartGeJuStructureGenerator = BaziChartElementEvidence
 // ── bazi.bond input ──
 
 type BaziBondInput struct {
-	A BaziBondInputA `json:"a" jsonschema:"a。"`
-	B BaziBondInputB `json:"b" jsonschema:"b。"`
+	A BaziBondSideInput `json:"a" jsonschema:"甲方：已归一化的出生主体。"`
+	B BaziBondSideInput `json:"b" jsonschema:"乙方：已归一化的出生主体。"`
 }
 
-type BaziBondInputA struct {
-	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
-}
-
-type BaziBondInputB struct {
+type BaziBondSideInput struct {
 	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
@@ -338,9 +336,9 @@ type BaziBondOutput struct {
 }
 
 type BaziBondDayMaster struct {
-	A         BaziBondSideIdentity       `json:"a" jsonschema:"a。"`
-	B         BaziBondSideIdentity       `json:"b" jsonschema:"b。"`
-	GanGuanXi BaziBondDayMasterGanGuanXi `json:"gan_guan_xi" jsonschema:"gan_guan_xi。"`
+	A        BaziBondSideIdentity `json:"a" jsonschema:"甲方日主。"`
+	B        BaziBondSideIdentity `json:"b" jsonschema:"乙方日主。"`
+	Relation BaziBondRelation     `json:"relation" jsonschema:"日主关系。"`
 }
 
 type BaziBondSideIdentity struct {
@@ -349,24 +347,24 @@ type BaziBondSideIdentity struct {
 	Gender GenderName  `json:"gender" jsonschema:"性别。"`
 }
 
-type BaziBondDayMasterGanGuanXi struct {
-	GanA     string `json:"gan_a" jsonschema:"甲干。"`
-	GanB     string `json:"gan_b" jsonschema:"乙干。"`
-	Kind     string `json:"relation_kind" jsonschema:"类型。"`
-	Relation string `json:"relation" jsonschema:"关系。"`
+type BaziBondRelation struct {
+	Kind     string `json:"kind" jsonschema:"关系类型。"`
+	Relation string `json:"relation" jsonschema:"关系描述。"`
 }
 
 type BaziBondSpousePalace struct {
-	AZhi     string                       `json:"a_zhi" jsonschema:"a_zhi。"`
-	BZhi     string                       `json:"b_zhi" jsonschema:"b_zhi。"`
-	Relation BaziBondSpousePalaceRelation `json:"relation" jsonschema:"关系。"`
+	A        BaziBondZhiSide           `json:"a" jsonschema:"甲方日支。"`
+	B        BaziBondZhiSide           `json:"b" jsonschema:"乙方日支。"`
+	Relation BaziBondExplainedRelation `json:"relation" jsonschema:"日支关系。"`
 }
 
-type BaziBondSpousePalaceRelation struct {
-	ZhiA        string `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB        string `json:"zhi_b" jsonschema:"乙支。"`
-	Kind        string `json:"relation_kind" jsonschema:"类型。"`
-	Explanation string `json:"relation_explanation" jsonschema:"关系解释。"`
+type BaziBondZhiSide struct {
+	Zhi ZhiName `json:"zhi" jsonschema:"日支。"`
+}
+
+type BaziBondExplainedRelation struct {
+	Kind        string `json:"kind" jsonschema:"关系类型。"`
+	Explanation string `json:"explanation" jsonschema:"关系解释。"`
 }
 
 type BaziBondZhuCross struct {
@@ -374,28 +372,21 @@ type BaziBondZhuCross struct {
 }
 
 type BaziBondZhuCrossPairsItem struct {
-	AZhu      PillarName                         `json:"a_zhu" jsonschema:"枚举值：nian、ri、shi、yue。"`
-	BZhu      PillarName                         `json:"b_zhu" jsonschema:"枚举值：nian、ri、shi、yue。"`
-	AGan      GanName                            `json:"a_gan" jsonschema:"a_gan。"`
-	BGan      GanName                            `json:"b_gan" jsonschema:"b_gan。"`
-	AZhi      string                             `json:"a_zhi" jsonschema:"a_zhi。"`
-	BZhi      ZhiName                            `json:"b_zhi" jsonschema:"b_zhi。"`
-	GanGuanXi BaziBondZhuCrossPairsItemGanGuanXi `json:"gan_guan_xi" jsonschema:"gan_guan_xi。"`
-	ZhiGuanXi BaziBondZhuCrossPairsItemZhiGuanXi `json:"zhi_guan_xi" jsonschema:"zhi_guan_xi。"`
+	A           BaziBondZhuSide     `json:"a" jsonschema:"甲方柱。"`
+	B           BaziBondZhuSide     `json:"b" jsonschema:"乙方柱。"`
+	GanRelation BaziBondRelation    `json:"gan_relation" jsonschema:"天干关系。"`
+	ZhiRelation BaziBondZhiRelation `json:"zhi_relation" jsonschema:"地支关系。"`
 }
 
-type BaziBondZhuCrossPairsItemGanGuanXi struct {
-	GanA     GanName `json:"gan_a" jsonschema:"甲干。"`
-	GanB     GanName `json:"gan_b" jsonschema:"乙干。"`
-	Kind     string  `json:"relation_kind" jsonschema:"类型。"`
-	Relation string  `json:"relation" jsonschema:"关系。"`
+type BaziBondZhuSide struct {
+	Zhu PillarName `json:"zhu" jsonschema:"柱位。"`
+	Gan GanName    `json:"gan" jsonschema:"天干。"`
+	Zhi ZhiName    `json:"zhi" jsonschema:"地支。"`
 }
 
-type BaziBondZhuCrossPairsItemZhiGuanXi struct {
-	ZhiA        string  `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB        ZhiName `json:"zhi_b" jsonschema:"乙支。"`
-	Kind        string  `json:"relation_kind" jsonschema:"类型。"`
-	Explanation string  `json:"relation_explanation" jsonschema:"关系解释。"`
+type BaziBondZhiRelation struct {
+	Kind        string `json:"kind" jsonschema:"关系类型。"`
+	Explanation string `json:"explanation" jsonschema:"关系解释。"`
 }
 
 type BaziBondShiShenCross struct {
@@ -446,11 +437,14 @@ type BaziBondNaYinCross struct {
 }
 
 type BaziBondNaYinCrossPairsItem struct {
-	AZhu     PillarName `json:"a_zhu" jsonschema:"枚举值：nian、ri、shi、yue。"`
-	BZhu     PillarName `json:"b_zhu" jsonschema:"枚举值：nian、ri、shi、yue。"`
-	ANaYin   string     `json:"a_na_yin" jsonschema:"a_na_yin。"`
-	BNaYin   string     `json:"b_na_yin" jsonschema:"b_na_yin。"`
-	Relation string     `json:"relation" jsonschema:"关系。"`
+	A        BaziBondNaYinSide `json:"a" jsonschema:"甲方柱。"`
+	B        BaziBondNaYinSide `json:"b" jsonschema:"乙方柱。"`
+	Relation string            `json:"relation" jsonschema:"纳音关系。"`
+}
+
+type BaziBondNaYinSide struct {
+	Zhu   PillarName `json:"zhu" jsonschema:"柱位。"`
+	NaYin string     `json:"na_yin" jsonschema:"纳音。"`
 }
 
 type BaziBondNaYinCrossWuxingCounts struct {
@@ -459,25 +453,14 @@ type BaziBondNaYinCrossWuxingCounts struct {
 }
 
 type BaziBondSpouseStar struct {
-	A BaziBondSpouseStarA `json:"a" jsonschema:"a。"`
-	B BaziBondSpouseStarB `json:"b" jsonschema:"b。"`
+	A BaziBondSpouseStarSide `json:"a" jsonschema:"甲方配偶星。"`
+	B BaziBondSpouseStarSide `json:"b" jsonschema:"乙方配偶星。"`
 }
 
-type BaziBondSpouseStarA struct {
+type BaziBondSpouseStarSide struct {
 	Gender    GenderName                  `json:"gender" jsonschema:"性别。"`
 	Primary   BaziBondSpouseStarCandidate `json:"primary" jsonschema:"主调候。"`
 	Secondary BaziBondSpouseStarCandidate `json:"secondary" jsonschema:"辅调候。"`
-}
-
-type BaziBondSpouseStarB struct {
-	Gender    GenderName                   `json:"gender" jsonschema:"性别。"`
-	Primary   BaziBondSpouseStarCandidate  `json:"primary" jsonschema:"主调候。"`
-	Secondary BaziBondSpouseStarBSecondary `json:"secondary" jsonschema:"辅调候。"`
-}
-
-type BaziBondSpouseStarBSecondary struct {
-	TenGod      string                                        `json:"ten_god" jsonschema:"ten_god。"`
-	Occurrences []BaziBondSpouseStarBSecondaryOccurrencesItem `json:"occurrences" jsonschema:"出现位置。"`
 }
 
 type BaziBondSpouseStarOccurrence struct {
@@ -486,14 +469,6 @@ type BaziBondSpouseStarOccurrence struct {
 	Stem   string     `json:"stem" jsonschema:"天干。"`
 	Source string     `json:"source" jsonschema:"来源。"`
 	IsVoid bool       `json:"is_void" jsonschema:"是否旬空。"`
-}
-
-type BaziBondSpouseStarBSecondaryOccurrencesItem struct {
-	Pillar PillarName `json:"pillar" jsonschema:"柱位。"`
-	Branch string     `json:"branch" jsonschema:"地支。"`
-	Stem   string     `json:"stem" jsonschema:"天干。"`
-	Source string     `json:"source" jsonschema:"来源。"`
-	IsVoid *bool      `json:"is_void,omitempty" jsonschema:"是否旬空。"`
 }
 
 type BaziBondSpouseStarCandidate struct {
@@ -513,8 +488,137 @@ type BaziBondShenshaCross struct {
 }
 
 type BaziBondMutualFact struct {
-	APresentInB bool `json:"a_present_in_b" jsonschema:"a_present_in_b。"`
-	BPresentInA bool `json:"b_present_in_a" jsonschema:"b_present_in_a。"`
+	AToB bool `json:"a_to_b" jsonschema:"甲方神煞是否见于乙方。"`
+	BToA bool `json:"b_to_a" jsonschema:"乙方神煞是否见于甲方。"`
+}
+
+func newBaziBondOutput(value bazi.Bond) BaziBondOutput {
+	pairs := make([]BaziBondZhuCrossPairsItem, 0, len(value.ZhuCross.Pairs))
+	for _, pair := range value.ZhuCross.Pairs {
+		pairs = append(pairs, BaziBondZhuCrossPairsItem{
+			A: BaziBondZhuSide{Zhu: PillarName(pair.AZhu), Gan: GanName(pair.AGan), Zhi: ZhiName(pair.AZhi)},
+			B: BaziBondZhuSide{Zhu: PillarName(pair.BZhu), Gan: GanName(pair.BGan), Zhi: ZhiName(pair.BZhi)},
+			GanRelation: BaziBondRelation{
+				Kind: pair.GanRel.Kind, Relation: pair.GanRel.Relation,
+			},
+			ZhiRelation: BaziBondZhiRelation{
+				Kind: pair.ZhiRel.Kind, Explanation: pair.ZhiRel.Detail,
+			},
+		})
+	}
+	naYinPairs := make([]BaziBondNaYinCrossPairsItem, 0, len(value.NaYinCross.Pairs))
+	for _, pair := range value.NaYinCross.Pairs {
+		naYinPairs = append(naYinPairs, BaziBondNaYinCrossPairsItem{
+			A:        BaziBondNaYinSide{Zhu: PillarName(pair.AZhu), NaYin: pair.ANaYin},
+			B:        BaziBondNaYinSide{Zhu: PillarName(pair.BZhu), NaYin: pair.BNaYin},
+			Relation: pair.Relation,
+		})
+	}
+	tenGodPillars := func(source map[string]string) BaziBondTenGodPillars {
+		return BaziBondTenGodPillars{
+			NianGan: TenGodName(source["nian_gan"]),
+			YueGan:  TenGodName(source["yue_gan"]),
+			RiGan:   TenGodName(source["ri_gan"]),
+			ShiGan:  TenGodName(source["shi_gan"]),
+		}
+	}
+	return BaziBondOutput{
+		DayMaster: BaziBondDayMaster{
+			A: BaziBondSideIdentity{
+				Gan: value.DayMaster.A.Gan, Wuxing: ElementName(value.DayMaster.A.Wuxing), Gender: GenderName(value.DayMaster.A.Gender),
+			},
+			B: BaziBondSideIdentity{
+				Gan: value.DayMaster.B.Gan, Wuxing: ElementName(value.DayMaster.B.Wuxing), Gender: GenderName(value.DayMaster.B.Gender),
+			},
+			Relation: BaziBondRelation{
+				Kind:     value.DayMaster.GanRel.Kind,
+				Relation: value.DayMaster.GanRel.Relation,
+			},
+		},
+		SpousePalace: BaziBondSpousePalace{
+			A: BaziBondZhiSide{Zhi: ZhiName(value.SpousePalace.AZhi)},
+			B: BaziBondZhiSide{Zhi: ZhiName(value.SpousePalace.BZhi)},
+			Relation: BaziBondExplainedRelation{
+				Kind:        value.SpousePalace.Relation.Kind,
+				Explanation: value.SpousePalace.Relation.Detail,
+			},
+		},
+		ZhuCross: BaziBondZhuCross{Pairs: pairs},
+		ShiShenCross: BaziBondShiShenCross{
+			AToB: tenGodPillars(value.ShiShenCross.AToB),
+			BToA: tenGodPillars(value.ShiShenCross.BToA),
+		},
+		WuxingCross: BaziBondWuxingCross{
+			A:        newBaziBondElementCounts(value.ElementCross.A),
+			B:        newBaziBondElementCounts(value.ElementCross.B),
+			Combined: newBaziBondElementCounts(value.ElementCross.Combined),
+			FuYiInOther: BaziBondWuxingCrossFuYiInOther{
+				A: BaziBondFuYiInOtherSide{
+					ModelID: value.ElementCross.FuYi.A.ModelID, Yong: CandidateWuxingName(value.ElementCross.FuYi.A.Yong),
+					Xi: CandidateWuxingName(value.ElementCross.FuYi.A.Xi), Ji: CandidateWuxingName(value.ElementCross.FuYi.A.Ji),
+					YongInOther: value.ElementCross.FuYi.A.YongInOther, XiInOther: value.ElementCross.FuYi.A.XiInOther, JiInOther: value.ElementCross.FuYi.A.JiInOther,
+				},
+				B: BaziBondFuYiInOtherSide{
+					ModelID: value.ElementCross.FuYi.B.ModelID, Yong: CandidateWuxingName(value.ElementCross.FuYi.B.Yong),
+					Xi: CandidateWuxingName(value.ElementCross.FuYi.B.Xi), Ji: CandidateWuxingName(value.ElementCross.FuYi.B.Ji),
+					YongInOther: value.ElementCross.FuYi.B.YongInOther, XiInOther: value.ElementCross.FuYi.B.XiInOther, JiInOther: value.ElementCross.FuYi.B.JiInOther,
+				},
+			},
+		},
+		NaYinCross: BaziBondNaYinCross{
+			Pairs: naYinPairs,
+			WuxingCounts: BaziBondNaYinCrossWuxingCounts{
+				A: value.NaYinCross.Elements.A,
+				B: value.NaYinCross.Elements.B,
+			},
+		},
+		SpouseStar: BaziBondSpouseStar{
+			A: newBaziBondSpouseStarSide(value.SpouseStar.A),
+			B: newBaziBondSpouseStarSide(value.SpouseStar.B),
+		},
+		ShenshaCross: newBaziBondShenshaCross(value.ShenshaCross),
+	}
+}
+
+func newBaziBondShenshaCross(value bazi.ShenshaCross) BaziBondShenshaCross {
+	side := func(mutual bazi.ShenshaMutual) BaziBondMutualFact {
+		return BaziBondMutualFact{AToB: mutual.AInB, BToA: mutual.BInA}
+	}
+	return BaziBondShenshaCross{
+		TianYi:   side(value.TianYi),
+		Lu:       side(value.Lu),
+		TaoHua:   side(value.TaoHua),
+		YiMa:     side(value.YiMa),
+		KongWang: side(value.KongWang),
+		KuiGang:  side(value.KuiGang),
+		RiDe:     side(value.RiDe),
+		RiGui:    side(value.RiGui),
+	}
+}
+
+func newBaziBondSpouseStarSide(value bazi.SpouseStarFact) BaziBondSpouseStarSide {
+	return BaziBondSpouseStarSide{
+		Gender:    GenderName(value.Gender),
+		Primary:   newBaziBondSpouseStarCandidate(value.Primary),
+		Secondary: newBaziBondSpouseStarCandidate(value.Secondary),
+	}
+}
+
+func newBaziBondElementCounts(value map[string]int) BaziBondElementCounts {
+	return BaziBondElementCounts{
+		Mu: value["木"], Huo: value["火"], Tu: value["土"], Jin: value["金"], Shui: value["水"],
+	}
+}
+
+func newBaziBondSpouseStarCandidate(value bazi.SpouseStarGroup) BaziBondSpouseStarCandidate {
+	occurrences := make([]BaziBondSpouseStarOccurrence, 0, len(value.Occurrences))
+	for _, occurrence := range value.Occurrences {
+		occurrences = append(occurrences, BaziBondSpouseStarOccurrence{
+			Pillar: PillarName(occurrence.Pillar), Branch: occurrence.Branch, Stem: occurrence.Stem,
+			Source: occurrence.Source, IsVoid: occurrence.IsVoid,
+		})
+	}
+	return BaziBondSpouseStarCandidate{TenGod: value.TenGod, Occurrences: occurrences}
 }
 
 // ── bazi.liunian input ──

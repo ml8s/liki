@@ -27,126 +27,188 @@
         "gender": "female",
         "wuxing": "金"
       },
-      "gan_guan_xi": {
-        "gan_a": "甲",
-        "gan_b": "辛",
-        "relation": "辛克甲",
-        "relation_kind": "相克"
+      "relation": {
+        "kind": "相克",
+        "relation": "辛克甲"
       }
     },
     "na_yin_cross": {
       "pairs": [
         {
-          "a_na_yin": "白蜡金",
-          "a_zhu": "nian",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "nian",
-          "relation": "相同"
+          "relation": "相同",
+          "a": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          },
+          "b": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "白蜡金",
-          "a_zhu": "nian",
-          "b_na_yin": "泉中水",
-          "b_zhu": "yue",
-          "relation": "相生"
+          "relation": "相生",
+          "a": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          },
+          "b": {
+            "zhu": "yue",
+            "na_yin": "泉中水"
+          }
         },
         {
-          "a_na_yin": "白蜡金",
-          "a_zhu": "nian",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "ri",
-          "relation": "相同"
+          "relation": "相同",
+          "a": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          },
+          "b": {
+            "zhu": "ri",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "白蜡金",
-          "a_zhu": "nian",
-          "b_na_yin": "长流水",
-          "b_zhu": "shi",
-          "relation": "相生"
+          "relation": "相生",
+          "a": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          },
+          "b": {
+            "zhu": "shi",
+            "na_yin": "长流水"
+          }
         },
         {
-          "a_na_yin": "杨柳木",
-          "a_zhu": "yue",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "nian",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "yue",
+            "na_yin": "杨柳木"
+          },
+          "b": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "杨柳木",
-          "a_zhu": "yue",
-          "b_na_yin": "泉中水",
-          "b_zhu": "yue",
-          "relation": "相生"
+          "relation": "相生",
+          "a": {
+            "zhu": "yue",
+            "na_yin": "杨柳木"
+          },
+          "b": {
+            "zhu": "yue",
+            "na_yin": "泉中水"
+          }
         },
         {
-          "a_na_yin": "杨柳木",
-          "a_zhu": "yue",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "ri",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "yue",
+            "na_yin": "杨柳木"
+          },
+          "b": {
+            "zhu": "ri",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "杨柳木",
-          "a_zhu": "yue",
-          "b_na_yin": "长流水",
-          "b_zhu": "shi",
-          "relation": "相生"
+          "relation": "相生",
+          "a": {
+            "zhu": "yue",
+            "na_yin": "杨柳木"
+          },
+          "b": {
+            "zhu": "shi",
+            "na_yin": "长流水"
+          }
         },
         {
-          "a_na_yin": "覆灯火",
-          "a_zhu": "ri",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "nian",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "ri",
+            "na_yin": "覆灯火"
+          },
+          "b": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "覆灯火",
-          "a_zhu": "ri",
-          "b_na_yin": "泉中水",
-          "b_zhu": "yue",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "ri",
+            "na_yin": "覆灯火"
+          },
+          "b": {
+            "zhu": "yue",
+            "na_yin": "泉中水"
+          }
         },
         {
-          "a_na_yin": "覆灯火",
-          "a_zhu": "ri",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "ri",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "ri",
+            "na_yin": "覆灯火"
+          },
+          "b": {
+            "zhu": "ri",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "覆灯火",
-          "a_zhu": "ri",
-          "b_na_yin": "长流水",
-          "b_zhu": "shi",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "ri",
+            "na_yin": "覆灯火"
+          },
+          "b": {
+            "zhu": "shi",
+            "na_yin": "长流水"
+          }
         },
         {
-          "a_na_yin": "路旁土",
-          "a_zhu": "shi",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "nian",
-          "relation": "相生"
+          "relation": "相生",
+          "a": {
+            "zhu": "shi",
+            "na_yin": "路旁土"
+          },
+          "b": {
+            "zhu": "nian",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "路旁土",
-          "a_zhu": "shi",
-          "b_na_yin": "泉中水",
-          "b_zhu": "yue",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "shi",
+            "na_yin": "路旁土"
+          },
+          "b": {
+            "zhu": "yue",
+            "na_yin": "泉中水"
+          }
         },
         {
-          "a_na_yin": "路旁土",
-          "a_zhu": "shi",
-          "b_na_yin": "白蜡金",
-          "b_zhu": "ri",
-          "relation": "相生"
+          "relation": "相生",
+          "a": {
+            "zhu": "shi",
+            "na_yin": "路旁土"
+          },
+          "b": {
+            "zhu": "ri",
+            "na_yin": "白蜡金"
+          }
         },
         {
-          "a_na_yin": "路旁土",
-          "a_zhu": "shi",
-          "b_na_yin": "长流水",
-          "b_zhu": "shi",
-          "relation": "相克"
+          "relation": "相克",
+          "a": {
+            "zhu": "shi",
+            "na_yin": "路旁土"
+          },
+          "b": {
+            "zhu": "shi",
+            "na_yin": "长流水"
+          }
         }
       ],
       "wuxing_counts": {
@@ -164,36 +226,36 @@
     },
     "shen_sha_cross": {
       "kong_wang": {
-        "a_present_in_b": false,
-        "b_present_in_a": false
+        "a_to_b": false,
+        "b_to_a": false
       },
       "kui_gang": {
-        "a_present_in_b": true,
-        "b_present_in_a": true
+        "a_to_b": true,
+        "b_to_a": true
       },
       "lu": {
-        "a_present_in_b": false,
-        "b_present_in_a": false
+        "a_to_b": false,
+        "b_to_a": false
       },
       "ri_de": {
-        "a_present_in_b": true,
-        "b_present_in_a": true
+        "a_to_b": true,
+        "b_to_a": true
       },
       "ri_gui": {
-        "a_present_in_b": false,
-        "b_present_in_a": false
+        "a_to_b": false,
+        "b_to_a": false
       },
       "tao_hua": {
-        "a_present_in_b": true,
-        "b_present_in_a": true
+        "a_to_b": true,
+        "b_to_a": true
       },
       "tian_yi": {
-        "a_present_in_b": false,
-        "b_present_in_a": true
+        "a_to_b": false,
+        "b_to_a": true
       },
       "yi_ma": {
-        "a_present_in_b": false,
-        "b_present_in_a": false
+        "a_to_b": false,
+        "b_to_a": false
       }
     },
     "shi_shen_cross": {
@@ -211,13 +273,15 @@
       }
     },
     "spouse_palace": {
-      "a_zhi": "辰",
-      "b_zhi": "巳",
+      "a": {
+        "zhi": "辰"
+      },
+      "b": {
+        "zhi": "巳"
+      },
       "relation": {
-        "relation_explanation": "无特殊关系",
-        "relation_kind": "无",
-        "zhi_a": "辰",
-        "zhi_b": "巳"
+        "kind": "无",
+        "explanation": "无特殊关系"
       }
     },
     "spouse_star": {
@@ -328,323 +392,323 @@
     "zhu_cross": {
       "pairs": [
         {
-          "a_gan": "庚",
-          "a_zhi": "辰",
-          "a_zhu": "nian",
-          "b_gan": "庚",
-          "b_zhi": "辰",
-          "b_zhu": "nian",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "庚",
-            "relation": "庚庚同气",
-            "relation_kind": "相同"
+          "a": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "辰辰自刑",
-            "relation_kind": "相刑",
-            "zhi_a": "辰",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相同",
+            "relation": "庚庚同气"
+          },
+          "zhi_relation": {
+            "kind": "相刑",
+            "explanation": "辰辰自刑"
           }
         },
         {
-          "a_gan": "庚",
-          "a_zhi": "辰",
-          "a_zhu": "nian",
-          "b_gan": "乙",
-          "b_zhi": "酉",
-          "b_zhu": "yue",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "乙",
-            "relation": "庚乙合化金",
-            "relation_kind": "天干五合"
+          "a": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "辰酉合化金",
-            "relation_kind": "六合",
-            "zhi_a": "辰",
-            "zhi_b": "酉"
+          "b": {
+            "zhu": "yue",
+            "gan": "乙",
+            "zhi": "酉"
+          },
+          "gan_relation": {
+            "kind": "天干五合",
+            "relation": "庚乙合化金"
+          },
+          "zhi_relation": {
+            "kind": "六合",
+            "explanation": "辰酉合化金"
           }
         },
         {
-          "a_gan": "庚",
-          "a_zhi": "辰",
-          "a_zhu": "nian",
-          "b_gan": "辛",
-          "b_zhi": "巳",
-          "b_zhu": "ri",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "辛",
-            "relation": "庚辛同气",
-            "relation_kind": "相同"
+          "a": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "辰",
-            "zhi_b": "巳"
+          "b": {
+            "zhu": "ri",
+            "gan": "辛",
+            "zhi": "巳"
+          },
+          "gan_relation": {
+            "kind": "相同",
+            "relation": "庚辛同气"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "庚",
-          "a_zhi": "辰",
-          "a_zhu": "nian",
-          "b_gan": "壬",
-          "b_zhi": "辰",
-          "b_zhu": "shi",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "壬",
-            "relation": "庚生壬",
-            "relation_kind": "相生"
+          "a": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "辰辰自刑",
-            "relation_kind": "相刑",
-            "zhi_a": "辰",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "shi",
+            "gan": "壬",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相生",
+            "relation": "庚生壬"
+          },
+          "zhi_relation": {
+            "kind": "相刑",
+            "explanation": "辰辰自刑"
           }
         },
         {
-          "a_gan": "壬",
-          "a_zhi": "午",
-          "a_zhu": "yue",
-          "b_gan": "庚",
-          "b_zhi": "辰",
-          "b_zhu": "nian",
-          "gan_guan_xi": {
-            "gan_a": "壬",
-            "gan_b": "庚",
-            "relation": "庚生壬",
-            "relation_kind": "相生"
+          "a": {
+            "zhu": "yue",
+            "gan": "壬",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相生",
+            "relation": "庚生壬"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "壬",
-          "a_zhi": "午",
-          "a_zhu": "yue",
-          "b_gan": "乙",
-          "b_zhi": "酉",
-          "b_zhu": "yue",
-          "gan_guan_xi": {
-            "gan_a": "壬",
-            "gan_b": "乙",
-            "relation": "壬生乙",
-            "relation_kind": "相生"
+          "a": {
+            "zhu": "yue",
+            "gan": "壬",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "酉"
+          "b": {
+            "zhu": "yue",
+            "gan": "乙",
+            "zhi": "酉"
+          },
+          "gan_relation": {
+            "kind": "相生",
+            "relation": "壬生乙"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "壬",
-          "a_zhi": "午",
-          "a_zhu": "yue",
-          "b_gan": "辛",
-          "b_zhi": "巳",
-          "b_zhu": "ri",
-          "gan_guan_xi": {
-            "gan_a": "壬",
-            "gan_b": "辛",
-            "relation": "辛生壬",
-            "relation_kind": "相生"
+          "a": {
+            "zhu": "yue",
+            "gan": "壬",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "巳"
+          "b": {
+            "zhu": "ri",
+            "gan": "辛",
+            "zhi": "巳"
+          },
+          "gan_relation": {
+            "kind": "相生",
+            "relation": "辛生壬"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "壬",
-          "a_zhi": "午",
-          "a_zhu": "yue",
-          "b_gan": "壬",
-          "b_zhi": "辰",
-          "b_zhu": "shi",
-          "gan_guan_xi": {
-            "gan_a": "壬",
-            "gan_b": "壬",
-            "relation": "壬壬同气",
-            "relation_kind": "相同"
+          "a": {
+            "zhu": "yue",
+            "gan": "壬",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "shi",
+            "gan": "壬",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相同",
+            "relation": "壬壬同气"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "甲",
-          "a_zhi": "辰",
-          "a_zhu": "ri",
-          "b_gan": "庚",
-          "b_zhi": "辰",
-          "b_zhu": "nian",
-          "gan_guan_xi": {
-            "gan_a": "甲",
-            "gan_b": "庚",
-            "relation": "庚克甲",
-            "relation_kind": "相克"
+          "a": {
+            "zhu": "ri",
+            "gan": "甲",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "辰辰自刑",
-            "relation_kind": "相刑",
-            "zhi_a": "辰",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相克",
+            "relation": "庚克甲"
+          },
+          "zhi_relation": {
+            "kind": "相刑",
+            "explanation": "辰辰自刑"
           }
         },
         {
-          "a_gan": "甲",
-          "a_zhi": "辰",
-          "a_zhu": "ri",
-          "b_gan": "乙",
-          "b_zhi": "酉",
-          "b_zhu": "yue",
-          "gan_guan_xi": {
-            "gan_a": "甲",
-            "gan_b": "乙",
-            "relation": "甲乙同气",
-            "relation_kind": "相同"
+          "a": {
+            "zhu": "ri",
+            "gan": "甲",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "辰酉合化金",
-            "relation_kind": "六合",
-            "zhi_a": "辰",
-            "zhi_b": "酉"
+          "b": {
+            "zhu": "yue",
+            "gan": "乙",
+            "zhi": "酉"
+          },
+          "gan_relation": {
+            "kind": "相同",
+            "relation": "甲乙同气"
+          },
+          "zhi_relation": {
+            "kind": "六合",
+            "explanation": "辰酉合化金"
           }
         },
         {
-          "a_gan": "甲",
-          "a_zhi": "辰",
-          "a_zhu": "ri",
-          "b_gan": "辛",
-          "b_zhi": "巳",
-          "b_zhu": "ri",
-          "gan_guan_xi": {
-            "gan_a": "甲",
-            "gan_b": "辛",
-            "relation": "辛克甲",
-            "relation_kind": "相克"
+          "a": {
+            "zhu": "ri",
+            "gan": "甲",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "辰",
-            "zhi_b": "巳"
+          "b": {
+            "zhu": "ri",
+            "gan": "辛",
+            "zhi": "巳"
+          },
+          "gan_relation": {
+            "kind": "相克",
+            "relation": "辛克甲"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "甲",
-          "a_zhi": "辰",
-          "a_zhu": "ri",
-          "b_gan": "壬",
-          "b_zhi": "辰",
-          "b_zhu": "shi",
-          "gan_guan_xi": {
-            "gan_a": "甲",
-            "gan_b": "壬",
-            "relation": "壬生甲",
-            "relation_kind": "相生"
+          "a": {
+            "zhu": "ri",
+            "gan": "甲",
+            "zhi": "辰"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "辰辰自刑",
-            "relation_kind": "相刑",
-            "zhi_a": "辰",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "shi",
+            "gan": "壬",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相生",
+            "relation": "壬生甲"
+          },
+          "zhi_relation": {
+            "kind": "相刑",
+            "explanation": "辰辰自刑"
           }
         },
         {
-          "a_gan": "庚",
-          "a_zhi": "午",
-          "a_zhu": "shi",
-          "b_gan": "庚",
-          "b_zhi": "辰",
-          "b_zhu": "nian",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "庚",
-            "relation": "庚庚同气",
-            "relation_kind": "相同"
+          "a": {
+            "zhu": "shi",
+            "gan": "庚",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "nian",
+            "gan": "庚",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相同",
+            "relation": "庚庚同气"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "庚",
-          "a_zhi": "午",
-          "a_zhu": "shi",
-          "b_gan": "乙",
-          "b_zhi": "酉",
-          "b_zhu": "yue",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "乙",
-            "relation": "庚乙合化金",
-            "relation_kind": "天干五合"
+          "a": {
+            "zhu": "shi",
+            "gan": "庚",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "酉"
+          "b": {
+            "zhu": "yue",
+            "gan": "乙",
+            "zhi": "酉"
+          },
+          "gan_relation": {
+            "kind": "天干五合",
+            "relation": "庚乙合化金"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "庚",
-          "a_zhi": "午",
-          "a_zhu": "shi",
-          "b_gan": "辛",
-          "b_zhi": "巳",
-          "b_zhu": "ri",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "辛",
-            "relation": "庚辛同气",
-            "relation_kind": "相同"
+          "a": {
+            "zhu": "shi",
+            "gan": "庚",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "巳"
+          "b": {
+            "zhu": "ri",
+            "gan": "辛",
+            "zhi": "巳"
+          },
+          "gan_relation": {
+            "kind": "相同",
+            "relation": "庚辛同气"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         },
         {
-          "a_gan": "庚",
-          "a_zhi": "午",
-          "a_zhu": "shi",
-          "b_gan": "壬",
-          "b_zhi": "辰",
-          "b_zhu": "shi",
-          "gan_guan_xi": {
-            "gan_a": "庚",
-            "gan_b": "壬",
-            "relation": "庚生壬",
-            "relation_kind": "相生"
+          "a": {
+            "zhu": "shi",
+            "gan": "庚",
+            "zhi": "午"
           },
-          "zhi_guan_xi": {
-            "relation_explanation": "无特殊关系",
-            "relation_kind": "无",
-            "zhi_a": "午",
-            "zhi_b": "辰"
+          "b": {
+            "zhu": "shi",
+            "gan": "壬",
+            "zhi": "辰"
+          },
+          "gan_relation": {
+            "kind": "相生",
+            "relation": "庚生壬"
+          },
+          "zhi_relation": {
+            "kind": "无",
+            "explanation": "无特殊关系"
           }
         }
       ]

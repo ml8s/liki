@@ -89,7 +89,7 @@ func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart b: %w", err)
 	}
-	raw, err := marshalRawOutput("bazi.bond", bazi.ComputeBond(coreA, coreB))
+	raw, err := marshalRawOutput("bazi.bond", newBaziBondOutput(bazi.ComputeBond(coreA, coreB)))
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: %w", err)
 	}

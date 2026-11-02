@@ -131,8 +131,8 @@ func BenchmarkMCPBaziChartPhaseOutputMarshal(b *testing.B) {
 func BenchmarkMCPBaziBondPhaseInputValidation(b *testing.B) {
 	registry := testEngine()
 	arguments := mustBenchmarkJSON(b, BaziBondInput{
-		A: BaziBondInputA{Subject: testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")},
-		B: BaziBondInputB{Subject: testNatalSubject(b, standardInputFromInstant(b, "1992-08-10T02:20:00Z", "Asia/Shanghai"), "female")},
+		A: BaziBondSideInput{Subject: testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")},
+		B: BaziBondSideInput{Subject: testNatalSubject(b, standardInputFromInstant(b, "1992-08-10T02:20:00Z", "Asia/Shanghai"), "female")},
 	})
 	benchmarkDecodeInput[BaziBondInput](b, registry, "bazi_bond", arguments)
 }

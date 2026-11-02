@@ -82,23 +82,25 @@ type spouseStarFact struct {
 	Primary   spouseStarGroup `json:"primary"`
 	Secondary spouseStarGroup `json:"secondary"`
 }
+type SpouseStarFact = spouseStarFact
+type SpouseStarGroup = spouseStarGroup
 type spouseStarCross struct {
 	A spouseStarFact `json:"a"`
 	B spouseStarFact `json:"b"`
 }
-type shenshaMutual struct {
+type ShenshaMutual struct {
 	AInB bool `json:"a_present_in_b"`
 	BInA bool `json:"b_present_in_a"`
 }
-type shenshaCross struct {
-	TianYi   shenshaMutual `json:"tian_yi"`
-	Lu       shenshaMutual `json:"lu"`
-	TaoHua   shenshaMutual `json:"tao_hua"`
-	YiMa     shenshaMutual `json:"yi_ma"`
-	KongWang shenshaMutual `json:"kong_wang"`
-	KuiGang  shenshaMutual `json:"kui_gang"`
-	RiDe     shenshaMutual `json:"ri_de"`
-	RiGui    shenshaMutual `json:"ri_gui"`
+type ShenshaCross struct {
+	TianYi   ShenshaMutual `json:"tian_yi"`
+	Lu       ShenshaMutual `json:"lu"`
+	TaoHua   ShenshaMutual `json:"tao_hua"`
+	YiMa     ShenshaMutual `json:"yi_ma"`
+	KongWang ShenshaMutual `json:"kong_wang"`
+	KuiGang  ShenshaMutual `json:"kui_gang"`
+	RiDe     ShenshaMutual `json:"ri_de"`
+	RiGui    ShenshaMutual `json:"ri_gui"`
 }
 
 // Bond holds natal pair facts only. Dynamic DaYun and LiuYun timing remain in
@@ -112,7 +114,7 @@ type Bond struct {
 	ElementCross elementCross      `json:"wuxing_cross"`
 	NaYinCross   nayinCross        `json:"na_yin_cross"`
 	SpouseStar   spouseStarCross   `json:"spouse_star"`
-	ShenshaCross shenshaCross      `json:"shen_sha_cross"`
+	ShenshaCross ShenshaCross      `json:"shen_sha_cross"`
 }
 
 func ComputeBond(aCore, bCore Core) Bond {
@@ -347,13 +349,13 @@ func computeNaYinCross(a, b Core) nayinCross {
 	return nc
 }
 
-func computeShenshaCross(a, b Core) shenshaCross {
+func computeShenshaCross(a, b Core) ShenshaCross {
 	aBz, bBz := a.ToBazi(), b.ToBazi()
 	aPs, bPs := aBz.Slice(), bBz.Slice()
-	mut := func(aZ, bZ []ganzhi.Zhi) shenshaMutual {
-		return shenshaMutual{zhiInZhus(aZ, bBz), zhiInZhus(bZ, aBz)}
+	mut := func(aZ, bZ []ganzhi.Zhi) ShenshaMutual {
+		return ShenshaMutual{zhiInZhus(aZ, bBz), zhiInZhus(bZ, aBz)}
 	}
-	return shenshaCross{
+	return ShenshaCross{
 		TianYi:   mut(tianYiZhi(aBz), tianYiZhi(bBz)),
 		Lu:       mut(luZhi(aBz), luZhi(bBz)),
 		TaoHua:   mut(zhiLookup(aBz, taohuaZhiMap), zhiLookup(bBz, taohuaZhiMap)),
