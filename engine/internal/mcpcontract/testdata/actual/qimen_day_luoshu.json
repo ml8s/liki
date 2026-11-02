@@ -1,12 +1,12 @@
 {
   "input": {
-    "longitude": 123.25,
+    "qiju_time": "2026-03-02T18:30:00+08:00",
+    "qiju_longitude": 123.25,
     "method": {
       "school": "luoshu_feipan",
       "scope": "day",
       "dingju_method": "chaibu"
-    },
-    "standard_time": "2026-03-02T18:30:00+08:00"
+    }
   },
   "output": {
     "gan_interaction": [

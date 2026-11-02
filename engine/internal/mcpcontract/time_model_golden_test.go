@@ -52,7 +52,6 @@ func TestTimeModelGolden(t *testing.T) {
 			} else if tc.ChartFrom != "" {
 				input["subject"] = loadSubjectFixture(t, tc.ChartFrom, tc.Tool)
 				delete(input, "standard_time")
-				input["start_time"] = tc.Input["standard_time"]
 			}
 			gotRaw, err := registry.Call(context.Background(), tc.Tool, mustJSON(t, input))
 			if err != nil {

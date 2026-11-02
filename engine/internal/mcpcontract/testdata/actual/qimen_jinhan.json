@@ -1,11 +1,11 @@
 {
   "input": {
-    "longitude": 121,
+    "qiju_time": "2024-06-29T12:00:00+08:00",
+    "qiju_longitude": 121,
     "method": {
       "school": "jinhan_yujing",
       "scope": "day"
-    },
-    "standard_time": "2024-06-29T12:00:00+08:00"
+    }
   },
   "output": {
     "method": {

@@ -3,6 +3,7 @@ package mcpcontract
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"liki-engine/internal/engine/huangli"
 	"liki-engine/internal/engine/tianwen"
@@ -10,9 +11,10 @@ import (
 
 // HuangliDaysInput selects a contiguous date range and optional life event.
 type HuangliDaysInput struct {
-	StandardTime StandardTime  `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
-	Count        *HuangliCount `json:"count,omitempty" jsonschema:"查几天，默认3，最多30。"`
-	Event        HuangliEvent  `json:"event,omitempty" jsonschema:"事项类型；缺省仅列黄历事实。"`
+	StartDate DateString    `json:"start_date" jsonschema:"黄历查询起始日期 YYYY-MM-DD。"`
+	Timezone  string        `json:"timezone" jsonschema:"查询地 IANA 时区。"`
+	DayCount  *HuangliCount `json:"day_count,omitempty" jsonschema:"黄历查询天数，默认3，最多30。"`
+	Event     HuangliEvent  `json:"event,omitempty" jsonschema:"事项类型；缺省仅列黄历事实。"`
 }
 
 type HuangliDaysOutput struct {
@@ -42,11 +44,11 @@ type HuangliMansionOutput struct {
 }
 
 type HuangliShiChenOutput struct {
-	Zhi      string `json:"zhi" jsonschema:"时辰地支。"`
-	Time     string `json:"time" jsonschema:"时辰钟点区间。"`
-	HuangDao string `json:"huangdao" jsonschema:"该时辰黄道/黑道神。"`
-	JianChu  string `json:"jian_chu" jsonschema:"该时辰建除。"`
-	Suitable bool   `json:"suitable" jsonschema:"该时辰是否宜。"`
+	Zhi        string `json:"zhi" jsonschema:"时辰地支。"`
+	ClockRange string `json:"clock_range" jsonschema:"时辰钟点区间。"`
+	HuangDao   string `json:"huangdao" jsonschema:"该时辰黄道/黑道神。"`
+	JianChu    string `json:"jian_chu" jsonschema:"该时辰建除。"`
+	Suitable   bool   `json:"suitable" jsonschema:"该时辰是否宜。"`
 }
 
 // HuangliDayOutput is one day's almanac wire record.
@@ -75,14 +77,18 @@ type HuangliDayOutput struct {
 
 // HuangliDays returns almanac facts for consecutive dates.
 func HuangliDays(_ context.Context, input HuangliDaysInput) (HuangliDaysOutput, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	loc, err := loadTimezone(input.Timezone)
 	if err != nil {
 		return HuangliDaysOutput{}, fmt.Errorf("huangli.days: %w", err)
 	}
-	start := tianwen.StandardDateAt(standard, loc)
+	parsedDate, err := time.ParseInLocation("2006-01-02", string(input.StartDate), loc)
+	if err != nil {
+		return HuangliDaysOutput{}, fmt.Errorf("huangli.days: start_date: %w", err)
+	}
+	start := tianwen.StandardDateAt(parsedDate, loc)
 	count := 3
-	if input.Count != nil {
-		count = int(*input.Count)
+	if input.DayCount != nil {
+		count = int(*input.DayCount)
 	}
 	// 边界由 HuangliCount 的 schema 约束保证（1-30）；此处不再静默修正。
 
@@ -133,11 +139,11 @@ func huangliDayWire(day huangli.Day) HuangliDayOutput {
 	}
 	for _, item := range day.ShiChen {
 		output.ShiChen = append(output.ShiChen, HuangliShiChenOutput{
-			Zhi:      item.Zhi,
-			Time:     item.Time,
-			HuangDao: item.HuangDaoStr,
-			JianChu:  item.JianChu,
-			Suitable: item.Suitable,
+			Zhi:        item.Zhi,
+			ClockRange: item.Time,
+			HuangDao:   item.HuangDaoStr,
+			JianChu:    item.JianChu,
+			Suitable:   item.Suitable,
 		})
 	}
 	return output

@@ -18,8 +18,8 @@ def test_liuyao_snapshot_input_rejects_ambiguous_sources_and_modes():
     base = {
         "question": "这次面试能不能通过？",
         "focus": {"kind": "matter", "matter": "career"},
-        "longitude": 116.4,
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "qigua_longitude": 116.4,
+        "qigua_time": "2026-10-01T10:00:00+08:00",
     }
     _rejects(LiuyaoSnapshotInput, {**base, "yong_shen": "官鬼"})
     _rejects(LiuyaoSnapshotInput, {**base, "casting": {"mode": "coins"}})
@@ -38,14 +38,14 @@ def test_liuyao_relationship_focus_requires_perspective():
     _rejects(LiuyaoSnapshotInput, {
         "question": "感情如何？",
         "focus": {"kind": "matter", "matter": "relationship"},
-        "longitude": 116.4,
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "qigua_longitude": 116.4,
+        "qigua_time": "2026-10-01T10:00:00+08:00",
     })
     _accepts(LiuyaoSnapshotInput, {
         "question": "感情如何？",
         "focus": {"kind": "matter", "matter": "relationship", "perspective": "male"},
-        "longitude": 116.4,
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "qigua_longitude": 116.4,
+        "qigua_time": "2026-10-01T10:00:00+08:00",
     })
 
 
@@ -54,21 +54,21 @@ def test_qimen_snapshot_input_rejects_ambiguous_location_and_focus():
     _rejects(QimenSnapshotInput, {
         "question": "该往哪里推进？",
         "location": {"kind": "city", "city": "上海"},
-        "longitude": 121.47,
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "qiju_longitude": 121.47,
+        "qiju_time": "2026-10-01T10:00:00+08:00",
         "method": hour,
     })
     _rejects(QimenSnapshotInput, {
         "question": "该往哪里推进？",
-        "location": {"kind": "longitude", "longitude": 121.47},
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "location": {"kind": "longitude", "qiju_longitude": 121.47},
+        "qiju_time": "2026-10-01T10:00:00+08:00",
         "method": hour,
         "focus": {"kind": "matter", "matter": "wealth", "yong_shen": ["生门"]},
     })
     _rejects(QimenSnapshotInput, {
         "question": "该往哪里推进？",
-        "location": {"kind": "longitude", "longitude": 121.47},
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "location": {"kind": "longitude", "qiju_longitude": 121.47},
+        "qiju_time": "2026-10-01T10:00:00+08:00",
         "method": {
             "scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
         },
@@ -77,8 +77,8 @@ def test_qimen_snapshot_input_rejects_ambiguous_location_and_focus():
     })
     _accepts(QimenSnapshotInput, {
         "question": "该往哪里推进？",
-        "location": {"kind": "longitude", "longitude": 121.47},
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "location": {"kind": "longitude", "qiju_longitude": 121.47},
+        "qiju_time": "2026-10-01T10:00:00+08:00",
         "method": hour,
         "focus": {"kind": "matter", "matter": "wealth"},
     })
@@ -87,8 +87,8 @@ def test_qimen_snapshot_input_rejects_ambiguous_location_and_focus():
 def test_qimen_snapshot_method_schema_rejects_incompatible_forms():
     location = {
         "question": "该往哪里推进？",
-        "location": {"kind": "longitude", "longitude": 121.47},
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "location": {"kind": "longitude", "qiju_longitude": 121.47},
+        "qiju_time": "2026-10-01T10:00:00+08:00",
     }
 
     _rejects(QimenSnapshotInput, {

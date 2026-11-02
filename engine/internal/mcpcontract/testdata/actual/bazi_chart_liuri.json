@@ -5,8 +5,9 @@
       "birth_longitude": 120.25,
       "gender": "male"
     },
-    "longitude": 116.4,
-    "start_time": "2026-06-15T12:00:00+08:00"
+    "liuri_start_time": "2026-06-15T12:00:00+08:00",
+    "liuri_count": null,
+    "liuri_longitude": 116.4
   },
   "output": {
     "liu_ri": [
@@ -87,10 +88,10 @@
           }
         ],
         "ri_jie": {
-          "standard_time": "2026-06-15T12:00:00+08:00",
-          "local_date": "2026-06-15",
-          "last_date": "2026-06-15",
-          "beijing_date": "2026-06-15"
+          "liuri_start_time": "2026-06-15T12:00:00+08:00",
+          "liuri_local_date": "2026-06-15",
+          "liuri_solar_date": "2026-06-15",
+          "beijing_calendar_date": "2026-06-15"
         }
       }
     ]

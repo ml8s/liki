@@ -5,7 +5,8 @@
       "birth_longitude": 120.25,
       "gender": "male"
     },
-    "start_time": "2026-06-15T12:00:00+08:00"
+    "liunian_start_time": "2026-06-15T12:00:00+08:00",
+    "liunian_count": null
   },
   "output": {
     "liu_nian": [
@@ -207,12 +208,12 @@
           ]
         },
         "nian_jie": {
-          "qi_shi_standard_time": "2026-06-15T12:00:00+08:00",
-          "qi_shi_date": "2026-06-15",
           "lichun_year": 2026,
           "lichun_start": "2026-02-04",
           "lichun_end": "2027-02-04",
-          "boundary_day": false
+          "boundary_day": false,
+          "liunian_start_time": "2026-06-15T12:00:00+08:00",
+          "liunian_start_date": "2026-06-15"
         }
       }
     ]

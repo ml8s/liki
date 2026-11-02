@@ -6,8 +6,7 @@ import (
 )
 
 // TestTimeInputsCanonical freezes the contract: natal methods take a resolved
-// subject; other time-bearing tools take standard_time (plus longitude where
-// LAST is required). Calendar dates are projections, not inputs.
+// subject; event and property tools use domain-owned time/location fields.
 func TestTimeInputsCanonical(t *testing.T) {
 	registry := testEngine()
 	natal := []string{
@@ -96,15 +95,20 @@ func TestTimeInputsCanonical(t *testing.T) {
 			}
 
 			for schemaIndex, schema := range schemas {
-				if _, ok := schema.Properties["standard_time"]; !ok {
-					t.Fatalf("schema[%d]: missing standard_time", schemaIndex)
+				timeField := map[string]string{
+					"liuyao_chart": "qigua_time", "qimen_chart": "qiju_time",
+					"huangli_days": "start_date", "bazhai_chart": "subject",
+					"xuankong_chart": "zhaiyun_date", "xuankong_liunian": "liunian_date",
+				}[name]
+				if _, ok := schema.Properties[timeField]; !ok {
+					t.Fatalf("schema[%d]: missing %s", schemaIndex, timeField)
 				}
-				if !containsString(schema.Required, "standard_time") {
-					t.Fatalf("schema[%d]: standard_time must be required", schemaIndex)
+				if !containsString(schema.Required, timeField) {
+					t.Fatalf("schema[%d]: %s must be required", schemaIndex, timeField)
 				}
 				for _, forbidden := range []string{
-					"instant", "civil_time", "timezone", "fold",
-					"date", "start_date", "period_date", "birth_year", "birth_date",
+					"instant", "civil_time", "fold", "standard_time",
+					"period_date", "birth_year", "birth_date",
 					"lunar_year", "target_lunar", "shi_zhi", "year",
 				} {
 					if _, ok := schema.Properties[forbidden]; ok {

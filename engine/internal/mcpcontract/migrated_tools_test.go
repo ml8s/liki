@@ -79,7 +79,7 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	ziweiSubject := map[string]any{
 		"birth_time": "1984-02-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
 	}
-	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiSubject, "start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
+	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiSubject, "liunian_start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
 	}
 	if _, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": ziweiSubject})); err != nil {
@@ -89,7 +89,7 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	// qimen.chart's legacy schema did close the root object, so unknown root
 	// arguments stay rejected there.
 	assertQimenChartError(t, registry, map[string]any{
-		"standard_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "longitude": 116.4, "kind": "hour",
+		"qiju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qiju_longitude": 116.4, "kind": "hour",
 	}, "")
 }
 
@@ -121,16 +121,16 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 		}
 	}
 
-	raw, err = registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"subject": chart, "count": 5}))
+	raw, err = registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"subject": chart, "xiao_yun_count": 5}))
 	if err != nil {
-		t.Fatalf("bazi.xiaoyun(count=5): %v", err)
+		t.Fatalf("bazi.xiaoyun(xiao_yun_count=5): %v", err)
 	}
 	var fiveDocument struct {
 		XiaoYun []any `json:"xiao_yun"`
 	}
 	decode(t, raw, &fiveDocument)
 	if err := registry.ValidateOutput("bazi_xiaoyun", raw); err != nil {
-		t.Fatalf("bazi.xiaoyun(count=5) output contract: %v", err)
+		t.Fatalf("bazi.xiaoyun(xiao_yun_count=5) output contract: %v", err)
 	}
 	for i, entry := range fiveDocument.XiaoYun {
 		set, _ := entry.(map[string]any)
@@ -145,18 +145,18 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	registry := testEngine()
 
 	method := callQimenChart(t, registry, map[string]any{
-		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
+		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
 	})["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "zhuanpan" || method["dingju_method"] != "chaibu" {
 		t.Fatalf("canonical method = %v/%v/%v, want hour/zhuanpan/chaibu",
 			method["scope"], method["school"], method["dingju_method"])
 	}
 	assertToolError(t, registry, "qimen_chart", map[string]any{
-		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
+		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
 	}, "method")
 
 	method = callQimenChart(t, registry, map[string]any{
-		"standard_time": "2026-01-05T13:00:00+08:00", "longitude": 116.4, "dingju_method": "zhirun",
+		"qiju_time": "2026-01-05T13:00:00+08:00", "qiju_longitude": 116.4, "dingju_method": "zhirun",
 	})["method"].(map[string]any)
 	if method["dingju_method"] != "zhirun" || method["dingju_method_name"] != "置闰定局" {
 		t.Fatalf("dingju method = %v/%v, want zhirun/置闰定局",
@@ -167,7 +167,7 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	}
 
 	assertQimenChartError(t, registry, map[string]any{
-		"standard_time": "2026-01-05T13:00:00+08:00", "longitude": 116.4, "dingju_method": "luoshu_feipan",
+		"qiju_time": "2026-01-05T13:00:00+08:00", "qiju_longitude": 116.4, "dingju_method": "luoshu_feipan",
 	}, "")
 }
 
@@ -176,7 +176,7 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 	const solarTime = "2026-01-13T17:03:00Z"
 
 	document := callQimenChart(t, registry, map[string]any{
-		"standard_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
+		"qiju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qiju_longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
 	})
 	method := document["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "luoshu_feipan" || method["dingju_method"] != "zhirun" {
@@ -201,8 +201,8 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 		{"birth_year": 1984},
 	}
 	for _, params := range invalid {
-		params["standard_time"] = "2024-06-15T12:00:00"
-		params["longitude"] = 116.4
+		params["qiju_time"] = "2024-06-15T12:00:00"
+		params["qiju_longitude"] = 116.4
 		assertQimenChartError(t, registry, params, "")
 	}
 }
@@ -210,9 +210,9 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
-		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
-		"yong_shen":           []string{"生门", "戊"},
-		"birth_standard_time": "1984-02-15T00:00:00+08:00",
+		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
+		"yong_shen": []string{"生门", "戊"},
+		"subject":   map[string]any{"birth_time": "1984-02-15T00:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
 	})
 	if document["yong_shen"] == nil {
 		t.Fatal("explicit yong_shen was not resolved")
@@ -220,7 +220,7 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	assertJiaStaysHidden(t, document)
 
 	assertQimenChartError(t, registry, map[string]any{
-		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "yong_shen": []string{"不存在的符号"},
+		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4, "yong_shen": []string{"不存在的符号"},
 	}, "")
 }
 
@@ -281,13 +281,13 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 	}
 	calls := []call{}
 	for _, year := range []int{2025, 2026, 2027} {
-		calls = append(calls, call{"bazi_liunian", map[string]any{"subject": chart, "start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
+		calls = append(calls, call{"bazi_liunian", map[string]any{"subject": chart, "liunian_start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
 	}
 	for month := 1; month <= 12; month++ {
-		calls = append(calls, call{"bazi_liuyue", map[string]any{"subject": chart, "start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
+		calls = append(calls, call{"bazi_liuyue", map[string]any{"subject": chart, "liuyue_start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
 	}
 	for day := 1; day <= 30; day++ {
-		calls = append(calls, call{"bazi_liuri", map[string]any{"subject": chart, "start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "longitude": 116.4}})
+		calls = append(calls, call{"bazi_liuri", map[string]any{"subject": chart, "liuri_start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "liuri_longitude": 116.4}})
 	}
 
 	for _, item := range calls {
@@ -364,7 +364,7 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 	}
 
 	document := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
-		"subject": chart, "start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
+		"subject": chart, "liuyue_start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
 	})
 	item := firstSeriesItem(t, document)
 	yueJie, ok := item["yue_jie"].(map[string]any)
@@ -429,12 +429,12 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 				"birth_longitude": 500,
 				"gender":          "male",
 			},
-		}, "longitude")
+		}, "birth_longitude")
 	}
 	assertQimenChartError(t, registry, map[string]any{
-		"standard_time": "2024-06-15T12:00:00+08:00",
-		"longitude":     500,
-	}, "longitude")
+		"qiju_time":      "2024-06-15T12:00:00+08:00",
+		"qiju_longitude": 500,
+	}, "qiju_longitude")
 }
 
 func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {

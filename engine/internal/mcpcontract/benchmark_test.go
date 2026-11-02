@@ -65,7 +65,7 @@ func BenchmarkMCPZiweiChart(b *testing.B) {
 
 func BenchmarkMCPQimenChart(b *testing.B) {
 	benchmarkCall(b, testEngine(), "qimen_chart",
-		`{"standard_time":"2000-06-15T12:00:00+08:00","longitude":116.4,"method":{"scope":"hour","school":"zhuanpan","dingju_method":"chaibu"}}`)
+		`{"qiju_time":"2000-06-15T12:00:00+08:00","qiju_longitude":116.4,"method":{"scope":"hour","school":"zhuanpan","dingju_method":"chaibu"}}`)
 }
 
 func BenchmarkMCPBaziBond(b *testing.B) {

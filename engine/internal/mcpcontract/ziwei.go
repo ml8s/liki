@@ -52,7 +52,7 @@ func ZiweiDaXian(_ context.Context, input ZiweiDaXianInput) (ZiweiDaXianOutput, 
 
 // ZiweiLiuNian returns the flow year palace and its 四化.
 func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (ZiweiLiuNianSeries, error) {
-	items, err := runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuNianCount), MaxSeriesCount,
 
 		func(in ZiweiLiuNianInput) (ziwei.Chart, error) {
 			return in.Subject.ziweiChart()
@@ -68,12 +68,12 @@ func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (ZiweiLiuNianSerie
 				return ZiweiLiuNianOutput{}, fmt.Errorf("ziwei.liunian: %w", err)
 			}
 			output.NianJie = ZiweiLiuNianResolved{
-				QiShiStandardTime: standardTimeValue(at),
-				QiShiDate:         civilDateString(date),
-				LunarYear:         resolved.LunarYear,
-				LunarYearStart:    civilDateString(resolved.Start),
-				LunarYearEnd:      civilDateString(resolved.End),
-				BoundaryDay:       resolved.BoundaryDay,
+				LiuNianStartTime: standardTimeValue(at),
+				LiuNianStartDate: civilDateString(date),
+				LunarYear:        resolved.LunarYear,
+				LunarYearStart:   civilDateString(resolved.Start),
+				LunarYearEnd:     civilDateString(resolved.End),
+				BoundaryDay:      resolved.BoundaryDay,
 			}
 			return output, nil
 		},
@@ -86,7 +86,7 @@ func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (ZiweiLiuNianSerie
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liunian: %w", err)
 			}
-			in.StartTime = standardTimeValue(projector.SelectorInstant(next.Start))
+			in.LiuNianStartTime = standardTimeValue(projector.SelectorInstant(next.Start))
 			return in, nil
 		},
 	)
@@ -97,7 +97,7 @@ func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (ZiweiLiuNianSerie
 }
 
 func parseZiweiLiuNianTime(input ZiweiLiuNianInput) (ziwei.LiuNianTime, tianwen.CivilDate, time.Time, *time.Location, tianwen.LunarProjector, error) {
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.LiuNianStartTime)
 	if err != nil {
 		return ziwei.LiuNianTime{}, tianwen.CivilDate{}, time.Time{}, nil, tianwen.LunarProjector{}, err
 	}
@@ -112,7 +112,7 @@ func parseZiweiLiuNianTime(input ZiweiLiuNianInput) (ziwei.LiuNianTime, tianwen.
 
 // ZiweiLiuYue returns the flow month palace and its 四化.
 func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (ZiweiLiuYueSeries, error) {
-	items, err := runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuYueCount), MaxSeriesCount,
 
 		func(in ZiweiLiuYueInput) (ziwei.Chart, error) {
 			return in.Subject.ziweiChart()
@@ -139,14 +139,14 @@ func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (ZiweiLiuYueSeries, 
 				return ZiweiLiuYueOutput{}, fmt.Errorf("ziwei.liuyue: %w", err)
 			}
 			output.YueJie = ZiweiYueJie{
-				QiShiStandardTime: standardTimeValue(at),
-				QiShiDate:         civilDateString(date),
-				Lunar:             ziweiLunarDate(resolved.Lunar),
-				LunarMonthStart:   civilDateString(resolved.Start),
-				LunarMonthEnd:     civilDateString(resolved.End),
-				BoundaryDay:       resolved.BoundaryDay,
-				CalendarPeriod:    calendar,
-				FlowMonth:         flowMonth,
+				LiuYueStartTime: standardTimeValue(at),
+				LiuYueStartDate: civilDateString(date),
+				Lunar:           ziweiLunarDate(resolved.Lunar),
+				LunarMonthStart: civilDateString(resolved.Start),
+				LunarMonthEnd:   civilDateString(resolved.End),
+				BoundaryDay:     resolved.BoundaryDay,
+				CalendarPeriod:  calendar,
+				FlowMonth:       flowMonth,
 			}
 			return output, nil
 		},
@@ -159,7 +159,7 @@ func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (ZiweiLiuYueSeries, 
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liuyue: %w", err)
 			}
-			in.StartTime = standardTimeValue(projector.SelectorInstant(next.Date))
+			in.LiuYueStartTime = standardTimeValue(projector.SelectorInstant(next.Date))
 			return in, nil
 		},
 	)
@@ -170,7 +170,7 @@ func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (ZiweiLiuYueSeries, 
 }
 
 func parseZiweiLiuYueTime(input ZiweiLiuYueInput) (ziwei.LiuYueTime, tianwen.CivilDate, time.Time, *time.Location, tianwen.LunarProjector, error) {
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.LiuYueStartTime)
 	if err != nil {
 		return ziwei.LiuYueTime{}, tianwen.CivilDate{}, time.Time{}, nil, tianwen.LunarProjector{}, err
 	}
@@ -185,7 +185,7 @@ func parseZiweiLiuYueTime(input ZiweiLiuYueInput) (ziwei.LiuYueTime, tianwen.Civ
 
 // ZiweiLiuRi returns the flow day palace and its 四化.
 func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (ZiweiLiuRiSeries, error) {
-	items, err := runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuRiCount), MaxSeriesCount,
 
 		func(in ZiweiLiuRiInput) (ziwei.Chart, error) {
 			return in.Subject.ziweiChart()
@@ -205,10 +205,10 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (ZiweiLiuRiSeries, err
 			}
 			output.Lunar = ziweiLunarDate(resolved.Lunar)
 			output.RiJie = ZiweiLiuRiJie{
-				StandardTime: standardTimeValue(resolved.Standard.In(loc)),
-				LocalDate:    civilDateString(resolved.LocalDate),
-				BeijingDate:  civilDateString(resolved.BeijingDate),
-				Lunar:        ziweiLunarDate(resolved.Lunar),
+				LiuRiStartTime: standardTimeValue(resolved.Standard.In(loc)),
+				LiuRiLocalDate: civilDateString(resolved.LocalDate),
+				BeijingDate:    civilDateString(resolved.BeijingDate),
+				Lunar:          ziweiLunarDate(resolved.Lunar),
 			}
 			return output, nil
 		},
@@ -221,7 +221,7 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (ZiweiLiuRiSeries, err
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liuri: %w", err)
 			}
-			in.StartTime = standardTimeValue(next.Standard.In(loc))
+			in.LiuRiStartTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
@@ -232,7 +232,7 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (ZiweiLiuRiSeries, err
 }
 
 func parseZiweiLiuRiTime(input ZiweiLiuRiInput) (ziwei.LiuRiTime, tianwen.LunarProjector, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.LiuRiStartTime)
 	if err != nil {
 		return ziwei.LiuRiTime{}, tianwen.LunarProjector{}, time.Time{}, nil, err
 	}
@@ -246,7 +246,7 @@ func parseZiweiLiuRiTime(input ZiweiLiuRiInput) (ziwei.LiuRiTime, tianwen.LunarP
 
 // ZiweiLiuShi returns the flow hour palace and its 四化.
 func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (ZiweiLiuShiSeries, error) {
-	items, err := runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuShiCount), MaxSeriesCount,
 
 		func(in ZiweiLiuShiInput) (ziwei.Chart, error) {
 			return in.Subject.ziweiChart()
@@ -265,10 +265,10 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (ZiweiLiuShiSeries, 
 				return ZiweiLiuShiOutput{}, fmt.Errorf("ziwei.liushi: %w", err)
 			}
 			output.ShiChen = ZiweiLiuShiChen{
-				StandardTime: standardTimeValue(resolved.Standard.In(loc)),
-				LocalDate:    civilDateString(resolved.LocalDate),
-				Lunar:        ziweiLunarDate(resolved.Lunar),
-				Shichen:      resolved.Shichen.String(),
+				LiuShiStartTime: standardTimeValue(resolved.Standard.In(loc)),
+				LiuShiLocalDate: civilDateString(resolved.LocalDate),
+				Lunar:           ziweiLunarDate(resolved.Lunar),
+				Shichen:         resolved.Shichen.String(),
 			}
 			return output, nil
 		},
@@ -281,7 +281,7 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (ZiweiLiuShiSeries, 
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liushi: %w", err)
 			}
-			in.StartTime = standardTimeValue(next.Standard.In(loc))
+			in.LiuShiStartTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
@@ -292,7 +292,7 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (ZiweiLiuShiSeries, 
 }
 
 func parseZiweiLiuShiTime(input ZiweiLiuShiInput) (ziwei.LiuShiTime, tianwen.LunarProjector, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.LiuShiStartTime)
 	if err != nil {
 		return ziwei.LiuShiTime{}, tianwen.LunarProjector{}, time.Time{}, nil, err
 	}
@@ -300,7 +300,7 @@ func parseZiweiLiuShiTime(input ZiweiLiuShiInput) (ziwei.LiuShiTime, tianwen.Lun
 	if err != nil {
 		return ziwei.LiuShiTime{}, tianwen.LunarProjector{}, time.Time{}, nil, err
 	}
-	resolved, err := ziwei.ResolveLiuShiTimeWith(projector, standard, loc, input.Longitude)
+	resolved, err := ziwei.ResolveLiuShiTimeWith(projector, standard, loc, input.LiuShiLongitude)
 	return resolved, projector, standard, loc, err
 }
 

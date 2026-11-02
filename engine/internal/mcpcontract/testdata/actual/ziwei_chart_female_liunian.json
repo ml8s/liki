@@ -5,7 +5,8 @@
       "birth_longitude": 116.4,
       "gender": "female"
     },
-    "start_time": "2026-06-15T12:00:00+08:00"
+    "liunian_start_time": "2026-06-15T12:00:00+08:00",
+    "liunian_count": null
   },
   "output": {
     "liu_nian": [
@@ -130,12 +131,12 @@
           }
         ],
         "nian_jie": {
-          "qi_shi_standard_time": "2026-06-15T12:00:00+08:00",
-          "qi_shi_date": "2026-06-15",
           "lunar_year": 2026,
           "lunar_year_start": "2026-02-17",
           "lunar_year_end": "2027-02-06",
-          "boundary_day": false
+          "boundary_day": false,
+          "liunian_start_time": "2026-06-15T12:00:00+08:00",
+          "liunian_start_date": "2026-06-15"
         }
       }
     ]

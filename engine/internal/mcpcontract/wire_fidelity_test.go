@@ -200,7 +200,7 @@ func subjectFixtureInput(file, method string, old map[string]any) map[string]any
 	case "bazi_chart", "ziwei_chart", "ziwei_daxian", "bazi_xiaoyun":
 		target := map[string]any{"subject": subject}
 		if method == "bazi_xiaoyun" {
-			target["count"] = 5
+			target["xiao_yun_count"] = 5
 		}
 		return target
 	case "bazi_bond":
@@ -217,13 +217,49 @@ func subjectFixtureInput(file, method string, old map[string]any) map[string]any
 			if key == "subject" {
 				continue
 			}
-			if key == "standard_time" {
-				target["start_time"] = value
+			switch key {
+			case "start_time":
+				target[methodSeriesFields(method)[0]] = value
 				continue
+			case "count":
+				target[methodSeriesFields(method)[1]] = value
+				continue
+			case "longitude":
+				if field := methodLongitudeField(method); field != "" {
+					target[field] = value
+					continue
+				}
 			}
 			target[key] = value
 		}
 		return target
+	}
+}
+
+// methodSeriesFields returns the method-owned input field names.
+func methodSeriesFields(method string) [2]string {
+	switch method {
+	case "bazi_liunian", "ziwei_liunian":
+		return [2]string{"liunian_start_time", "liunian_count"}
+	case "bazi_liuyue", "ziwei_liuyue":
+		return [2]string{"liuyue_start_time", "liuyue_count"}
+	case "bazi_liuri", "ziwei_liuri":
+		return [2]string{"liuri_start_time", "liuri_count"}
+	case "bazi_liushi", "ziwei_liushi":
+		return [2]string{"liushi_start_time", "liushi_count"}
+	default:
+		return [2]string{}
+	}
+}
+
+func methodLongitudeField(method string) string {
+	switch method {
+	case "bazi_liuri":
+		return "liuri_longitude"
+	case "bazi_liushi", "ziwei_liushi":
+		return "liushi_longitude"
+	default:
+		return ""
 	}
 }
 

@@ -5,7 +5,8 @@
       "birth_longitude": 118.5,
       "gender": "female"
     },
-    "start_time": "2026-06-15T12:00:00+08:00"
+    "liuyue_start_time": "2026-06-15T12:00:00+08:00",
+    "liuyue_count": null
   },
   "output": {
     "liu_yue": [
@@ -87,11 +88,11 @@
           }
         ],
         "jie_qi": {
-          "qi_shi_standard_time": "2026-06-15T12:00:00+08:00",
-          "qi_shi_date": "2026-06-15",
           "jieqi_start": "2026-06-05",
           "jieqi_end": "2026-07-07",
-          "boundary_day": false
+          "boundary_day": false,
+          "liuyue_start_time": "2026-06-15T12:00:00+08:00",
+          "liuyue_start_date": "2026-06-15"
         }
       }
     ]

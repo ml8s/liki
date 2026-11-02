@@ -5,12 +5,10 @@ import (
 	"fmt"
 
 	"liki-engine/internal/engine/bazhai"
-	"liki-engine/internal/engine/ganzhi"
 )
 
 type BazhaiChartInput struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"出生地标准时间（无 DST），RFC3339 带 offset。"`
-	Gender       GenderName   `json:"gender" jsonschema:"性别。"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type BazhaiGuaOutput struct {
@@ -84,11 +82,15 @@ type BazhaiLayoutOutput struct {
 }
 
 func BazhaiChart(_ context.Context, input BazhaiChartInput) (BazhaiChartOutput, error) {
-	standard, _, err := parseStandardTime(input.StandardTime)
+	standard, err := input.Subject.standardTime()
 	if err != nil {
 		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
 	}
-	chart, err := bazhai.ComputeChartAtStandard(ganzhi.Gender(input.Gender), standard)
+	gender, err := input.Subject.gender()
+	if err != nil {
+		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
+	}
+	chart, err := bazhai.ComputeChartAtStandard(gender, standard)
 	if err != nil {
 		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
 	}

@@ -15,7 +15,7 @@ type TimeNowInput struct {
 
 // TimeNowOutput is the canonical clock fact in standard and civil time.
 type TimeNowOutput struct {
-	StandardTime string `json:"standard_time" jsonschema:"当前时区标准时间（无 DST），RFC3339。"`
+	LocalStandardTime string `json:"local_standard_time" jsonschema:"当前时区标准时间（无 DST），RFC3339。"`
 }
 
 // TimeNow returns the current standard time in the required IANA timezone. The
@@ -33,6 +33,6 @@ func TimeNow(ctx context.Context, input TimeNowInput) (TimeNowOutput, error) {
 	}
 	now := time.Now().Round(0).UTC()
 	return TimeNowOutput{
-		StandardTime: tianwen.StandardLocalTime(now, zone).Format(time.RFC3339Nano),
+		LocalStandardTime: tianwen.StandardLocalTime(now, zone).Format(time.RFC3339Nano),
 	}, nil
 }

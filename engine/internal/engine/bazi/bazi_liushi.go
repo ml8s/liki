@@ -7,10 +7,10 @@ import (
 // LiuShi holds the hourly flow (流时) analysis: the current two-hour period's
 // pillar and its interactions with the bazi chart.
 type LiuShi struct {
-	Time     string        `json:"time"`
+	Time     string        `json:"liushi_time"`
 	ShiGan   ganzhi.Gan    `json:"shi_gan"`
 	ShiZhi   ganzhi.Zhi    `json:"shi_zhi"`
-	HourName string        `json:"hour_name"`
+	HourName string        `json:"shi_chen_name"`
 	ShiShen  string        `json:"shi_shen"`
 	GanRels  []GanRelation `json:"gan_rels"`
 	ZhiRels  []ZhiRelation `json:"zhi_rels"`

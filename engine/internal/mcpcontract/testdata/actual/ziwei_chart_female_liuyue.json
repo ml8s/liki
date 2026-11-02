@@ -5,14 +5,13 @@
       "birth_longitude": 116.4,
       "gender": "female"
     },
-    "start_time": "2026-07-23T12:00:00+08:00"
+    "liuyue_start_time": "2026-07-23T12:00:00+08:00",
+    "liuyue_count": null
   },
   "output": {
     "liu_yue": [
       {
         "yue_jie": {
-          "qi_shi_standard_time": "2026-07-23T12:00:00+08:00",
-          "qi_shi_date": "2026-07-23",
           "lunar": {
             "year": 2026,
             "month": 6,
@@ -34,7 +33,9 @@
             "year": 2026,
             "month": 6,
             "leap": false
-          }
+          },
+          "liuyue_start_time": "2026-07-23T12:00:00+08:00",
+          "liuyue_start_date": "2026-07-23"
         },
         "ming_gong": "命宫",
         "ming_gong_name": "命宫",

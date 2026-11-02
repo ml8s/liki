@@ -3,17 +3,6 @@
     {
       "additionalProperties": false,
       "properties": {
-        "birth_standard_time": {
-          "description": "出生地标准时间。",
-          "format": "date-time",
-          "type": "string"
-        },
-        "longitude": {
-          "description": "占问地经度。",
-          "maximum": 180,
-          "minimum": -180,
-          "type": "number"
-        },
         "method": {
           "oneOf": [
             {
@@ -282,10 +271,48 @@
           ],
           "type": "object"
         },
-        "standard_time": {
-          "description": "占问地标准时间。",
+        "qiju_longitude": {
+          "description": "起局地经度。",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "qiju_time": {
+          "description": "起局地标准时间。",
           "format": "date-time",
           "type": "string"
+        },
+        "subject": {
+          "additionalProperties": false,
+          "description": "可选命主；提供时用于年命。",
+          "properties": {
+            "birth_longitude": {
+              "description": "出生地经度（-180..180）。",
+              "type": "number"
+            },
+            "birth_time": {
+              "description": "出生地标准时间（local standard time，无 DST），RFC3339 带 offset。",
+              "format": "date-time",
+              "type": "string"
+            },
+            "gender": {
+              "description": "性别。",
+              "enum": [
+                "male",
+                "female"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "birth_time",
+            "birth_longitude",
+            "gender"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
         },
         "yong_shen": {
           "description": "用神符号组合。",
@@ -298,8 +325,8 @@
         }
       },
       "required": [
-        "standard_time",
-        "longitude",
+        "qiju_time",
+        "qiju_longitude",
         "method"
       ],
       "type": "object"
@@ -307,12 +334,6 @@
     {
       "additionalProperties": false,
       "properties": {
-        "longitude": {
-          "description": "占问地经度。",
-          "maximum": 180,
-          "minimum": -180,
-          "type": "number"
-        },
         "method": {
           "additionalProperties": false,
           "properties": {
@@ -333,15 +354,21 @@
           ],
           "type": "object"
         },
-        "standard_time": {
-          "description": "占问地标准时间。",
+        "qiju_longitude": {
+          "description": "起局地经度。",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "qiju_time": {
+          "description": "起局地标准时间。",
           "format": "date-time",
           "type": "string"
         }
       },
       "required": [
-        "standard_time",
-        "longitude",
+        "qiju_time",
+        "qiju_longitude",
         "method"
       ],
       "type": "object"

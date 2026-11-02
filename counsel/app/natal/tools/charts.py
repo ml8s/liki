@@ -73,9 +73,9 @@ def time_now(timezone: str) -> dict:
 def current_years(timezone: str) -> tuple[int, int]:
     """返回八字立春年号和紫微农历年号。"""
     payload = time_now(timezone)
-    standard = payload.get("standard_time")
+    standard = payload.get("local_standard_time")
     if not standard:
-        raise ValueError("time.now 返回缺少 standard_time")
+        raise ValueError("time.now 返回缺少 local_standard_time")
     subject = {
         "birth_time": standard,
         "birth_longitude": _CURRENT_YEAR_LONGITUDE,
@@ -86,7 +86,7 @@ def current_years(timezone: str) -> tuple[int, int]:
         "bazi.liunian",
         call("bazi.liunian", {
             "subject": subject,
-            "start_time": standard,
+            "liunian_start_time": standard,
         })["data"],
     )[0]
     bazi_year = ((bazi_item.get("nian_jie") or {}).get("lichun_year")
@@ -98,7 +98,7 @@ def current_years(timezone: str) -> tuple[int, int]:
         "ziwei.liunian",
         call("ziwei.liunian", {
             "subject": subject,
-            "start_time": standard,
+            "liunian_start_time": standard,
         })["data"],
     )[0]
     lunar_year = (ziwei_item.get("nian_jie") or {}).get("lunar_year")
@@ -113,7 +113,7 @@ def _bazi_liunian(subject: dict, year: int) -> dict:
         "bazi.liunian",
         call("bazi.liunian", {
             "subject": subject,
-            "start_time": f"{year:04d}-06-15T12:00:00+08:00",
+            "liunian_start_time": f"{year:04d}-06-15T12:00:00+08:00",
         })["data"],
     )[0]
 
@@ -124,7 +124,7 @@ def _ziwei_liunian(subject: dict, lunar_year: int) -> dict:
         "ziwei.liunian",
         call("ziwei.liunian", {
             "subject": subject,
-            "start_time": f"{lunar_year:04d}-06-15T12:00:00+08:00",
+            "liunian_start_time": f"{lunar_year:04d}-06-15T12:00:00+08:00",
         })["data"],
     )[0]
 
@@ -134,8 +134,8 @@ def _bazi_liunian_range(subject: dict, start_year: int, count: int) -> list[dict
         raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
     result = call("bazi.liunian", {
         "subject": subject,
-        "start_time": f"{start_year:04d}-06-15T12:00:00+08:00",
-        "count": count,
+        "liunian_start_time": f"{start_year:04d}-06-15T12:00:00+08:00",
+        "liunian_count": count,
     })
     return _liunian_range_items("bazi.liunian", result, count)
 
@@ -145,8 +145,8 @@ def _ziwei_liunian_range(subject: dict, start_lunar_year: int, count: int) -> li
         raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
     result = call("ziwei.liunian", {
         "subject": subject,
-        "start_time": f"{start_lunar_year:04d}-06-15T12:00:00+08:00",
-        "count": count,
+        "liunian_start_time": f"{start_lunar_year:04d}-06-15T12:00:00+08:00",
+        "liunian_count": count,
     })
     return _liunian_range_items("ziwei.liunian", result, count)
 

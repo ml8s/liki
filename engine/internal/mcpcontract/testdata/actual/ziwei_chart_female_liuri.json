@@ -5,7 +5,8 @@
       "birth_longitude": 116.4,
       "gender": "female"
     },
-    "start_time": "2026-06-24T12:00:00+08:00"
+    "liuri_start_time": "2026-06-24T12:00:00+08:00",
+    "liuri_count": null
   },
   "output": {
     "liu_ri": [
@@ -17,15 +18,15 @@
           "leap": false
         },
         "ri_jie": {
-          "standard_time": "2026-06-24T12:00:00+08:00",
-          "local_date": "2026-06-24",
-          "beijing_date": "2026-06-24",
           "lunar": {
             "year": 2026,
             "month": 5,
             "day": 10,
             "leap": false
-          }
+          },
+          "liuri_start_time": "2026-06-24T12:00:00+08:00",
+          "liuri_local_date": "2026-06-24",
+          "beijing_calendar_date": "2026-06-24"
         },
         "ming_gong": "命宫",
         "ming_gong_name": "命宫",

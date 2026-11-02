@@ -77,7 +77,7 @@ def test_unique_items_is_projected_and_enforced():
         CONTRACTS["qimen_snapshot"].input.model_validate(
             {
                 "question": "该往哪里推进？",
-                "location": {"kind": "longitude", "longitude": 121.47},
+                "location": {"kind": "longitude", "qiju_longitude": 121.47},
                 "focus": {"kind": "yong_shen", "yong_shen": ["生门", "生门"]},
             }
         )

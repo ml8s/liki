@@ -21,13 +21,13 @@ def city_coords(city: str) -> dict:
 
 
 def qimen_chart(
-    standard_time: str,
-    longitude: float,
+    qiju_time: str,
+    qiju_longitude: float,
     *,
     method: dict[str, str],
     matter: str | None = None,
     yong_shen: list[str] | None = None,
-    birth_standard_time: str | None = None,
+    subject: dict | None = None,
 ) -> dict:
     """排奇门盘；普通事象在 Python 表内转为显式用神后调用 engine。"""
     require_mutually_exclusive(matter=matter, yong_shen=yong_shen)
@@ -51,15 +51,15 @@ def qimen_chart(
 
     if not isinstance(method, dict):
         raise ValueError("method must be an explicit qimen method object")
-    if not standard_time:
-        raise ValueError("standard_time is required")
+    if not qiju_time:
+        raise ValueError("qiju_time is required")
     params: dict[str, Any] = {
-        "standard_time": standard_time,
-        "longitude": longitude,
+        "qiju_time": qiju_time,
+        "qiju_longitude": qiju_longitude,
         "method": method,
     }
-    if birth_standard_time:
-        params["birth_standard_time"] = birth_standard_time
+    if subject is not None:
+        params["subject"] = subject
     if symbols:
         params["yong_shen"] = symbols
 

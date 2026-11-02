@@ -1,12 +1,12 @@
 {
   "input": {
-    "longitude": 119.75,
+    "qiju_time": "2026-09-07T00:00:00+08:00",
+    "qiju_longitude": 119.75,
     "method": {
       "quarter_rule": "ten_minute_sanyuan",
       "school": "zhuanpan",
       "scope": "quarter"
-    },
-    "standard_time": "2026-09-07T00:00:00+08:00"
+    }
   },
   "output": {
     "gan_interaction": [

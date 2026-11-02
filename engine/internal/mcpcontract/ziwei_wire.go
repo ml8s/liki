@@ -39,9 +39,9 @@ type ZiweiDaXianItem struct {
 // ── ziwei.liunian input ──
 
 type ZiweiLiuNianInput struct {
-	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询年数。"`
-	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	LiuNianStartTime StandardTime `json:"liunian_start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	LiuNianCount     *SeriesCount `json:"liunian_count,omitempty" jsonschema:"连续查询年数。"`
+	Subject          NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liunian output ──
@@ -58,12 +58,12 @@ type ZiweiLiuNianOutput struct {
 }
 
 type ZiweiLiuNianResolved struct {
-	QiShiStandardTime StandardTime `json:"qi_shi_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
-	QiShiDate         DateString   `json:"qi_shi_date" jsonschema:"按选定农历基准取的选择器日期。"`
-	LunarYear         int          `json:"lunar_year" jsonschema:"该日期所在的农历年。"`
-	LunarYearStart    DateString   `json:"lunar_year_start" jsonschema:"正月初一公历日（含）。"`
-	LunarYearEnd      DateString   `json:"lunar_year_end" jsonschema:"下一正月初一公历日（不含）。"`
-	BoundaryDay       bool         `json:"boundary_day" jsonschema:"输入日期是否为正月初一边界日（归入新年）。"`
+	LiuNianStartTime StandardTime `json:"liunian_start_time" jsonschema:"流年选择器时区标准时间（无 DST）。"`
+	LiuNianStartDate DateString   `json:"liunian_start_date" jsonschema:"按选定农历基准取的流年选择日期。"`
+	LunarYear        int          `json:"lunar_year" jsonschema:"该日期所在的农历年。"`
+	LunarYearStart   DateString   `json:"lunar_year_start" jsonschema:"正月初一公历日（含）。"`
+	LunarYearEnd     DateString   `json:"lunar_year_end" jsonschema:"下一正月初一公历日（不含）。"`
+	BoundaryDay      bool         `json:"boundary_day" jsonschema:"输入日期是否为正月初一边界日（归入新年）。"`
 }
 
 type ZiweiLiuNianGongWeiItem struct {
@@ -76,9 +76,9 @@ type ZiweiLiuNianGongWeiItem struct {
 // ── ziwei.liuyue input ──
 
 type ZiweiLiuYueInput struct {
-	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询月数。"`
-	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	LiuYueStartTime StandardTime `json:"liuyue_start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	LiuYueCount     *SeriesCount `json:"liuyue_count,omitempty" jsonschema:"连续查询月数。"`
+	Subject         NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liuyue output ──
@@ -91,14 +91,14 @@ type ZiweiLunarDate struct {
 }
 
 type ZiweiYueJie struct {
-	QiShiStandardTime StandardTime                            `json:"qi_shi_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
-	QiShiDate         DateString                              `json:"qi_shi_date" jsonschema:"按选定农历基准取的选择器日期。"`
-	Lunar             ZiweiLunarDate                          `json:"lunar" jsonschema:"该日期对应的农历日期。"`
-	LunarMonthStart   DateString                              `json:"lunar_month_start" jsonschema:"农历月初一公历日（含）。"`
-	LunarMonthEnd     DateString                              `json:"lunar_month_end" jsonschema:"下一农历月初一公历日（不含）。"`
-	BoundaryDay       bool                                    `json:"boundary_day" jsonschema:"输入日期是否为农历月初一边界日（归入新月）。"`
-	CalendarPeriod    ZiweiLiuYueResolvedPeriodCalendarPeriod `json:"calendar_period" jsonschema:"流月所在日历区间。"`
-	FlowMonth         ZiweiLiuYueResolvedPeriodFlowMonth      `json:"flow_month" jsonschema:"流月农历年月。"`
+	LiuYueStartTime StandardTime                            `json:"liuyue_start_time" jsonschema:"流月选择器时区标准时间（无 DST）。"`
+	LiuYueStartDate DateString                              `json:"liuyue_start_date" jsonschema:"按选定农历基准取的流月选择日期。"`
+	Lunar           ZiweiLunarDate                          `json:"lunar" jsonschema:"该日期对应的农历日期。"`
+	LunarMonthStart DateString                              `json:"lunar_month_start" jsonschema:"农历月初一公历日（含）。"`
+	LunarMonthEnd   DateString                              `json:"lunar_month_end" jsonschema:"下一农历月初一公历日（不含）。"`
+	BoundaryDay     bool                                    `json:"boundary_day" jsonschema:"输入日期是否为农历月初一边界日（归入新月）。"`
+	CalendarPeriod  ZiweiLiuYueResolvedPeriodCalendarPeriod `json:"calendar_period" jsonschema:"流月所在日历区间。"`
+	FlowMonth       ZiweiLiuYueResolvedPeriodFlowMonth      `json:"flow_month" jsonschema:"流月农历年月。"`
 }
 
 type ZiweiLiuYueOutput struct {
@@ -143,16 +143,16 @@ type ZiweiFlowGongWeiItem struct {
 // ── ziwei.liuri input ──
 
 type ZiweiLiuRiInput struct {
-	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询日数。"`
-	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	LiuRiStartTime StandardTime `json:"liuri_start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	LiuRiCount     *SeriesCount `json:"liuri_count,omitempty" jsonschema:"连续查询日数。"`
+	Subject        NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type ZiweiLiuRiJie struct {
-	StandardTime StandardTime   `json:"standard_time" jsonschema:"时区标准时间（无 DST）。"`
-	LocalDate    DateString     `json:"local_date" jsonschema:"目标地民用日。"`
-	BeijingDate  DateString     `json:"beijing_date" jsonschema:"北京时间民用日。"`
-	Lunar        ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
+	LiuRiStartTime StandardTime   `json:"liuri_start_time" jsonschema:"流日选择器时区标准时间（无 DST）。"`
+	LiuRiLocalDate DateString     `json:"liuri_local_date" jsonschema:"流日当地民用日。"`
+	BeijingDate    DateString     `json:"beijing_calendar_date" jsonschema:"北京时间民用日。"`
+	Lunar          ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
 }
 
 // ── ziwei.liuri output ──
@@ -171,19 +171,19 @@ type ZiweiLiuRiOutput struct {
 // ── ziwei.liushi input ──
 
 type ZiweiLiuShiInput struct {
-	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	Longitude float64      `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时辰。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询时辰数。"`
-	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	LiuShiStartTime StandardTime `json:"liushi_start_time" jsonschema:"流时选择起点：local standard time，RFC3339 fixed offset。"`
+	LiuShiLongitude float64      `json:"liushi_longitude" jsonschema:"流时地点经度（-180..180）；真太阳时校正用于时辰。"`
+	LiuShiCount     *SeriesCount `json:"liushi_count,omitempty" jsonschema:"连续查询时辰数。"`
+	Subject         NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liushi output ──
 
 type ZiweiLiuShiChen struct {
-	StandardTime StandardTime   `json:"standard_time" jsonschema:"时区标准时间（无 DST）。"`
-	LocalDate    DateString     `json:"local_date" jsonschema:"占问地标准日。"`
-	Lunar        ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
-	Shichen      string         `json:"shichen" jsonschema:"真太阳时时辰。"`
+	LiuShiStartTime StandardTime   `json:"liushi_start_time" jsonschema:"流时选择器时区标准时间（无 DST）。"`
+	LiuShiLocalDate DateString     `json:"liushi_local_date" jsonschema:"流时当地标准日。"`
+	Lunar           ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
+	Shichen         string         `json:"shichen" jsonschema:"真太阳时时辰。"`
 }
 
 type ZiweiLiuShiOutput struct {

@@ -5,14 +5,13 @@
       "birth_longitude": 118.5,
       "gender": "female"
     },
-    "longitude": 116.4,
-    "start_time": "2026-06-15T12:00:00+08:00"
+    "liushi_start_time": "2026-06-15T12:00:00+08:00",
+    "liushi_count": null,
+    "liushi_longitude": 116.4
   },
   "output": {
     "liu_shi": [
       {
-        "time": "11:00-13:00",
-        "hour_name": "壬午",
         "shi_shen": "伤官",
         "shi_gan": "壬",
         "shi_zhi": "午",
@@ -69,10 +68,12 @@
           }
         ],
         "shi_chen": {
-          "standard_time": "2026-06-15T12:00:00+08:00",
-          "local_date": "2026-06-15",
-          "shichen": "午"
-        }
+          "shichen": "午",
+          "liushi_start_time": "2026-06-15T12:00:00+08:00",
+          "liushi_local_date": "2026-06-15"
+        },
+        "liushi_time": "11:00-13:00",
+        "shi_chen_name": "壬午"
       }
     ]
   }

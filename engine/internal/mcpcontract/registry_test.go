@@ -38,7 +38,7 @@ func TestEngineRegistry_TimeNowContract(t *testing.T) {
 	if output.Type != "object" {
 		t.Fatalf("output schema type = %q", output.Type)
 	}
-	for _, name := range []string{"standard_time"} {
+	for _, name := range []string{"local_standard_time"} {
 		property, ok := output.Properties[name]
 		if !ok {
 			t.Fatalf("output schema lacks %q: %s", name, definition.OutputSchema)
@@ -72,7 +72,7 @@ func TestEngineRegistry_TimeNowCall(t *testing.T) {
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatalf("decode output: %v", err)
 	}
-	if output.StandardTime == "" {
+	if output.LocalStandardTime == "" {
 		t.Fatalf("incomplete output: %#v", output)
 	}
 }

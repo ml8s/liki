@@ -9,6 +9,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.contracts.natal import NatalSubjectInput
 from app.contracts.schema import ToolContract, unique_list
 
 # ── liuyao_snapshot ──
@@ -81,10 +82,10 @@ class LiuyaoSnapshotInput(BaseModel):
     question: Annotated[str, Field(min_length=2)] = Field(
         description="本次要判断的一个具体目标",
     )
-    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
-        description="问卦地点经度（-180..180）；必须显式传入，不做默认（精度要求）。",
+    qigua_longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
+        description="起卦地点经度（-180..180）；必须显式传入，不做默认（精度要求）。",
     )
-    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    qigua_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         description="起卦地标准时间 RFC3339（无 DST），必填。",
     )
     casting: LiuyaoCastingInput = Field(
@@ -499,7 +500,7 @@ class QimenLongitudeLocation(BaseModel):
     """直接提供起局经度。"""
     model_config = ConfigDict(extra="forbid")
     kind: Literal["longitude"] = Field(description="地点类型：经度。")
-    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(description="起局经度。")
+    qiju_longitude: Annotated[float, Field(ge=-180, le=180)] = Field(description="起局经度。")
 
 
 QimenLocation = QimenCityLocation | QimenLongitudeLocation
@@ -532,7 +533,7 @@ class QimenSnapshotInput(BaseModel):
     question: str = Field(
         description="本次要判断的一个具体目标",
     )
-    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    qiju_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         description="起局地标准时间 RFC3339（无 DST）；节气换局按此时刻判定。",
     )
     method: QimenMethod = Field(
@@ -547,9 +548,9 @@ class QimenSnapshotInput(BaseModel):
         default=None,
         description="可选专占规则；由因子契约校验适用盘型",
     )
-    birth_standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    subject: NatalSubjectInput | None = Field(
         default=None,
-        description="出生地标准时间 RFC3339（无 DST），用于年命干落宫；金函玉镜不接受",
+        description="可选命主；提供时用于年命干落宫；金函玉镜不接受。",
     )
 
     @model_validator(mode="after")
@@ -560,7 +561,7 @@ class QimenSnapshotInput(BaseModel):
             forbidden = [
                 name for name, value in (
                     ("focus", self.focus),
-                    ("rule", self.rule), ("birth_standard_time", self.birth_standard_time),
+                    ("rule", self.rule), ("subject", self.subject),
                 ) if value is not None
             ]
             if forbidden:
@@ -584,8 +585,8 @@ class QimenSnapshotOutputInput(BaseModel):
     """Input returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     city: str | None
-    longitude: float
-    standard_time: str
+    qiju_longitude: float
+    qiju_time: str
 
 
 class QimenSnapshotOutputMethodContext(BaseModel):

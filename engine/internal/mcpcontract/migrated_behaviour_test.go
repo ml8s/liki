@@ -36,28 +36,28 @@ func TestMigratedInputValidation(t *testing.T) {
 			"birth_time": "2000-09-20T08:00:00+08:00", "birth_longitude": 116.4, "gender": "bad"}}, ""},
 		{"ziwei.daxian missing subject", "ziwei_daxian", map[string]any{}, ""},
 		{"bazi.bond missing b", "bazi_bond", map[string]any{"a": map[string]any{"subject": subject}}, ""},
-		{"bazi.liunian missing subject", "bazi_liunian", map[string]any{"start_time": "2026-06-15T12:00:00+08:00"}, ""},
-		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"start_time": "0000-01-01T08:00:00", "subject": subject}, ""},
-		{"bazi.liuyue missing subject", "bazi_liuyue", map[string]any{"start_time": "2026-06-15T12:00:00+08:00"}, ""},
+		{"bazi.liunian missing subject", "bazi_liunian", map[string]any{"liunian_start_time": "2026-06-15T12:00:00+08:00"}, ""},
+		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"liunian_start_time": "0000-01-01T08:00:00", "subject": subject}, ""},
+		{"bazi.liuyue missing subject", "bazi_liuyue", map[string]any{"liuyue_start_time": "2026-06-15T12:00:00+08:00"}, ""},
 		{"bazi.liushi invalid start_time", "bazi_liushi", map[string]any{
-			"start_time": "not-a-time", "longitude": 116.4, "subject": subject}, ""},
+			"liushi_start_time": "not-a-time", "qiju_longitude": 116.4, "subject": subject}, ""},
 		{"bazi.liushi invalid longitude", "bazi_liushi", map[string]any{
-			"start_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "subject": subject}, ""},
+			"liushi_start_time": "2026-06-15T12:00:00+08:00", "liushi_longitude": 999, "subject": subject}, ""},
 		{"qimen.chart bad scope", "qimen_chart", map[string]any{
-			"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
+			"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
 			"method": map[string]any{"scope": "ke", "school": "zhuanpan", "dingju_method": "chaibu"},
 		}, ""},
 		{"qimen.chart unknown yong_shen", "qimen_chart", map[string]any{
-			"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
+			"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
 			"method":    map[string]any{"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
 			"yong_shen": []string{"不存在的符号"}}, ""},
 		{"qimen.chart unknown field", "qimen_chart", map[string]any{
-			"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
+			"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
 			"method":     map[string]any{"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
 			"birth_year": 1984,
 		}, ""},
 		{"qimen.chart invalid utc", "qimen_chart", map[string]any{
-			"standard_time": "not-a-time", "method": map[string]any{
+			"qiju_time": "not-a-time", "method": map[string]any{
 				"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
 			},
 		}, ""},
@@ -128,7 +128,7 @@ func TestMigratedBaziLiuNianShiShen(t *testing.T) {
 	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 	for _, year := range []int{2024, 2025, 2026} {
 		document := callToolDocument(t, registry, "bazi_liunian", map[string]any{
-			"start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year), "subject": chart,
+			"liunian_start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year), "subject": chart,
 		})
 		item := firstSeriesItem(t, document)
 		if shiShen, _ := item["shi_shen"].(string); shiShen == "" {
@@ -159,25 +159,25 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 	if len(daxian.DaXian) == 0 {
 		t.Fatal("ziwei.daxian returned an empty list")
 	}
-	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"start_time": "2026-06-15T12:00:00+08:00", "subject": chart})
+	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"liunian_start_time": "2026-06-15T12:00:00+08:00", "subject": chart})
 	if len(liunian) == 0 {
 		t.Fatal("ziwei.liunian returned an empty document")
 	}
 	liuyue := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
-		"start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
+		"liuyue_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuyue) == 0 {
 		t.Fatal("ziwei.liuyue returned an empty document")
 	}
 	liuri := callToolDocument(t, registry, "ziwei_liuri", map[string]any{
-		"start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
+		"liuri_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuri) == 0 {
 		t.Fatal("ziwei.liuri returned an empty document")
 	}
 	liushi := callToolDocument(t, registry, "ziwei_liushi", map[string]any{
-		"start_time": "2026-06-24T11:00:00+08:00",
-		"longitude":  116.4, "subject": chart,
+		"liushi_start_time": "2026-06-24T11:00:00+08:00",
+		"liushi_longitude":  116.4, "subject": chart,
 	})
 	if len(liushi) == 0 {
 		t.Fatal("ziwei.liushi returned an empty document")
@@ -205,17 +205,17 @@ func TestMigratedBaziBondAndXiaoYunValid(t *testing.T) {
 	if len(bond) == 0 {
 		t.Fatal("bazi.bond returned an empty document")
 	}
-	liuyue := callToolDocument(t, registry, "bazi_liuyue", map[string]any{"start_time": "2026-06-15T12:00:00+08:00", "subject": chartA})
+	liuyue := callToolDocument(t, registry, "bazi_liuyue", map[string]any{"liuyue_start_time": "2026-06-15T12:00:00+08:00", "subject": chartA})
 	if len(liuyue) == 0 {
 		t.Fatal("bazi.liuyue returned an empty document")
 	}
-	liuri := callToolDocument(t, registry, "bazi_liuri", map[string]any{"start_time": "2026-06-15T12:00:00+08:00", "longitude": 116.4, "subject": chartA})
+	liuri := callToolDocument(t, registry, "bazi_liuri", map[string]any{"liuri_start_time": "2026-06-15T12:00:00+08:00", "liuri_longitude": 116.4, "subject": chartA})
 	if len(liuri) == 0 {
 		t.Fatal("bazi.liuri returned an empty document")
 	}
 	liushi := callToolDocument(t, registry, "bazi_liushi", map[string]any{
-		"start_time": "2026-06-15T12:00:00+08:00",
-		"longitude":  116.4, "subject": chartA,
+		"liushi_start_time": "2026-06-15T12:00:00+08:00",
+		"liushi_longitude":  116.4, "subject": chartA,
 	})
 	if len(liushi) == 0 {
 		t.Fatal("bazi.liushi returned an empty document")
@@ -226,7 +226,7 @@ func TestMigratedBaziBondAndXiaoYunValid(t *testing.T) {
 func TestMigratedQimenMaoShanContract(t *testing.T) {
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
-		"standard_time": "2024-06-21T06:00:00+08:00", "longitude": 116.4, "scope": "hour",
+		"qiju_time": "2024-06-21T06:00:00+08:00", "qiju_longitude": 116.4, "scope": "hour",
 		"school": "zhuanpan", "dingju_method": "maoshan",
 	})
 	method := document["method"].(map[string]any)
@@ -237,9 +237,9 @@ func TestMigratedQimenMaoShanContract(t *testing.T) {
 	assertJiaStaysHidden(t, document)
 
 	for _, input := range []map[string]any{
-		{"standard_time": "2024-06-21T06:00:00+08:00", "longitude": 116.4, "scope": "day", "school": "zhuanpan", "dingju_method": "maoshan"},
-		{"standard_time": "2024-06-21T06:00:00+08:00", "longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "maoshan"},
-		{"standard_time": "2024-06-21T06:00:00+08:00", "longitude": 116.4, "scope": "hour", "school": "mingfa_feipan", "dingju_method": "maoshan"},
+		{"qiju_time": "2024-06-21T06:00:00+08:00", "qiju_longitude": 116.4, "scope": "day", "school": "zhuanpan", "dingju_method": "maoshan"},
+		{"qiju_time": "2024-06-21T06:00:00+08:00", "qiju_longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "maoshan"},
+		{"qiju_time": "2024-06-21T06:00:00+08:00", "qiju_longitude": 116.4, "scope": "hour", "school": "mingfa_feipan", "dingju_method": "maoshan"},
 	} {
 		assertQimenChartError(t, registry, input, "")
 	}
@@ -250,7 +250,7 @@ func TestMigratedQimenMaoShanContract(t *testing.T) {
 func TestMigratedQimenQuarterRuleContract(t *testing.T) {
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
-		"standard_time": "2026-09-07T00:00:00+08:00", "longitude": 116.4, "scope": "quarter", "school": "zhuanpan",
+		"qiju_time": "2026-09-07T00:00:00+08:00", "qiju_longitude": 116.4, "scope": "quarter", "school": "zhuanpan",
 	})
 	method := document["method"].(map[string]any)
 	if method["scope"] != "quarter" || method["scope_name"] != "刻家奇门" ||
@@ -271,7 +271,7 @@ func TestMigratedQimenQuarterRuleContract(t *testing.T) {
 	assertJiaStaysHidden(t, document)
 
 	twelve := callQimenChart(t, registry, map[string]any{
-		"standard_time": "2002-10-08T18:27:00+08:00", "longitude": 116.4, "scope": "quarter",
+		"qiju_time": "2002-10-08T18:27:00+08:00", "qiju_longitude": 116.4, "scope": "quarter",
 		"school": "zhuanpan", "quarter_rule": "twelve_minute_ten_division",
 	})
 	twelveMethod := twelve["method"].(map[string]any)
@@ -286,7 +286,7 @@ func TestMigratedQimenQuarterRuleContract(t *testing.T) {
 func TestMigratedQimenJinhanContract(t *testing.T) {
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
-		"standard_time": "2024-06-29T12:00:00+08:00", "longitude": 116.4, "scope": "day", "school": "jinhan_yujing",
+		"qiju_time": "2024-06-29T12:00:00+08:00", "qiju_longitude": 116.4, "scope": "day", "school": "jinhan_yujing",
 	})
 	method := document["method"].(map[string]any)
 	if method["scope"] != "day" || method["school"] != "jinhan_yujing" ||
@@ -320,9 +320,9 @@ func TestMigratedQimenJinhanContract(t *testing.T) {
 	}
 
 	for _, input := range []map[string]any{
-		{"standard_time": "2024-06-29T12:00:00+08:00", "longitude": 116.4, "scope": "hour", "school": "jinhan_yujing"},
-		{"standard_time": "2024-06-29T12:00:00+08:00", "longitude": 116.4, "scope": "day", "school": "jinhan_yujing", "dingju_method": "none"},
-		{"standard_time": "2024-06-29T12:00:00+08:00", "longitude": 116.4, "scope": "day", "school": "jinhan_yujing", "yong_shen": []string{"太乙"}},
+		{"qiju_time": "2024-06-29T12:00:00+08:00", "qiju_longitude": 116.4, "scope": "hour", "school": "jinhan_yujing"},
+		{"qiju_time": "2024-06-29T12:00:00+08:00", "qiju_longitude": 116.4, "scope": "day", "school": "jinhan_yujing", "dingju_method": "none"},
+		{"qiju_time": "2024-06-29T12:00:00+08:00", "qiju_longitude": 116.4, "scope": "day", "school": "jinhan_yujing", "yong_shen": []string{"太乙"}},
 	} {
 		assertQimenChartError(t, registry, input, "")
 	}
@@ -361,7 +361,7 @@ func TestMigratedQimenBoundaryDates(t *testing.T) {
 		stamp := time.Date(2026, 1, 1, 0, 0, 0, 0, time.FixedZone("CST", 8*3600)).
 			AddDate(0, 0, day-1).UTC().Format(time.RFC3339)
 		for _, method := range methods {
-			input := map[string]any{"standard_time": standardInputFromInstant(t, stamp, "Asia/Shanghai"), "longitude": 116.4}
+			input := map[string]any{"qiju_time": standardInputFromInstant(t, stamp, "Asia/Shanghai"), "qiju_longitude": 116.4}
 			for key, value := range method {
 				input[key] = value
 			}
@@ -383,7 +383,7 @@ func TestMigratedQimenConsumesTianwenGregorian(t *testing.T) {
 	}
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
-		"standard_time": standardInputFromInstant(t, "2026-03-02T10:30:00Z", "Asia/Shanghai"), "longitude": 116.4,
+		"qiju_time": standardInputFromInstant(t, "2026-03-02T10:30:00Z", "Asia/Shanghai"), "qiju_longitude": 116.4,
 	})
 	if document["method"] == nil || document["board"] == nil {
 		t.Fatalf("qimen.chart from tianwen.resolve = %#v", document)
@@ -405,8 +405,8 @@ func TestMigratedQimenInvalidMethodCombinations(t *testing.T) {
 		{"birth_year": 1984},
 		{"dingju_method": "luoshu_feipan"},
 	} {
-		input["standard_time"] = standardInputFromInstant(t, stamp, "Asia/Shanghai")
-		input["longitude"] = 116.4
+		input["qiju_time"] = standardInputFromInstant(t, stamp, "Asia/Shanghai")
+		input["qiju_longitude"] = 116.4
 		assertQimenChartError(t, registry, input, "")
 	}
 

@@ -52,7 +52,7 @@ func TestTypedContract_TimeNowSelfDescribing(t *testing.T) {
 	if output.Type != "object" {
 		t.Fatalf("time_now output type = %q", output.Type)
 	}
-	for _, name := range []string{"standard_time"} {
+	for _, name := range []string{"local_standard_time"} {
 		property, ok := output.Properties[name]
 		if !ok {
 			t.Fatalf("time_now output lacks %q", name)
@@ -80,14 +80,14 @@ func TestTypedContract_TimeNowStructuredOutput(t *testing.T) {
 		t.Fatalf("marshal structured content: %v", err)
 	}
 	var output struct {
-		StandardTime string `json:"standard_time"`
+		StandardTime string `json:"local_standard_time"`
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatalf("decode structured content %s: %v", raw, err)
 	}
 	rfc3339 := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$`)
 	if !rfc3339.MatchString(output.StandardTime) {
-		t.Errorf("standard_time = %q, want RFC3339", output.StandardTime)
+		t.Errorf("local_standard_time = %q, want RFC3339", output.StandardTime)
 	}
 }
 

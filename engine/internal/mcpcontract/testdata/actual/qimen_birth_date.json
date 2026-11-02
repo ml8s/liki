@@ -1,13 +1,17 @@
 {
   "input": {
-    "longitude": 123.25,
+    "qiju_time": "2026-03-02T18:30:00+08:00",
+    "qiju_longitude": 123.25,
     "method": {
       "scope": "hour",
       "school": "zhuanpan",
       "dingju_method": "chaibu"
     },
-    "standard_time": "2026-03-02T18:30:00+08:00",
-    "birth_standard_time": "1990-01-01T00:00:00+08:00"
+    "subject": {
+      "birth_time": "1990-01-01T00:00:00+08:00",
+      "birth_longitude": 116.4,
+      "gender": "male"
+    }
   },
   "output": {
     "gan_interaction": [

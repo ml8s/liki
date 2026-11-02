@@ -24,15 +24,15 @@ type QimenMethodInput struct {
 	HourBoundary     HourBoundaryName       `json:"hour_boundary,omitempty" jsonschema:"时辰界；仅十二分钟十分局分支携带。"`
 }
 
-// QimenChartInput takes standard_time, longitude, and
+// QimenChartInput takes qiju time/location, and
 // a closed method object. Time/location and method selection stay orthogonal;
-// yong_shen/birth_standard_time are chart-analysis inputs, not method knobs.
+// yong_shen/subject are chart-analysis inputs, not method knobs.
 type QimenChartInput struct {
-	StandardTime      StandardTime         `json:"standard_time" jsonschema:"占问地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。"`
-	Longitude         float64              `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时柱与分钟分法"`
-	Method            QimenMethodInput     `json:"method" jsonschema:"奇门方法事实；scope、盘式流派和条件参数按目录组合传入。"`
-	YongShen          QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合；甲不露盘，不能作为独立符号"`
-	BirthStandardTime StandardTime         `json:"birth_standard_time,omitempty" jsonschema:"出生地标准时间；可选，用于年命。"`
+	QiJuTime      StandardTime         `json:"qiju_time" jsonschema:"起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。"`
+	QiJuLongitude float64              `json:"qiju_longitude" jsonschema:"起局地经度（-180..180）；真太阳时校正用于时柱与分钟分法"`
+	Method        QimenMethodInput     `json:"method" jsonschema:"奇门方法事实；scope、盘式流派和条件参数按目录组合传入。"`
+	YongShen      QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合；甲不露盘，不能作为独立符号"`
+	Subject       *NatalSubject        `json:"subject,omitempty" jsonschema:"可选命主；提供时用于年命。"`
 }
 
 type qimenScopeSchoolDingjuForm struct {
@@ -62,17 +62,17 @@ type qimenQuarterTwelveMethodForm struct {
 }
 
 type qimenChartStandardForm struct {
-	StandardTime      StandardTime         `json:"standard_time" jsonschema:"占问地标准时间。"`
-	Longitude         float64              `json:"longitude" jsonschema:"占问地经度。"`
-	Method            QimenMethodInput     `json:"method" jsonschema:"非金函玉镜奇门方法事实。"`
-	YongShen          QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合。"`
-	BirthStandardTime StandardTime         `json:"birth_standard_time,omitempty" jsonschema:"出生地标准时间。"`
+	QiJuTime      StandardTime         `json:"qiju_time" jsonschema:"起局地标准时间。"`
+	QiJuLongitude float64              `json:"qiju_longitude" jsonschema:"起局地经度。"`
+	Method        QimenMethodInput     `json:"method" jsonschema:"非金函玉镜奇门方法事实。"`
+	YongShen      QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合。"`
+	Subject       *NatalSubject        `json:"subject,omitempty" jsonschema:"可选命主；提供时用于年命。"`
 }
 
 type qimenChartJinhanForm struct {
-	StandardTime StandardTime         `json:"standard_time" jsonschema:"占问地标准时间。"`
-	Longitude    float64              `json:"longitude" jsonschema:"占问地经度。"`
-	Method       qimenScopeSchoolForm `json:"method" jsonschema:"金函玉镜方法事实。"`
+	QiJuTime      StandardTime         `json:"qiju_time" jsonschema:"起局地标准时间。"`
+	QiJuLongitude float64              `json:"qiju_longitude" jsonschema:"起局地经度。"`
+	Method        qimenScopeSchoolForm `json:"method" jsonschema:"金函玉镜方法事实。"`
 }
 
 func qimenMethodFormSchema[T any](
@@ -190,7 +190,7 @@ func qimenChartFormsSchema() (json.RawMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	standard, err = withSchemaNumberBounds(standard, "longitude", -180, 180)
+	standard, err = withSchemaNumberBounds(standard, "qiju_longitude", -180, 180)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func qimenChartFormsSchema() (json.RawMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	jinhan, err = withSchemaNumberBounds(jinhan, "longitude", -180, 180)
+	jinhan, err = withSchemaNumberBounds(jinhan, "qiju_longitude", -180, 180)
 	if err != nil {
 		return nil, err
 	}

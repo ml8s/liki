@@ -25,12 +25,12 @@ func TestTimeNowCST(t *testing.T) {
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatal(err)
 	}
-	standard, err := time.Parse(time.RFC3339Nano, out.StandardTime)
+	standard, err := time.Parse(time.RFC3339Nano, out.LocalStandardTime)
 	if err != nil {
-		t.Fatalf("standard_time: %q %v", out.StandardTime, err)
+		t.Fatalf("local_standard_time: %q %v", out.LocalStandardTime, err)
 	}
 	if time.Since(standard).Abs() > 2*time.Second {
-		t.Fatalf("standard_time %s is too far from now", out.StandardTime)
+		t.Fatalf("local_standard_time %s is too far from now", out.LocalStandardTime)
 	}
 }
 

@@ -59,11 +59,11 @@ def create(
     *,
     question: str,
     location: dict,
-    standard_time: str = "",
+    qiju_time: str = "",
     focus: dict | None = None,
     rule: str | None = None,
     method: dict[str, str],
-    birth_standard_time: str | None = None,
+    subject: dict | None = None,
 ) -> dict:
     """创建 immutable qimen snapshot；LLM 后续只依赖该对象。"""
     question = require_question(question)
@@ -73,7 +73,7 @@ def create(
     effective_scope = method.get("scope", "")
     effective_school = method.get("school", "")
     if effective_school == "jinhan_yujing":
-        forbidden = (focus, rule, birth_standard_time)
+        forbidden = (focus, rule, subject)
         if any(value is not None for value in forbidden):
             raise ValueError("school jinhan_yujing does not support focus or advanced method fields")
 
@@ -96,15 +96,15 @@ def create(
             if matter != required_matter:
                 raise ValueError(f"qimen rule {rule} requires matter={required_matter}")
     resolved_city, resolved_longitude = _resolve_location(location)
-    if not standard_time:
-        raise ValueError("standard_time is required")
+    if not qiju_time:
+        raise ValueError("qiju_time is required")
 
     chart_result = qimen_chart(
-        standard_time,
+        qiju_time,
         resolved_longitude,
         matter=matter,
         yong_shen=yong_shen,
-        birth_standard_time=birth_standard_time,
+        subject=subject,
         method=method,
     )
     chart = chart_result["chart"]
@@ -135,8 +135,8 @@ def create(
             "question": question,
             "input": {
                 "city": resolved_city,
-                "longitude": resolved_longitude,
-                "standard_time": standard_time,
+                "qiju_longitude": resolved_longitude,
+                "qiju_time": qiju_time,
             },
             "matter": chart_result.get("matter"),
             "method_context": method_context,

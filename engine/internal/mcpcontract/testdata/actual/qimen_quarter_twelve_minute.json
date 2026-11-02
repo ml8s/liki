@@ -1,6 +1,7 @@
 {
   "input": {
-    "longitude": 119.75,
+    "qiju_time": "2026-09-07T00:00:00+08:00",
+    "qiju_longitude": 119.75,
     "method": {
       "quarter_rule": "twelve_minute_ten_division",
       "school": "zhuanpan",
@@ -8,8 +9,7 @@
       "base_dingju_method": "chaibu",
       "dun_source": "hour_branch",
       "hour_boundary": "late_zi"
-    },
-    "standard_time": "2026-09-07T00:00:00+08:00"
+    }
   },
   "output": {
     "gan_interaction": [

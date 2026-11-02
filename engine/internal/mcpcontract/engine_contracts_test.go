@@ -134,13 +134,13 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		} `json:"properties"`
 	}
 	decode(t, mustDefinition(t, registry, "huangli_days").InputSchema, &huangliInput)
-	if len(huangliInput.Required) != 1 || huangliInput.Required[0] != "standard_time" {
+	if len(huangliInput.Required) != 2 || !slices.Contains(huangliInput.Required, "start_date") || !slices.Contains(huangliInput.Required, "timezone") {
 		t.Fatalf("huangli required = %#v", huangliInput.Required)
 	}
-	if _, ok := huangliInput.Properties["standard_time"]; !ok {
+	if _, ok := huangliInput.Properties["start_date"]; !ok {
 		t.Fatalf("huangli civil_time schema missing")
 	}
-	if count := huangliInput.Properties["count"]; count.Minimum == nil || *count.Minimum != 1 || count.Maximum == nil || *count.Maximum != 30 {
+	if count := huangliInput.Properties["day_count"]; count.Minimum == nil || *count.Minimum != 1 || count.Maximum == nil || *count.Maximum != 30 {
 		t.Fatalf("huangli count schema = %#v", count)
 	}
 	if event := huangliInput.Properties["event"]; len(event.Enum) != 15 {
@@ -253,19 +253,19 @@ func TestQimenChartSchemaUsesMethodForms(t *testing.T) {
 	if _, exists := standard.Properties["yong_shen"]; !exists {
 		t.Fatal("standard qimen form lacks yong_shen")
 	}
-	if _, exists := standard.Properties["birth_standard_time"]; !exists {
-		t.Fatal("standard qimen form lacks birth_standard_time")
+	if _, exists := standard.Properties["subject"]; !exists {
+		t.Fatal("standard qimen form lacks subject")
 	}
-	for _, field := range []string{"yong_shen", "birth_standard_time", "birth_timezone"} {
+	for _, field := range []string{"yong_shen", "subject", "birth_timezone"} {
 		if _, exists := jinhan.Properties[field]; exists {
 			t.Fatalf("jinhan form must not expose %s", field)
 		}
 	}
 	for _, branch := range []rootForm{standard, jinhan} {
-		longitude := branch.Properties["longitude"]
-		if longitude.Minimum == nil || *longitude.Minimum != -180 ||
-			longitude.Maximum == nil || *longitude.Maximum != 180 {
-			t.Fatalf("qimen longitude bounds = %#v", longitude)
+		qijuLongitude := branch.Properties["qiju_longitude"]
+		if qijuLongitude.Minimum == nil || *qijuLongitude.Minimum != -180 ||
+			qijuLongitude.Maximum == nil || *qijuLongitude.Maximum != 180 {
+			t.Fatalf("qimen qiju_longitude bounds = %#v", qijuLongitude)
 		}
 	}
 	if len(standard.Properties["method"].OneOf) != 9 {
@@ -446,9 +446,10 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	huangliRaw, err := registry.Call(context.Background(), "huangli_days", mustJSON(t, HuangliDaysInput{
-		StandardTime: standardInputFromInstant(t, "2024-06-15T04:00:00Z", "Asia/Shanghai"),
-		Count:        jsonschema.Ptr(HuangliCount(1)),
-		Event:        "sign",
+		StartDate: "2024-06-15",
+		Timezone:  "Asia/Shanghai",
+		DayCount:  jsonschema.Ptr(HuangliCount(1)),
+		Event:     "sign",
 	}))
 	if err != nil {
 		t.Fatalf("huangli.days: %v", err)
@@ -472,8 +473,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	bazhaiRaw, err := registry.Call(context.Background(), "bazhai_chart", mustJSON(t, BazhaiChartInput{
-		StandardTime: standardInputFromInstant(t, "1984-06-15T04:00:00Z", "Asia/Shanghai"),
-		Gender:       "male",
+		Subject: NatalSubject{
+			BirthTime: "1984-06-15T12:00:00+08:00", BirthLongitude: 116.4, Gender: "male",
+		},
 	}))
 	if err != nil {
 		t.Fatalf("bazhai.chart: %v", err)
@@ -511,9 +513,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	chartRaw, err := registry.Call(context.Background(), "xuankong_chart", mustJSON(t, XuankongChartInput{
-		StandardTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
-		ZuoShan:      2,
-		XiangShan:    14,
+		ZhaiYunDate: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
+		ZuoShan:     2,
+		XiangShan:   14,
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
@@ -530,8 +532,8 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liunianRaw, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart:        &chart,
-		StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
+		Chart:       &chart,
+		LiuNianDate: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.liunian: %v", err)
@@ -554,8 +556,8 @@ func TestEngineContractCalls(t *testing.T) {
 	tampered := chart
 	tampered.ZuoShanName = "壬"
 	if _, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart:        &tampered,
-		StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
+		Chart:       &tampered,
+		LiuNianDate: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
 	})); err == nil || !strings.Contains(err.Error(), "digest mismatch") {
 		t.Fatalf("expected digest mismatch, got %v", err)
 	}
@@ -589,9 +591,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-		Longitude:    116.4,
-		Casting:      &qigua.Casting,
+		QiGuaTime:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		QiGuaLongitude: 116.4,
+		Casting:        &qigua.Casting,
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.chart: %v", err)
@@ -611,9 +613,9 @@ func TestEngineContractCalls(t *testing.T) {
 	tamperedQigua := qigua
 	tamperedQigua.Casting.Yaos[0] = 8
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-		Longitude:    116.4,
-		Casting:      &tamperedQigua.Casting,
+		QiGuaTime:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		QiGuaLongitude: 116.4,
+		Casting:        &tamperedQigua.Casting,
 	})); err == nil || (!strings.Contains(err.Error(), "casting_id mismatch") &&
 		!strings.Contains(err.Error(), "dong_yao mismatch")) {
 		t.Fatalf("expected tampered casting rejection, got %v", err)
