@@ -64,16 +64,9 @@ func ComputeChartFromCore(core NatalCore) Chart {
 }
 
 // applyChartExtra derives the supplementary 三元 / 胎元 / 命宫 / 纳音 projections.
-func applyChartExtra(chart *Chart, core NatalCore) ChartExtra {
-	extra := ComputeChartExtra(core)
-	chart.SanYuan = extra.SanYuan
-	chart.TaiXi = extra.TaiXi
-	chart.GongJia = extra.GongJia
-	chart.NayinRel = extra.NayinRel
-	chart.ChangSheng = extra.ChangSheng
-	chart.SanQiName = extra.SanQiName
+func applyChartExtra(chart *Chart, core NatalCore) {
+	applyChartExtraFields(chart, core)
 	chart.Zodiac = ganzhi.ZhiAnimal(core.ToBazi().Nian.Zhi)
-	return extra
 }
 
 // applyInteractions derives the complete stem/branch interaction groups.

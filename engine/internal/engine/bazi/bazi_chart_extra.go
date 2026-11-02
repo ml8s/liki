@@ -4,16 +4,6 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// ChartExtra holds supplementary chart data not needed for core analysis.
-type ChartExtra struct {
-	SanYuan    SanYuan             `json:"san_yuan"`
-	TaiXi      ganzhi.Zhu          `json:"tai_xi"`
-	GongJia    []GongJia           `json:"gong_jia,omitempty"`
-	NayinRel   []NayinRelEntry     `json:"na_yin_rel"`
-	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
-	SanQiName  string              `json:"san_qi_name,omitempty"`
-}
-
 // NayinRelEntry describes a nayin relation between two pillars.
 type NayinRelEntry struct {
 	A        string `json:"a"`
@@ -27,7 +17,7 @@ type ChangShengStage struct {
 	Index ganzhi.Zhi `json:"index"`
 }
 
-func ComputeChartExtra(core NatalCore) ChartExtra {
+func applyChartExtraFields(chart *Chart, core NatalCore) {
 	bz := core.ToBazi()
 
 	stages := [12]ChangShengStage{}
@@ -59,12 +49,10 @@ func ComputeChartExtra(core NatalCore) ChartExtra {
 		}
 	}
 
-	return ChartExtra{
-		SanYuan:    computeSanYuan(bz.Yue, bz.Nian.Gan, bz.Shi.Zhi),
-		TaiXi:      computeTaiXi(bz.Ri),
-		GongJia:    computeGongJia(bz),
-		NayinRel:   nayinRels,
-		ChangSheng: stages,
-		SanQiName:  sanQiName(sanQiType(bz)),
-	}
+	chart.SanYuan = computeSanYuan(bz.Yue, bz.Nian.Gan, bz.Shi.Zhi)
+	chart.TaiXi = computeTaiXi(bz.Ri)
+	chart.GongJia = computeGongJia(bz)
+	chart.NayinRel = nayinRels
+	chart.ChangSheng = stages
+	chart.SanQiName = sanQiName(sanQiType(bz))
 }
