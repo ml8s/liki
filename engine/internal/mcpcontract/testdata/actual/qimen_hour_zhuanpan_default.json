@@ -464,39 +464,12 @@
         "name": "六仪击刑"
       }
     ],
-    "ri_gan_gong": "坤",
-    "ri_gan_gong_facts": [
-      {
-        "layer": "heaven",
-        "gong": "坤"
-      },
-      {
-        "layer": "earth",
-        "gong": "坤"
-      }
-    ],
     "ri_shi_relation": {
       "name": "日干宫与时干宫比和",
-      "ke": "shi_gan_gong",
+      "ke": "hour_stem_palace",
       "relation": "same",
-      "zhu": "ri_gan_gong"
+      "zhu": "day_stem_palace"
     },
-    "shi_gan_gong": "坤",
-    "shi_gan_gong_wang_shuai": {
-      "gong": "坤",
-      "wang_shuai": "死",
-      "wuxing": "土"
-    },
-    "shi_gan_gong_facts": [
-      {
-        "layer": "heaven",
-        "gong": "坤"
-      },
-      {
-        "layer": "earth",
-        "gong": "坤"
-      }
-    ],
     "special_facts": {
       "geng_ge": [
         {
@@ -1035,6 +1008,42 @@
       "summary": "应期候选由马星、空亡、值符宫与值使宫给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论"
     },
     "zhi_fu_xing_gong": "坤",
-    "zhi_shi_men_gong": "乾"
+    "zhi_shi_men_gong": "乾",
+    "day_stem_palace": {
+      "palace": "坤",
+      "facts": [
+        {
+          "layer": "heaven",
+          "gong": "坤"
+        },
+        {
+          "layer": "earth",
+          "gong": "坤"
+        }
+      ],
+      "wang_shuai": {
+        "gong": "坤",
+        "wang_shuai": "死",
+        "wuxing": "土"
+      }
+    },
+    "hour_stem_palace": {
+      "palace": "坤",
+      "facts": [
+        {
+          "layer": "heaven",
+          "gong": "坤"
+        },
+        {
+          "layer": "earth",
+          "gong": "坤"
+        }
+      ],
+      "wang_shuai": {
+        "gong": "坤",
+        "wang_shuai": "死",
+        "wuxing": "土"
+      }
+    }
   }
 }

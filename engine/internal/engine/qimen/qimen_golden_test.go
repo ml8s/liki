@@ -60,11 +60,11 @@ func assertChartAnchors(t *testing.T, chart Chart) {
 	if !chart.Board.YinDun {
 		t.Error("yin_dun = false, want true（夏至后阴遁）")
 	}
-	if chart.RiGanPalace != GongZhen {
-		t.Errorf("ri_gan_gong = %d, want 震(3)", chart.RiGanPalace)
+	if chart.DayStemPalace.Palace != GongZhen {
+		t.Errorf("day_stem_palace = %d, want 震(3)", chart.DayStemPalace.Palace)
 	}
-	if chart.ShiGanPalace != GongDui {
-		t.Errorf("shi_gan_gong = %d, want 兑(7)", chart.ShiGanPalace)
+	if chart.HourStemPalace.Palace != GongDui {
+		t.Errorf("hour_stem_palace = %d, want 兑(7)", chart.HourStemPalace.Palace)
 	}
 	if chart.RiShiRelation.Relation != "shi_controls_ri" {
 		t.Errorf("ri_shi_relation = %+v, want shi_controls_ri", chart.RiShiRelation)

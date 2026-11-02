@@ -60,14 +60,20 @@ def _pan(**changes):
                 {"gong": {"name": "乾", "luoshu": 6}},
             ],
         },
-        "ri_gan_gong": "震",
-        "shi_gan_gong": "兑",
-        "ri_gan_gong_facts": [{"palace": "震", "layer": "heaven"}],
-        "shi_gan_gong_facts": [{"palace": "兑", "layer": "heaven"}],
+        "day_stem_palace": {
+            "palace": "震",
+            "facts": [{"palace": "震", "layer": "heaven"}],
+            "wang_shuai": {"gong": "震", "wuxing": "木", "wang_shuai": "休"},
+        },
+        "hour_stem_palace": {
+            "palace": "兑",
+            "facts": [{"palace": "兑", "layer": "heaven"}],
+            "wang_shuai": {"gong": "兑", "wuxing": "金", "wang_shuai": "死"},
+        },
         "shi_gan_domain": "outer",
         "ri_shi_relation": {
-            "subject": "ri_gan_gong",
-            "object": "shi_gan_gong",
+            "zhu": "day_stem_palace",
+            "ke": "hour_stem_palace",
             "relation": "same",
             "name": "日干宫与时干宫比和",
         },
@@ -75,9 +81,6 @@ def _pan(**changes):
         "kong_wang_affected": [],
         "ma_xing_affected": [],
         "gong_wang_shuai": [],
-        "shi_gan_gong_wang_shuai": {
-            "gong": "兑", "wuxing": "金", "wang_shuai": "死",
-        },
         "ying_qi": {"candidates": []},
         "gan_interaction": [],
         "men_interaction": [],
@@ -114,8 +117,8 @@ def _lost_pan(**changes):
             "gong": "乾",
         }],
         "ri_shi_relation": {
-            "subject": "ri_gan_gong",
-            "object": "shi_gan_gong",
+            "zhu": "day_stem_palace",
+            "ke": "hour_stem_palace",
             "relation": "shi_generates_ri",
             "name": "时干宫生日干宫",
         },
@@ -124,11 +127,6 @@ def _lost_pan(**changes):
             "wuxing": "金",
             "wang_shuai": "旺",
         }],
-        "shi_gan_gong_wang_shuai": {
-            "gong": "兑",
-            "wuxing": "金",
-            "wang_shuai": "旺",
-        },
     })
     natal_chart["chart"].update(changes)
     return natal_chart
@@ -172,8 +170,8 @@ def _thief_pan(**changes):
 def _rich_pan():
     rich = _pan(
         ri_shi_relation={
-            "subject": "ri_gan_gong",
-            "object": "shi_gan_gong",
+            "zhu": "day_stem_palace",
+            "ke": "hour_stem_palace",
             "relation": "shi_generates_ri",
             "name": "时干宫生日干宫",
         },
@@ -213,9 +211,6 @@ def _rich_pan():
             {"gong": "离", "wuxing": "火", "wang_shuai": "旺"},
             {"gong": "兑", "wuxing": "金", "wang_shuai": "死"},
         ],
-        shi_gan_gong_wang_shuai={
-            "gong": "兑", "wuxing": "金", "wang_shuai": "死",
-        },
         men_po=["坎"],
         men_zhi=["离"],
         zhi_fu_xing_gong="乾",
@@ -257,7 +252,7 @@ def _rich_pan():
 
 def _missing_pan(**changes):
     natal_chart = _pan()
-    natal_chart["chart"]["shi_gan_gong"] = "坎"
+    natal_chart["chart"]["hour_stem_palace"] = {"palace": "坎"}
     natal_chart["chart"]["yong_shen"] = {
         "nian_gan_gong": None,
         "symbols": [{
@@ -352,7 +347,10 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 
     def fake_engine_data(method: str, params: dict) -> dict:
         calls.append((method, params))
-        return {"ri_gan_gong": "震", "shi_gan_gong": "兑"}
+        return {
+            "day_stem_palace": {"palace": "震", "facts": [], "wang_shuai": {}},
+            "hour_stem_palace": {"palace": "兑", "facts": [], "wang_shuai": {}},
+        }
 
     monkeypatch.setattr(qimen_charts, "engine_data", fake_engine_data)
     result = qimen_charts.qimen_chart(
@@ -371,7 +369,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
     assert params["subject"]["birth_time"] == "1984-02-15T00:00:00+08:00"
     assert result["matter"]["matter"] == "wealth"
     assert result["matter"]["name"] == "求财"
-    assert result["chart"]["ri_gan_gong"] == "震"
+    assert result["chart"]["day_stem_palace"]["palace"] == "震"
 
 
 def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
@@ -403,7 +401,7 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
 
 
 def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
-    contract = next(c for c in DIVINATION_TOOLS if c.name == "qimen_snapshot")
+    contract = next(c for c in DIVINATION_TOOLS if c.name == "qimen_ask")
     focus_branches = contract.input_schema["properties"]["focus"]["anyOf"]
     yong_shen = next(
         branch["properties"]["yong_shen"]
@@ -706,7 +704,7 @@ def test_engine_mcp_client_preserves_aggregate_endpoint(monkeypatch):
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
     monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://127.0.0.1:18081/mcp")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
-    for name in ["tianwen_resolve", "ziwei.chart", "bazi_chart", "time.now"]:
+    for name in ["tianwen_subject_candidates", "ziwei.chart", "bazi_chart", "time.now"]:
         engine_mcp_client.call(name, {})
     assert seen == [
         "http://127.0.0.1:18081/mcp",

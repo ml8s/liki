@@ -435,39 +435,12 @@
         "name": "六仪击刑"
       }
     ],
-    "ri_gan_gong": "离",
-    "ri_gan_gong_facts": [
-      {
-        "layer": "heaven",
-        "gong": "离"
-      },
-      {
-        "layer": "earth",
-        "gong": "震"
-      }
-    ],
     "ri_shi_relation": {
       "name": "时干宫生日干宫",
-      "ke": "shi_gan_gong",
+      "ke": "hour_stem_palace",
       "relation": "shi_generates_ri",
-      "zhu": "ri_gan_gong"
+      "zhu": "day_stem_palace"
     },
-    "shi_gan_gong": "震",
-    "shi_gan_gong_wang_shuai": {
-      "gong": "震",
-      "wang_shuai": "死",
-      "wuxing": "木"
-    },
-    "shi_gan_gong_facts": [
-      {
-        "layer": "heaven",
-        "gong": "震"
-      },
-      {
-        "layer": "earth",
-        "gong": "坎"
-      }
-    ],
     "special_facts": {
       "geng_ge": [],
       "lost_facts": [
@@ -923,6 +896,42 @@
       "summary": "应期候选由马星、空亡、值符宫与值使宫给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论"
     },
     "zhi_fu_xing_gong": "震",
-    "zhi_shi_men_gong": "兑"
+    "zhi_shi_men_gong": "兑",
+    "day_stem_palace": {
+      "palace": "离",
+      "facts": [
+        {
+          "layer": "heaven",
+          "gong": "离"
+        },
+        {
+          "layer": "earth",
+          "gong": "震"
+        }
+      ],
+      "wang_shuai": {
+        "gong": "离",
+        "wang_shuai": "囚",
+        "wuxing": "火"
+      }
+    },
+    "hour_stem_palace": {
+      "palace": "震",
+      "facts": [
+        {
+          "layer": "heaven",
+          "gong": "震"
+        },
+        {
+          "layer": "earth",
+          "gong": "坎"
+        }
+      ],
+      "wang_shuai": {
+        "gong": "震",
+        "wang_shuai": "死",
+        "wuxing": "木"
+      }
+    }
   }
 }

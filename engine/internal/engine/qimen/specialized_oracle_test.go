@@ -49,11 +49,11 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 			} `json:"expected"`
 		} `json:"geng_ge_cases"`
 		Lost []struct {
-			ID         string `json:"id"`
-			ShiGanGong string `json:"shi_gan_gong"`
-			Door       string `json:"door"`
-			WangShuai  string `json:"wang_shuai"`
-			Expected   []struct {
+			ID             string `json:"id"`
+			HourStemPalace string `json:"hour_stem_palace"`
+			Door           string `json:"door"`
+			WangShuai      string `json:"wang_shuai"`
+			Expected       []struct {
 				Gong      string `json:"gong"`
 				Door      string `json:"door"`
 				WangShuai string `json:"wang_shuai"`
@@ -126,9 +126,9 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 
 	for _, tc := range doc.Lost {
 		t.Run("lost/"+tc.ID, func(t *testing.T) {
-			chart := Chart{ShiGanPalace: oracleGong(t, tc.ShiGanGong)}
-			palace := oracleGong(t, tc.ShiGanGong)
-			chart.ShiGanGongWangShuai.WangShuai = oracleWangShuai(t, tc.WangShuai)
+			chart := Chart{HourStemPalace: StemPalace{Palace: oracleGong(t, tc.HourStemPalace)}}
+			palace := chart.HourStemPalace.Palace
+			chart.HourStemPalace.WangShuai.WangShuai = oracleWangShuai(t, tc.WangShuai)
 			chart.Board.GongWei[palace-1].DoorSet = true
 			chart.Board.GongWei[palace-1].Door = oracleDoor(t, tc.Door)
 			got := computeSpecializedContext(chart, ganzhi.Bazi{}).LostContext
@@ -170,7 +170,7 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 
 	for _, tc := range doc.Tianwang {
 		t.Run("tianwang/"+tc.ID, func(t *testing.T) {
-			chart := Chart{ShiGanPalace: oracleGong(t, tc.HourGong)}
+			chart := Chart{HourStemPalace: StemPalace{Palace: oracleGong(t, tc.HourGong)}}
 			for _, row := range tc.GanInteractions {
 				chart.GanInteractions = append(chart.GanInteractions, GanInteraction{
 					Gong: oracleGong(t, row.Gong), TianPanGan: oracleGan(t, row.TianPanGan),

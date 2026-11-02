@@ -53,9 +53,9 @@ func TestChartDerived_Anchors(t *testing.T) {
 			if chart.Board.Jushu != c.ju || chart.Board.YinDun != c.yin {
 				t.Fatalf("ju=%d yin=%v, want %d/%v", chart.Board.Jushu, chart.Board.YinDun, c.ju, c.yin)
 			}
-			if chart.RiGanPalace.String() != c.dayGong || chart.ShiGanPalace.String() != c.hourGong {
+			if chart.DayStemPalace.Palace.String() != c.dayGong || chart.HourStemPalace.Palace.String() != c.hourGong {
 				t.Fatalf("day/hour palaces = %s/%s, want %s/%s",
-					chart.RiGanPalace, chart.ShiGanPalace, c.dayGong, c.hourGong)
+					chart.DayStemPalace.Palace, chart.HourStemPalace.Palace, c.dayGong, c.hourGong)
 			}
 			if chart.RiShiRelation.Relation != c.riShi {
 				t.Fatalf("ri_shi_relation = %+v, want %s", chart.RiShiRelation, c.riShi)
@@ -94,7 +94,7 @@ func TestGongWangShuaiUsesMonthBranch(t *testing.T) {
 			t.Fatalf("%s wangshuai = %s, want %s", item.Gong.String(), item.WangShuai.String(), want[item.Gong].String())
 		}
 	}
-	if chart.ShiGanGongWangShuai.Gong != GongDui || chart.ShiGanGongWangShuai.WangShuai != ganzhi.WSSi {
-		t.Fatalf("shi gan palace wangshuai = %+v", chart.ShiGanGongWangShuai)
+	if chart.HourStemPalace.Palace != GongDui || chart.HourStemPalace.WangShuai.WangShuai != ganzhi.WSSi {
+		t.Fatalf("hour stem palace wangshuai = %+v", chart.HourStemPalace.WangShuai)
 	}
 }

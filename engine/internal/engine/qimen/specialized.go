@@ -117,10 +117,10 @@ func levelRank(level string) int {
 }
 
 func computeLostContextFacts(chart Chart) []LostContextFact {
-	if chart.ShiGanPalace == 0 {
+	if chart.HourStemPalace.Palace == 0 {
 		return []LostContextFact{}
 	}
-	palace := chart.ShiGanPalace
+	palace := chart.HourStemPalace.Palace
 	door := ""
 	if int(palace) >= 1 && int(palace) <= len(chart.Board.GongWei) {
 		item := chart.Board.GongWei[int(palace)-1]
@@ -130,7 +130,7 @@ func computeLostContextFacts(chart Chart) []LostContextFact {
 	}
 	return []LostContextFact{{
 		Gong: palace, Door: door,
-		WangShuai: chart.ShiGanGongWangShuai.WangShuai.String(),
+		WangShuai: chart.HourStemPalace.WangShuai.WangShuai.String(),
 	}}
 }
 
@@ -206,7 +206,7 @@ func computeThiefFacts(chart Chart) []ThiefFact {
 }
 
 func computeTianwangFacts(chart Chart) []TianwangFact {
-	hourGong := chart.ShiGanPalace
+	hourGong := chart.HourStemPalace.Palace
 	if hourGong == 0 {
 		return []TianwangFact{}
 	}

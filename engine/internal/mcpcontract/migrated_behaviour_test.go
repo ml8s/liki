@@ -297,7 +297,7 @@ func TestMigratedQimenJinhanContract(t *testing.T) {
 	}
 	for _, field := range []string{
 		"gan_interaction", "men_interaction", "xing_interaction", "xing_gong_wu_xing",
-		"men_po", "men_zhi", "ge_ju", "ying_qi", "ri_gan_gong", "shi_gan_gong",
+		"men_po", "men_zhi", "ge_ju", "ying_qi", "day_stem_palace", "hour_stem_palace",
 		"kong_wang_affected", "ma_xing_affected", "zhi_fu_xing_gong", "zhi_shi_men_gong",
 		"yong_shen",
 	} {

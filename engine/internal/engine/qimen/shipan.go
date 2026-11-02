@@ -9,33 +9,38 @@ import (
 
 // Chart bundles a complete奇门盘 with all analysis layers.
 type Chart struct {
-	Method              ChartMethod        `json:"method"`
-	Board               board              `json:"pan"`
-	GanInteractions     []GanInteraction   `json:"gan_interaction"`
-	MenInteractions     []MenInteraction   `json:"men_interaction"`
-	XingInteractions    []XingInteraction  `json:"xing_interaction"`
-	XingGongWuXing      []XingGongWuXing   `json:"xing_gong_wu_xing"`
-	MenPo               []GongIndex        `json:"men_po"`
-	MenZhi              []GongIndex        `json:"men_zhi"`
-	Patterns            []Pattern          `json:"ge_ju"`
-	YingQi              YingQi             `json:"ying_qi"`
-	RiGanPalace         GongIndex          `json:"ri_gan_gong"`  // 日干落宫（排盘固有）
-	ShiGanPalace        GongIndex          `json:"shi_gan_gong"` // 时干落宫（排盘固有）
-	RiGanGongFacts      []GanGongFact      `json:"ri_gan_gong_facts"`
-	ShiGanGongFacts     []GanGongFact      `json:"shi_gan_gong_facts"`
-	RiShiRelation       RiShiRelation      `json:"ri_shi_relation"`
-	KongWangAffected    []AffectedSymbol   `json:"kong_wang_affected"`
-	MaXingAffected      []AffectedSymbol   `json:"ma_xing_affected"`
-	GongWangShuai       []GongWangShuai    `json:"gong_wang_shuai"`
-	ShiGanGongWangShuai GongWangShuai      `json:"shi_gan_gong_wang_shuai"`
-	DutyStarPalace      GongIndex          `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
-	DutyDoorPalace      GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
-	YongShen            *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
-	Specialized         SpecializedContext `json:"special_facts"`
+	Method           ChartMethod        `json:"method"`
+	Board            board              `json:"pan"`
+	GanInteractions  []GanInteraction   `json:"gan_interaction"`
+	MenInteractions  []MenInteraction   `json:"men_interaction"`
+	XingInteractions []XingInteraction  `json:"xing_interaction"`
+	XingGongWuXing   []XingGongWuXing   `json:"xing_gong_wu_xing"`
+	MenPo            []GongIndex        `json:"men_po"`
+	MenZhi           []GongIndex        `json:"men_zhi"`
+	Patterns         []Pattern          `json:"ge_ju"`
+	YingQi           YingQi             `json:"ying_qi"`
+	DayStemPalace    StemPalace         `json:"day_stem_palace"`
+	HourStemPalace   StemPalace         `json:"hour_stem_palace"`
+	RiShiRelation    RiShiRelation      `json:"ri_shi_relation"`
+	KongWangAffected []AffectedSymbol   `json:"kong_wang_affected"`
+	MaXingAffected   []AffectedSymbol   `json:"ma_xing_affected"`
+	GongWangShuai    []GongWangShuai    `json:"gong_wang_shuai"`
+	DutyStarPalace   GongIndex          `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
+	DutyDoorPalace   GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
+	YongShen         *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
+	Specialized      SpecializedContext `json:"special_facts"`
+}
+
+// StemPalace is the canonical view of one stem's placement: the primary
+// heaven-first palace, all heaven/earth occurrences, and seasonal state.
+type StemPalace struct {
+	Palace    GongIndex     `json:"palace"`
+	Facts     []GanGongFact `json:"facts"`
+	WangShuai GongWangShuai `json:"wang_shuai"`
 }
 
 // GanGongFact records every palace layer occupied by a stem. The primary
-// ri_gan_gong/shi_gan_gong keeps the heaven-first rule; these facts preserve
+// primary palace keeps the heaven-first rule; facts preserve
 // the earth-stem palace that the single value previously discarded.
 type GanGongFact struct {
 	Palace GongIndex `json:"gong"`
@@ -99,26 +104,23 @@ func buildChart(bz ganzhi.Bazi, termTime, chartTime time.Time, method Method) Ch
 	leadP := leadPillarPalace(p)
 
 	chart := Chart{
-		Method:              buildChartMethod(ju, bz),
-		Board:               p,
-		GanInteractions:     computeGanInteractions(p),
-		MenInteractions:     computeMenInteractions(p),
-		XingInteractions:    computeXingInteractions(p),
-		XingGongWuXing:      computeXingGongWuXing(p),
-		MenPo:               findMenPo(p),
-		MenZhi:              findMenZhi(p),
-		Patterns:            findPatterns(p),
-		RiGanPalace:         riGanP,
-		ShiGanPalace:        shiGanP,
-		RiGanGongFacts:      riGanFacts,
-		ShiGanGongFacts:     shiGanFacts,
-		RiShiRelation:       analyzeRiShiRelation(riGanP, shiGanP),
-		KongWangAffected:    affectedVoidSymbols(p, riGanP, shiGanP, leadP),
-		MaXingAffected:      affectedHorseSymbols(p, riGanP, shiGanP, leadP),
-		GongWangShuai:       palaceWangShuai(p, bz.Yue.Zhi),
-		ShiGanGongWangShuai: palaceWangShuaiForPalace(p, bz.Yue.Zhi, shiGanP),
-		DutyStarPalace:      findStarPalace(p, p.DutyStar),
-		DutyDoorPalace:      findDoorPalaceIdx(p, p.DutyDoor),
+		Method:           buildChartMethod(ju, bz),
+		Board:            p,
+		GanInteractions:  computeGanInteractions(p),
+		MenInteractions:  computeMenInteractions(p),
+		XingInteractions: computeXingInteractions(p),
+		XingGongWuXing:   computeXingGongWuXing(p),
+		MenPo:            findMenPo(p),
+		MenZhi:           findMenZhi(p),
+		Patterns:         findPatterns(p),
+		DayStemPalace:    newStemPalace(riGanP, riGanFacts, palaceWangShuaiForPalace(p, bz.Yue.Zhi, riGanP)),
+		HourStemPalace:   newStemPalace(shiGanP, shiGanFacts, palaceWangShuaiForPalace(p, bz.Yue.Zhi, shiGanP)),
+		RiShiRelation:    analyzeRiShiRelation(riGanP, shiGanP),
+		KongWangAffected: affectedVoidSymbols(p, riGanP, shiGanP, leadP),
+		MaXingAffected:   affectedHorseSymbols(p, riGanP, shiGanP, leadP),
+		GongWangShuai:    palaceWangShuai(p, bz.Yue.Zhi),
+		DutyStarPalace:   findStarPalace(p, p.DutyStar),
+		DutyDoorPalace:   findDoorPalaceIdx(p, p.DutyDoor),
 	}
 	chart.Specialized = computeSpecializedContext(chart, bz)
 	return chart
@@ -247,6 +249,10 @@ func palaceWangShuaiForPalace(p board, yueZhi ganzhi.Zhi, palace GongIndex) Gong
 	return GongWangShuai{}
 }
 
+func newStemPalace(palace GongIndex, facts []GanGongFact, wangShuai GongWangShuai) StemPalace {
+	return StemPalace{Palace: palace, Facts: facts, WangShuai: wangShuai}
+}
+
 func leadPillarPalace(p board) GongIndex {
 	return findGanPalaceIdx(p, resolveJiaDunGan(p.LeadGan, p.LeadZhi))
 }
@@ -317,7 +323,7 @@ func analyzeRiShiRelation(dayPalace, hourPalace GongIndex) RiShiRelation {
 		}
 	}
 	return RiShiRelation{
-		Zhu: "ri_gan_gong", Ke: "shi_gan_gong",
+		Zhu: "day_stem_palace", Ke: "hour_stem_palace",
 		Relation: relation, Name: riShiRelations[relation],
 	}
 }

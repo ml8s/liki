@@ -87,56 +87,112 @@
         }
       }
     },
-    "ri_gan_gong": {
-      "kind": "scalar",
-      "path": "ri_gan_gong",
-      "type": "string",
-      "required": true
-    },
-    "ri_gan_gong_facts": {
-      "kind": "object_array",
-      "path": "ri_gan_gong_facts",
+    "day_stem_palace": {
+      "kind": "object",
+      "path": "day_stem_palace",
       "required": true,
       "fields": {
-        "gong": {
-          "path": "gong",
+        "palace": {
+          "path": "palace",
           "type": "string",
           "required": true
         },
-        "layer": {
-          "path": "layer",
-          "type": "string",
-          "required": true
+        "facts": {
+          "kind": "object_array",
+          "path": "facts",
+          "required": true,
+          "fields": {
+            "gong": {
+              "path": "gong",
+              "type": "string",
+              "required": true
+            },
+            "layer": {
+              "path": "layer",
+              "type": "string",
+              "required": true
+            }
+          }
+        },
+        "wang_shuai": {
+          "kind": "object",
+          "path": "wang_shuai",
+          "required": true,
+          "fields": {
+            "gong": {
+              "path": "gong",
+              "type": "string",
+              "required": true
+            },
+            "wuxing": {
+              "path": "wuxing",
+              "type": "string",
+              "required": true
+            },
+            "wang_shuai": {
+              "path": "wang_shuai",
+              "type": "string",
+              "required": true
+            }
+          }
         }
       }
     },
-    "shi_gan_gong": {
-      "kind": "scalar",
-      "path": "shi_gan_gong",
-      "type": "string",
-      "required": true
-    },
-    "shi_gan_gong_facts": {
-      "kind": "object_array",
-      "path": "shi_gan_gong_facts",
+    "hour_stem_palace": {
+      "kind": "object",
+      "path": "hour_stem_palace",
       "required": true,
       "fields": {
-        "gong": {
-          "path": "gong",
+        "palace": {
+          "path": "palace",
           "type": "string",
           "required": true
         },
-        "layer": {
-          "path": "layer",
-          "type": "string",
-          "required": true
+        "facts": {
+          "kind": "object_array",
+          "path": "facts",
+          "required": true,
+          "fields": {
+            "gong": {
+              "path": "gong",
+              "type": "string",
+              "required": true
+            },
+            "layer": {
+              "path": "layer",
+              "type": "string",
+              "required": true
+            }
+          }
+        },
+        "wang_shuai": {
+          "kind": "object",
+          "path": "wang_shuai",
+          "required": true,
+          "fields": {
+            "gong": {
+              "path": "gong",
+              "type": "string",
+              "required": true
+            },
+            "wuxing": {
+              "path": "wuxing",
+              "type": "string",
+              "required": true
+            },
+            "wang_shuai": {
+              "path": "wang_shuai",
+              "type": "string",
+              "required": true
+            }
+          }
         }
       }
     },
     "shi_gan_domain": {
       "kind": "scalar",
       "projection": "gong_domain",
-      "path": "shi_gan_gong",
+      "path": "hour_stem_palace.palace",
       "type": "string",
       "required": true
     },
@@ -593,28 +649,6 @@
     "gong_wang_shuai": {
       "kind": "object_array",
       "path": "gong_wang_shuai",
-      "required": true,
-      "fields": {
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "wuxing": {
-          "path": "wuxing",
-          "type": "string",
-          "required": true
-        },
-        "wang_shuai": {
-          "path": "wang_shuai",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "shi_gan_gong_wang_shuai": {
-      "kind": "object",
-      "path": "shi_gan_gong_wang_shuai",
       "required": true,
       "fields": {
         "gong": {

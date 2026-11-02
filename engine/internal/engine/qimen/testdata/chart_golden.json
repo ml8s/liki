@@ -812,31 +812,45 @@
     ],
     "summary": "应期候选由马星、空亡、值符宫与值使宫给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论"
   },
-  "ri_gan_gong": "震",
-  "shi_gan_gong": "兑",
-  "ri_gan_gong_facts": [
-    {
+  "day_stem_palace": {
+    "palace": "震",
+    "facts": [
+      {
+        "gong": "震",
+        "layer": "heaven"
+      },
+      {
+        "gong": "兑",
+        "layer": "earth"
+      }
+    ],
+    "wang_shuai": {
       "gong": "震",
-      "layer": "heaven"
-    },
-    {
-      "gong": "兑",
-      "layer": "earth"
+      "wuxing": "木",
+      "wang_shuai": "休"
     }
-  ],
-  "shi_gan_gong_facts": [
-    {
+  },
+  "hour_stem_palace": {
+    "palace": "兑",
+    "facts": [
+      {
+        "gong": "兑",
+        "layer": "heaven"
+      },
+      {
+        "gong": "震",
+        "layer": "earth"
+      }
+    ],
+    "wang_shuai": {
       "gong": "兑",
-      "layer": "heaven"
-    },
-    {
-      "gong": "震",
-      "layer": "earth"
+      "wuxing": "金",
+      "wang_shuai": "死"
     }
-  ],
+  },
   "ri_shi_relation": {
-    "zhu": "ri_gan_gong",
-    "ke": "shi_gan_gong",
+    "zhu": "day_stem_palace",
+    "ke": "hour_stem_palace",
     "relation": "shi_controls_ri",
     "name": "时干宫克日干宫"
   },
@@ -889,11 +903,6 @@
       "wang_shuai": "旺"
     }
   ],
-  "shi_gan_gong_wang_shuai": {
-    "gong": "兑",
-    "wuxing": "金",
-    "wang_shuai": "死"
-  },
   "zhi_fu_xing_gong": "震",
   "zhi_shi_men_gong": "震",
   "special_facts": {

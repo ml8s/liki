@@ -242,29 +242,26 @@ func qimenChartFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, err
 // ── qimen.chart output ──
 
 type QimenChartOutput struct {
-	Method              QimenChartMethod                  `json:"method" jsonschema:"排盘方法元数据"`
-	Board               QimenChartPan                     `json:"pan" jsonschema:"盘面。"`
-	Patterns            *[]QimenChartGeJuItem             `json:"ge_ju,omitempty" jsonschema:"格局。"`
-	GanInteraction      *[]QimenChartGanInteractionItem   `json:"gan_interaction,omitempty" jsonschema:"gan_interaction列表。"`
-	MenInteraction      *[]QimenChartMenInteractionItem   `json:"men_interaction,omitempty" jsonschema:"men_interaction列表。"`
-	XingInteraction     *[]QimenChartXingInteractionItem  `json:"xing_interaction,omitempty" jsonschema:"xing_interaction列表。"`
-	XingGongWuXing      *[]QimenChartXingGongWuXingItem   `json:"xing_gong_wu_xing,omitempty" jsonschema:"星与宫的五行关系；不是完整季节旺衰"`
-	MenPo               *[]QimenGongName                  `json:"men_po,omitempty" jsonschema:"men_po列表。"`
-	MenZhi              *[]QimenGongName                  `json:"men_zhi,omitempty" jsonschema:"men_zhi列表。"`
-	YingQi              *QimenChartYingQi                 `json:"ying_qi,omitempty" jsonschema:"ying_qi。"`
-	RiGanGong           *QimenGongName                    `json:"ri_gan_gong,omitempty" jsonschema:"日干落宫。"`
-	ShiGanGong          *QimenGongName                    `json:"shi_gan_gong,omitempty" jsonschema:"时干落宫。"`
-	RiShiRelation       *QimenChartRiShiRelation          `json:"ri_shi_relation,omitempty" jsonschema:"ri_shi_relation。"`
-	KongWangAffected    *[]QimenChartKongWangAffectedItem `json:"kong_wang_affected,omitempty" jsonschema:"kong_wang_affected列表。"`
-	MaXingAffected      *[]QimenChartMaXingAffectedItem   `json:"ma_xing_affected,omitempty" jsonschema:"ma_xing_affected列表。"`
-	GongWangShuai       *[]QimenGongWangShuaiFact         `json:"gong_wang_shuai,omitempty" jsonschema:"gong_wang_shuai列表。"`
-	ShiGanGongWangShuai *QimenGongWangShuaiFact           `json:"shi_gan_gong_wang_shuai,omitempty" jsonschema:"shi_gan_gong_wang_shuai。"`
-	ZhiFuXingGong       *QimenGongName                    `json:"zhi_fu_xing_gong,omitempty" jsonschema:"值符星落宫。"`
-	ZhiShiMenGong       *QimenGongName                    `json:"zhi_shi_men_gong,omitempty" jsonschema:"值使门落宫。"`
-	YongShen            *QimenChartYongShen               `json:"yong_shen,omitempty" jsonschema:"yong_shen。"`
-	Specialized         *QimenChartSpecialFacts           `json:"special_facts,omitempty" jsonschema:"专占领域原子事实；Python 只做 projection"`
-	RiGanGongFacts      *[]QimenStemPalaceFact            `json:"ri_gan_gong_facts,omitempty" jsonschema:"ri_gan_gong_facts列表。"`
-	ShiGanGongFacts     *[]QimenStemPalaceFact            `json:"shi_gan_gong_facts,omitempty" jsonschema:"shi_gan_gong_facts列表。"`
+	Method           QimenChartMethod                  `json:"method" jsonschema:"排盘方法元数据"`
+	Board            QimenChartPan                     `json:"pan" jsonschema:"盘面。"`
+	Patterns         *[]QimenChartGeJuItem             `json:"ge_ju,omitempty" jsonschema:"格局。"`
+	GanInteraction   *[]QimenChartGanInteractionItem   `json:"gan_interaction,omitempty" jsonschema:"gan_interaction列表。"`
+	MenInteraction   *[]QimenChartMenInteractionItem   `json:"men_interaction,omitempty" jsonschema:"men_interaction列表。"`
+	XingInteraction  *[]QimenChartXingInteractionItem  `json:"xing_interaction,omitempty" jsonschema:"xing_interaction列表。"`
+	XingGongWuXing   *[]QimenChartXingGongWuXingItem   `json:"xing_gong_wu_xing,omitempty" jsonschema:"星与宫的五行关系；不是完整季节旺衰"`
+	MenPo            *[]QimenGongName                  `json:"men_po,omitempty" jsonschema:"men_po列表。"`
+	MenZhi           *[]QimenGongName                  `json:"men_zhi,omitempty" jsonschema:"men_zhi列表。"`
+	YingQi           *QimenChartYingQi                 `json:"ying_qi,omitempty" jsonschema:"ying_qi。"`
+	DayStemPalace    *QimenStemPalace                  `json:"day_stem_palace,omitempty" jsonschema:"日干落宫领域对象；金函玉镜不输出。"`
+	HourStemPalace   *QimenStemPalace                  `json:"hour_stem_palace,omitempty" jsonschema:"时干落宫领域对象；金函玉镜不输出。"`
+	RiShiRelation    *QimenChartRiShiRelation          `json:"ri_shi_relation,omitempty" jsonschema:"ri_shi_relation。"`
+	KongWangAffected *[]QimenChartKongWangAffectedItem `json:"kong_wang_affected,omitempty" jsonschema:"kong_wang_affected列表。"`
+	MaXingAffected   *[]QimenChartMaXingAffectedItem   `json:"ma_xing_affected,omitempty" jsonschema:"ma_xing_affected列表。"`
+	GongWangShuai    *[]QimenGongWangShuaiFact         `json:"gong_wang_shuai,omitempty" jsonschema:"gong_wang_shuai列表。"`
+	ZhiFuXingGong    *QimenGongName                    `json:"zhi_fu_xing_gong,omitempty" jsonschema:"值符星落宫。"`
+	ZhiShiMenGong    *QimenGongName                    `json:"zhi_shi_men_gong,omitempty" jsonschema:"值使门落宫。"`
+	YongShen         *QimenChartYongShen               `json:"yong_shen,omitempty" jsonschema:"yong_shen。"`
+	Specialized      *QimenChartSpecialFacts           `json:"special_facts,omitempty" jsonschema:"专占领域原子事实；Python 只做 projection"`
 }
 
 type QimenChartMethod struct {
@@ -537,4 +534,10 @@ type QimenChartSpecialFactsTianwangContextItem struct {
 type QimenStemPalaceFact struct {
 	Palace QimenGongName `json:"gong" jsonschema:"宫位。"`
 	Layer  LayerName     `json:"layer" jsonschema:"层次。"`
+}
+
+type QimenStemPalace struct {
+	Palace    QimenGongName          `json:"palace" jsonschema:"天盘优先落宫。"`
+	Facts     []QimenStemPalaceFact  `json:"facts" jsonschema:"天盘/地盘落宫明细。"`
+	WangShuai QimenGongWangShuaiFact `json:"wang_shuai" jsonschema:"落宫旺相休囚死。"`
 }

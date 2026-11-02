@@ -36,7 +36,7 @@
   "lost_cases": [
     {
       "id": "hour-palace-and-door-audit",
-      "shi_gan_gong": "兑",
+      "hour_stem_palace": "兑",
       "door": "开门",
       "wang_shuai": "死",
       "expected": [{"gong": "兑", "door": "开门", "wang_shuai": "死"}]

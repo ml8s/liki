@@ -164,8 +164,8 @@ func formatYingQiReason(template, branch, target string) string {
 
 func baseYingQiFocuses(chart Chart) map[GongIndex][]RelatedSymbol {
 	result := map[GongIndex][]RelatedSymbol{}
-	addFocus(result, chart.RiGanPalace, RelatedSymbol{Symbol: "日干", Role: "pillar"})
-	addFocus(result, chart.ShiGanPalace, RelatedSymbol{Symbol: "时干", Role: "pillar"})
+	addFocus(result, chart.DayStemPalace.Palace, RelatedSymbol{Symbol: "日干", Role: "pillar"})
+	addFocus(result, chart.HourStemPalace.Palace, RelatedSymbol{Symbol: "时干", Role: "pillar"})
 	addFocus(result, leadPillarPalace(chart.Board), RelatedSymbol{Symbol: "主柱", Role: "lead"})
 	if chart.DutyStarPalace != 0 {
 		addFocus(result, chart.DutyStarPalace, RelatedSymbol{Symbol: "值符星", Role: "duty"})
