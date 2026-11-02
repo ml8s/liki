@@ -11,10 +11,6 @@ import (
 // and gender. Timezone, lunar reference, and date validity belong to the
 // caller's projection; this entry does not re-derive the calendar. Use
 // ComputeChartAtBasis when resolving a standard-time input.
-func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) (Chart, error) {
-	return computeChartFromLunarTime(lt, gender), nil
-}
-
 // computeChartFromLunarTime assembles a chart from a caller-resolved lunar
 // time. It deliberately does not re-validate the calendar reference.
 func computeChartFromLunarTime(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {

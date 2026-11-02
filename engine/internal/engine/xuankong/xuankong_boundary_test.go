@@ -2,6 +2,8 @@ package xuankong
 
 import (
 	"testing"
+
+	"liki-engine/internal/engine/tianwen"
 	"time"
 )
 
@@ -31,10 +33,11 @@ func TestComputeChartAtStandardUsesLichunYear(t *testing.T) {
 func TestComputeLiuNianAtStandardUsesLichunYear(t *testing.T) {
 	cst := time.FixedZone("CST", 8*3600)
 	before := time.Date(2024, 1, 15, 12, 0, 0, 0, cst)
-	result, err := ComputeLiuNianAtStandard(before, nil)
+	ly, err := tianwen.LichunYearAt(before)
 	if err != nil {
 		t.Fatal(err)
 	}
+	result := ComputeLiuNian(ly.Year, nil)
 	if result.Year != 2023 {
 		t.Fatalf("before 立春 year = %d, want 2023", result.Year)
 	}

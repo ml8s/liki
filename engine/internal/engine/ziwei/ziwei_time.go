@@ -40,11 +40,6 @@ type LiuRiTime struct {
 
 // ResolveLiuNianTime resolves the lunar year containing date. The 正月初一
 // boundary date belongs to the new year.
-func ResolveLiuNianTime(date tianwen.CivilDate) (LiuNianTime, error) {
-	return ResolveLiuNianTimeWith(tianwen.DefaultLunarProjector(), date)
-}
-
-// ResolveLiuNianTimeWith resolves the lunar year using an explicit projector.
 func ResolveLiuNianTimeWith(p tianwen.LunarProjector, date tianwen.CivilDate) (LiuNianTime, error) {
 	if err := date.Validate(); err != nil {
 		return LiuNianTime{}, err
@@ -74,11 +69,6 @@ func NextLiuNianTimeWith(p tianwen.LunarProjector, t LiuNianTime) (LiuNianTime, 
 
 // ResolveLiuYueTime resolves the lunar month containing date. The lunar month
 // start date belongs to the new month.
-func ResolveLiuYueTime(date tianwen.CivilDate) (LiuYueTime, error) {
-	return ResolveLiuYueTimeWith(tianwen.DefaultLunarProjector(), date)
-}
-
-// ResolveLiuYueTimeWith resolves the lunar month using an explicit projector.
 func ResolveLiuYueTimeWith(p tianwen.LunarProjector, date tianwen.CivilDate) (LiuYueTime, error) {
 	if err := date.Validate(); err != nil {
 		return LiuYueTime{}, err
@@ -118,12 +108,6 @@ func resolveLiuYueTimeWith(p tianwen.LunarProjector, lunar tianwen.LunarDate) (L
 
 // NextLiuYueTime returns the next lunar month's resolved period. The target
 // day is preserved and clamped to the next month's length.
-func NextLiuYueTime(t LiuYueTime) (LiuYueTime, error) {
-	return NextLiuYueTimeWith(tianwen.DefaultLunarProjector(), t)
-}
-
-// NextLiuYueTimeWith returns the next lunar month's resolved period using an
-// explicit projector.
 func NextLiuYueTimeWith(p tianwen.LunarProjector, t LiuYueTime) (LiuYueTime, error) {
 	next, err := p.NextLunarMonth(t.Lunar.Year, t.Lunar.Month, t.Lunar.Leap)
 	if err != nil {
@@ -152,11 +136,6 @@ func NextLiuYueTimeWith(p tianwen.LunarProjector, t LiuYueTime) (LiuYueTime, err
 }
 
 // ResolveLiuRiTime resolves the lunar day containing date.
-func ResolveLiuRiTime(date tianwen.CivilDate) (LiuRiTime, error) {
-	return ResolveLiuRiTimeWith(tianwen.DefaultLunarProjector(), date)
-}
-
-// ResolveLiuRiTimeWith resolves the lunar day using an explicit projector.
 func ResolveLiuRiTimeWith(p tianwen.LunarProjector, date tianwen.CivilDate) (LiuRiTime, error) {
 	if err := date.Validate(); err != nil {
 		return LiuRiTime{}, err
@@ -190,12 +169,6 @@ func ResolveLiuRiTimeAtWith(p tianwen.LunarProjector, standard time.Time, loc *t
 
 // NextLiuRiTime returns the next civil day's lunar date. Converting through
 // the civil date handles 29/30-day months and leap months.
-func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
-	return NextLiuRiTimeWith(tianwen.DefaultLunarProjector(), t)
-}
-
-// NextLiuRiTimeWith returns the next civil day's lunar date using an explicit
-// projector.
 func NextLiuRiTimeWith(p tianwen.LunarProjector, t LiuRiTime) (LiuRiTime, error) {
 	if !t.Standard.IsZero() {
 		if t.Location == nil {
@@ -238,12 +211,6 @@ type LiuShiTime struct {
 }
 
 // ResolveLiuShiTime derives the lunar day and LAST shichen from a standard time.
-func ResolveLiuShiTime(standard time.Time, loc *time.Location, longitude float64) (LiuShiTime, error) {
-	return ResolveLiuShiTimeWith(tianwen.DefaultLunarProjector(), standard, loc, longitude)
-}
-
-// ResolveLiuShiTimeWith derives the lunar day and LAST shichen using an
-// explicit projector.
 func ResolveLiuShiTimeWith(p tianwen.LunarProjector, standard time.Time, loc *time.Location, longitude float64) (LiuShiTime, error) {
 	if longitude < -180 || longitude > 180 {
 		return LiuShiTime{}, fmt.Errorf("liushi: longitude must be within [-180,180], got %v", longitude)
@@ -263,12 +230,6 @@ func ResolveLiuShiTimeWith(p tianwen.LunarProjector, standard time.Time, loc *ti
 }
 
 // NextLiuShiTime advances one apparent-solar 时辰.
-func NextLiuShiTime(t LiuShiTime) (LiuShiTime, error) {
-	return NextLiuShiTimeWith(tianwen.DefaultLunarProjector(), t)
-}
-
-// NextLiuShiTimeWith advances one apparent-solar 时辰 using an explicit
-// projector.
 func NextLiuShiTimeWith(p tianwen.LunarProjector, t LiuShiTime) (LiuShiTime, error) {
 	if t.Location == nil {
 		return LiuShiTime{}, fmt.Errorf("liushi: location is required for series")

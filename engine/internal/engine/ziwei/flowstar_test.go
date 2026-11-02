@@ -50,7 +50,12 @@ func TestFlowStarsAgainstIz(t *testing.T) {
 		yueZhi := Zhi((tc.FlowLM+1)%12 + 1) // 正月寅起，不依赖命宫
 
 		// 流日天干地支
-		dayZhu := tianwen.RiZhu(tianwen.CivilTimeFromLunarDate(tianwen.LunarDate{Year: flowYear, Month: tc.FlowLM, Day: tc.FlowLD}))
+		lunarDate := tianwen.LunarDate{Year: flowYear, Month: tc.FlowLM, Day: tc.FlowLD}
+		civilDate, err := tianwen.ShanghaiLunarReference().CivilDateFromLunar(lunarDate)
+		if err != nil {
+			t.Fatalf("resolve lunar %+v: %v", lunarDate, err)
+		}
+		dayZhu := tianwen.RiZhu(civilDate.Time())
 		riGan, riZhi := Gan(dayZhu.Gan), Zhi(dayZhu.Zhi)
 
 		// 流时天干地支(iztro默认用流日时辰=子时)

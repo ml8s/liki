@@ -52,15 +52,6 @@ func TestLunarProjectorBases(t *testing.T) {
 		t.Fatalf("local_astronomical selector instant = %s, want %s", got, want)
 	}
 
-	if got, want := localLabel.OutputBasis(), "local_label"; got != want {
-		t.Fatalf("local_label output basis = %q, want %q", got, want)
-	}
-	if got, want := official.OutputBasis(), "official"; got != want {
-		t.Fatalf("official output basis = %q, want %q", got, want)
-	}
-	if got := localAstro.OutputBasis(); got != "" {
-		t.Fatalf("local_astronomical output basis = %q, want empty", got)
-	}
 }
 
 func TestParseLunarBasis(t *testing.T) {

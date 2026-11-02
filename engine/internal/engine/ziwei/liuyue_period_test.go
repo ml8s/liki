@@ -15,10 +15,7 @@ func liuYueTestChart(t *testing.T) Chart {
 	if err != nil {
 		t.Fatalf("parse shichen: %v", err)
 	}
-	chart, err := ComputeChart(tianwen.LunarTime{Year: 2000, Month: 8, Day: 23, Shichen: shiZhi}, Female)
-	if err != nil {
-		t.Fatalf("ComputeChart: %v", err)
-	}
+	chart := computeChartFromLunarTime(tianwen.LunarTime{Year: 2000, Month: 8, Day: 23, Shichen: shiZhi}, Female)
 	return chart
 }
 
@@ -27,7 +24,7 @@ func lunarDate(year, month, day int, leap bool) tianwen.LunarDate {
 }
 
 func TestResolveLiuYuePeriod(t *testing.T) {
-	meta, err := tianwen.LunarMonthMeta(2025, 6, true)
+	meta, err := tianwen.ShanghaiLunarReference().LunarMonthMeta(2025, 6, true)
 	if err != nil {
 		t.Fatalf("load leap-month oracle: %v", err)
 	}
@@ -75,7 +72,7 @@ func TestResolveLiuYuePeriod(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := resolveLiuYuePeriod(tt.target)
+			got, err := resolveLiuYuePeriodWith(tianwen.DefaultLunarProjector(), tt.target)
 			if err != nil {
 				t.Fatalf("resolveLiuYuePeriod: %v", err)
 			}
@@ -105,7 +102,7 @@ func TestResolveLiuYuePeriod_Errors(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := resolveLiuYuePeriod(tt.target); err == nil {
+			if _, err := resolveLiuYuePeriodWith(tianwen.DefaultLunarProjector(), tt.target); err == nil {
 				t.Fatal("resolveLiuYuePeriod succeeded, want error")
 			}
 		})
@@ -114,21 +111,21 @@ func TestResolveLiuYuePeriod_Errors(t *testing.T) {
 
 func TestComputeLiuYue_LeapHalfMatchesFlowMonth(t *testing.T) {
 	chart := liuYueTestChart(t)
-	firstLeap, err := ComputeLiuYue(chart, lunarDate(2025, 6, 15, true))
+	firstLeap, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 15, true), tianwen.DefaultLunarProjector())
 	if err != nil {
 		t.Fatalf("first leap half: %v", err)
 	}
-	ordinarySix, err := ComputeLiuYue(chart, lunarDate(2025, 6, 15, false))
+	ordinarySix, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 15, false), tianwen.DefaultLunarProjector())
 	if err != nil {
 		t.Fatalf("ordinary sixth month: %v", err)
 	}
 	assertSameLiuYueChart(t, firstLeap, ordinarySix)
 
-	secondLeap, err := ComputeLiuYue(chart, lunarDate(2025, 6, 16, true))
+	secondLeap, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 16, true), tianwen.DefaultLunarProjector())
 	if err != nil {
 		t.Fatalf("second leap half: %v", err)
 	}
-	ordinarySeven, err := ComputeLiuYue(chart, lunarDate(2025, 7, 16, false))
+	ordinarySeven, err := ComputeLiuYueWith(chart, lunarDate(2025, 7, 16, false), tianwen.DefaultLunarProjector())
 	if err != nil {
 		t.Fatalf("ordinary seventh month: %v", err)
 	}
@@ -163,7 +160,7 @@ func liuYueWithSortedStars(value LiuYue) LiuYue {
 
 func mustLunarMonthDayCount(t *testing.T, year, month int, leap bool) int {
 	t.Helper()
-	meta, err := tianwen.LunarMonthMeta(year, month, leap)
+	meta, err := tianwen.ShanghaiLunarReference().LunarMonthMeta(year, month, leap)
 	if err != nil {
 		t.Fatalf("LunarMonthMeta(%d-%02d leap=%t): %v", year, month, leap, err)
 	}

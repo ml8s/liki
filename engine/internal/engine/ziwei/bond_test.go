@@ -77,9 +77,6 @@ func chartFrom(t *testing.T, lunar string, ti int, gender string) Chart {
 	if gender == "男" {
 		g = ganzhi.Male
 	}
-	chart, err := ComputeChart(tianwen.LunarTime{Year: y, Month: m, Day: d, Shichen: ganzhi.Zhi(sz)}, g)
-	if err != nil {
-		t.Fatalf("invalid chart fixture: %v", err)
-	}
+	chart := computeChartFromLunarTime(tianwen.LunarTime{Year: y, Month: m, Day: d, Shichen: ganzhi.Zhi(sz)}, g)
 	return chart
 }

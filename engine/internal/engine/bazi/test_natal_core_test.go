@@ -20,6 +20,10 @@ func natalCoreFromChart(chart Chart) NatalCore {
 	}
 }
 
+func computeYongshenEvidence(core NatalCore) (FuYiResult, TiaoHouResult, GeJuResult) {
+	return computeYongShenEvidenceFromAnalysis(core, AnalyzePillars(core.ToBazi(), core.Gender))
+}
+
 func atomicCoreFromStrings(t *testing.T, pillars []string) NatalCore {
 	t.Helper()
 	if len(pillars) != 4 {

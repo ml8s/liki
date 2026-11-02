@@ -109,71 +109,6 @@ func TestResolveLiuNianTimeLichunBoundary(t *testing.T) {
 	}
 }
 
-func TestResolveLiuYueTimeJieqiBoundary(t *testing.T) {
-	lichun := tianwen.SolarTermCivilDate(2026, 315)
-
-	before, err := ResolveLiuYueTime(lichun.AddDays(-1))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if before.JieqiMonth != 12 || before.BoundaryDay {
-		t.Fatalf("day before 立春 = %+v, want 丑月 (12) without boundary", before)
-	}
-
-	boundary, err := ResolveLiuYueTime(lichun)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if boundary.JieqiMonth != 1 || !boundary.BoundaryDay {
-		t.Fatalf("立春 day = %+v, want 寅月 (1) on boundary", boundary)
-	}
-	if boundary.Start != lichun {
-		t.Fatalf("start = %s, want %s", boundary.Start, lichun)
-	}
-
-	after, err := ResolveLiuYueTime(lichun.AddDays(1))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if after.JieqiMonth != 1 || after.BoundaryDay {
-		t.Fatalf("day after 立春 = %+v, want 寅月 without boundary", after)
-	}
-}
-
-func TestNextLiuNianTimeAdvancesToNextLichun(t *testing.T) {
-	current, err := ResolveLiuNianTime(tianwen.NewCivilDate(2026, 6, 15))
-	if err != nil {
-		t.Fatal(err)
-	}
-	next, err := NextLiuNianTime(current)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if next.LichunYear != current.LichunYear+1 {
-		t.Fatalf("next year = %d, want %d", next.LichunYear, current.LichunYear+1)
-	}
-	if next.Start != current.End {
-		t.Fatalf("next start = %s, want %s", next.Start, current.End)
-	}
-}
-
-func TestNextLiuYueTimeAdvancesOneJieqiMonth(t *testing.T) {
-	current, err := ResolveLiuYueTime(tianwen.NewCivilDate(2026, 6, 15))
-	if err != nil {
-		t.Fatal(err)
-	}
-	next, err := NextLiuYueTime(current)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if next.JieqiMonth != current.JieqiMonth%12+1 {
-		t.Fatalf("next month = %d, want %d", next.JieqiMonth, current.JieqiMonth%12+1)
-	}
-	if next.Start != current.End {
-		t.Fatalf("next start = %s, want %s", next.Start, current.End)
-	}
-}
-
 func TestResolveLiuNianTimeAtUsesExactLichun(t *testing.T) {
 	loc, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {
@@ -236,7 +171,7 @@ func TestResolveLiuRiTimeAtUsesStandardDateAcrossDST(t *testing.T) {
 		t.Fatal(err)
 	}
 	standard := tianwen.StandardDateAt(at, ny)
-	last := tianwen.ApparentSolarAt(at, ny, -74)
+	last := tianwen.ApparentSolarFromStandard(tianwen.StandardLocalTime(at, ny), -74)
 	lastDate := tianwen.CivilDateOf(last)
 	if got.LocalDate != standard {
 		t.Fatalf("local date = %s, want standard date %s", got.LocalDate, standard)

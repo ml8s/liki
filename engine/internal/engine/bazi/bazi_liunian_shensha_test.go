@@ -55,7 +55,14 @@ func TestLiuNian_AnnualBingFu(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2021) // 辛丑
+	liuNianTime1, err := ResolveLiuNianTime(tianwen.NewCivilDate(2021, 6, 15))
+	if err != nil {
+		t.Fatalf("resolve liunian time 2021: %v", err)
+	}
+	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime1)
+	if err != nil {
+		t.Fatalf("ComputeLiuNian 2021: %v", err)
+	} // 辛丑
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2021): %v", err)
 	}
@@ -75,7 +82,14 @@ func TestLiuNian_AnnualSangMen(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2022) // 壬寅
+	liuNianTime2, err := ResolveLiuNianTime(tianwen.NewCivilDate(2022, 6, 15))
+	if err != nil {
+		t.Fatalf("resolve liunian time 2022: %v", err)
+	}
+	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime2)
+	if err != nil {
+		t.Fatalf("ComputeLiuNian 2022: %v", err)
+	} // 壬寅
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2022): %v", err)
 	}
@@ -94,7 +108,14 @@ func TestLiuNian_AnnualDiaoKe(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2006) // 丙戌
+	liuNianTime3, err := ResolveLiuNianTime(tianwen.NewCivilDate(2006, 6, 15))
+	if err != nil {
+		t.Fatalf("resolve liunian time 2006: %v", err)
+	}
+	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime3)
+	if err != nil {
+		t.Fatalf("ComputeLiuNian 2006: %v", err)
+	} // 丙戌
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2020): %v", err)
 	}
@@ -113,7 +134,14 @@ func TestLiuNian_AnnualDaHao(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2026) // 丙午
+	liuNianTime4, err := ResolveLiuNianTime(tianwen.NewCivilDate(2026, 6, 15))
+	if err != nil {
+		t.Fatalf("resolve liunian time 2026: %v", err)
+	}
+	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime4)
+	if err != nil {
+		t.Fatalf("ComputeLiuNian 2026: %v", err)
+	} // 丙午
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
@@ -147,9 +175,13 @@ func TestLiuNian_AnnualAndDynamicCoexist(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2022)
+	liuNianTime5, err := ResolveLiuNianTime(tianwen.NewCivilDate(2022, 6, 15))
 	if err != nil {
-		t.Fatalf("ComputeLiuNian(2022): %v", err)
+		t.Fatalf("resolve liunian time 2022: %v", err)
+	}
+	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime5)
+	if err != nil {
+		t.Fatalf("ComputeLiuNian 2022: %v", err)
 	}
 	names := map[string]bool{}
 	for _, s := range ln.ShenSha {
@@ -184,9 +216,13 @@ func TestLiuNian_ShenSha_DynamicEmpty(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2006)
+	liuNianTime6, err := ResolveLiuNianTime(tianwen.NewCivilDate(2006, 6, 15))
 	if err != nil {
-		t.Fatalf("ComputeLiuNian(2006): %v", err)
+		t.Fatalf("resolve liunian time 2006: %v", err)
+	}
+	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime6)
+	if err != nil {
+		t.Fatalf("ComputeLiuNian 2006: %v", err)
 	}
 	names := map[string]bool{}
 	for _, s := range ln.ShenSha {

@@ -10,17 +10,17 @@ import (
 
 func civilDateOfLunar(t *testing.T, lunar tianwen.LunarDate) tianwen.CivilDate {
 	t.Helper()
-	solar := tianwen.CivilTimeFromLunarDate(lunar)
-	if solar.IsZero() {
-		t.Fatalf("lunar %+v has no civil date", lunar)
+	date, err := tianwen.ShanghaiLunarReference().CivilDateFromLunar(lunar)
+	if err != nil {
+		t.Fatalf("lunar %+v has no civil date: %v", lunar, err)
 	}
-	return tianwen.CivilDateOf(solar)
+	return date
 }
 
 func TestResolveLiuNianTimeLunarNewYearBoundary(t *testing.T) {
 	start := civilDateOfLunar(t, tianwen.LunarDate{Year: 2026, Month: 1, Day: 1})
 
-	before, err := ResolveLiuNianTime(start.AddDays(-1))
+	before, err := ResolveLiuNianTimeWith(tianwen.DefaultLunarProjector(), start.AddDays(-1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -28,7 +28,7 @@ func TestResolveLiuNianTimeLunarNewYearBoundary(t *testing.T) {
 		t.Fatalf("day before 正月初一 = %+v, want 2025 without boundary", before)
 	}
 
-	boundary, err := ResolveLiuNianTime(start)
+	boundary, err := ResolveLiuNianTimeWith(tianwen.DefaultLunarProjector(), start)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +39,7 @@ func TestResolveLiuNianTimeLunarNewYearBoundary(t *testing.T) {
 		t.Fatalf("start = %s, want %s", boundary.Start, start)
 	}
 
-	after, err := ResolveLiuNianTime(start.AddDays(1))
+	after, err := ResolveLiuNianTimeWith(tianwen.DefaultLunarProjector(), start.AddDays(1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,7 +52,7 @@ func TestResolveLiuYueTimeLeapMonth(t *testing.T) {
 	target := tianwen.LunarDate{Year: 2025, Month: 6, Day: 15, Leap: true}
 	date := civilDateOfLunar(t, target)
 
-	resolved, err := ResolveLiuYueTime(date)
+	resolved, err := ResolveLiuYueTimeWith(tianwen.DefaultLunarProjector(), date)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,11 +72,11 @@ func TestResolveLiuYueTimeLeapMonth(t *testing.T) {
 
 func TestNextLiuYueTimeCrossesLeapMonth(t *testing.T) {
 	ordinary := civilDateOfLunar(t, tianwen.LunarDate{Year: 2025, Month: 6, Day: 15})
-	current, err := ResolveLiuYueTime(ordinary)
+	current, err := ResolveLiuYueTimeWith(tianwen.DefaultLunarProjector(), ordinary)
 	if err != nil {
 		t.Fatal(err)
 	}
-	leap, err := NextLiuYueTime(current)
+	leap, err := NextLiuYueTimeWith(tianwen.DefaultLunarProjector(), current)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +84,7 @@ func TestNextLiuYueTimeCrossesLeapMonth(t *testing.T) {
 		t.Fatalf("next month = %+v, want 闰六月", leap.Lunar)
 	}
 
-	seventh, err := NextLiuYueTime(leap)
+	seventh, err := NextLiuYueTimeWith(tianwen.DefaultLunarProjector(), leap)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,11 +95,11 @@ func TestNextLiuYueTimeCrossesLeapMonth(t *testing.T) {
 
 func TestNextLiuRiTimeHandles29DayLeapMonth(t *testing.T) {
 	endOfLeap := civilDateOfLunar(t, tianwen.LunarDate{Year: 2025, Month: 6, Day: 29, Leap: true})
-	current, err := ResolveLiuRiTime(endOfLeap)
+	current, err := ResolveLiuRiTimeWith(tianwen.DefaultLunarProjector(), endOfLeap)
 	if err != nil {
 		t.Fatal(err)
 	}
-	next, err := NextLiuRiTime(current)
+	next, err := NextLiuRiTimeWith(tianwen.DefaultLunarProjector(), current)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,11 +111,11 @@ func TestNextLiuRiTimeHandles29DayLeapMonth(t *testing.T) {
 
 func TestResolveLiuRiTimeMatchesLunarProjection(t *testing.T) {
 	date := tianwen.NewCivilDate(2026, 6, 1)
-	got, err := ResolveLiuRiTime(date)
+	got, err := ResolveLiuRiTimeWith(tianwen.DefaultLunarProjector(), date)
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := tianwen.SolarDateToLunar(date.Year, date.Month, date.Day)
+	want := tianwen.ShanghaiLunarReference().SolarDateToLunar(date)
 	if got.Lunar != want {
 		t.Fatalf("lunar = %+v, want %+v", got.Lunar, want)
 	}
@@ -249,11 +249,11 @@ func TestNextLiuShiTimeAdvancesOneApparentSolarShichen(t *testing.T) {
 	// The selector is a few seconds inside 巳. A fixed +2h standard-time step
 	// remains a fraction of a second before the 午 boundary.
 	at := time.Date(2024, 1, 2, 20, 28, 0, 0, time.UTC)
-	current, err := ResolveLiuShiTime(at, time.UTC, -171)
+	current, err := ResolveLiuShiTimeWith(tianwen.DefaultLunarProjector(), at, time.UTC, -171)
 	if err != nil {
 		t.Fatal(err)
 	}
-	next, err := NextLiuShiTime(current)
+	next, err := NextLiuShiTimeWith(tianwen.DefaultLunarProjector(), current)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tianwen"
 )
 
 // ============================================================================
@@ -55,7 +56,14 @@ func TestLiuNian_Golden(t *testing.T) {
 			}
 			chart := ComputeChart(time.Time(when), st, g)
 
-			ln, err := ComputeLiuNian(natalCoreFromChart(chart), gc.Year)
+			liuNianTime1, err := ResolveLiuNianTime(tianwen.NewCivilDate(gc.Year, 6, 15))
+			if err != nil {
+				t.Fatalf("resolve liunian time gc.Year: %v", err)
+			}
+			ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime1)
+			if err != nil {
+				t.Fatalf("ComputeLiuNian gc.Year: %v", err)
+			}
 			if err != nil {
 				t.Fatalf("ComputeLiuNian(%d): %v", gc.Year, err)
 			}

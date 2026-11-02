@@ -36,7 +36,10 @@ func TestShouShanChuSha_LiQi_Anchors(t *testing.T) {
 			st := tianwen.ApparentSolarFromCivil(
 				time.Date(c.year, 6, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 				116.4, 8)
-			chart := ComputeChart(st, c.sit, c.face)
+			chart, err := ComputeChartAtStandard(st, c.sit, c.face)
+			if err != nil {
+				t.Fatal(err)
+			}
 			ss := chart.ShouShanChuSha
 			if ss.ZhengShen != c.wantZheng || ss.LingShen != c.wantLing {
 				t.Errorf("正零神 = (%d,%d), want (%d,%d)（三元九运表）",
@@ -58,7 +61,10 @@ func TestXingJiaHuiUnknownCombinationIsUnlisted(t *testing.T) {
 		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, 1, 13)
+	chart, err := ComputeChartAtStandard(st, 1, 13)
+	if err != nil {
+		t.Fatal(err)
+	}
 	encoded, err := json.Marshal(chart.XingJiaHui)
 	if err != nil {
 		t.Fatalf("marshal: %v", err)

@@ -126,32 +126,10 @@ func fillDaYunRoots(chart *Chart, bz ganzhi.Bazi) {
 	}
 }
 
-// ComputeLiuNian computes the year pillar and its interactions with the bazi chart.
-// The year selector is transitional while the wire still carries a Gregorian
-// year; it resolves at mid-year to preserve the existing contract.
-func ComputeLiuNian(core NatalCore, year int) (*LiuNian, error) {
-	t, err := ResolveLiuNianTime(tianwen.NewCivilDate(year, 6, 15))
-	if err != nil {
-		return nil, err
-	}
-	return ComputeLiuNianAtTime(core, t)
-}
-
 // ComputeLiuNianAtTime computes the year pillar from a resolved 立春 year.
 func ComputeLiuNianAtTime(core NatalCore, t LiuNianTime) (*LiuNian, error) {
 	cd := dayunStepForYear(core.DaYun, core.BirthYear, t.LichunYear)
 	return computeLiuNian(core.ToBazi(), t, cd)
-}
-
-// ComputeLiuYue computes the month pillar and its interactions with the bazi chart.
-// The year/month selector is transitional while the wire still carries a
-// Gregorian month; it resolves at mid-month to preserve the existing contract.
-func ComputeLiuYue(core NatalCore, year, month int) (*LiuYue, error) {
-	t, err := ResolveLiuYueTime(tianwen.NewCivilDate(year, month, 15))
-	if err != nil {
-		return nil, err
-	}
-	return ComputeLiuYueAtTime(core, t)
 }
 
 // ComputeLiuYueAtTime computes the month pillar from a resolved solar-term month.

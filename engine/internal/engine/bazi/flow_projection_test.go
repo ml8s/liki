@@ -36,14 +36,25 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 		run  func(chart Chart) any
 	}{
 		{"liunian", func(c Chart) any {
-			v, err := ComputeLiuNian(natalCoreFromChart(c), 2026)
+			liuNianTime1, err := ResolveLiuNianTime(tianwen.NewCivilDate(2026, 6, 15))
+			if err != nil {
+				t.Fatalf("resolve liunian time 2026: %v", err)
+			}
+			v, err := ComputeLiuNianAtTime(natalCoreFromChart(c), liuNianTime1)
+			if err != nil {
+				t.Fatalf("ComputeLiuNian 2026: %v", err)
+			}
 			if err != nil {
 				t.Fatal(err)
 			}
 			return v
 		}},
 		{"liuyue", func(c Chart) any {
-			v, err := ComputeLiuYue(natalCoreFromChart(c), 2026, 5)
+			liuYueTime, err := ResolveLiuYueTimeAt(tianwen.NewCivilDate(2026, 5, 15).Time(), time.UTC)
+			if err != nil {
+				t.Fatal(err)
+			}
+			v, err := ComputeLiuYueAtTime(natalCoreFromChart(c), liuYueTime)
 			if err != nil {
 				t.Fatal(err)
 			}

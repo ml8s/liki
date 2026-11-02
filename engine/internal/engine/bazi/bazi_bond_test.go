@@ -115,8 +115,8 @@ func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
 	bond := ComputeBond(natalCoreFromChart(ca), natalCoreFromChart(cb))
 	aFc, bFc := ComputeChartFromCore(natalCoreFromChart(ca)), ComputeChartFromCore(natalCoreFromChart(cb))
-	aCount := convertWuxingCount(computeElementCount(ca.ToBazi(), HiddenStemFacts(ca.ToBazi())))
-	bCount := convertWuxingCount(computeElementCount(cb.ToBazi(), HiddenStemFacts(cb.ToBazi())))
+	aCount := convertWuxingCount(map[ganzhi.Wuxing]int(WuxingCountsAt(ca.ToBazi(), HiddenStemFacts(ca.ToBazi()))))
+	bCount := convertWuxingCount(map[ganzhi.Wuxing]int(WuxingCountsAt(cb.ToBazi(), HiddenStemFacts(cb.ToBazi()))))
 
 	if bond.DayMaster.A.Gan != "己" || bond.DayMaster.B.Gan == "" || bond.DayMaster.GanRel.Relation == "" {
 		t.Fatalf("day master cross = %+v", bond.DayMaster)

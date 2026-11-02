@@ -113,11 +113,6 @@ func ResolveLiuNianTime(date tianwen.CivilDate) (LiuNianTime, error) {
 	}, nil
 }
 
-// NextLiuNianTime returns the next 立春 year's resolved time.
-func NextLiuNianTime(t LiuNianTime) (LiuNianTime, error) {
-	return ResolveLiuNianTime(t.End)
-}
-
 // LiuYueTime is the resolved month-level time for 流月. JieqiMonth is 1=寅 ..
 // 12=丑; Start is the 节 civil date and End is the next 节 date (exclusive).
 type LiuYueTime struct {
@@ -131,37 +126,6 @@ type LiuYueTime struct {
 	StartInstant time.Time         `json:"-"`
 	EndInstant   time.Time         `json:"-"`
 	BoundaryDay  bool              `json:"boundary_day"`
-}
-
-// ResolveLiuYueTime resolves the solar-term month containing date and its
-// month pillar. The 节 boundary date belongs to the new month.
-func ResolveLiuYueTime(date tianwen.CivilDate) (LiuYueTime, error) {
-	window, err := tianwen.JieqiMonthOf(date)
-	if err != nil {
-		return LiuYueTime{}, err
-	}
-	nian, err := ResolveLiuNianTime(date)
-	if err != nil {
-		return LiuYueTime{}, err
-	}
-	pillar := tianwen.YueZhuFromYearGan(nian.NianGan, window.Index)
-	return LiuYueTime{
-		Date:         date,
-		LichunYear:   nian.LichunYear,
-		JieqiMonth:   window.Index + 1,
-		YueGan:       pillar.Gan,
-		YueZhi:       pillar.Zhi,
-		Start:        window.Start,
-		End:          window.End,
-		StartInstant: window.StartInstant,
-		EndInstant:   window.EndInstant,
-		BoundaryDay:  window.BoundaryDay,
-	}, nil
-}
-
-// NextLiuYueTime returns the next solar-term month's resolved time.
-func NextLiuYueTime(t LiuYueTime) (LiuYueTime, error) {
-	return ResolveLiuYueTime(t.End)
 }
 
 // ResolveLiuNianTimeAt resolves the 立春 year containing a standard time.

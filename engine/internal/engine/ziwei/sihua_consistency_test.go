@@ -14,10 +14,7 @@ func TestSiHua_Consistency_StarLevel(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1991, 3, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8) // 立春后=辛年
 	lt := lunarTimeFromSolar(st)
-	chart, err := ComputeChart(lt, ganzhi.Male)
-	if err != nil {
-		t.Fatalf("ComputeChart: %v", err)
-	}
+	chart := computeChartFromLunarTime(lt, ganzhi.Male)
 	siHua := chart.SiHua
 
 	// 汇总含文曲化科/文昌化忌

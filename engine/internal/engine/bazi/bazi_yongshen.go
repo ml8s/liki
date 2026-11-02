@@ -64,10 +64,6 @@ type CaiKu struct {
 
 // ComputeYongshenEvidence computes the FuYi/TiaoHou candidates and the GeJu
 // structural evidence. GeJu is not a Yongshen candidate.
-func ComputeYongshenEvidence(core NatalCore) (FuYiResult, TiaoHouResult, GeJuResult) {
-	return computeYongShenEvidenceFromAnalysis(core, AnalyzePillars(core.ToBazi(), core.Gender))
-}
-
 func computeYongShenEvidenceFromAnalysis(
 	core NatalCore, analysis PillarAnalysis,
 ) (FuYiResult, TiaoHouResult, GeJuResult) {

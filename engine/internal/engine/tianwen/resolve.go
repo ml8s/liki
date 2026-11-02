@@ -77,13 +77,6 @@ const (
 	formRange
 )
 
-// Resolve normalizes a time fact into candidates. The input candidate is always
-// present; boundary-derived candidates carry their domain reasons. DST folds
-// remain visible to generic time resolution.
-func Resolve(in ResolveInput) (ResolveResult, error) {
-	return resolveCandidates(in, false)
-}
-
 // ResolveStandard normalizes a time fact into natal-subject candidates. It
 // deliberately removes DST offsets and uses the zone's standard offset.
 func ResolveStandard(in ResolveInput) (ResolveResult, error) {

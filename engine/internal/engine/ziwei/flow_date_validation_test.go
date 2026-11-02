@@ -16,26 +16,26 @@ func TestComputeLiuRiAndLiuShiValidateLeapDate(t *testing.T) {
 	shiZhi := ganzhi.Zhi(1)
 
 	valid := flowDate(2025, 6, 20, true)
-	if _, err := ComputeLiuRi(chart, valid); err != nil {
+	if _, err := ComputeLiuRiWith(chart, valid, tianwen.DefaultLunarProjector()); err != nil {
 		t.Fatalf("valid leap flow day: %v", err)
 	}
-	if _, err := ComputeLiuShi(chart, valid, shiZhi); err != nil {
+	if _, err := ComputeLiuShiWith(chart, valid, shiZhi, tianwen.DefaultLunarProjector()); err != nil {
 		t.Fatalf("valid leap flow hour: %v", err)
 	}
 
 	missingLeap := flowDate(2024, 6, 20, true)
-	if _, err := ComputeLiuRi(chart, missingLeap); err == nil {
+	if _, err := ComputeLiuRiWith(chart, missingLeap, tianwen.DefaultLunarProjector()); err == nil {
 		t.Fatal("nonexistent leap flow day succeeded, want error")
 	}
-	if _, err := ComputeLiuShi(chart, missingLeap, shiZhi); err == nil {
+	if _, err := ComputeLiuShiWith(chart, missingLeap, shiZhi, tianwen.DefaultLunarProjector()); err == nil {
 		t.Fatal("nonexistent leap flow hour succeeded, want error")
 	}
 
 	beyondMonth := flowDate(2025, 6, 31, true)
-	if _, err := ComputeLiuRi(chart, beyondMonth); err == nil {
+	if _, err := ComputeLiuRiWith(chart, beyondMonth, tianwen.DefaultLunarProjector()); err == nil {
 		t.Fatal("date beyond lunar month succeeded, want error")
 	}
-	if _, err := ComputeLiuShi(chart, beyondMonth, shiZhi); err == nil {
+	if _, err := ComputeLiuShiWith(chart, beyondMonth, shiZhi, tianwen.DefaultLunarProjector()); err == nil {
 		t.Fatal("date beyond lunar month succeeded, want error")
 	}
 }
@@ -45,7 +45,8 @@ func TestComputeChartAcceptsLocalAstronomicalLeapMonth(t *testing.T) {
 	// leap month exists. 2025 leap 7 is real in the local astronomical calendar
 	// for America/New_York even though the official UTC+8 table has no leap 7.
 	lt := tianwen.LunarTime{Year: 2025, Month: 7, Day: 2, Leap: true, Shichen: ganzhi.ZhiChen}
-	if _, err := ComputeChart(lt, ganzhi.Male); err != nil {
-		t.Fatalf("local astronomical leap month rejected: %v", err)
+	chart := computeChartFromLunarTime(lt, ganzhi.Male)
+	if chart.LunarMonth != 7 || !chart.BirthIsLeap {
+		t.Fatalf("local astronomical leap month = %d leap=%v", chart.LunarMonth, chart.BirthIsLeap)
 	}
 }

@@ -26,11 +26,6 @@ type LunarTime struct {
 	Shichen ganzhi.Zhi `json:"shichen"`
 }
 
-// Default timezone for lunar calendar: UTC+8 (China Standard Time).
-// The lunar day boundary follows local midnight, and traditionally the
-// Chinese calendar uses China Standard Time.
-const defaultTZ = 8.0
-
 type month11Key struct {
 	year int
 	ref  string
@@ -237,37 +232,4 @@ func approximateK(year, month, day int, tz float64) float64 {
 
 // ── Month 11 and leap month ──
 
-func getMonth11K(year int, tz float64) float64 {
-	return fixedLunarReference(tz).month11K(year)
-}
-
-func getLeapMonthK(currentYearMonth11K, nextYearMonth11K, tz float64) float64 {
-	return fixedLunarReference(tz).leapMonthK(currentYearMonth11K, nextYearMonth11K)
-}
-
 // ── Public API ──
-
-// LunarDateAt converts a Gregorian instant to the Chinese lunar date in fixed
-// UTC+8. It is the official compatibility wrapper; use NewLunarProjector when a
-// timezone is available and the intent is local astronomical alignment.
-func LunarDateAt(gt time.Time) LunarDate {
-	return ShanghaiLunarReference().LunarDateAt(gt)
-}
-
-// SolarDateToLunar converts a civil solar date to the Chinese lunar date in the
-// official UTC+8 reference. It is a legacy compatibility wrapper; use
-// LunarProjector for a timezone-aware projection.
-func SolarDateToLunar(solarYear, solarMonth, solarDay int) LunarDate {
-	return ShanghaiLunarReference().SolarDateToLunar(NewCivilDate(solarYear, solarMonth, solarDay))
-}
-
-// CivilTimeFromLunarDate converts a Chinese lunar date to the official UTC+8
-// civil date. It is a legacy compatibility wrapper; use LunarProjector when a
-// timezone is available.
-func CivilTimeFromLunarDate(ld LunarDate) time.Time {
-	date, err := ShanghaiLunarReference().CivilDateFromLunar(ld)
-	if err != nil {
-		return time.Time{}
-	}
-	return time.Date(date.Year, time.Month(date.Month), date.Day, 0, 0, 0, 0, cstLocation)
-}

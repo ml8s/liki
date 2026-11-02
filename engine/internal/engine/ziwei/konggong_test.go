@@ -14,10 +14,7 @@ func TestKongGong_BorrowFromDuiGong(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	lt := lunarTimeFromSolar(st)
-	chart, err := ComputeChart(lt, ganzhi.Male)
-	if err != nil {
-		t.Fatalf("ComputeChart: %v", err)
-	}
+	chart := computeChartFromLunarTime(lt, ganzhi.Male)
 
 	// 命宫确认为空宫（无主星）——测试前置
 	mg := chart.MingGong

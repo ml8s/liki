@@ -19,10 +19,10 @@ func SolarTermIndex(year, month, day int) int {
 
 func TestCivilTimeFromLunarDate_BaseDate(t *testing.T) {
 	// 代码内置基准: 农历 1900-01-01 = 公历 1900-01-31
-	gt := CivilTimeFromLunarDate(LunarDate{Year: 1900, Month: 1, Day: 1, Leap: false})
-	y, m, d := gt.Year(), int(gt.Month()), gt.Day()
+	gt := civilDateFromLunarForTest(t, LunarDate{Year: 1900, Month: 1, Day: 1, Leap: false})
+	y, m, d := gt.Year, int(gt.Month), gt.Day
 	if y != 1900 || m != 1 || d != 31 {
-		t.Errorf("CivilTimeFromLunarDate(1900,1,1) = (%d,%d,%d), want (1900,1,31)", y, m, d)
+		t.Errorf("ShanghaiLunarReference().CivilDateFromLunar(1900,1,1) = (%d,%d,%d), want (1900,1,31)", y, m, d)
 	}
 }
 
@@ -45,12 +45,9 @@ func TestLunarRoundTrip(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gt := CivilTimeFromLunarDate(LunarDate{Year: tt.lunarY, Month: tt.lunarM, Day: tt.lunarD, Leap: tt.leap})
-			gy, gm, gd := gt.Year(), int(gt.Month()), gt.Day()
-			if gt.IsZero() {
-				t.Fatal("CivilTimeFromLunarDate returned zero time")
-			}
-			lt := LunarDateAt(time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
+			gt := civilDateFromLunarForTest(t, LunarDate{Year: tt.lunarY, Month: tt.lunarM, Day: tt.lunarD, Leap: tt.leap})
+			gy, gm, gd := gt.Year, int(gt.Month), gt.Day
+			lt := ShanghaiLunarReference().LunarDateAt(time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
 			if lt.Year != tt.lunarY || lt.Month != tt.lunarM || lt.Day != tt.lunarD || lt.Leap != tt.leap {
 				t.Errorf("round-trip broken: (%d,%d,%d,%v) → solar(%d,%d,%d) → lunar(%d,%d,%d,%v)",
 					tt.lunarY, tt.lunarM, tt.lunarD, tt.leap,
@@ -78,9 +75,9 @@ func TestSolarRoundTrip(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lt := LunarDateAt(time.Time(time.Date(tt.solarY, time.Month(tt.solarM), tt.solarD, 0, 0, 0, 0, time.UTC)))
-			gt := CivilTimeFromLunarDate(LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
-			gy, gm, gd := gt.Year(), int(gt.Month()), gt.Day()
+			lt := ShanghaiLunarReference().LunarDateAt(time.Time(time.Date(tt.solarY, time.Month(tt.solarM), tt.solarD, 0, 0, 0, 0, time.UTC)))
+			gt := civilDateFromLunarForTest(t, LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
+			gy, gm, gd := gt.Year, int(gt.Month), gt.Day
 			if gy != tt.solarY || gm != tt.solarM || gd != tt.solarD {
 				t.Errorf("reverse round-trip broken: solar(%d,%d,%d) → lunar(%d,%d,%d,%v) → solar(%d,%d,%d)",
 					tt.solarY, tt.solarM, tt.solarD,
@@ -88,46 +85,6 @@ func TestSolarRoundTrip(t *testing.T) {
 					gy, gm, gd)
 			}
 		})
-	}
-}
-
-func TestCivilTimeFromLunarDate_LeapMonthRoundTrip(t *testing.T) {
-	// 验证闰月 round-trip 也保持一致性
-	// 扫描 1900-2100 中所有带闰月的年份
-	for gy := 1900; gy <= 2100; gy++ {
-		m11 := getMonth11K(gy, defaultTZ)
-		nextM11 := getMonth11K(gy+1, defaultTZ)
-		leapK := getLeapMonthK(m11, nextM11, defaultTZ)
-		if leapK < 0 {
-			continue
-		}
-
-		// Walk from Month 11 to the leap month, tracking both month
-		// number and year (year increments when month wraps from 12 to 1,
-		// matching the LunarDateAt convention).
-		lunarMonth := 11
-		lunarYear := gy
-		for k := m11 + 1; k < leapK; k++ {
-			lunarMonth++
-			if lunarMonth == 13 {
-				lunarMonth = 1
-				lunarYear++
-			}
-		}
-
-		// 测试闰月第一天
-		gt := CivilTimeFromLunarDate(LunarDate{Year: lunarYear, Month: lunarMonth, Day: 1, Leap: true})
-		sy, sm, sd := gt.Year(), int(gt.Month()), gt.Day()
-		if gt.IsZero() {
-			t.Errorf("CivilTimeFromLunarDate(%d,%d,1,true) returned zero for leap month (gy=%d, leapK=%.0f)",
-				lunarYear, lunarMonth, gy, leapK)
-			continue
-		}
-		lt := LunarDateAt(time.Time(time.Date(sy, time.Month(sm), sd, 0, 0, 0, 0, time.UTC)))
-		if lt.Year != lunarYear || lt.Month != lunarMonth || !lt.Leap {
-			t.Errorf("leap round-trip: (%d,%d,leap=true) → solar(%d,%d,%d) → lunar(%d,%d,leap=%v)",
-				lunarYear, lunarMonth, sy, sm, sd, lt.Year, lt.Month, lt.Leap)
-		}
 	}
 }
 
@@ -549,9 +506,9 @@ func TestLunarLeapMonth_Consistency(t *testing.T) {
 	for gy := 1901; gy <= 2099; gy++ {
 		for gm := 1; gm <= 12; gm++ {
 			for gd := 1; gd <= 28; gd += 7 { // 每周取样
-				lt := LunarDateAt(time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
-				gt := CivilTimeFromLunarDate(LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
-				sy, sm, sd := gt.Year(), int(gt.Month()), gt.Day()
+				lt := ShanghaiLunarReference().LunarDateAt(time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
+				gt := civilDateFromLunarForTest(t, LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
+				sy, sm, sd := gt.Year, int(gt.Month), gt.Day
 				if sy != gy || sm != gm || sd != gd {
 					t.Errorf("round-trip failed: solar(%d,%d,%d) → lunar(%d,%d,%d,%v) → solar(%d,%d,%d)",
 						gy, gm, gd, lt.Year, lt.Month, lt.Day, lt.Leap, sy, sm, sd)

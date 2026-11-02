@@ -50,7 +50,11 @@ func BenchmarkComputeLiuNian(b *testing.B) {
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := ComputeLiuNian(natalCoreFromChart(chart), 2026); err != nil {
+		liuNianTime, err := ResolveLiuNianTime(tianwen.NewCivilDate(2026, 6, 15))
+		if err != nil {
+			b.Fatal(err)
+		}
+		if _, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime); err != nil {
 			b.Fatal(err)
 		}
 	}

@@ -14,6 +14,6 @@ func BenchmarkComputeChart(b *testing.B) {
 	lt := lunarTimeFromSolar(st)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = ComputeChart(lt, ganzhi.Male)
+		_ = computeChartFromLunarTime(lt, ganzhi.Male)
 	}
 }

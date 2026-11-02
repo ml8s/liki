@@ -22,10 +22,7 @@ func TestLeapMonth(t *testing.T) {
 	}
 	for _, tt := range tests {
 		lt := tianwen.LunarTime{Year: 2025, Month: 6, Day: tt.day, Leap: tt.leap, Shichen: 7}
-		c, err := ComputeChart(lt, "male")
-		if err != nil {
-			t.Fatalf("ComputeChart: %v", err)
-		}
+		c := computeChartFromLunarTime(lt, "male")
 		mg := c.GongWei[c.MingGong]
 		if mg.Zhi.String() != tt.wantGong || c.JuShuName != tt.wantJu {
 			t.Errorf("%s: 命宫=%s 局=%s, want 命宫=%s 局=%s",

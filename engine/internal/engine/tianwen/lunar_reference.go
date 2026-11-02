@@ -33,17 +33,6 @@ func NewLunarReference(loc *time.Location) *LunarReference {
 	return &LunarReference{id: "loc:" + loc.String(), loc: loc}
 }
 
-func fixedLunarReference(tz float64) *LunarReference {
-	if math.Abs(tz-defaultTZ) < 1e-9 {
-		return ShanghaiLunarReference()
-	}
-	seconds := int(math.Round(tz * 3600.0))
-	return &LunarReference{
-		id:  fmt.Sprintf("fixed:%.6f", tz),
-		loc: time.FixedZone(fmt.Sprintf("UTC%+g", tz), seconds),
-	}
-}
-
 func (r *LunarReference) dateOf(at time.Time) CivilDate {
 	return StandardDateAt(at, r.loc)
 }

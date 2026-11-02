@@ -22,12 +22,6 @@ type LunarMonthInfo struct {
 	DayCount int
 }
 
-// LunarMonthMeta validates and returns information about the real month in the
-// official UTC+8 reference. Use LunarProjector for a timezone-aware reference.
-func LunarMonthMeta(year, month int, leap bool) (LunarMonthInfo, error) {
-	return ShanghaiLunarReference().LunarMonthMeta(year, month, leap)
-}
-
 // LunarMonthMeta validates and returns information about the real month
 // identified by the year/month/leap triple in this reference.
 func (r *LunarReference) LunarMonthMeta(year, month int, leap bool) (LunarMonthInfo, error) {
@@ -50,12 +44,6 @@ func (r *LunarReference) LunarMonthMeta(year, month int, leap bool) (LunarMonthI
 	return LunarMonthInfo{Year: year, Month: month, Leap: leap, DayCount: dayCount}, nil
 }
 
-// ValidateLunarDate checks date against the official UTC+8 reference. Use
-// LunarProjector for a timezone-aware reference.
-func ValidateLunarDate(date LunarDate) (LunarMonthInfo, error) {
-	return ShanghaiLunarReference().ValidateLunarDate(date)
-}
-
 // ValidateLunarDate checks that date identifies one real day in this reference
 // and returns the containing month's metadata.
 func (r *LunarReference) ValidateLunarDate(date LunarDate) (LunarMonthInfo, error) {
@@ -70,12 +58,6 @@ func (r *LunarReference) ValidateLunarDate(date LunarDate) (LunarMonthInfo, erro
 		)
 	}
 	return meta, nil
-}
-
-// NextLunarMonth returns the next lunation in the official UTC+8 reference.
-// Use LunarProjector for a timezone-aware reference.
-func NextLunarMonth(year, month int, leap bool) (LunarMonthInfo, error) {
-	return ShanghaiLunarReference().NextLunarMonth(year, month, leap)
 }
 
 // NextLunarMonth returns the next real lunation after the identified month in

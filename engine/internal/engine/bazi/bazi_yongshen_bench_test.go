@@ -17,6 +17,6 @@ func BenchmarkComputeYongshenEvidence(b *testing.B) {
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _, _ = ComputeYongshenEvidence(natalCoreFromChart(chart))
+		_, _, _ = computeYongshenEvidence(natalCoreFromChart(chart))
 	}
 }

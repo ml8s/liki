@@ -124,23 +124,6 @@ func computeNaYin(bz ganzhi.Bazi) [4]string {
 	return ny
 }
 
-func computeElementCount(bz ganzhi.Bazi, hs [4]HiddenStemProjection) map[ganzhi.Wuxing]int {
-	wc := make(map[ganzhi.Wuxing]int, 5)
-	for _, z := range bz.Slice() {
-		wc[ganzhi.GanWuxing(z.Gan)]++
-	}
-	for _, h := range hs {
-		wc[ganzhi.GanWuxing(h.Main)]++
-		if h.Mid != nil {
-			wc[ganzhi.GanWuxing(*h.Mid)]++
-		}
-		if h.Minor != nil {
-			wc[ganzhi.GanWuxing(*h.Minor)]++
-		}
-	}
-	return wc
-}
-
 func TenGodProjections(bz ganzhi.Bazi, hs [4]HiddenStemProjection) [4][]TenGodProjection {
 	dm := bz.Ri.Gan
 	var table [4][]TenGodProjection

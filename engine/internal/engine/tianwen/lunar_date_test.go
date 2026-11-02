@@ -2,15 +2,14 @@ package tianwen
 
 import (
 	"testing"
-	"time"
 )
 
 func TestLunarMonthMeta_LeapMonth(t *testing.T) {
 	// 2025 has a leap sixth month. This is an external calendar fact used as
 	// an oracle for boundary handling.
-	meta, err := LunarMonthMeta(2025, 6, true)
+	meta, err := ShanghaiLunarReference().LunarMonthMeta(2025, 6, true)
 	if err != nil {
-		t.Fatalf("LunarMonthMeta(2025 leap 6): %v", err)
+		t.Fatalf("ShanghaiLunarReference().LunarMonthMeta(2025 leap 6): %v", err)
 	}
 	if meta.Year != 2025 || meta.Month != 6 || !meta.Leap {
 		t.Fatalf("meta = %+v, want 2025 leap 6", meta)
@@ -20,20 +19,20 @@ func TestLunarMonthMeta_LeapMonth(t *testing.T) {
 	}
 
 	for _, day := range []int{1, 15, 16, meta.DayCount} {
-		if _, err := ValidateLunarDate(LunarDate{Year: 2025, Month: 6, Day: day, Leap: true}); err != nil {
-			t.Fatalf("ValidateLunarDate(day=%d): %v", day, err)
+		if _, err := ShanghaiLunarReference().ValidateLunarDate(LunarDate{Year: 2025, Month: 6, Day: day, Leap: true}); err != nil {
+			t.Fatalf("ShanghaiLunarReference().ValidateLunarDate(day=%d): %v", day, err)
 		}
 	}
 	for _, day := range []int{0, -1, meta.DayCount + 1} {
-		if _, err := ValidateLunarDate(LunarDate{Year: 2025, Month: 6, Day: day, Leap: true}); err == nil {
-			t.Fatalf("ValidateLunarDate(day=%d) succeeded, want error", day)
+		if _, err := ShanghaiLunarReference().ValidateLunarDate(LunarDate{Year: 2025, Month: 6, Day: day, Leap: true}); err == nil {
+			t.Fatalf("ShanghaiLunarReference().ValidateLunarDate(day=%d) succeeded, want error", day)
 		}
 	}
 }
 
 func TestLunarMonthMeta_MissingLeapMonth(t *testing.T) {
 	// 2024 does not have a leap sixth month.
-	if _, err := LunarMonthMeta(2024, 6, true); err == nil {
+	if _, err := ShanghaiLunarReference().LunarMonthMeta(2024, 6, true); err == nil {
 		t.Fatal("missing leap month succeeded, want error")
 	}
 }
@@ -41,9 +40,8 @@ func TestLunarMonthMeta_MissingLeapMonth(t *testing.T) {
 func TestCivilTimeFromLunarDate_MissingLeapMonthDoesNotFallThrough(t *testing.T) {
 	// Regression: a fallback search previously mapped 2024 leap 6 to the
 	// real 2025 leap 6. A nonexistent lunar month must stay unresolved.
-	got := CivilTimeFromLunarDate(LunarDate{Year: 2024, Month: 6, Day: 1, Leap: true})
-	if !got.IsZero() {
-		t.Fatalf("CivilTimeFromLunarDate(2024 leap 6) = %s, want zero time", got.Format(time.RFC3339))
+	if _, err := ShanghaiLunarReference().CivilDateFromLunar(LunarDate{Year: 2024, Month: 6, Day: 1, Leap: true}); err == nil {
+		t.Fatal("2024 leap 6 unexpectedly resolved")
 	}
 }
 
@@ -63,7 +61,7 @@ func TestNextLunarMonth(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NextLunarMonth(tt.year, tt.month, tt.leap)
+			got, err := ShanghaiLunarReference().NextLunarMonth(tt.year, tt.month, tt.leap)
 			if err != nil {
 				t.Fatalf("NextLunarMonth: %v", err)
 			}

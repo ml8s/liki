@@ -11,13 +11,13 @@ import (
 
 func civilDateForLunar(t *testing.T, year, month, day int, leap bool) string {
 	t.Helper()
-	solar := tianwen.CivilTimeFromLunarDate(tianwen.LunarDate{
+	date, err := tianwen.ShanghaiLunarReference().CivilDateFromLunar(tianwen.LunarDate{
 		Year: year, Month: month, Day: day, Leap: leap,
 	})
-	if solar.IsZero() {
-		t.Fatalf("lunar %d-%d-%d leap=%v has no civil date", year, month, day, leap)
+	if err != nil {
+		t.Fatalf("lunar %d-%d-%d leap=%v has no civil date: %v", year, month, day, leap, err)
 	}
-	return tianwen.CivilDateOf(solar).String()
+	return date.String()
 }
 
 func seriesChart(t *testing.T) map[string]any {

@@ -12,11 +12,7 @@ func benchLiuNianChart(b *testing.B) Chart {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	lt := lunarTimeFromSolar(st)
-	c, err := ComputeChart(lt, Male)
-	if err != nil {
-		b.Fatal(err)
-	}
-	return c
+	return computeChartFromLunarTime(lt, Male)
 }
 
 func BenchmarkComputeLiuNian(b *testing.B) {

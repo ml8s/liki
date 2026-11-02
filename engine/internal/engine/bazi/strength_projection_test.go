@@ -1,7 +1,6 @@
 package bazi
 
 import (
-	"reflect"
 	"testing"
 	"time"
 
@@ -18,7 +17,7 @@ func strengthTestChart() Chart {
 	if err != nil {
 		panic(err)
 	}
-	solar := tianwen.ApparentSolarAt(at, loc, 116.407526)
+	solar := tianwen.ApparentSolarFromStandard(tianwen.StandardLocalTime(at, loc), 116.407526)
 	pillars := tianwen.ComputeBazi(time.Time(at), time.Time(solar))
 	ny := [4]string{}
 	for i, pillar := range pillars.Slice() {
@@ -33,16 +32,6 @@ func strengthTestChart() Chart {
 		Ri:     makeInfo(2),
 		Shi:    makeInfo(3),
 		Gender: ganzhi.Male,
-	}
-}
-
-func TestWuxingCountsAtMatchesStructuralProjection(t *testing.T) {
-	chart := strengthTestChart()
-	analysis := AnalyzePillars(chart.ToBazi(), chart.Gender)
-	want := computeElementCount(chart.ToBazi(), analysis.HiddenStems)
-	got := WuxingCountsAt(chart.ToBazi(), analysis.HiddenStems)
-	if !reflect.DeepEqual(map[ganzhi.Wuxing]int(got), want) {
-		t.Fatalf("counts = %+v, want %+v", got, want)
 	}
 }
 

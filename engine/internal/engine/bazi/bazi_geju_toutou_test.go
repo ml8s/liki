@@ -207,7 +207,7 @@ func TestGeJu_TouTou_AllPatterns(t *testing.T) {
 				tt.shiGan, tt.shiZhi,
 				tt.gender,
 			)
-			_, _, geJu := ComputeYongshenEvidence(natalCoreFromChart(c))
+			_, _, geJu := computeYongshenEvidence(natalCoreFromChart(c))
 
 			got := geJu
 			if got.Pattern != tt.wantPattern {

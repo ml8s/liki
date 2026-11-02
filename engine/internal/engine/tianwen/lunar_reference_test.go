@@ -21,7 +21,7 @@ func TestLunarReferenceShanghaiMatchesLegacy(t *testing.T) {
 
 	for at := start; !at.After(end); at = at.AddDate(0, 0, 1) {
 		got := ref.LunarDateAt(at)
-		want := LunarDateAt(at)
+		want := ref.SolarDateToLunar(ref.dateOf(at))
 		if got != want {
 			t.Fatalf("%s: reference = %+v, legacy = %+v", at.Format("2006-01-02"), got, want)
 		}
@@ -134,23 +134,6 @@ func TestLunarReferenceDateSerialAcrossDST(t *testing.T) {
 		if diff := ref.dateToJD(date.AddDays(1)) - ref.dateToJD(date); diff != 1 {
 			t.Fatalf("%s -> next: date serial diff = %v, want 1", date, diff)
 		}
-	}
-}
-
-func TestLunarReferenceFixedLegacyWrappers(t *testing.T) {
-	ref := fixedLunarReference(defaultTZ)
-	if ref != ShanghaiLunarReference() {
-		t.Fatalf("fixed UTC+8 reference = %p, want Shanghai", ref)
-	}
-	for year := 2024; year <= 2027; year++ {
-		if got, want := getMonth11K(year, defaultTZ), ref.month11K(year); got != want {
-			t.Fatalf("%d month 11 k = %v, want %v", year, got, want)
-		}
-	}
-	start := ref.month11K(2024)
-	end := ref.month11K(2025)
-	if got, want := getLeapMonthK(start, end, defaultTZ), ref.leapMonthK(start, end); got != want {
-		t.Fatalf("leap month k = %v, want %v", got, want)
 	}
 }
 
@@ -271,7 +254,7 @@ func TestLunarReferenceFixedUTC8MatchesOfficial(t *testing.T) {
 		time.Date(2025, 7, 25, 0, 0, 0, 0, fixedLoc),
 		time.Date(2026, 12, 21, 12, 0, 0, 0, fixedLoc),
 	} {
-		if got, want := projector.LunarAt(at), LunarDateAt(at); got != want {
+		if got, want := projector.LunarAt(at), ShanghaiLunarReference().LunarDateAt(at); got != want {
 			t.Fatalf("%s: local_astronomical fixed UTC+8 = %+v, official = %+v", at, got, want)
 		}
 	}

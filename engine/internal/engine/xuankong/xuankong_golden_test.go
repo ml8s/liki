@@ -17,11 +17,14 @@ func TestGoldenComputeChart(t *testing.T) {
 		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, 1, 13)
-
-	got, err := json.MarshalIndent(chart, "", "  ")
+	chart, err := ComputeChartAtStandard(st, 1, 13)
 	if err != nil {
-		t.Fatalf("marshal: %v", err)
+		t.Fatalf("compute chart: %v", err)
+	}
+
+	got, marshalErr := json.MarshalIndent(chart, "", "  ")
+	if err != nil {
+		t.Fatalf("marshal: %v", marshalErr)
 	}
 
 	golden := filepath.Join("testdata", "chart_golden.json")

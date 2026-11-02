@@ -33,7 +33,14 @@ func TestComputeLiuYue_WuHuDun(t *testing.T) {
 
 	// 2024 = 甲辰年, June = 午月.
 	// 甲年正月丙寅 → 午月 (正月+4) → 丙+4=庚 → 庚午月.
-	ly, err := ComputeLiuYue(natalCoreFromChart(cb), 2024, 6)
+	liuYueTime1, err := ResolveLiuYueTimeAt(tianwen.NewCivilDate(2024, 6, 15).Time(), time.UTC)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ly, err := ComputeLiuYueAtTime(natalCoreFromChart(cb), liuYueTime1)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,32 +68,20 @@ func TestComputeLiuYue_EthYear(t *testing.T) {
 	)
 
 	// 乙年正月戊寅 → 午月 (正月+4) → 戊+4=壬 → 壬午月.
-	ly, err := ComputeLiuYue(natalCoreFromChart(cb), 2025, 6)
+	liuYueTime2, err := ResolveLiuYueTimeAt(tianwen.NewCivilDate(2025, 6, 15).Time(), time.UTC)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ly, err := ComputeLiuYueAtTime(natalCoreFromChart(cb), liuYueTime2)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
 	if ly.YueGan != ganzhi.GanRen || ly.YueZhi != ganzhi.ZhiWu {
 		t.Errorf("Month pillar = %s%s, want 壬午",
 			ganzhi.GanName(ly.YueGan), ganzhi.ZhiName(ly.YueZhi))
-	}
-}
-
-// TestComputeLiuYue_InvalidMonth verifies error for out-of-range month.
-func TestComputeLiuYue_InvalidMonth(t *testing.T) {
-	cb := makeTestChart(
-		ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
-		ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
-		ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
-		ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen},
-		nil,
-	)
-	_, err := ComputeLiuYue(natalCoreFromChart(cb), 2024, 0)
-	if err == nil {
-		t.Error("expected error for month=0")
-	}
-	_, err = ComputeLiuYue(natalCoreFromChart(cb), 2024, 13)
-	if err == nil {
-		t.Error("expected error for month=13")
 	}
 }
 
@@ -241,7 +236,14 @@ func TestComputeLiuYue_ShenSha(t *testing.T) {
 		ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 		nil,
 	)
-	ly, err := ComputeLiuYue(natalCoreFromChart(cb), 2026, 6)
+	liuYueTime4, err := ResolveLiuYueTimeAt(tianwen.NewCivilDate(2026, 6, 15).Time(), time.UTC)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ly, err := ComputeLiuYueAtTime(natalCoreFromChart(cb), liuYueTime4)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err != nil {
 		t.Fatalf("ComputeLiuYue: %v", err)
 	}

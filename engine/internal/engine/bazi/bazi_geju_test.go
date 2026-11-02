@@ -263,7 +263,7 @@ func TestGeJu_RealCharts(t *testing.T) {
 			stgt := time.Time(tt.birthTime)
 			st := tianwen.ApparentSolarFromCivil(tt.birthTime, 116.4, 8)
 			chart := ComputeChart(stgt, st, tt.gender)
-			_, _, geJu := ComputeYongshenEvidence(natalCoreFromChart(chart))
+			_, _, geJu := computeYongshenEvidence(natalCoreFromChart(chart))
 			if geJu.Pattern != tt.wantPattern {
 				t.Errorf("Pattern = %q, want %q\n  note: %s", geJu.Pattern, tt.wantPattern, tt.note)
 			}

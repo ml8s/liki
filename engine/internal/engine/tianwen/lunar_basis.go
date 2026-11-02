@@ -69,15 +69,6 @@ func DefaultLunarProjector() LunarProjector {
 	}
 }
 
-// OutputBasis is the echo value; the default local_astronomical basis is
-// omitted.
-func (p LunarProjector) OutputBasis() string {
-	if p.basis == LunarBasisLocalAstronomical {
-		return ""
-	}
-	return string(p.basis)
-}
-
 // SelectorDate is the civil date used to look up the lunar date.
 func (p LunarProjector) SelectorDate(at time.Time) CivilDate {
 	if p.basis == LunarBasisOfficial {

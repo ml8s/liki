@@ -15,7 +15,7 @@ func TestComputeYongshenEvidence_PresentsCandidatesAndStructure(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	fuYi, tiaoHou, geJu := ComputeYongshenEvidence(natalCoreFromChart(chart))
+	fuYi, tiaoHou, geJu := computeYongshenEvidence(natalCoreFromChart(chart))
 
 	validStrengths := map[string]bool{"身强": true, "身弱": true, "中和": true}
 	if !validStrengths[fuYi.Strength] {

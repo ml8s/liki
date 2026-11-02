@@ -89,10 +89,7 @@ func TestComplete(t *testing.T) {
 			if tc.Gender == "男" {
 				gender = ganzhi.Male
 			}
-			chart, err := ComputeChart(lt, gender)
-			if err != nil {
-				t.Fatalf("ComputeChart: %v", err)
-			}
+			chart := computeChartFromLunarTime(lt, gender)
 			fc := chart
 
 			// 五行局
@@ -144,20 +141,20 @@ func TestComplete(t *testing.T) {
 			ln := ComputeLiuNian(fc, 2026)
 			assertFlowPalaces(t, "流年", ln.GongWei, tc.YFlow, &pass, &fail)
 			// 流月/日/时盘共用目标农历日。
-			tgtM := tianwen.LunarDateAt(time.Time(time.Date(2026, 6, 4, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
+			tgtM := tianwen.ShanghaiLunarReference().LunarDateAt(time.Time(time.Date(2026, 6, 4, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
 			lyTarget := tianwen.LunarDate{Year: tgtM.Year, Month: tgtM.Month, Day: tgtM.Day, Leap: tgtM.Leap}
-			ly2, err := ComputeLiuYue(fc, lyTarget)
+			ly2, err := ComputeLiuYueWith(fc, lyTarget, tianwen.DefaultLunarProjector())
 			if err != nil {
 				t.Fatalf("ComputeLiuYue: %v", err)
 			}
 			assertFlowPalaces(t, "流月", ly2.GongWei, tc.MFlow, &pass, &fail)
 			lrTarget := tianwen.LunarDate{Year: tgtM.Year, Month: tgtM.Month, Day: tgtM.Day, Leap: tgtM.Leap}
-			lr2, err := ComputeLiuRi(fc, lrTarget)
+			lr2, err := ComputeLiuRiWith(fc, lrTarget, tianwen.DefaultLunarProjector())
 			if err != nil {
 				t.Fatalf("ComputeLiuRi: %v", err)
 			}
 			assertFlowPalaces(t, "流日", lr2.GongWei, tc.DFlow, &pass, &fail)
-			ls2, err := ComputeLiuShi(fc, lrTarget, ganzhi.Zhi(1))
+			ls2, err := ComputeLiuShiWith(fc, lrTarget, ganzhi.Zhi(1), tianwen.DefaultLunarProjector())
 			if err != nil {
 				t.Fatalf("ComputeLiuShi: %v", err)
 			}
@@ -173,7 +170,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流月四化+zhi+星
-			ly, err := ComputeLiuYue(fc, lyTarget)
+			ly, err := ComputeLiuYueWith(fc, lyTarget, tianwen.DefaultLunarProjector())
 			if err != nil {
 				t.Fatalf("ComputeLiuYue: %v", err)
 			}
@@ -192,7 +189,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流日四化+zhi+星
-			lr, err := ComputeLiuRi(fc, lrTarget)
+			lr, err := ComputeLiuRiWith(fc, lrTarget, tianwen.DefaultLunarProjector())
 			if err != nil {
 				t.Fatalf("ComputeLiuRi: %v", err)
 			}
@@ -211,7 +208,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流时四化+zhi+星
-			ls, err := ComputeLiuShi(fc, lrTarget, ganzhi.Zhi(1))
+			ls, err := ComputeLiuShiWith(fc, lrTarget, ganzhi.Zhi(1), tianwen.DefaultLunarProjector())
 			if err != nil {
 				t.Fatalf("ComputeLiuShi: %v", err)
 			}
@@ -328,10 +325,7 @@ func TestChartPatternsMatchFinalPalaces(t *testing.T) {
 			if tc.Gender == "男" {
 				gender = ganzhi.Male
 			}
-			chart, err := ComputeChart(lt, gender)
-			if err != nil {
-				t.Fatalf("ComputeChart: %v", err)
-			}
+			chart := computeChartFromLunarTime(lt, gender)
 			full := chart
 			want := findPatterns(full.GongWei)
 			if len(full.Patterns) != len(want) {

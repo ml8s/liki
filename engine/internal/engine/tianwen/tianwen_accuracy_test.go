@@ -460,22 +460,6 @@ func TestComputeBazi_ZeroTimeReturnsValidPillars(t *testing.T) {
 	}
 }
 
-func TestCivilTimeFromLunarDate_OutOfRange(t *testing.T) {
-	// Month 13 should return zero time.
-	lt13 := LunarDate{Year: 2024, Month: 13, Day: 1}
-	gt13 := CivilTimeFromLunarDate(lt13)
-	if !gt13.IsZero() {
-		t.Error("CivilTimeFromLunarDate(2024,13,1) should return zero time for month 13")
-	}
-
-	// Day 32 should return zero time.
-	lt32 := LunarDate{Year: 2024, Month: 1, Day: 32}
-	gt32 := CivilTimeFromLunarDate(lt32)
-	if !gt32.IsZero() {
-		t.Error("CivilTimeFromLunarDate(2024,1,32) should return zero time for day 32")
-	}
-}
-
 func TestRiZhu_YearOutOfRange(t *testing.T) {
 	zhu := RiZhu(time.Time(time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)))
 	if zhu.Gan < 1 || zhu.Gan > 10 {
