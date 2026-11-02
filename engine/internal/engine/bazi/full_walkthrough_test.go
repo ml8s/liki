@@ -13,7 +13,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
-	full := ComputeFullChart(chart)
+	full := ComputeChartFromCore(natalCoreFromChart(chart))
 
 	t.Run("TaiYuan", func(t *testing.T) {
 		// Oracle: 胎元 = 丁亥 (月干丙+1=丁, 月支申+3=亥)
@@ -49,7 +49,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 	})
 
 	t.Run("LiuPo_ZiYou", func(t *testing.T) {
-		hehui := ComputeHeHui(chart)
+		hehui := ComputeHeHui(chart.ToBazi())
 		found := false
 		for _, po := range hehui.LiuPo {
 			if (po.ZhiA == "子" && po.ZhiB == "酉") || (po.ZhiA == "酉" && po.ZhiB == "子") {
@@ -86,7 +86,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 
 	t.Run("KongWangPerPillarVsGlobal", func(t *testing.T) {
 		// Oracle reports empty per-pillar: year=子丑, month=辰巳, day=申酉, time=午未
-		pillars := [4]fullZhuInfo{full.Nian, full.Yue, full.Ri, full.Shi}
+		pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 		wantXun := []string{"甲寅旬", "甲午旬", "甲戌旬", "甲申旬"}
 		wantXunKong := []string{"子丑", "辰巳", "申酉", "午未"}
 		for i, pillar := range pillars {
@@ -100,7 +100,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 	})
 
 	t.Run("WuxingCount", func(t *testing.T) {
-		fuYi, _, _ := ComputeYongShenSchools(chart)
+		fuYi, _, _ := ComputeYongshenEvidence(natalCoreFromChart(chart))
 		wc := fuYi.WuxingCount
 		if wc["金"] != 4 || wc["木"] != 0 || wc["水"] != 3 || wc["火"] != 2 || wc["土"] != 3 {
 			t.Fatalf("wuxing_count = %v, want 金4 木0 水3 火2 土3（干+藏干口径）", wc)

@@ -2,19 +2,19 @@ package bazi
 
 import "liki-engine/internal/engine/ganzhi"
 
-// computeFuYi computes the FuYi (扶抑) yongshen analysis from a Chart.
+// computeFuYi computes the FuYi (扶抑) yongshen analysis from pillars.
 // Uses data-driven lookup tables for strength, congGe, and yong/xi/ji.
 func FuYi(
-	c Chart,
+	bz ganzhi.Bazi,
 	counts WuxingCounts,
 	seasonStrength SeasonStrength,
 	strength DayMasterStrength,
 ) FuYiResult {
-	riYuan := c.Ri.Gan
-	basis := buildFuYiBasis(c, strength.RootType, strength.YinBiCount)
+	riYuan := bz.Ri.Gan
+	basis := buildFuYiBasis(bz, strength.RootType, strength.YinBiCount)
 
 	// Try congGe rules first (qualitative rule chain, not percentages).
-	pat, congYong, congXi, congJi := lookupCongGe(c)
+	pat, congYong, congXi, congJi := lookupCongGe(bz)
 	if pat != "" {
 		return FuYiResult{
 			WuxingCount: counts.StringCount(),

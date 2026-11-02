@@ -28,7 +28,7 @@ PACKS_DIR = ROOT / "expert-packs"
 IDENTITY_SECTIONS = ("## 工具自省", "## 硬边界", "## 隐私与合规")
 IDENTITY_PHRASES = ("条件性解读", "仅保留在当前会话")
 AVATAR_TEXT_MARKERS = ("<text", "font-family", "dominant-baseline")
-# 引擎方法名（点号形式，如 bazi.fullchart）：身份面与部署子代理身份同样不得硬编码；
+# 引擎方法名（点号形式，如 bazi.chart）：身份面与部署子代理身份同样不得硬编码；
 # 能力发现一律走 tools/list 自举（字段名不在此列，另由 schema 同步测试守护）。
 ENGINE_METHOD_RE = re.compile(
     r"(?<![A-Za-z0-9_])(?:bazi|ziwei|liuyao|qimen|huangli|bazhai|xuankong|time|city|tianwen)\.[a-z_]+"

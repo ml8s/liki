@@ -33,7 +33,7 @@ func TestDomainOracle_GenderShenSha(t *testing.T) {
 	pillarKey := []string{"nian", "yue", "ri", "shi"}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
-			chart := atomicChartFromStrings(t, tc.Pillars)
+			chart := atomicCoreFromStrings(t, tc.Pillars)
 			switch tc.Gender {
 			case string(ganzhi.Male):
 				chart.Gender = ganzhi.Male
@@ -42,7 +42,7 @@ func TestDomainOracle_GenderShenSha(t *testing.T) {
 			default:
 				t.Fatalf("gender = %q", tc.Gender)
 			}
-			full := ComputeFullChart(chart)
+			full := ComputeChartFromCore(chart)
 			got := map[string][]string{}
 			pillars := [4][]ShenShaProjection{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}
 			for name := range tc.Expected {

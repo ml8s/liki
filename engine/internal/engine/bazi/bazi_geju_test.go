@@ -12,12 +12,12 @@ import (
 // from the month zhi using the CangGan lookup.
 func mkGeJuChart(riGan, yueGan, nianGan, shiGan ganzhi.Gan, yueZhi ganzhi.Zhi) Chart {
 	return Chart{
-		Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: riGan, Zhi: ganzhi.ZhiWu}},
-		Yue: zhuInfo{
+		Ri: Pillar{Zhu: ganzhi.Zhu{Gan: riGan, Zhi: ganzhi.ZhiWu}},
+		Yue: Pillar{
 			Zhu: ganzhi.Zhu{Gan: yueGan, Zhi: yueZhi},
 		},
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: nianGan, Zhi: ganzhi.ZhiSi}},
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: shiGan, Zhi: ganzhi.ZhiShen}},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: nianGan, Zhi: ganzhi.ZhiSi}},
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: shiGan, Zhi: ganzhi.ZhiShen}},
 	}
 }
 func TestComputeGeJu_AllPatterns(t *testing.T) {
@@ -159,12 +159,12 @@ func TestComputeGeJu_JianLuYueRen(t *testing.T) {
 // over month gan. 酉月(辛金本气), 月干癸水, 年干辛金透干 → 正官格(不是正印格).
 func TestGeJu_TouTou_Priority(t *testing.T) {
 	cb := Chart{
-		Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
-		Yue: zhuInfo{
+		Ri: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+		Yue: Pillar{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiYou},
 		},
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiSi}}, // 年干辛透 → 正官格
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiSi}}, // 年干辛透 → 正官格
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
 	}
 	result := computeGeJu(cb, nil)
 	if result.Pattern != "正官格" {
@@ -181,12 +181,12 @@ func TestGeJu_DefaultPattern(t *testing.T) {
 	// 甲日主, 辰月(戊乙癸), 月干乙木(劫财), 乙在中气.
 	// 辰非甲禄/刃 → 支藏干检查. 戊不透, 乙透(月干=乙) → 劫财 → 杂格.
 	cb := Chart{
-		Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
-		Yue: zhuInfo{
+		Ri: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+		Yue: Pillar{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChen},
 		},
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
 	}
 	result := computeGeJu(cb, nil)
 	if result.Pattern != "杂格" {
@@ -263,7 +263,7 @@ func TestGeJu_RealCharts(t *testing.T) {
 			stgt := time.Time(tt.birthTime)
 			st := tianwen.ApparentSolarFromCivil(tt.birthTime, 116.4, 8)
 			chart := ComputeChart(stgt, st, tt.gender)
-			_, _, geJu := ComputeYongShenSchools(chart)
+			_, _, geJu := ComputeYongshenEvidence(natalCoreFromChart(chart))
 			if geJu.Pattern != tt.wantPattern {
 				t.Errorf("Pattern = %q, want %q\n  note: %s", geJu.Pattern, tt.wantPattern, tt.note)
 			}
@@ -331,5 +331,5 @@ func computeGeJu(c Chart, _ map[ganzhi.Wuxing]int) GeJuResult {
 	if gender == "" {
 		gender = ganzhi.Male
 	}
-	return GeJuAt(c, AnalyzePillars(c.ToBazi(), gender))
+	return GeJuAt(c.ToBazi(), AnalyzePillars(c.ToBazi(), gender))
 }

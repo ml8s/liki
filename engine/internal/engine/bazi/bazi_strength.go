@@ -144,13 +144,13 @@ type DayMasterStrength struct {
 
 // AnalyzeDayMasterStrength derives the data-driven day-master strength facts.
 func AnalyzeDayMasterStrength(
-	chart Chart,
+	bz ganzhi.Bazi,
 	hiddenStems [4]HiddenStemProjection,
 ) DayMasterStrength {
 	strength := DayMasterStrength{
-		RootType:   classifyRoot(chart.Ri.Gan, chart.Yue.Zhi, hiddenStems),
-		Season:     classifySeason(chart.Ri.Gan, chart.Yue.Zhi),
-		YinBiCount: countYinBi(chart),
+		RootType:   classifyRoot(bz.Ri.Gan, bz.Yue.Zhi, hiddenStems),
+		Season:     classifySeason(bz.Ri.Gan, bz.Yue.Zhi),
+		YinBiCount: countYinBi(bz),
 	}
 	strength.Label = lookupStrength(strength.RootType, strength.Season, strength.YinBiCount)
 	return strength
@@ -169,11 +169,11 @@ func (counts WuxingCounts) StringCount() map[string]int {
 }
 
 func WuxingCountsAt(
-	chart Chart,
+	bz ganzhi.Bazi,
 	hiddenStems [4]HiddenStemProjection,
 ) WuxingCounts {
 	counts := make(WuxingCounts, 5)
-	for _, pillar := range chart.ToBazi().Slice() {
+	for _, pillar := range bz.Slice() {
 		counts[ganzhi.GanWuxing(pillar.Gan)]++
 	}
 	for _, stems := range hiddenStems {
@@ -189,13 +189,13 @@ func WuxingCountsAt(
 }
 
 // countYinBi returns印比 count (比劫同五行+印生我) from the 4 gan.
-func countYinBi(c Chart) int {
+func countYinBi(bz ganzhi.Bazi) int {
 	// Count 印(生我) and 比劫(同我) from年/月/时干 only (excluding日主自身).
-	dmElem := ganzhi.GanWuxing(c.Ri.Gan)
+	dmElem := ganzhi.GanWuxing(bz.Ri.Gan)
 	genElem := elementThatGenerates(dmElem)
 	count := 0
 	for _, p := range []struct{ gan ganzhi.Gan }{
-		{c.Nian.Gan}, {c.Yue.Gan}, {c.Shi.Gan},
+		{bz.Nian.Gan}, {bz.Yue.Gan}, {bz.Shi.Gan},
 	} {
 		e := ganzhi.GanWuxing(p.gan)
 		if e == dmElem || e == genElem {
@@ -233,12 +233,12 @@ func lookupStrength(rootType, season string, yinBiCount int) string {
 }
 
 // lookupCongGe checks the day master against 从格 rules in priority order.
-func lookupCongGe(c Chart) (string, string, string, string) {
-	riYuan := c.Ri.Gan
+func lookupCongGe(bz ganzhi.Bazi) (string, string, string, string) {
+	riYuan := bz.Ri.Gan
 	dmElem := ganzhi.GanWuxing(riYuan)
-	rootType := classifyRoot(riYuan, c.Yue.Zhi, HiddenStemFacts(c.ToBazi()))
-	season := classifySeason(riYuan, c.Yue.Zhi)
-	gan := countGan(c)
+	rootType := classifyRoot(riYuan, bz.Yue.Zhi, HiddenStemFacts(bz))
+	season := classifySeason(riYuan, bz.Yue.Zhi)
+	gan := countGan(bz)
 
 	for _, rule := range congGeRules {
 		if !matchRoot(rule.Conditions.Root, rootType, rule.Conditions.RootDetail) {
@@ -268,11 +268,11 @@ type ganCounts struct {
 
 func (sc ganCounts) yinBi() int { return sc.biBi + sc.yin }
 
-func countGan(c Chart) ganCounts {
-	dmElem := ganzhi.GanWuxing(c.Ri.Gan)
+func countGan(bz ganzhi.Bazi) ganCounts {
+	dmElem := ganzhi.GanWuxing(bz.Ri.Gan)
 	var sc ganCounts
 	for _, p := range []struct{ gan ganzhi.Gan }{
-		{c.Nian.Gan}, {c.Yue.Gan}, {c.Shi.Gan},
+		{bz.Nian.Gan}, {bz.Yue.Gan}, {bz.Shi.Gan},
 	} {
 		e := ganzhi.GanWuxing(p.gan)
 		switch {

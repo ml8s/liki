@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # The engine-schema half of this contract moved to Go: the typed registry owns
 # the DTOs now, so engine/internal/mcpcontract/projection_contract_test.go
-# checks the fullchart/chart/ziwei field paths against the real schemas.
+# checks the chart/ziwei field paths against the real schemas.
 
 
 def test_projection_contract_has_no_stale_or_duplicate_labels():

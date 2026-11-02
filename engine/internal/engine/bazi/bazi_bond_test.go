@@ -12,30 +12,44 @@ import (
 func TestComputeBond_IsPureAndDeterministic(t *testing.T) {
 	ca := computeChartForTest(t, 1984, 2, 15, 8, ganzhi.Male)
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
-	wantA, wantB := cloneChartForBondTest(ca), cloneChartForBondTest(cb)
+	coreA, coreB := natalCoreFromChart(ca), natalCoreFromChart(cb)
+	wantA, wantB := cloneNatalCoreForBondTest(coreA), cloneNatalCoreForBondTest(coreB)
 
-	first, second := ComputeBond(ca, cb), ComputeBond(ca, cb)
+	first, second := ComputeBond(coreA, coreB), ComputeBond(coreA, coreB)
 	if !reflect.DeepEqual(first, second) {
 		t.Fatal("ComputeBond is not deterministic for identical inputs")
 	}
-	if !reflect.DeepEqual(ca, wantA) || !reflect.DeepEqual(cb, wantB) {
-		t.Fatal("ComputeBond mutated an input chart")
+	if !reflect.DeepEqual(coreA, wantA) || !reflect.DeepEqual(coreB, wantB) {
+		if !reflect.DeepEqual(coreA.DaYun, wantA.DaYun) {
+			for i, got := range coreA.DaYun.Steps {
+				want := wantA.DaYun.Steps[i]
+				if !reflect.DeepEqual(got, want) {
+					t.Fatalf("coreA step %d got=%+v want=%+v", i, got, want)
+				}
+			}
+		}
+		t.Fatal("ComputeBond mutated an input core")
 	}
 }
 
-func cloneChartForBondTest(chart Chart) Chart {
-	clone := chart
-	if chart.DaYun == nil {
+func cloneNatalCoreForBondTest(core NatalCore) NatalCore {
+	clone := core
+	if core.DaYun == nil {
 		return clone
 	}
-	dayun := *chart.DaYun
-	dayun.Steps = append([]DaYunStep(nil), chart.DaYun.Steps...)
+	dayun := *core.DaYun
+	dayun.Steps = append([]DaYunStep(nil), core.DaYun.Steps...)
 	for index, step := range dayun.Steps {
-		dayun.Steps[index].RootRefs = append([]DaYunRootRef(nil), step.RootRefs...)
+		if step.RootRefs == nil {
+			step.RootRefs = nil
+		} else {
+			step.RootRefs = append(make([]DaYunRootRef, 0, len(step.RootRefs)), step.RootRefs...)
+		}
 		if step.Rooted != nil {
 			rooted := *step.Rooted
-			dayun.Steps[index].Rooted = &rooted
+			step.Rooted = &rooted
 		}
+		dayun.Steps[index] = step
 	}
 	clone.DaYun = &dayun
 	return clone
@@ -49,7 +63,7 @@ func TestComputeBond_GoldenValues(t *testing.T) {
 	// 1990-06-15 12:00 Beijing
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
 
-	bond := ComputeBond(ca, cb)
+	bond := ComputeBond(natalCoreFromChart(ca), natalCoreFromChart(cb))
 
 	// ZhuCross: 4x4=16 pairs
 	if len(bond.ZhuCross.Pairs) != 16 {
@@ -99,8 +113,8 @@ func computeChartForTest(t *testing.T, year, month, day, hour int, g ganzhi.Gend
 func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 	ca := computeChartForTest(t, 1984, 2, 15, 8, ganzhi.Male) // 甲子 丙寅 己卯 戊辰
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
-	bond := ComputeBond(ca, cb)
-	aFc, bFc := ComputeFullChart(ca), ComputeFullChart(cb)
+	bond := ComputeBond(natalCoreFromChart(ca), natalCoreFromChart(cb))
+	aFc, bFc := ComputeChartFromCore(natalCoreFromChart(ca)), ComputeChartFromCore(natalCoreFromChart(cb))
 	aCount := convertWuxingCount(computeElementCount(ca.ToBazi(), HiddenStemFacts(ca.ToBazi())))
 	bCount := convertWuxingCount(computeElementCount(cb.ToBazi(), HiddenStemFacts(cb.ToBazi())))
 
@@ -124,7 +138,7 @@ func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 		}
 	}
 
-	assertFit := func(label string, got yongShenFitEntry, fc FullChart, other map[string]int) {
+	assertFit := func(label string, got yongShenFitEntry, fc Chart, other map[string]int) {
 		want := fc.FuYi
 		if got.Yong != want.Yong ||
 			got.Xi != want.Xi ||

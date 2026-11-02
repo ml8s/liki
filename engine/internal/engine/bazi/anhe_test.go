@@ -28,7 +28,7 @@ func TestAnHe(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: tt.zhi[2]},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: tt.zhi[3]},
 			}
-			hehui := ComputeHeHui(canonicalChart(bz, ganzhi.Male, 2000))
+			hehui := ComputeHeHui(canonicalChart(bz, ganzhi.Male, 2000).ToBazi())
 
 			if tt.wantA == "" {
 				if len(hehui.AnHe) > 0 {

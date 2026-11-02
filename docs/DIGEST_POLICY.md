@@ -26,7 +26,7 @@ Digest 不是通用输出装饰。只有当一个 MCP artifact 会离开当前�
 | `xuankong_liunian` | 无 artifact digest | 不加 | 输入是 `zhai` 领域事实；输出是本次流年计算结果。 |
 | `bazi_yongshen` | `chart_digest`, `yongshen_digest` | 保留 | 用神裁决被起名、因子和应期消费，需要绑定源盘和结论。 |
 | `natal_compute_factors` | `factors_digest`, `_provenance.chart_digest` | 保留 | 因子快照会进入后续 query，必须防裁剪、拼接和换盘。 |
-| `*_fullchart` / series / bond | 无 source digest | 不加 | 服务端同一编排内派生；请求-响应关联由编排层负责，不是防 LLM 伪造边界。 |
+| series / bond | 无 source digest | 不加 | 服务端同一编排内派生；请求-响应关联由编排层负责，不是防 LLM 伪造边界。 |
 | naming 工具 | 无 artifact digest | 不加 | 字池、组名、逐字五行角色是确定性事实，不构成可复用事件。 |
 | 普通查询/投影 | 无 | 不加 | 只展示或只在同一请求内消费的输出不需要身份。 |
 | 用户提问 | `message_digest` | 已删除 | 提问不是原样回传的 artifact；answer 已绑定 snapshot。 |

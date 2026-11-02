@@ -53,6 +53,14 @@ func (subject NatalSubject) baziChart() (bazi.Chart, error) {
 	return bazi.ComputeChartAt(standard, subject.BirthLongitude, gender), nil
 }
 
+func (subject NatalSubject) baziNatalCore() (bazi.NatalCore, error) {
+	standard, gender, err := subject.validate()
+	if err != nil {
+		return bazi.NatalCore{}, err
+	}
+	return bazi.ComputeNatalCoreAt(standard, subject.BirthLongitude, gender), nil
+}
+
 func (subject NatalSubject) ziweiChart() (ziwei.Chart, error) {
 	standard, gender, err := subject.validate()
 	if err != nil {

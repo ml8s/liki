@@ -61,9 +61,8 @@ type TripleGroup struct {
 	Pillars  []string `json:"pillars"`
 }
 
-// ComputeHeHui computes the full 合会冲刑 analysis from a Chart.
-func ComputeHeHui(c Chart) HeHuiResult {
-	bz := c.ToBazi()
+// ComputeHeHui computes the full 合会冲刑 analysis from the four pillars.
+func ComputeHeHui(bz ganzhi.Bazi) HeHuiResult {
 	return HeHuiResult{
 		GanHe:        detectGanHe(bz),
 		GanChong:     detectGanChong(bz),

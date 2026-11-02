@@ -59,8 +59,8 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 }
 
 func TestGanChong_GuanXiDistinguishTightPairs(t *testing.T) {
-	chart := atomicChartFromStrings(t, []string{"甲子", "丙寅", "庚午", "壬申"})
-	full := ComputeFullChart(chart)
+	chart := atomicCoreFromStrings(t, []string{"甲子", "丙寅", "庚午", "壬申"})
+	full := ComputeChartFromCore(chart)
 	want := map[RelationGroup]bool{
 		{Field: "gan_chong_candidate", Group: "甲庚"}: true,
 		{Field: "liu_chong", Group: "子午"}:           true,
@@ -85,6 +85,6 @@ func atomicBaziFromStrings(t *testing.T, pillars []string) ganzhi.Bazi {
 	if len(pillars) != 4 {
 		t.Fatalf("pillar count = %d, want 4", len(pillars))
 	}
-	chart := atomicChartFromStrings(t, pillars)
+	chart := atomicCoreFromStrings(t, pillars)
 	return chart.ToBazi()
 }

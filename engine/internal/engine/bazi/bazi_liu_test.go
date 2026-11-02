@@ -11,10 +11,10 @@ import (
 // helper: make a Chart from a known BaZi for testing liu* functions.
 func makeTestChart(nian, yue, ri, shi ganzhi.Zhu, daYun *DaYun) Chart {
 	return Chart{
-		Nian:  zhuInfo{Zhu: nian, NaYin: ganzhi.NayinLabel(nian.Gan, nian.Zhi)},
-		Yue:   zhuInfo{Zhu: yue, NaYin: ganzhi.NayinLabel(yue.Gan, yue.Zhi)},
-		Ri:    zhuInfo{Zhu: ri, NaYin: ganzhi.NayinLabel(ri.Gan, ri.Zhi)},
-		Shi:   zhuInfo{Zhu: shi, NaYin: ganzhi.NayinLabel(shi.Gan, shi.Zhi)},
+		Nian:  Pillar{Zhu: nian, NaYin: ganzhi.NayinLabel(nian.Gan, nian.Zhi)},
+		Yue:   Pillar{Zhu: yue, NaYin: ganzhi.NayinLabel(yue.Gan, yue.Zhi)},
+		Ri:    Pillar{Zhu: ri, NaYin: ganzhi.NayinLabel(ri.Gan, ri.Zhi)},
+		Shi:   Pillar{Zhu: shi, NaYin: ganzhi.NayinLabel(shi.Gan, shi.Zhi)},
 		DaYun: daYun,
 	}
 }
@@ -33,7 +33,7 @@ func TestComputeLiuYue_WuHuDun(t *testing.T) {
 
 	// 2024 = 甲辰年, June = 午月.
 	// 甲年正月丙寅 → 午月 (正月+4) → 丙+4=庚 → 庚午月.
-	ly, err := ComputeLiuYue(cb, 2024, 6)
+	ly, err := ComputeLiuYue(natalCoreFromChart(cb), 2024, 6)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestComputeLiuYue_EthYear(t *testing.T) {
 	)
 
 	// 乙年正月戊寅 → 午月 (正月+4) → 戊+4=壬 → 壬午月.
-	ly, err := ComputeLiuYue(cb, 2025, 6)
+	ly, err := ComputeLiuYue(natalCoreFromChart(cb), 2025, 6)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,11 +80,11 @@ func TestComputeLiuYue_InvalidMonth(t *testing.T) {
 		ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen},
 		nil,
 	)
-	_, err := ComputeLiuYue(cb, 2024, 0)
+	_, err := ComputeLiuYue(natalCoreFromChart(cb), 2024, 0)
 	if err == nil {
 		t.Error("expected error for month=0")
 	}
-	_, err = ComputeLiuYue(cb, 2024, 13)
+	_, err = ComputeLiuYue(natalCoreFromChart(cb), 2024, 13)
 	if err == nil {
 		t.Error("expected error for month=13")
 	}
@@ -108,7 +108,7 @@ func TestComputeLiuRi_DayPillar(t *testing.T) {
 		if err != nil {
 			t.Fatalf("day %s: %v", day.Format("2006-01-02"), err)
 		}
-		lr, err := ComputeLiuRi(cb, lt)
+		lr, err := ComputeLiuRi(natalCoreFromChart(cb), lt)
 		if err != nil {
 			t.Fatalf("day %s: %v", day.Format("2006-01-02"), err)
 		}
@@ -135,7 +135,7 @@ func TestComputeLiuRi_HasRequiredFields(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	lr, err := ComputeLiuRi(chart, lt)
+	lr, err := ComputeLiuRi(natalCoreFromChart(chart), lt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +186,7 @@ func TestComputeLiuShi_WuShuDun(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		ls, err := ComputeLiuShi(cb, resolveTestLiuShi(t, 2024, 6, 15, tt.hour, 30))
+		ls, err := ComputeLiuShi(natalCoreFromChart(cb), resolveTestLiuShi(t, 2024, 6, 15, tt.hour, 30))
 		if err != nil {
 			t.Fatalf("hour %d: %v", tt.hour, err)
 		}
@@ -209,7 +209,7 @@ func TestComputeLiuShi_HasRequiredFields(t *testing.T) {
 		nil,
 	)
 
-	ls, err := ComputeLiuShi(cb, resolveTestLiuShi(t, 2024, 6, 15, 12, 30))
+	ls, err := ComputeLiuShi(natalCoreFromChart(cb), resolveTestLiuShi(t, 2024, 6, 15, 12, 30))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,7 +241,7 @@ func TestComputeLiuYue_ShenSha(t *testing.T) {
 		ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 		nil,
 	)
-	ly, err := ComputeLiuYue(cb, 2026, 6)
+	ly, err := ComputeLiuYue(natalCoreFromChart(cb), 2026, 6)
 	if err != nil {
 		t.Fatalf("ComputeLiuYue: %v", err)
 	}
@@ -278,7 +278,7 @@ func TestComputeLiuRi_ShenSha(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ResolveLiuRiTime: %v", err)
 	}
-	lr, err := ComputeLiuRi(cb, lt)
+	lr, err := ComputeLiuRi(natalCoreFromChart(cb), lt)
 	if err != nil {
 		t.Fatalf("ComputeLiuRi: %v", err)
 	}

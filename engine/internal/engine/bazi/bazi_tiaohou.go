@@ -23,12 +23,12 @@ type tiaohouKey struct {
 // chart. The table is keyed by day-master and month-zhi; the availability
 // projection is computed against all four palaces.
 // TiaoHouAt is the explicit domain entry for climate-adjustment evidence.
-func TiaoHouAt(c Chart) TiaoHouResult {
-	return computeTiaoHou(c)
+func TiaoHouAt(bz ganzhi.Bazi) TiaoHouResult {
+	return computeTiaoHou(bz)
 }
 
-func computeTiaoHou(c Chart) TiaoHouResult {
-	riYuan, yueZhi := c.Ri.Gan, c.Yue.Zhi
+func computeTiaoHou(bz ganzhi.Bazi) TiaoHouResult {
+	riYuan, yueZhi := bz.Ri.Gan, bz.Yue.Zhi
 	th, _ := queryTiaoHou(riYuan, yueZhi)
 	entry, hasEntry := lookupTiaohou[tiaohouKey{int(riYuan), int(yueZhi)}]
 	if !hasEntry {
@@ -44,17 +44,17 @@ func computeTiaoHou(c Chart) TiaoHouResult {
 		Season:             th.Season,
 		TiaoHouExplanation: th.Detail,
 		ModelID:            "qiongtong_primary_secondary_table",
-		Primary:            buildTiaoHouAvailability(c, entry.primary, "primary"),
-		Secondary:          tiaoHouSecondary(c, entry.secondary),
+		Primary:            buildTiaoHouAvailability(bz, entry.primary, "primary"),
+		Secondary:          tiaoHouSecondary(bz, entry.secondary),
 		SecondaryCondition: th.SecondaryCondition,
 	}
 }
 
-func tiaoHouSecondary(c Chart, secondary ganzhi.Gan) *TiaoHouAvailability {
+func tiaoHouSecondary(bz ganzhi.Bazi, secondary ganzhi.Gan) *TiaoHouAvailability {
 	if secondary == 0 {
 		return nil
 	}
-	availability := buildTiaoHouAvailability(c, secondary, "secondary")
+	availability := buildTiaoHouAvailability(bz, secondary, "secondary")
 	return &availability
 }
 

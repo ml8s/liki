@@ -27,11 +27,11 @@ type ChangShengStage struct {
 	Index ganzhi.Zhi `json:"index"`
 }
 
-func ComputeChartExtra(c Chart) ChartExtra {
-	bz := c.ToBazi()
+func ComputeChartExtra(core NatalCore) ChartExtra {
+	bz := core.ToBazi()
 
 	stages := [12]ChangShengStage{}
-	zhi := ganzhi.ChangShengTable[c.Ri.Gan]
+	zhi := ganzhi.ChangShengTable[bz.Ri.Gan]
 	for i := 0; i < 12; i++ {
 		stages[i] = ChangShengStage{
 			Name:  ganzhi.StageNamesZH[i],
@@ -39,7 +39,7 @@ func ComputeChartExtra(c Chart) ChartExtra {
 		}
 	}
 
-	nayins := c.NaYinArray()
+	nayins := core.NaYin
 	var nayinRels []NayinRelEntry
 	for i := 0; i < 4; i++ {
 		for j := i + 1; j < 4; j++ {

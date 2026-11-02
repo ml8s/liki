@@ -58,13 +58,13 @@ func BaziChartCompute(_ context.Context, input BaziChartInput) (json.RawMessage,
 	if err != nil {
 		return nil, fmt.Errorf("bazi.chart: %w", err)
 	}
-	return marshalRawBaziCompleteChart(bazi.ComputeFullChart(chart), chart.ZiShiRule)
+	return marshalRawBaziChart(chart)
 }
 
 // ── typed handlers for the remaining bazi tools ──
 
-type baziCompleteChartJSON struct {
-	*bazi.FullChart
+type baziChartJSON struct {
+	*bazi.Chart
 	TiaoHou   baziTiaoHouJSON `json:"tiao_hou"`
 	ZiShiRule string          `json:"zi_shi_rule"`
 }
@@ -93,20 +93,20 @@ func (availability requiredTiaoHouAvailability) MarshalJSON() ([]byte, error) {
 	return json.Marshal(availability.value)
 }
 
-func marshalRawBaziCompleteChart(full bazi.FullChart, ziShiRule string) (json.RawMessage, error) {
-	value := baziCompleteChartJSON{
-		FullChart: &full,
+func marshalRawBaziChart(chart bazi.Chart) (json.RawMessage, error) {
+	value := baziChartJSON{
+		Chart: &chart,
 		TiaoHou: baziTiaoHouJSON{
-			PrimaryWuxing:      full.TiaoHou.PrimaryWuxing,
-			SecondaryWuxing:    full.TiaoHou.SecondaryWuxing,
-			Season:             full.TiaoHou.Season,
-			TiaoHouExplanation: full.TiaoHou.TiaoHouExplanation,
-			TiaoHouModelID:     full.TiaoHou.ModelID,
-			Primary:            full.TiaoHou.Primary,
-			Secondary:          requiredTiaoHouAvailability{value: full.TiaoHou.Secondary},
-			SecondaryCondition: full.TiaoHou.SecondaryCondition,
+			PrimaryWuxing:      chart.TiaoHou.PrimaryWuxing,
+			SecondaryWuxing:    chart.TiaoHou.SecondaryWuxing,
+			Season:             chart.TiaoHou.Season,
+			TiaoHouExplanation: chart.TiaoHou.TiaoHouExplanation,
+			TiaoHouModelID:     chart.TiaoHou.ModelID,
+			Primary:            chart.TiaoHou.Primary,
+			Secondary:          requiredTiaoHouAvailability{value: chart.TiaoHou.Secondary},
+			SecondaryCondition: chart.TiaoHou.SecondaryCondition,
 		},
-		ZiShiRule: ziShiRule,
+		ZiShiRule: chart.ZiShiRule,
 	}
 	raw, err := json.Marshal(value)
 	if err != nil {
@@ -117,15 +117,15 @@ func marshalRawBaziCompleteChart(full bazi.FullChart, ziShiRule string) (json.Ra
 
 // BaziBond returns raw cross-chart facts for two bazi charts.
 func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
-	chartA, err := input.A.Subject.baziChart()
+	coreA, err := input.A.Subject.baziNatalCore()
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart a: %w", err)
 	}
-	chartB, err := input.B.Subject.baziChart()
+	coreB, err := input.B.Subject.baziNatalCore()
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart b: %w", err)
 	}
-	raw, err := marshalRawOutput("bazi.bond", bazi.ComputeBond(chartA, chartB))
+	raw, err := marshalRawOutput("bazi.bond", bazi.ComputeBond(coreA, coreB))
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: %w", err)
 	}
@@ -173,11 +173,11 @@ func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
-	chart, err := input.Subject.baziChart()
+	core, err := input.Subject.baziNatalCore()
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
-	result, err := bazi.ComputeLiuNianAtTime(chart, resolved)
+	result, err := bazi.ComputeLiuNianAtTime(core, resolved)
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
@@ -240,11 +240,11 @@ func computeBaziLiuYue(input BaziLiuYueInput) (BaziLiuYueOutput, error) {
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
-	chart, err := input.Subject.baziChart()
+	core, err := input.Subject.baziNatalCore()
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
-	result, err := bazi.ComputeLiuYueAtTime(chart, resolved)
+	result, err := bazi.ComputeLiuYueAtTime(core, resolved)
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
@@ -301,7 +301,7 @@ func parseBaziLiuRiTime(input BaziLiuRiInput) (bazi.LiuRiTime, *time.Location, e
 }
 
 func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
-	chart, err := input.Subject.baziChart()
+	core, err := input.Subject.baziNatalCore()
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
@@ -309,7 +309,7 @@ func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
-	result, err := bazi.ComputeLiuRi(chart, resolved)
+	result, err := bazi.ComputeLiuRi(core, resolved)
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
@@ -365,7 +365,7 @@ func parseBaziLiuShiTime(input BaziLiuShiInput) (bazi.LiuShiTime, *time.Location
 }
 
 func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
-	chart, err := input.Subject.baziChart()
+	core, err := input.Subject.baziNatalCore()
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
@@ -373,7 +373,7 @@ func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
-	result, err := bazi.ComputeLiuShi(chart, resolved)
+	result, err := bazi.ComputeLiuShi(core, resolved)
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
@@ -395,11 +395,11 @@ func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 // BaziXiaoYun returns the 小运 year list for a chart.
 func BaziXiaoYun(_ context.Context, input BaziXiaoYunInput) (BaziXiaoYunOutput, error) {
 	n := seriesCountValue(input.XiaoYunCount)
-	chart, err := input.Subject.baziChart()
+	core, err := input.Subject.baziNatalCore()
 	if err != nil {
 		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
 	}
-	items, err := wireFromDomain[[]BaziXiaoYunItem](bazi.ComputeXiaoYun(chart, n))
+	items, err := wireFromDomain[[]BaziXiaoYunItem](bazi.ComputeXiaoYun(core, n))
 	if err != nil {
 		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
 	}

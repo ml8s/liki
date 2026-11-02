@@ -23,14 +23,14 @@ type chartSnapshot struct {
 	Gender ganzhi.Gender
 }
 
-func computeFullChart(g chartSnapshot) FullChart {
+func computeChart(g chartSnapshot) Chart {
 	stgt := time.Time(time.Date(g.Year, time.Month(g.Month), g.Day, g.Hour, g.Minute, 0, 0,
 		time.FixedZone("", int(g.TZ*3600))))
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(g.Year, time.Month(g.Month), g.Day, g.Hour, g.Minute, 0, 0,
 			time.FixedZone("", int(g.TZ*3600))),
 		g.Lon, g.TZ)
-	return ComputeFullChart(ComputeChart(stgt, st, g.Gender))
+	return ComputeChartFromCore(natalCoreFromChart(ComputeChart(stgt, st, g.Gender)))
 }
 
 var goldenCharts = []chartSnapshot{
@@ -46,7 +46,7 @@ var goldenCharts = []chartSnapshot{
 func TestGoldenChart_Pillars(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
-			cr := computeFullChart(g)
+			cr := computeChart(g)
 
 			pillars := []struct {
 				name string
@@ -80,7 +80,7 @@ func TestGoldenChart_Pillars(t *testing.T) {
 func TestGoldenChart_JSONSnapshot(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
-			cr := computeFullChart(g)
+			cr := computeChart(g)
 
 			b, err := json.MarshalIndent(&cr, "", "  ")
 			if err != nil {
@@ -107,7 +107,7 @@ func TestGoldenChart_JSONSnapshot(t *testing.T) {
 func TestGoldenChart_CangGan(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
-			cr := computeFullChart(g)
+			cr := computeChart(g)
 			names := [4]string{"nian", "yue", "ri", "shi"}
 			pillars := [4]HiddenStemProjection{cr.Nian.CangGan, cr.Yue.CangGan, cr.Ri.CangGan, cr.Shi.CangGan}
 			for i, pillar := range pillars {
@@ -124,7 +124,7 @@ func TestGoldenChart_CangGan(t *testing.T) {
 func TestGoldenChart_NaYin(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
-			cr := computeFullChart(g)
+			cr := computeChart(g)
 
 			if cr.Nian.NaYin == "" {
 				t.Error("Nian.NaYin is empty")
@@ -156,7 +156,7 @@ func TestGoldenChart_NaYin(t *testing.T) {
 func TestGoldenChart_ShenSha(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
-			cr := computeFullChart(g)
+			cr := computeChart(g)
 
 			validCats := map[string]bool{"吉": true, "凶": true, "中性": true}
 			pillars := []struct {
@@ -191,7 +191,7 @@ func TestGoldenChart_ShenSha(t *testing.T) {
 func TestGoldenChart_KongWang(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
-			cr := computeFullChart(g)
+			cr := computeChart(g)
 
 			// Verify IsVoid fields exist and are accessible on all 4 pillars.
 			pillars := []bool{cr.Nian.IsVoid, cr.Yue.IsVoid, cr.Ri.IsVoid, cr.Shi.IsVoid}
@@ -207,9 +207,9 @@ func TestGoldenChart_KongWang(t *testing.T) {
 func TestGoldenChart_ShiShens(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
-			cr := computeFullChart(g)
+			cr := computeChart(g)
 
-			pillars := [4]fullZhuInfo{cr.Nian, cr.Yue, cr.Ri, cr.Shi}
+			pillars := [4]Pillar{cr.Nian, cr.Yue, cr.Ri, cr.Shi}
 			names := [4]string{"nian", "yue", "ri", "shi"}
 
 			validShiShens := map[string]bool{

@@ -33,7 +33,7 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 	}
 
 	// 2026: 虚岁 = 2026-1984+1 = 43 → step3 庚午(36-45)
-	ln, err := ComputeLiuNian(chart, 2026)
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2026)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
@@ -45,7 +45,7 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 	}
 
 	// 1999: 1984-02-15 起运 1990-08-04 → step0 丁卯(1990-2000) 覆盖 1999
-	ln99, err := ComputeLiuNian(chart, 1999)
+	ln99, err := ComputeLiuNian(natalCoreFromChart(chart), 1999)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(1999): %v", err)
 	}
@@ -57,7 +57,7 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 	}
 
 	// 1985: 虚岁 2，未起运 → 空
-	ln85, err := ComputeLiuNian(chart, 1985)
+	ln85, err := ComputeLiuNian(natalCoreFromChart(chart), 1985)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(1985): %v", err)
 	}
@@ -133,7 +133,7 @@ func TestLiuNian_DaYunInteraction_NegativeIndex(t *testing.T) {
 		t.Fatal("DaYun is nil")
 	}
 
-	ln, err := ComputeLiuNian(chart, 2023)
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2023)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2023): %v", err)
 	}
@@ -152,7 +152,7 @@ func TestLiuNian_ShenSha(t *testing.T) {
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 
-	ln, err := ComputeLiuNian(chart, 2026) // 丙午年
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2026) // 丙午年
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
@@ -173,7 +173,7 @@ func TestLiuNian_ShenSha(t *testing.T) {
 	}
 
 	// 2025 乙巳年：己为阴干无经典羊刃；年支子见巳 → 劫煞。
-	ln2025, err := ComputeLiuNian(chart, 2025)
+	ln2025, err := ComputeLiuNian(natalCoreFromChart(chart), 2025)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2025): %v", err)
 	}
@@ -204,7 +204,7 @@ func TestLiuNian_FuYinFanYin_Exists(t *testing.T) {
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	// 甲子日 → 2044 甲子年 should have 伏吟 on 日柱
-	ln, err := ComputeLiuNian(chart, 2044)
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2044)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2044): %v", err)
 	}
@@ -224,7 +224,7 @@ func TestLiuNian_FuYinFanYin_Nil(t *testing.T) {
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 
-	ln, err := ComputeLiuNian(chart, 2026) // 丙午, no relation to 甲子
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2026) // 丙午, no relation to 甲子
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
@@ -243,7 +243,7 @@ func TestLiuNian_YearFields(t *testing.T) {
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 
-	ln, err := ComputeLiuNian(chart, 2026)
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2026)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}

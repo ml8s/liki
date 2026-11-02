@@ -103,10 +103,10 @@ func TestCongGe_Rules_AllSeasons(t *testing.T) {
 		{
 			name: "从旺_甲日寅月印比多",
 			chart: Chart{
-				Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
-				Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin}},
-				Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
-				Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiWu}},
+				Ri:   Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+				Yue:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin}},
+				Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+				Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiWu}},
 			},
 			wantPattern: "从旺格",
 		},
@@ -114,10 +114,10 @@ func TestCongGe_Rules_AllSeasons(t *testing.T) {
 		{
 			name: "从杀_乙日申月庚透",
 			chart: Chart{
-				Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiWu}},
-				Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}},
-				Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiWu}},
-				Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiWu}},
+				Ri:   Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiWu}},
+				Yue:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}},
+				Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiWu}},
+				Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiWu}},
 			},
 			wantNotEmpty: true,
 		},
@@ -125,7 +125,7 @@ func TestCongGe_Rules_AllSeasons(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			pat, _, _, _ := lookupCongGe(tt.chart)
+			pat, _, _, _ := lookupCongGe(tt.chart.ToBazi())
 
 			if tt.wantPattern != "" && pat != tt.wantPattern {
 				t.Errorf("pattern = %q, want %q", pat, tt.wantPattern)

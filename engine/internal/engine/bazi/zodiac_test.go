@@ -13,7 +13,7 @@ func TestZodiac(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}, ganzhi.Male, 1981)
-	full := ComputeFullChart(c)
+	full := ComputeChartFromCore(natalCoreFromChart(c))
 	if full.Zodiac != "鸡" {
 		t.Errorf("zodiac = %q, want 鸡 (辛酉年)", full.Zodiac)
 	}

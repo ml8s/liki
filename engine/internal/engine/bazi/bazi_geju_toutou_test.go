@@ -18,7 +18,7 @@ func chartFromGanZhi(nianGan, nianZhi, yueGan, yueZhi, riGan, riZhi, shiGan, shi
 	}
 	when := time.Date(2000, 1, 1, 12, 0, 0, 0, time.UTC)
 	st := time.Time(when)
-	return computeChartCore(time.Time(when), st, bz, g)
+	return ComputeChartFromCore(computeNatalCore(time.Time(when), st, bz, g))
 }
 
 // ── 透干法格局测试 ──────────────────────────────────────────────
@@ -207,7 +207,7 @@ func TestGeJu_TouTou_AllPatterns(t *testing.T) {
 				tt.shiGan, tt.shiZhi,
 				tt.gender,
 			)
-			_, _, geJu := ComputeYongShenSchools(c)
+			_, _, geJu := ComputeYongshenEvidence(natalCoreFromChart(c))
 
 			got := geJu
 			if got.Pattern != tt.wantPattern {

@@ -15,7 +15,6 @@ tools:
       - bazhai_layout
       - bazi_bond
       - bazi_chart
-      - bazi_fullchart
       - bazi_liunian
       - bazi_liuri
       - bazi_liushi
@@ -33,7 +32,6 @@ tools:
       - ziwei_bond
       - ziwei_chart
       - ziwei_daxian
-      - ziwei_fullchart
       - ziwei_liunian
       - ziwei_liuri
       - ziwei_liushi

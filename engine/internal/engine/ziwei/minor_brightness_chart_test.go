@@ -34,7 +34,7 @@ func TestMinorBrightnessInChart(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ComputeChart: %v", err)
 		}
-		fc := ComputeFullChart(chart)
+		fc := chart
 		for i := range fc.GongWei {
 			zhi := fc.GongWei[i].Zhi.String()
 			for _, s := range fc.GongWei[i].Stars {

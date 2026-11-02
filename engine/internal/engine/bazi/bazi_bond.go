@@ -115,28 +115,28 @@ type Bond struct {
 	ShenshaCross shenshaCross      `json:"shen_sha_cross"`
 }
 
-func ComputeBond(aBazi, bBazi Chart) Bond {
+func ComputeBond(aCore, bCore NatalCore) Bond {
 	return computeBondFromFacts(
-		aBazi,
-		bBazi,
-		computeBondChartFacts(aBazi),
-		computeBondChartFacts(bBazi),
+		aCore,
+		bCore,
+		computeBondChartFacts(aCore),
+		computeBondChartFacts(bCore),
 	)
 }
 
 // computeBondFromFacts is the pure composition layer: lean charts and their
 // bond-specific projections go in, and a complete Bond value comes out. It
 // neither reads nor writes request/session state.
-func computeBondFromFacts(aBazi, bBazi Chart, aFacts, bFacts bondChartFacts) Bond {
+func computeBondFromFacts(aCore, bCore NatalCore, aFacts, bFacts bondChartFacts) Bond {
 	return Bond{
-		DayMaster:    computeDayMasterCross(aBazi, bBazi),
-		SpousePalace: computeSpousePalaceCross(aBazi, bBazi),
-		ZhuCross:     computeZhuCross(aBazi, bBazi),
-		ShiShenCross: computeShiShenCross(aBazi, bBazi),
+		DayMaster:    computeDayMasterCross(aCore, bCore),
+		SpousePalace: computeSpousePalaceCross(aCore, bCore),
+		ZhuCross:     computeZhuCross(aCore, bCore),
+		ShiShenCross: computeShiShenCross(aCore, bCore),
 		ElementCross: computeElementCross(aFacts, bFacts),
-		NaYinCross:   computeNaYinCross(aBazi, bBazi),
+		NaYinCross:   computeNaYinCross(aCore, bCore),
 		SpouseStar:   computeSpouseStarCross(aFacts, bFacts),
-		ShenshaCross: computeShenshaCross(aBazi, bBazi),
+		ShenshaCross: computeShenshaCross(aCore, bCore),
 	}
 }
 
@@ -146,35 +146,35 @@ type bondChartFacts struct {
 	spouseStar spouseStarFact
 }
 
-func computeBondChartFacts(c Chart) bondChartFacts {
-	bz := c.ToBazi()
-	analysis := AnalyzePillars(bz, c.Gender)
-	counts := WuxingCountsAt(c, analysis.HiddenStems)
-	strength := AnalyzeDayMasterStrength(c, analysis.HiddenStems)
+func computeBondChartFacts(core NatalCore) bondChartFacts {
+	bz := core.ToBazi()
+	analysis := AnalyzePillars(bz, core.Gender)
+	counts := WuxingCountsAt(bz, analysis.HiddenStems)
+	strength := AnalyzeDayMasterStrength(bz, analysis.HiddenStems)
 	return bondChartFacts{
 		counts:     counts,
-		fuYi:       FuYi(c, counts, SeasonStrengthAt(c), strength),
-		spouseStar: buildSpouseStarFactFromAnalysis(c, bz, analysis),
+		fuYi:       FuYi(bz, counts, SeasonStrengthAt(bz.Yue.Zhi), strength),
+		spouseStar: buildSpouseStarFactFromAnalysis(core, bz, analysis),
 	}
 }
 
-func computeDayMasterCross(a, b Chart) dayMasterCross {
+func computeDayMasterCross(a, b NatalCore) dayMasterCross {
 	cross := dayMasterCross{
-		GanRel: analyzeGanRelation(a.Ri.Gan, b.Ri.Gan),
+		GanRel: analyzeGanRelation(a.Pillars[zhuRi].Gan, b.Pillars[zhuRi].Gan),
 	}
 	cross.A = crossGanParty{
-		Gan: ganzhi.GanName(a.Ri.Gan), Wuxing: ganzhi.GanWuxing(a.Ri.Gan).String(), Gender: a.Gender.String(),
+		Gan: ganzhi.GanName(a.Pillars[zhuRi].Gan), Wuxing: ganzhi.GanWuxing(a.Pillars[zhuRi].Gan).String(), Gender: a.Gender.String(),
 	}
 	cross.B = crossGanParty{
-		Gan: ganzhi.GanName(b.Ri.Gan), Wuxing: ganzhi.GanWuxing(b.Ri.Gan).String(), Gender: b.Gender.String(),
+		Gan: ganzhi.GanName(b.Pillars[zhuRi].Gan), Wuxing: ganzhi.GanWuxing(b.Pillars[zhuRi].Gan).String(), Gender: b.Gender.String(),
 	}
 	return cross
 }
 
-func computeSpousePalaceCross(a, b Chart) spousePalaceCross {
+func computeSpousePalaceCross(a, b NatalCore) spousePalaceCross {
 	return spousePalaceCross{
-		AZhi: ganzhi.ZhiName(a.Ri.Zhi), BZhi: ganzhi.ZhiName(b.Ri.Zhi),
-		Relation: analyzeZhiRelation(a.Ri.Zhi, b.Ri.Zhi),
+		AZhi: ganzhi.ZhiName(a.Pillars[zhuRi].Zhi), BZhi: ganzhi.ZhiName(b.Pillars[zhuRi].Zhi),
+		Relation: analyzeZhiRelation(a.Pillars[zhuRi].Zhi, b.Pillars[zhuRi].Zhi),
 	}
 }
 
@@ -228,14 +228,14 @@ func computeSpouseStarCross(a, b bondChartFacts) spouseStarCross {
 }
 
 func buildSpouseStarFactFromAnalysis(
-	c Chart, bz ganzhi.Bazi, analysis PillarAnalysis,
+	core NatalCore, bz ganzhi.Bazi, analysis PillarAnalysis,
 ) spouseStarFact {
 	primary, secondary := ganzhi.ShiShenZhengCai, ganzhi.ShiShenPianCai
-	if c.Gender == ganzhi.Female {
+	if core.Gender == ganzhi.Female {
 		primary, secondary = ganzhi.ShiShenZhengGuan, ganzhi.ShiShenQiSha
 	}
 	out := spouseStarFact{
-		Gender: c.Gender.String(),
+		Gender: core.Gender.String(),
 		Primary: spouseStarGroup{
 			TenGod:      primary.String(),
 			Occurrences: []spouseStarOccurrence{},
@@ -272,11 +272,19 @@ func buildSpouseStarFactFromAnalysis(
 	return out
 }
 
-func computeZhuCross(a, b Chart) zhuCross {
-	aG := [4]ganzhi.Gan{a.Nian.Gan, a.Yue.Gan, a.Ri.Gan, a.Shi.Gan}
-	bG := [4]ganzhi.Gan{b.Nian.Gan, b.Yue.Gan, b.Ri.Gan, b.Shi.Gan}
-	aZ := [4]ganzhi.Zhi{a.Nian.Zhi, a.Yue.Zhi, a.Ri.Zhi, a.Shi.Zhi}
-	bZ := [4]ganzhi.Zhi{b.Nian.Zhi, b.Yue.Zhi, b.Ri.Zhi, b.Shi.Zhi}
+func pillarGans(core NatalCore) [4]ganzhi.Gan {
+	return [4]ganzhi.Gan{core.Pillars[0].Gan, core.Pillars[1].Gan, core.Pillars[2].Gan, core.Pillars[3].Gan}
+}
+
+func pillarZhis(core NatalCore) [4]ganzhi.Zhi {
+	return [4]ganzhi.Zhi{core.Pillars[0].Zhi, core.Pillars[1].Zhi, core.Pillars[2].Zhi, core.Pillars[3].Zhi}
+}
+
+func computeZhuCross(a, b NatalCore) zhuCross {
+	aG := pillarGans(a)
+	bG := pillarGans(b)
+	aZ := pillarZhis(a)
+	bZ := pillarZhis(b)
 	pairs := make([]zhuPairEntry, 0, 16)
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
@@ -292,11 +300,11 @@ func computeZhuCross(a, b Chart) zhuCross {
 	return zhuCross{Pairs: pairs}
 }
 
-func computeShiShenCross(a, b Chart) shiShenCross {
-	aG := [4]ganzhi.Gan{a.Nian.Gan, a.Yue.Gan, a.Ri.Gan, a.Shi.Gan}
-	bG := [4]ganzhi.Gan{b.Nian.Gan, b.Yue.Gan, b.Ri.Gan, b.Shi.Gan}
-	aElem, aYY := ganzhi.GanWuxing(a.Ri.Gan), ganzhi.GanYinYang(a.Ri.Gan)
-	bElem, bYY := ganzhi.GanWuxing(b.Ri.Gan), ganzhi.GanYinYang(b.Ri.Gan)
+func computeShiShenCross(a, b NatalCore) shiShenCross {
+	aG := pillarGans(a)
+	bG := pillarGans(b)
+	aElem, aYY := ganzhi.GanWuxing(a.Pillars[zhuRi].Gan), ganzhi.GanYinYang(a.Pillars[zhuRi].Gan)
+	bElem, bYY := ganzhi.GanWuxing(b.Pillars[zhuRi].Gan), ganzhi.GanYinYang(b.Pillars[zhuRi].Gan)
 	aToB, bToA := make(map[string]string, 4), make(map[string]string, 4)
 	for i := 0; i < 4; i++ {
 		aToB[zhuLabels[i]+"_gan"] = ganzhi.ShiShenName(ganzhi.ShiShenType(aElem, aYY, ganzhi.GanWuxing(bG[i]), ganzhi.GanYinYang(bG[i])))
@@ -305,8 +313,8 @@ func computeShiShenCross(a, b Chart) shiShenCross {
 	return shiShenCross{AToB: aToB, BToA: bToA}
 }
 
-func computeNaYinCross(a, b Chart) nayinCross {
-	aNy, bNy := a.NaYinArray(), b.NaYinArray()
+func computeNaYinCross(a, b NatalCore) nayinCross {
+	aNy, bNy := a.NaYin, b.NaYin
 	pairs := make([]naYinPairEntry, 0, 16)
 	for i := 0; i < 4; i++ {
 		ae := ganzhi.NayinWuxing(aNy[i])
@@ -338,17 +346,17 @@ func computeNaYinCross(a, b Chart) nayinCross {
 	return nc
 }
 
-func computeShenshaCross(a, b Chart) shenshaCross {
+func computeShenshaCross(a, b NatalCore) shenshaCross {
 	aBz, bBz := a.ToBazi(), b.ToBazi()
 	aPs, bPs := aBz.Slice(), bBz.Slice()
 	mut := func(aZ, bZ []ganzhi.Zhi) shenshaMutual {
 		return shenshaMutual{zhiInZhus(aZ, bBz), zhiInZhus(bZ, aBz)}
 	}
 	return shenshaCross{
-		TianYi:   mut(tianYiZhi(a), tianYiZhi(b)),
-		Lu:       mut(luZhi(a), luZhi(b)),
-		TaoHua:   mut(zhiLookup(a, taohuaZhiMap), zhiLookup(b, taohuaZhiMap)),
-		YiMa:     mut(zhiLookup(a, yimaZhiMap), zhiLookup(b, yimaZhiMap)),
+		TianYi:   mut(tianYiZhi(aBz), tianYiZhi(bBz)),
+		Lu:       mut(luZhi(aBz), luZhi(bBz)),
+		TaoHua:   mut(zhiLookup(aBz, taohuaZhiMap), zhiLookup(bBz, taohuaZhiMap)),
+		YiMa:     mut(zhiLookup(aBz, yimaZhiMap), zhiLookup(bBz, yimaZhiMap)),
 		KongWang: mut(kongwangZhi(aBz), kongwangZhi(bBz)),
 		KuiGang:  mut(collectZhi(aPs, isKuiGang), collectZhi(bPs, isKuiGang)),
 		RiDe:     mut(collectZhi(aPs, isRiDe), collectZhi(bPs, isRiDe)),
@@ -366,28 +374,28 @@ func zhiInZhus(ts []ganzhi.Zhi, bz ganzhi.Bazi) bool {
 	}
 	return false
 }
-func tianYiZhi(c Chart) []ganzhi.Zhi {
+func tianYiZhi(bz ganzhi.Bazi) []ganzhi.Zhi {
 	var bs []ganzhi.Zhi
-	if b, ok := tianYiLookup[c.Nian.Gan]; ok {
+	if b, ok := tianYiLookup[bz.Nian.Gan]; ok {
 		bs = append(bs, b[0], b[1])
 	}
-	if b, ok := tianYiLookup[c.Ri.Gan]; ok {
+	if b, ok := tianYiLookup[bz.Ri.Gan]; ok {
 		bs = append(bs, b[0], b[1])
 	}
 	return bs
 }
-func luZhi(c Chart) []ganzhi.Zhi {
-	if c.Ri.Gan < 1 || c.Ri.Gan > 10 {
+func luZhi(bz ganzhi.Bazi) []ganzhi.Zhi {
+	if bz.Ri.Gan < 1 || bz.Ri.Gan > 10 {
 		return nil
 	}
-	return []ganzhi.Zhi{ganzhi.LuZhi(c.Ri.Gan)}
+	return []ganzhi.Zhi{ganzhi.LuZhi(bz.Ri.Gan)}
 }
-func zhiLookup(c Chart, m map[ganzhi.Zhi]ganzhi.Zhi) []ganzhi.Zhi {
+func zhiLookup(bz ganzhi.Bazi, m map[ganzhi.Zhi]ganzhi.Zhi) []ganzhi.Zhi {
 	var bs []ganzhi.Zhi
-	if b, ok := m[c.Nian.Zhi]; ok {
+	if b, ok := m[bz.Nian.Zhi]; ok {
 		bs = append(bs, b)
 	}
-	if b, ok := m[c.Ri.Zhi]; ok {
+	if b, ok := m[bz.Ri.Zhi]; ok {
 		bs = append(bs, b)
 	}
 	return bs

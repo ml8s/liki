@@ -33,7 +33,7 @@ def mock_base_context(**ten_god_states):
 
 
 def mock_engine_facts() -> dict:
-    """构造 fullchart engine 事实的最小契约片段。"""
+    """构造 chart engine 事实的最小契约片段。"""
     return {
         "lu_roots": [],
         "relation_groups": [],
@@ -73,7 +73,7 @@ def mock_engine_facts() -> dict:
 
 
 def mock_yongshen_fields() -> dict:
-    """构造 bazi.fullchart 用神三个来源的最小契约片段。"""
+    """构造 bazi.chart 用神候选与结构证据的最小契约片段。"""
     def element(wuxing: str, season: str, strength: str = "strong") -> dict:
         return {
             "wuxing": wuxing, "transparent_pillars": [], "roots": [],

@@ -146,26 +146,16 @@ func TestComputeFullTripleHeHui_NoMatch(t *testing.T) {
 
 func chartFrom(ng, nz, yg, yz, rg, rz, sg, sz string) Chart {
 	return Chart{
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(ng), Zhi: mustParseZhi(nz)}},
-		Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(yg), Zhi: mustParseZhi(yz)}},
-		Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(rg), Zhi: mustParseZhi(rz)}},
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(sg), Zhi: mustParseZhi(sz)}},
-	}
-}
-
-// chartFromBazi converts a ganzhi.Bazi to a minimal Chart for hehui analysis.
-func chartFromBazi(bz ganzhi.Bazi) Chart {
-	return Chart{
-		Nian: zhuInfo{Zhu: bz.Nian},
-		Yue:  zhuInfo{Zhu: bz.Yue},
-		Ri:   zhuInfo{Zhu: bz.Ri},
-		Shi:  zhuInfo{Zhu: bz.Shi},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: mustParseGan(ng), Zhi: mustParseZhi(nz)}},
+		Yue:  Pillar{Zhu: ganzhi.Zhu{Gan: mustParseGan(yg), Zhi: mustParseZhi(yz)}},
+		Ri:   Pillar{Zhu: ganzhi.Zhu{Gan: mustParseGan(rg), Zhi: mustParseZhi(rz)}},
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: mustParseGan(sg), Zhi: mustParseZhi(sz)}},
 	}
 }
 
 // combinedTriple returns combined SanHe + SanHui from ComputeHeHui.
 func combinedTriple(bz ganzhi.Bazi) []TripleGroup {
-	r := ComputeHeHui(chartFromBazi(bz))
+	r := ComputeHeHui(bz)
 	return append(append([]TripleGroup{}, r.SanHe...), r.SanHui...)
 }
 
@@ -198,7 +188,7 @@ func mustParseZhi(s string) ganzhi.Zhi { z, _ := ganzhi.ParseZhi(s); return z }
 func TestComputeHeHui_GanHe(t *testing.T) {
 	// 甲子 己巳 甲子 己巳 → 四个两两甲己合均需列出；三个紧邻，一个年时远隔。
 	ch := chartFrom("甲", "子", "己", "巳", "甲", "子", "己", "巳")
-	r := ComputeHeHui(ch)
+	r := ComputeHeHui(ch.ToBazi())
 
 	if len(r.GanHe) != 4 {
 		t.Fatalf("got %d gan he pairs, want all 4 cross-pillar pairs", len(r.GanHe))
@@ -217,7 +207,7 @@ func TestComputeHeHui_GanHe(t *testing.T) {
 
 func TestComputeHeHui_ZhiLiuHe(t *testing.T) {
 	ch := chartFrom("甲", "子", "乙", "丑", "丙", "寅", "丁", "卯")
-	r := ComputeHeHui(ch)
+	r := ComputeHeHui(ch.ToBazi())
 	found := false
 	for _, zh := range r.ZhiLiuHe {
 		if (zh.PillarA == 0 && zh.PillarB == 1) || (zh.PillarA == 1 && zh.PillarB == 0) {
@@ -231,7 +221,7 @@ func TestComputeHeHui_ZhiLiuHe(t *testing.T) {
 
 func TestComputeHeHui_LiuChong(t *testing.T) {
 	ch := chartFrom("甲", "子", "乙", "丑", "丙", "午", "丁", "卯")
-	r := ComputeHeHui(ch)
+	r := ComputeHeHui(ch.ToBazi())
 	found := false
 	for _, lc := range r.LiuChong {
 		if (lc.PillarA == 0 && lc.PillarB == 2) || (lc.PillarA == 2 && lc.PillarB == 0) {
@@ -245,7 +235,7 @@ func TestComputeHeHui_LiuChong(t *testing.T) {
 
 func TestComputeHeHui_LiuHai(t *testing.T) {
 	ch := chartFrom("甲", "子", "乙", "未", "丙", "寅", "丁", "卯")
-	r := ComputeHeHui(ch)
+	r := ComputeHeHui(ch.ToBazi())
 	found := false
 	for _, lh := range r.LiuHai {
 		if (lh.PillarA == 0 && lh.PillarB == 1) || (lh.PillarA == 1 && lh.PillarB == 0) {
@@ -260,7 +250,7 @@ func TestComputeHeHui_LiuHai(t *testing.T) {
 func TestComputeHeHui_Empty(t *testing.T) {
 	// 甲丑 丙辰 戊寅 庚戌 — no gan he, no complete san he/hui
 	ch := chartFrom("甲", "丑", "丙", "辰", "戊", "寅", "庚", "戌")
-	r := ComputeHeHui(ch)
+	r := ComputeHeHui(ch.ToBazi())
 	if len(r.GanHe) != 0 {
 		t.Errorf("expected no gan he, got %d", len(r.GanHe))
 	}
@@ -275,7 +265,7 @@ func TestComputeHeHui_Empty(t *testing.T) {
 func TestComputeHeHui_LiuXing(t *testing.T) {
 	// 甲子 乙卯 丙子 丁卯 — 子卯相刑 (无礼之刑) at two pillar pairs
 	ch := chartFrom("甲", "子", "乙", "卯", "丙", "子", "丁", "卯")
-	r := ComputeHeHui(ch)
+	r := ComputeHeHui(ch.ToBazi())
 	if len(r.LiuXing) == 0 {
 		t.Fatal("no 相刑 found, want 子卯相刑")
 	}

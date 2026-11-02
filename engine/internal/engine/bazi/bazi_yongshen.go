@@ -62,23 +62,23 @@ type CaiKu struct {
 	XingRuKu bool `json:"xing_ru_ku"`
 }
 
-// ComputeYongShenSchools computes FuYi, TiaoHou, and GeJu evidence from a Chart.
-// fu_yi is the FuYi candidate (yong/xi/ji); tiao_hou and ge_ju are
-// independent evidence sources. The final yongshen is adjudicated by counsel.
-func ComputeYongShenSchools(c Chart) (FuYiResult, TiaoHouResult, GeJuResult) {
-	return computeYongShenSchoolsFromAnalysis(c, AnalyzePillars(c.ToBazi(), c.Gender))
+// ComputeYongshenEvidence computes the FuYi/TiaoHou candidates and the GeJu
+// structural evidence. GeJu is not a Yongshen candidate.
+func ComputeYongshenEvidence(core NatalCore) (FuYiResult, TiaoHouResult, GeJuResult) {
+	return computeYongShenEvidenceFromAnalysis(core, AnalyzePillars(core.ToBazi(), core.Gender))
 }
 
-func computeYongShenSchoolsFromAnalysis(
-	c Chart, analysis PillarAnalysis,
+func computeYongShenEvidenceFromAnalysis(
+	core NatalCore, analysis PillarAnalysis,
 ) (FuYiResult, TiaoHouResult, GeJuResult) {
-	counts := WuxingCountsAt(c, analysis.HiddenStems)
-	seasonStrength := SeasonStrengthAt(c)
-	strength := AnalyzeDayMasterStrength(c, analysis.HiddenStems)
+	bz := core.ToBazi()
+	counts := WuxingCountsAt(bz, analysis.HiddenStems)
+	seasonStrength := SeasonStrengthAt(bz.Yue.Zhi)
+	strength := AnalyzeDayMasterStrength(bz, analysis.HiddenStems)
 
-	return FuYi(c, counts, seasonStrength, strength),
-		TiaoHouAt(c),
-		GeJuAt(c, analysis)
+	return FuYi(bz, counts, seasonStrength, strength),
+		TiaoHouAt(bz),
+		GeJuAt(bz, analysis)
 }
 
 // candidateString models an absent domain candidate as an explicit closure value.
@@ -92,12 +92,12 @@ func candidateString(value string) string {
 // computeWangShuaiMap returns the 旺相休囚死 for all five elements.
 type SeasonStrength map[string]string
 
-func SeasonStrengthAt(c Chart) SeasonStrength {
+func SeasonStrengthAt(yueZhi ganzhi.Zhi) SeasonStrength {
 	return map[string]string{
-		ganzhi.WxMu.String():   ganzhi.WangShuaiOf(ganzhi.WxMu, c.Yue.Zhi).String(),
-		ganzhi.WxHuo.String():  ganzhi.WangShuaiOf(ganzhi.WxHuo, c.Yue.Zhi).String(),
-		ganzhi.WxTu.String():   ganzhi.WangShuaiOf(ganzhi.WxTu, c.Yue.Zhi).String(),
-		ganzhi.WxJin.String():  ganzhi.WangShuaiOf(ganzhi.WxJin, c.Yue.Zhi).String(),
-		ganzhi.WxShui.String(): ganzhi.WangShuaiOf(ganzhi.WxShui, c.Yue.Zhi).String(),
+		ganzhi.WxMu.String():   ganzhi.WangShuaiOf(ganzhi.WxMu, yueZhi).String(),
+		ganzhi.WxHuo.String():  ganzhi.WangShuaiOf(ganzhi.WxHuo, yueZhi).String(),
+		ganzhi.WxTu.String():   ganzhi.WangShuaiOf(ganzhi.WxTu, yueZhi).String(),
+		ganzhi.WxJin.String():  ganzhi.WangShuaiOf(ganzhi.WxJin, yueZhi).String(),
+		ganzhi.WxShui.String(): ganzhi.WangShuaiOf(ganzhi.WxShui, yueZhi).String(),
 	}
 }

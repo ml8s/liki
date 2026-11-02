@@ -36,7 +36,7 @@ func TestFuYi_Strength_Reference(t *testing.T) {
 			stgt := time.Time(birth)
 			st := tianwen.ApparentSolarFromCivil(birth, tt.longitude, tt.timezone)
 			chart := ComputeChart(stgt, st, tt.gender)
-			fuYi, _, _ := ComputeYongShenSchools(chart)
+			fuYi, _, _ := ComputeYongshenEvidence(natalCoreFromChart(chart))
 			if fuYi.Strength != tt.expectStrength {
 				t.Errorf("Strength=%q, want=%q (%s%s %s%s %s%s %s%s)",
 					fuYi.Strength, tt.expectStrength,
@@ -55,7 +55,7 @@ func TestRegress_YinBi_ExcludesSelf(t *testing.T) {
 	stgt := time.Time(birth)
 	st := tianwen.ApparentSolarFromCivil(birth, 130.7, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	yinBi := countYinBi(chart)
+	yinBi := countYinBi(chart.ToBazi())
 	if yinBi >= 2 {
 		t.Errorf("印比=%d(含日主)! 应=1, 日主不计入帮身", yinBi)
 	}
@@ -69,23 +69,23 @@ func TestRegress_YinBi_HandCounted(t *testing.T) {
 	}{
 		{name: "年印+月比劫+时食伤=2",
 			chart: Chart{
-				Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}},
-				Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanBing}}},
+				Ri: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}},
+				Yue: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Shi: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanBing}}},
 			wantYinBi: 2},
 		{name: "三干皆印比=3",
 			chart: Chart{
-				Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi}},
-				Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}}, Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi}}},
+				Ri: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi}},
+				Yue: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}}, Shi: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi}}},
 			wantYinBi: 3},
 		{name: "三干皆官杀=0",
 			chart: Chart{
-				Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}},
-				Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin}}, Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}}},
+				Ri: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}}, Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}},
+				Yue: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin}}, Shi: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}}},
 			wantYinBi: 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := countYinBi(tt.chart)
+			got := countYinBi(tt.chart.ToBazi())
 			if got != tt.wantYinBi {
 				t.Errorf("countYinBi=%d, want=%d", got, tt.wantYinBi)
 			}
@@ -95,12 +95,12 @@ func TestRegress_YinBi_HandCounted(t *testing.T) {
 
 func TestRegress_CountGan_ExcludesSelf(t *testing.T) {
 	chart := Chart{
-		Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}},
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi}},
-		Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}},
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}},
+		Ri:   Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi}},
+		Yue:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}},
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}},
 	}
-	sc := countGan(chart)
+	sc := countGan(chart.ToBazi())
 	if sc.biBi != 1 || sc.yin != 1 || sc.guanSha != 1 {
 		t.Errorf("countGan=(biBi=%d,yin=%d,guan=%d), want(1,1,1)", sc.biBi, sc.yin, sc.guanSha)
 	}

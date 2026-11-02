@@ -16,8 +16,7 @@ type StemOccurrence struct {
 	Source string `json:"source"`
 }
 
-// ElementStructure is an atomic element projection used by the three
-// yong-shen schools. It never asserts final pattern success or failure.
+// ElementStructure is an atomic element projection used by the FuYi, TiaoHou, and GeJu projections. It never asserts final pattern success or failure.
 type ElementStructure struct {
 	Wuxing             string           `json:"wuxing"`
 	TransparentPillars []string         `json:"transparent_pillars"`
@@ -66,23 +65,23 @@ type TiaoHouAvailability struct {
 	GuanXiRefs  []string         `json:"guan_xi_refs"`
 }
 
-func buildGeJuStructure(c Chart, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxing) GeJuStructure {
+func buildGeJuStructure(bz ganzhi.Bazi, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxing) GeJuStructure {
 	controller := elementThatControls(patternElem)
 	generator := elementThatGenerates(patternElem)
 	return GeJuStructure{
-		Pattern:    buildElementStructure(c, patternElem, patternGan),
-		Controller: buildElementStructure(c, controller, nil),
-		Generator:  buildElementStructure(c, generator, nil),
-		GuanXiRefs: relationRefIDs(buildRelationFacts(c,
+		Pattern:    buildElementStructure(bz, patternElem, patternGan),
+		Controller: buildElementStructure(bz, controller, nil),
+		Generator:  buildElementStructure(bz, generator, nil),
+		GuanXiRefs: relationRefIDs(buildRelationFacts(bz,
 			func(pillar int, _ ganzhi.Gan) []string {
-				return elementTargets(ganzhi.GanWuxing(chartStem(c, pillar)), map[string]string{
+				return elementTargets(ganzhi.GanWuxing(chartStem(bz, pillar)), map[string]string{
 					patternElem.String(): "pattern",
 					controller.String():  "controller",
 					generator.String():   "generator",
 				})
 			},
 			func(pillar int) []string {
-				return branchElementTargets(c, pillar, map[string]string{
+				return branchElementTargets(bz, pillar, map[string]string{
 					patternElem.String(): "pattern",
 					controller.String():  "controller",
 					generator.String():   "generator",
@@ -92,14 +91,14 @@ func buildGeJuStructure(c Chart, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxi
 	}
 }
 
-func buildFuYiBasis(c Chart, rootType string, yinBi int) FuYiBasis {
-	dayMaster := ganzhi.GanWuxing(c.Ri.Gan)
+func buildFuYiBasis(bz ganzhi.Bazi, rootType string, yinBi int) FuYiBasis {
+	dayMaster := ganzhi.GanWuxing(bz.Ri.Gan)
 	support := elementThatGenerates(dayMaster)
 	return FuYiBasis{
 		RiGanGen:      rootType,
 		YinBiShuLiang: yinBi,
-		RiGanTongGen:  hiddenStemOccurrences(c, dayMaster),
-		GuanXiRefs: relationRefIDs(buildRelationFacts(c,
+		RiGanTongGen:  hiddenStemOccurrences(bz, dayMaster),
+		GuanXiRefs: relationRefIDs(buildRelationFacts(bz,
 			func(pillar int, stem ganzhi.Gan) []string {
 				targets := make([]string, 0, 2)
 				if pillar == zhuRi {
@@ -116,7 +115,7 @@ func buildFuYiBasis(c Chart, rootType string, yinBi int) FuYiBasis {
 				if pillar == zhuRi {
 					targets = append(targets, "day_branch")
 				}
-				if len(branchElementTargets(c, pillar, map[string]string{dayMaster.String(): "day_master_root"})) > 0 {
+				if len(branchElementTargets(bz, pillar, map[string]string{dayMaster.String(): "day_master_root"})) > 0 {
 					targets = append(targets, "day_master_root")
 				}
 				return targets
@@ -125,7 +124,7 @@ func buildFuYiBasis(c Chart, rootType string, yinBi int) FuYiBasis {
 	}
 }
 
-func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAvailability {
+func buildTiaoHouAvailability(bz ganzhi.Bazi, stem ganzhi.Gan, target string) TiaoHouAvailability {
 	availability := TiaoHouAvailability{
 		Stem:        ganzhi.GanName(stem),
 		Occurrences: make([]StemOccurrence, 0),
@@ -136,12 +135,12 @@ func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAv
 		gan   ganzhi.Gan
 		zhi   ganzhi.Zhi
 	}{
-		{zhuNian, c.Nian.Gan, c.Nian.Zhi},
-		{zhuYue, c.Yue.Gan, c.Yue.Zhi},
-		{zhuRi, c.Ri.Gan, c.Ri.Zhi},
-		{zhuShi, c.Shi.Gan, c.Shi.Zhi},
+		{zhuNian, bz.Nian.Gan, bz.Nian.Zhi},
+		{zhuYue, bz.Yue.Gan, bz.Yue.Zhi},
+		{zhuRi, bz.Ri.Gan, bz.Ri.Zhi},
+		{zhuShi, bz.Shi.Gan, bz.Shi.Zhi},
 	}
-	cangGan := HiddenStemFacts(c.ToBazi())
+	cangGan := HiddenStemFacts(bz)
 	targetPillars := map[int]bool{}
 	for _, pillar := range pillars {
 		if pillar.gan == stem {
@@ -181,9 +180,9 @@ func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAv
 			}
 		}
 	}
-	availability.GuanXiRefs = relationRefIDs(buildRelationFacts(c,
+	availability.GuanXiRefs = relationRefIDs(buildRelationFacts(bz,
 		func(pillar int, _ ganzhi.Gan) []string {
-			if targetPillars[pillar] && chartStem(c, pillar) == stem {
+			if targetPillars[pillar] && chartStem(bz, pillar) == stem {
 				return []string{target}
 			}
 			return nil
@@ -198,13 +197,13 @@ func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAv
 	return availability
 }
 
-func buildElementStructure(c Chart, elem ganzhi.Wuxing, exact *ganzhi.Gan) ElementStructure {
+func buildElementStructure(bz ganzhi.Bazi, elem ganzhi.Wuxing, exact *ganzhi.Gan) ElementStructure {
 	structure := ElementStructure{
 		Wuxing:             elem.String(),
-		TransparentPillars: transparentPillars(c, elem, exact),
-		Roots:              hiddenStemOccurrences(c, elem),
+		TransparentPillars: transparentPillars(bz, elem, exact),
+		Roots:              hiddenStemOccurrences(bz, elem),
 	}
-	structure.Season = ganzhi.WangShuaiOf(elem, c.Yue.Zhi).String()
+	structure.Season = ganzhi.WangShuaiOf(elem, bz.Yue.Zhi).String()
 	structure.Timely = structure.Season == ganzhi.WSWang.String() || structure.Season == ganzhi.WSXiang.String()
 	switch {
 	case structure.Timely:
@@ -219,9 +218,9 @@ func buildElementStructure(c Chart, elem ganzhi.Wuxing, exact *ganzhi.Gan) Eleme
 	return structure
 }
 
-func transparentPillars(c Chart, elem ganzhi.Wuxing, exact *ganzhi.Gan) []string {
+func transparentPillars(bz ganzhi.Bazi, elem ganzhi.Wuxing, exact *ganzhi.Gan) []string {
 	result := make([]string, 0, 4)
-	for index, gan := range []ganzhi.Gan{c.Nian.Gan, c.Yue.Gan, c.Ri.Gan, c.Shi.Gan} {
+	for index, gan := range []ganzhi.Gan{bz.Nian.Gan, bz.Yue.Gan, bz.Ri.Gan, bz.Shi.Gan} {
 		if exact != nil {
 			if gan == *exact {
 				result = append(result, zhuLabels[index])
@@ -235,10 +234,10 @@ func transparentPillars(c Chart, elem ganzhi.Wuxing, exact *ganzhi.Gan) []string
 	return result
 }
 
-func hiddenStemOccurrences(c Chart, elem ganzhi.Wuxing) []StemOccurrence {
+func hiddenStemOccurrences(bz ganzhi.Bazi, elem ganzhi.Wuxing) []StemOccurrence {
 	result := make([]StemOccurrence, 0, 8)
-	cangGan := HiddenStemFacts(c.ToBazi())
-	branches := []ganzhi.Zhi{c.Nian.Zhi, c.Yue.Zhi, c.Ri.Zhi, c.Shi.Zhi}
+	cangGan := HiddenStemFacts(bz)
+	branches := []ganzhi.Zhi{bz.Nian.Zhi, bz.Yue.Zhi, bz.Ri.Zhi, bz.Shi.Zhi}
 	for index, hidden := range cangGan {
 		items := []struct {
 			gan    ganzhi.Gan
@@ -269,11 +268,11 @@ func hiddenStemOccurrences(c Chart, elem ganzhi.Wuxing) []StemOccurrence {
 }
 
 func buildRelationFacts(
-	c Chart,
+	bz ganzhi.Bazi,
 	stemTargets func(pillar int, stem ganzhi.Gan) []string,
 	branchTargets func(pillar int) []string,
 ) []RelationFact {
-	relations := ComputeHeHui(c)
+	relations := ComputeHeHui(bz)
 	var branchMemo [4][]string
 	var branchMemoReady [4]bool
 	memoBranchTargets := func(pillar int) []string {
@@ -290,7 +289,7 @@ func buildRelationFacts(
 	}
 	facts := make([]RelationFact, 0, len(relations.GanHe)+len(relations.GanChong)+len(relations.ZhiLiuHe)+len(relations.SanHe)+len(relations.SanHePartial)+len(relations.SanHui)+len(relations.LiuChong)+len(relations.LiuHai)+len(relations.LiuXing)+len(relations.LiuPo)+len(relations.AnHe))
 	for _, relation := range relations.GanHe {
-		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(c, relation.PillarA)), stemTargets(relation.PillarB, chartStem(c, relation.PillarB))...)
+		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(bz, relation.PillarA)), stemTargets(relation.PillarB, chartStem(bz, relation.PillarB))...)
 		if len(targets) == 0 {
 			continue
 		}
@@ -303,7 +302,7 @@ func buildRelationFacts(
 		})
 	}
 	for _, relation := range relations.GanChong {
-		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(c, relation.PillarA)), stemTargets(relation.PillarB, chartStem(c, relation.PillarB))...)
+		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(bz, relation.PillarA)), stemTargets(relation.PillarB, chartStem(bz, relation.PillarB))...)
 		if len(targets) == 0 {
 			continue
 		}
@@ -396,22 +395,22 @@ func elementTargets(elem ganzhi.Wuxing, labels map[string]string) []string {
 	return nil
 }
 
-func branchElementTargets(c Chart, pillar int, labels map[string]string) []string {
+func branchElementTargets(bz ganzhi.Bazi, pillar int, labels map[string]string) []string {
 	var branch ganzhi.Zhi
 	switch pillar {
 	case zhuNian:
-		branch = c.Nian.Zhi
+		branch = bz.Nian.Zhi
 	case zhuYue:
-		branch = c.Yue.Zhi
+		branch = bz.Yue.Zhi
 	case zhuRi:
-		branch = c.Ri.Zhi
+		branch = bz.Ri.Zhi
 	case zhuShi:
-		branch = c.Shi.Zhi
+		branch = bz.Shi.Zhi
 	}
 	if branch == 0 {
 		return nil
 	}
-	hidden := HiddenStemFacts(c.ToBazi())[pillar]
+	hidden := HiddenStemFacts(bz)[pillar]
 	stems := []ganzhi.Gan{hidden.Main}
 	if hidden.Mid != nil {
 		stems = append(stems, *hidden.Mid)
@@ -428,16 +427,16 @@ func branchElementTargets(c Chart, pillar int, labels map[string]string) []strin
 	return targets
 }
 
-func chartStem(c Chart, pillar int) ganzhi.Gan {
+func chartStem(bz ganzhi.Bazi, pillar int) ganzhi.Gan {
 	switch pillar {
 	case zhuNian:
-		return c.Nian.Gan
+		return bz.Nian.Gan
 	case zhuYue:
-		return c.Yue.Gan
+		return bz.Yue.Gan
 	case zhuRi:
-		return c.Ri.Gan
+		return bz.Ri.Gan
 	case zhuShi:
-		return c.Shi.Gan
+		return bz.Shi.Gan
 	}
 	return 0
 }

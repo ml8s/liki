@@ -70,8 +70,8 @@ func TestExternalOracle_8CharUniApp_TrueSolarChart(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
-	full := ComputeFullChart(externalCanonicalChart(bz, ganzhi.Male, 1981))
-	pillars := [4]fullZhuInfo{full.Nian, full.Yue, full.Ri, full.Shi}
+	full := ComputeChartFromCore(natalCoreFromChart(externalCanonicalChart(bz, ganzhi.Male, 1981)))
+	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 	if got := ganzhiZhuLabel(full.TaiXi); got != tc.Oracle.TaiXi {
 		t.Fatalf("tai_xi = %s, want %s", got, tc.Oracle.TaiXi)
 	}
@@ -127,8 +127,8 @@ func TestExternalOracle_8CharUniApp_FullDetailsAndShensha(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
-	full := ComputeFullChart(externalCanonicalChart(bz, ganzhi.Male, 1981))
-	pillars := [4]fullZhuInfo{full.Nian, full.Yue, full.Ri, full.Shi}
+	full := ComputeChartFromCore(natalCoreFromChart(externalCanonicalChart(bz, ganzhi.Male, 1981)))
+	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 
 	for i, pillar := range pillars {
 		if got := hiddenLabels(pillar.CangGan); !equalStrings(got, tc.ExpectedEngine.HiddenLabels[i]) {
@@ -191,15 +191,13 @@ func includesOracleShensha(got, oracle []string) bool {
 }
 
 func externalCanonicalChart(bz ganzhi.Bazi, gender ganzhi.Gender, birthYear int) Chart {
-	pillars := bz.Slice()
-	zhuInfos := [4]zhuInfo{}
-	for i, p := range pillars {
-		zhuInfos[i] = zhuInfo{Zhu: p}
+	core := NatalCore{
+		Pillars:   bz.Slice(),
+		NaYin:     computeNaYin(bz),
+		Gender:    gender,
+		BirthYear: birthYear,
 	}
-	return Chart{
-		Nian: zhuInfos[0], Yue: zhuInfos[1], Ri: zhuInfos[2], Shi: zhuInfos[3],
-		Gender: gender, BirthYear: birthYear,
-	}
+	return ComputeChartFromCore(core)
 }
 
 func hiddenLabels(h HiddenStemProjection) []string {
@@ -223,7 +221,7 @@ func hiddenTenGodLabels(entries []TenGodProjection) []string {
 	return out
 }
 
-func dayMasterTrendLabel(full FullChart, zhi ganzhi.Zhi) string {
+func dayMasterTrendLabel(full Chart, zhi ganzhi.Zhi) string {
 	for _, stage := range full.ChangSheng {
 		if stage.Index == zhi {
 			return stage.Name
@@ -232,7 +230,7 @@ func dayMasterTrendLabel(full FullChart, zhi ganzhi.Zhi) string {
 	return ""
 }
 
-func selfSittingLabel(pillar fullZhuInfo) string { return pillar.SelfSitting }
+func selfSittingLabel(pillar Pillar) string { return pillar.SelfSitting }
 
 func ganzhiZhuLabel(pillar ganzhi.Zhu) string {
 	return ganzhi.GanName(pillar.Gan) + ganzhi.ZhiName(pillar.Zhi)

@@ -276,23 +276,23 @@ def _set_path(target: dict, key: str, value: Any) -> None:
     current[parts[-1]] = materialized
 
 
-def _enrich_facts(fullchart: dict, policy: dict) -> dict:
+def _enrich_facts(chart: dict, policy: dict) -> dict:
     """把 engine 事实合并成解释器可读的纯数据视图（不做命理判断）。"""
-    fu_yi = fullchart.get("fu_yi") or {}
-    tiao_hou = fullchart.get("tiao_hou") or {}
-    ge_ju = fullchart.get("ge_ju") or {}
+    fu_yi = chart.get("fu_yi") or {}
+    tiao_hou = chart.get("tiao_hou") or {}
+    ge_ju = chart.get("ge_ju") or {}
     from app.natal.tools.bazi_projection import build_atomic_facts
-    atomic = build_atomic_facts(fullchart)
+    atomic = build_atomic_facts(chart)
     counts = fu_yi.get("wuxing_count") or {}
     relations = policy["tables"].get("wuxing_relations") or {}
     day_master_element = atomic.get("day_master_element", "")
     if not day_master_element:
         day_master_element = (
-            ((fullchart.get("ri") or {}).get("gan_wuxing") or "")
+            ((chart.get("ri") or {}).get("gan_wuxing") or "")
         )
 
     elements: list[dict] = []
-    for item in fullchart.get("element_states") or []:
+    for item in chart.get("element_states") or []:
         if not isinstance(item, dict):
             continue
         wuxing = item.get("wuxing", "")
@@ -305,12 +305,12 @@ def _enrich_facts(fullchart: dict, policy: dict) -> dict:
         })
 
     stems = [
-        (fullchart.get(pillar) or {}).get("gan", "")
+        (chart.get(pillar) or {}).get("gan", "")
         for pillar in ("nian", "yue", "ri", "shi")
     ]
     stems = [stem for stem in stems if stem]
-    month_zhi = (fullchart.get("yue") or {}).get("zhi", "")
-    day_master_stem = atomic.get("day_master_stem", "") or (fullchart.get("ri") or {}).get("gan", "")
+    month_zhi = (chart.get("yue") or {}).get("zhi", "")
+    day_master_stem = atomic.get("day_master_stem", "") or (chart.get("ri") or {}).get("gan", "")
     fu_yi = {
         **fu_yi,
         "season": (fu_yi.get("wang_shuai") or {}).get(day_master_element, ""),
@@ -323,7 +323,7 @@ def _enrich_facts(fullchart: dict, policy: dict) -> dict:
         "atomic_facts": atomic,
         "element_states": elements,
         "ten_god_states": [
-            item for item in (fullchart.get("ten_god_states") or [])
+            item for item in (chart.get("ten_god_states") or [])
             if isinstance(item, dict)
         ],
         "wuxing_count": counts,

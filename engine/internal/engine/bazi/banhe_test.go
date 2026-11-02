@@ -13,7 +13,7 @@ func TestBanHe_19810826(t *testing.T) {
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
-	hehui := ComputeHeHui(chart)
+	hehui := ComputeHeHui(chart.ToBazi())
 
 	// Oracle detects: 酉丑半合金局 (year+hour), 申子半合水局 (month+day)
 	if len(hehui.SanHePartial) != 2 {
@@ -59,7 +59,7 @@ func TestBanHe_RequiresMiddleBranch(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiSi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiWei},
 	}
-	hehui := ComputeHeHui(canonicalChart(bz, ganzhi.Male, 2000))
+	hehui := ComputeHeHui(canonicalChart(bz, ganzhi.Male, 2000).ToBazi())
 	for _, partial := range hehui.SanHePartial {
 		if equalStrings(partial.Branches, []string{"巳", "丑"}) || equalStrings(partial.Branches, []string{"子", "辰"}) {
 			t.Fatalf("missing-middle pair %v must not be 半合; got %#v", partial.Branches, hehui.SanHePartial)

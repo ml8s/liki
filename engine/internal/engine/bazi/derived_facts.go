@@ -60,8 +60,8 @@ type tenGodAccumulator struct {
 	count       int
 }
 
-func computeTenGodStates(c FullChart) ([]TenGodState, map[string]ElementState) {
-	pillars := [4]fullZhuInfo{c.Nian, c.Yue, c.Ri, c.Shi}
+func computeTenGodStates(c Chart) ([]TenGodState, map[string]ElementState) {
+	pillars := [4]Pillar{c.Nian, c.Yue, c.Ri, c.Shi}
 	transparent := map[ganzhi.Wuxing]bool{}
 	rooted := map[ganzhi.Wuxing]bool{}
 	accumulators := map[ganzhi.ShiShen]*tenGodAccumulator{}
@@ -141,7 +141,7 @@ func hiddenTenGodSource(source string) bool {
 	return source == sourceMainQi || source == sourceMidQi || source == sourceMinQi
 }
 
-func computeElementStates(c FullChart, transparent, rooted map[ganzhi.Wuxing]bool) map[string]ElementState {
+func computeElementStates(c Chart, transparent, rooted map[ganzhi.Wuxing]bool) map[string]ElementState {
 	all := []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui}
 	result := make(map[string]ElementState, len(all))
 	for _, element := range all {
@@ -150,8 +150,8 @@ func computeElementStates(c FullChart, transparent, rooted map[ganzhi.Wuxing]boo
 			Season:       c.FuYi.WangShuai[element.String()],
 			Transparent:  transparent[element],
 			Rooted:       rooted[element],
-			Controls:     controlledElement(element).String(),
-			ControlledBy: controllingElement(element).String(),
+			Controls:     elementControlledBy(element).String(),
+			ControlledBy: elementThatControls(element).String(),
 			Reasons:      []string{},
 		}
 		switch c.FuYi.WangShuai[element.String()] {
@@ -191,9 +191,9 @@ func elementStateList(states map[string]ElementState) []ElementState {
 	return result
 }
 
-func computeLuRoots(c FullChart) []LuRoot {
+func computeLuRoots(c Chart) []LuRoot {
 	roots := make([]LuRoot, 0, 4)
-	pillars := [4]fullZhuInfo{c.Nian, c.Yue, c.Ri, c.Shi}
+	pillars := [4]Pillar{c.Nian, c.Yue, c.Ri, c.Shi}
 	branches := map[ganzhi.Zhi]bool{}
 	for _, pillar := range pillars {
 		branches[pillar.Zhi] = true
@@ -213,24 +213,13 @@ func computeLuRoots(c FullChart) []LuRoot {
 	return roots
 }
 
-// AtomicFacts are deterministic natal facts consumed by the Python factor
-// layer. They are engine-owned domain conclusions; Python must not recompute.
-type AtomicFacts struct {
-	DayMasterElement      string          `json:"day_master_element"`
-	DayMasterStem         string          `json:"day_master_stem"`
-	DayBranch             string          `json:"day_branch"`
-	MonthLongevity        string          `json:"month_longevity"`
-	YearStemTenGod        string          `json:"year_stem_ten_god"`
-	MonthMainTenGod       string          `json:"month_main_ten_god"`
-	HourStemTenGod        string          `json:"hour_stem_ten_god"`
-	PatternGodTransparent bool            `json:"pattern_god_transparent"`
-	PillarPunishments     map[string]bool `json:"pillar_punishments"`
-	OfficerKillingCleaned bool            `json:"officer_killing_cleaned"`
-	WealthTombPresent     bool            `json:"wealth_tomb_present"`
-	WealthStarInTomb      bool            `json:"wealth_star_in_tomb"`
-	SpousePalaceState     string          `json:"spouse_palace_state"`
-	DayBranchType         string          `json:"day_branch_type"`
-	YearOfficerKilling    bool            `json:"year_officer_killing"`
+// ChartConclusions are the small set of natal conclusions used to fill the
+// published GuanSha, CaiKu, and GeJu transparency fields.
+type ChartConclusions struct {
+	PatternGodTransparent bool
+	OfficerKillingCleaned bool
+	WealthTombPresent     bool
+	WealthStarInTomb      bool
 }
 
 func wealthTomb(element ganzhi.Wuxing) ganzhi.Zhi {
@@ -250,24 +239,9 @@ func wealthTomb(element ganzhi.Wuxing) ganzhi.Zhi {
 	}
 }
 
-func computeAtomicFacts(c FullChart) AtomicFacts {
-	facts := AtomicFacts{
-		DayMasterElement:      ganzhi.GanWuxing(c.Ri.Gan).String(),
-		DayMasterStem:         ganzhi.GanName(c.Ri.Gan),
-		DayBranch:             ganzhi.ZhiName(c.Ri.Zhi),
-		MonthLongevity:        monthLongevity(c.Ri.Gan, c.Yue.Zhi),
-		YearStemTenGod:        stemTenGod(c.Nian),
-		MonthMainTenGod:       hiddenMainTenGod(c.Yue),
-		HourStemTenGod:        stemTenGod(c.Shi),
-		PatternGodTransparent: patternGodTransparent(c),
-		PillarPunishments:     map[string]bool{},
-		SpousePalaceState:     "静",
-		DayBranchType:         dayBranchType(c.Ri.Zhi),
-	}
-	for _, pillar := range zhuLabels {
-		facts.PillarPunishments[pillar] = false
-	}
-	pillars := [4]fullZhuInfo{c.Nian, c.Yue, c.Ri, c.Shi}
+func computeChartConclusions(c Chart) ChartConclusions {
+	var conclusions ChartConclusions
+	pillars := [4]Pillar{c.Nian, c.Yue, c.Ri, c.Shi}
 
 	dayElement := ganzhi.GanWuxing(c.Ri.Gan)
 	wealthElement := ganzhi.Wuxing(0)
@@ -283,10 +257,10 @@ func computeAtomicFacts(c FullChart) AtomicFacts {
 			if pillar.Zhi != tomb {
 				continue
 			}
-			facts.WealthTombPresent = true
+			conclusions.WealthTombPresent = true
 			for _, item := range pillar.ShiShens {
 				if item.ShiShen == ganzhi.ShiShenZhengCai || item.ShiShen == ganzhi.ShiShenPianCai {
-					facts.WealthStarInTomb = true
+					conclusions.WealthStarInTomb = true
 					break
 				}
 			}
@@ -312,49 +286,18 @@ func computeAtomicFacts(c FullChart) AtomicFacts {
 	}
 	for _, relation := range append(append([]ZhiPairRel{}, c.ZhiLiuHe...), c.LiuChong...) {
 		if killingPillars[relation.PillarA] || killingPillars[relation.PillarB] {
-			facts.OfficerKillingCleaned = hasOfficer && hasKilling
-			if facts.OfficerKillingCleaned {
+			conclusions.OfficerKillingCleaned = hasOfficer && hasKilling
+			if conclusions.OfficerKillingCleaned {
 				break
 			}
 		}
 	}
 
-	for _, item := range c.Nian.ShiShens {
-		if item.ShiShen == ganzhi.ShiShenZhengGuan || item.ShiShen == ganzhi.ShiShenQiSha {
-			facts.YearOfficerKilling = true
-			break
-		}
-	}
-
-	relationGroups := []struct {
-		state string
-		items []ZhiPairRel
-	}{
-		{"冲", c.LiuChong},
-		{"合", c.ZhiLiuHe},
-		{"刑", c.LiuXing},
-		{"害", c.LiuHai},
-	}
-spousePriority:
-	for _, group := range relationGroups {
-		for _, relation := range group.items {
-			if relation.PillarA == zhuRi || relation.PillarB == zhuRi {
-				facts.SpousePalaceState = group.state
-				break spousePriority
-			}
-		}
-	}
-	for _, relation := range c.LiuXing {
-		for _, index := range []int{relation.PillarA, relation.PillarB} {
-			if index >= 0 && index < len(zhuLabels) {
-				facts.PillarPunishments[zhuLabels[index]] = true
-			}
-		}
-	}
-	return facts
+	conclusions.PatternGodTransparent = patternGodTransparent(c)
+	return conclusions
 }
 
-func computeGuanXi(c FullChart) []RelationGroup {
+func computeGuanXi(c Chart) []RelationGroup {
 	bz := c.ToBazi()
 	pillars := bz.Slice()
 	ganCounts := map[ganzhi.Gan]int{}
@@ -518,39 +461,12 @@ func xingGroupLabel(branches []ganzhi.Zhi) string {
 	return branchGroupLabel(branches)
 }
 
-func monthLongevity(day ganzhi.Gan, month ganzhi.Zhi) string {
-	for stage, branch := range ganzhi.ChangShengTable[day] {
-		if branch == month {
-			return ganzhi.StageNamesZH[stage]
-		}
-	}
-	return ""
-}
-
-func stemTenGod(pillar fullZhuInfo) string {
-	for _, item := range pillar.ShiShens {
-		if item.Source == sourceGan {
-			return item.ShiShen.String()
-		}
-	}
-	return ""
-}
-
-func hiddenMainTenGod(pillar fullZhuInfo) string {
-	for _, item := range pillar.ShiShens {
-		if item.Source == sourceMainQi {
-			return item.ShiShen.String()
-		}
-	}
-	return ""
-}
-
-func patternGodTransparent(c FullChart) bool {
+func patternGodTransparent(c Chart) bool {
 	target, ok := patternTenGods[c.GeJu.Pattern]
 	if !ok {
 		return false
 	}
-	for _, pillar := range []fullZhuInfo{c.Nian, c.Yue, c.Ri, c.Shi} {
+	for _, pillar := range []Pillar{c.Nian, c.Yue, c.Ri, c.Shi} {
 		for _, item := range pillar.ShiShens {
 			if item.Source == sourceGan && item.ShiShen == target {
 				return true
@@ -569,17 +485,4 @@ var patternTenGods = map[string]ganzhi.ShiShen{
 	"偏印格": ganzhi.ShiShenPianYin,
 	"食神格": ganzhi.ShiShenShiShen,
 	"伤官格": ganzhi.ShiShenShangGuan,
-}
-
-func dayBranchType(zhi ganzhi.Zhi) string {
-	switch zhi {
-	case ganzhi.ZhiZi, ganzhi.ZhiMao, ganzhi.ZhiWu, ganzhi.ZhiYou:
-		return "桃花"
-	case ganzhi.ZhiYin, ganzhi.ZhiSi, ganzhi.ZhiShen, ganzhi.ZhiHai:
-		return "驿马"
-	case ganzhi.ZhiChou, ganzhi.ZhiChen, ganzhi.ZhiWei, ganzhi.ZhiXu:
-		return "墓库"
-	default:
-		return ""
-	}
 }

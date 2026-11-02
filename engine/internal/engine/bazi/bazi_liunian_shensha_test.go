@@ -55,7 +55,7 @@ func TestLiuNian_AnnualBingFu(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(chart, 2021) // 辛丑
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2021) // 辛丑
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2021): %v", err)
 	}
@@ -75,7 +75,7 @@ func TestLiuNian_AnnualSangMen(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(chart, 2022) // 壬寅
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2022) // 壬寅
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2022): %v", err)
 	}
@@ -94,7 +94,7 @@ func TestLiuNian_AnnualDiaoKe(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(chart, 2006) // 丙戌
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2006) // 丙戌
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2020): %v", err)
 	}
@@ -113,7 +113,7 @@ func TestLiuNian_AnnualDaHao(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(chart, 2026) // 丙午
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2026) // 丙午
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
@@ -147,7 +147,7 @@ func TestLiuNian_AnnualAndDynamicCoexist(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(chart, 2022)
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2022)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2022): %v", err)
 	}
@@ -184,7 +184,7 @@ func TestLiuNian_ShenSha_DynamicEmpty(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	ln, err := ComputeLiuNian(chart, 2006)
+	ln, err := ComputeLiuNian(natalCoreFromChart(chart), 2006)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2006): %v", err)
 	}

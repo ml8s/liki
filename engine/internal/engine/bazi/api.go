@@ -2,7 +2,7 @@
 //
 // Types
 //
-//	Chart,
+//	Chart, NatalCore,
 //	DaYunStep, DaYun,
 //	Bond,
 //	LiuNian, LiuYue, LiuRi, LiuShi,
@@ -18,11 +18,10 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-// ComputeChart produces a lean Chart (四柱+纳音+大运+性别) from civil birth time
+// ComputeChart produces the complete domain chart from civil birth time
 // (年/月柱) and true-solar time (日/时柱).
-// Use ComputeFullChart to expand to full chart with 十神/藏干/神煞/长生/空亡.
 func ComputeChart(gt time.Time, st time.Time, gender ganzhi.Gender) Chart {
-	return computeChartCore(gt, st, tianwen.ComputeBazi(gt, st), gender)
+	return ComputeChartFromCore(computeNatalCore(gt, st, tianwen.ComputeBazi(gt, st), gender))
 }
 
 // ComputeChartAt is the standard-time entry for new callers.
@@ -35,104 +34,92 @@ func ComputeChartAt(
 	return ComputeChart(standard, solar, gender)
 }
 
-// NewChartFromPillars assembles the published lean chart from already decoded
-// wire values. It is the typed inverse of the public chart projection and keeps
-// callers from constructing bazi.Chart through a JSON round trip.
-func NewChartFromPillars(
-	pillars [4]ganzhi.Zhu,
-	naYin [4]string,
-	daYun *DaYun,
+// ComputeNatalCoreAt is the standard-time entry for derived-method callers.
+func ComputeNatalCoreAt(
+	standard time.Time,
+	longitude float64,
 	gender ganzhi.Gender,
-	birthYear int,
-	ziShiRule string,
-) Chart {
-	return Chart{
-		Nian:      baziZhu(pillars[0], naYin[0]),
-		Yue:       baziZhu(pillars[1], naYin[1]),
-		Ri:        baziZhu(pillars[2], naYin[2]),
-		Shi:       baziZhu(pillars[3], naYin[3]),
-		DaYun:     daYun,
-		Gender:    gender,
-		BirthYear: birthYear,
-		ZiShiRule: ziShiRule,
-	}
+) NatalCore {
+	solar := tianwen.ApparentSolarFromStandard(standard, longitude)
+	return ComputeNatalCore(standard, solar, gender)
 }
 
-func baziZhu(pillar ganzhi.Zhu, naYin string) zhuInfo {
-	return zhuInfo{Zhu: pillar, NaYin: naYin}
+// ComputeNatalCore produces the narrow facts consumed by derived methods.
+func ComputeNatalCore(gt time.Time, st time.Time, gender ganzhi.Gender) NatalCore {
+	return computeNatalCore(gt, st, tianwen.ComputeBazi(gt, st), gender)
 }
 
-// ComputeFullChart expands a lean Chart to FullChart with all fields (十神/藏干/神煞/长生/空亡/自合/魁罡).
-func ComputeFullChart(c Chart) FullChart {
-	bz := c.ToBazi()
-	analysis := AnalyzePillars(bz, c.Gender)
-	fc := assembleFullChart(c, bz, analysis)
-	enrichDaYunRoots(&fc, bz)
-	applyChartExtra(&fc, c)
-	applyInteractions(&fc, c)
-	applyYongshenSchools(&fc, c, analysis)
-	applyDerivedFacts(&fc)
-	return fc
+// ComputeChartFromCore fills the complete chart from a narrow natal core.
+func ComputeChartFromCore(core NatalCore) Chart {
+	bz := core.ToBazi()
+	analysis := AnalyzePillars(bz, core.Gender)
+	chart := assembleChart(core, bz, analysis)
+	fillDaYunRoots(&chart, bz)
+	applyChartExtra(&chart, core)
+	applyInteractions(&chart, bz)
+	applyYongshenEvidence(&chart, core, analysis)
+	applyDerivedFacts(&chart)
+	chart.ZiShiRule = "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
+	return chart
 }
 
 // applyChartExtra derives the supplementary 三元 / 胎元 / 命宫 / 纳音 projections.
-func applyChartExtra(fc *FullChart, c Chart) ChartExtra {
-	extra := ComputeChartExtra(c)
-	fc.SanYuan = extra.SanYuan
-	fc.TaiXi = extra.TaiXi
-	fc.GongJia = extra.GongJia
-	fc.NayinRel = extra.NayinRel
-	fc.ChangSheng = extra.ChangSheng
-	fc.SanQiName = extra.SanQiName
-	fc.Zodiac = ganzhi.ZhiAnimal(c.ToBazi().Nian.Zhi)
+func applyChartExtra(chart *Chart, core NatalCore) ChartExtra {
+	extra := ComputeChartExtra(core)
+	chart.SanYuan = extra.SanYuan
+	chart.TaiXi = extra.TaiXi
+	chart.GongJia = extra.GongJia
+	chart.NayinRel = extra.NayinRel
+	chart.ChangSheng = extra.ChangSheng
+	chart.SanQiName = extra.SanQiName
+	chart.Zodiac = ganzhi.ZhiAnimal(core.ToBazi().Nian.Zhi)
 	return extra
 }
 
 // applyInteractions derives the complete stem/branch interaction groups.
-func applyInteractions(fc *FullChart, c Chart) {
-	hehui := ComputeHeHui(c)
-	fc.GanHe = hehui.GanHe
-	fc.GanChong = hehui.GanChong
-	fc.ZhiLiuHe = hehui.ZhiLiuHe
-	fc.SanHe = hehui.SanHe
-	fc.SanHePartial = hehui.SanHePartial
-	fc.SanHui = hehui.SanHui
-	fc.LiuChong = hehui.LiuChong
-	fc.LiuHai = hehui.LiuHai
-	fc.LiuXing = hehui.LiuXing
-	fc.LiuPo = hehui.LiuPo
-	fc.AnHe = hehui.AnHe
+func applyInteractions(chart *Chart, bz ganzhi.Bazi) {
+	hehui := ComputeHeHui(bz)
+	chart.GanHe = hehui.GanHe
+	chart.GanChong = hehui.GanChong
+	chart.ZhiLiuHe = hehui.ZhiLiuHe
+	chart.SanHe = hehui.SanHe
+	chart.SanHePartial = hehui.SanHePartial
+	chart.SanHui = hehui.SanHui
+	chart.LiuChong = hehui.LiuChong
+	chart.LiuHai = hehui.LiuHai
+	chart.LiuXing = hehui.LiuXing
+	chart.LiuPo = hehui.LiuPo
+	chart.AnHe = hehui.AnHe
 }
 
-// applyYongshenSchools derives the three independent yongshen evidence sources.
-func applyYongshenSchools(fc *FullChart, c Chart, analysis PillarAnalysis) {
-	fc.FuYi, fc.TiaoHou, fc.GeJu = computeYongShenSchoolsFromAnalysis(c, analysis)
-	fc.ShenShaSchool = ShenShaSchool{
+// applyYongshenEvidence derives FuYi/TiaoHou candidates and GeJu structure.
+func applyYongshenEvidence(chart *Chart, core NatalCore, analysis PillarAnalysis) {
+	chart.FuYi, chart.TiaoHou, chart.GeJu = computeYongShenEvidenceFromAnalysis(core, analysis)
+	chart.ShenShaSchool = ShenShaSchool{
 		DualReference: []string{"天乙贵人", "桃花", "驿马", "华盖", "将星", "劫煞", "灾煞"},
 		Policy:        "union_of_year_and_day_references",
 	}
 }
 
 // applyDerivedFacts derives the read-only facts consumed by counsel factors.
-func applyDerivedFacts(fc *FullChart) {
+func applyDerivedFacts(chart *Chart) {
 	var elementStates map[string]ElementState
-	fc.TenGodStates, elementStates = computeTenGodStates(*fc)
-	fc.ElementStates = elementStateList(elementStates)
-	fc.LuRoots = computeLuRoots(*fc)
-	fc.GuanXi = computeGuanXi(*fc)
-	facts := computeAtomicFacts(*fc)
-	fc.AtomicFacts = facts
-	fc.GuanSha = GuanSha{QuQing: facts.OfficerKillingCleaned}
-	fc.CaiKu = CaiKu{Xian: facts.WealthTombPresent, XingRuKu: facts.WealthStarInTomb}
-	fc.GeJu.GeShenTou = facts.PatternGodTransparent
+	chart.TenGodStates, elementStates = computeTenGodStates(*chart)
+	chart.ElementStates = elementStateList(elementStates)
+	chart.LuRoots = computeLuRoots(*chart)
+	chart.GuanXi = computeGuanXi(*chart)
+	facts := computeChartConclusions(*chart)
+	chart.GuanSha = GuanSha{QuQing: facts.OfficerKillingCleaned}
+	chart.CaiKu = CaiKu{Xian: facts.WealthTombPresent, XingRuKu: facts.WealthStarInTomb}
+	chart.GeJu.GeShenTou = facts.PatternGodTransparent
 }
 
-func enrichDaYunRoots(fc *FullChart, bz ganzhi.Bazi) {
-	if fc.DaYun == nil {
+func fillDaYunRoots(chart *Chart, bz ganzhi.Bazi) {
+	if chart.DaYun == nil {
 		return
 	}
-	for index := range fc.DaYun.Steps {
-		step := &fc.DaYun.Steps[index]
+	for index := range chart.DaYun.Steps {
+		step := &chart.DaYun.Steps[index]
 		step.RootRefs = daYunRootRefs(ganzhi.Zhu{Gan: step.Gan, Zhi: step.Zhi}, bz)
 		rooted := len(step.RootRefs) > 0
 		step.Rooted = &rooted
@@ -142,49 +129,49 @@ func enrichDaYunRoots(fc *FullChart, bz ganzhi.Bazi) {
 // ComputeLiuNian computes the year pillar and its interactions with the bazi chart.
 // The year selector is transitional while the wire still carries a Gregorian
 // year; it resolves at mid-year to preserve the existing contract.
-func ComputeLiuNian(chart Chart, year int) (*LiuNian, error) {
+func ComputeLiuNian(core NatalCore, year int) (*LiuNian, error) {
 	t, err := ResolveLiuNianTime(tianwen.NewCivilDate(year, 6, 15))
 	if err != nil {
 		return nil, err
 	}
-	return ComputeLiuNianAtTime(chart, t)
+	return ComputeLiuNianAtTime(core, t)
 }
 
 // ComputeLiuNianAtTime computes the year pillar from a resolved 立春 year.
-func ComputeLiuNianAtTime(chart Chart, t LiuNianTime) (*LiuNian, error) {
-	cd := dayunStepForYear(chart.DaYun, chart.BirthYear, t.LichunYear)
-	return computeLiuNian(chart.ToBazi(), t, cd)
+func ComputeLiuNianAtTime(core NatalCore, t LiuNianTime) (*LiuNian, error) {
+	cd := dayunStepForYear(core.DaYun, core.BirthYear, t.LichunYear)
+	return computeLiuNian(core.ToBazi(), t, cd)
 }
 
 // ComputeLiuYue computes the month pillar and its interactions with the bazi chart.
 // The year/month selector is transitional while the wire still carries a
 // Gregorian month; it resolves at mid-month to preserve the existing contract.
-func ComputeLiuYue(c Chart, year, month int) (*LiuYue, error) {
+func ComputeLiuYue(core NatalCore, year, month int) (*LiuYue, error) {
 	t, err := ResolveLiuYueTime(tianwen.NewCivilDate(year, month, 15))
 	if err != nil {
 		return nil, err
 	}
-	return ComputeLiuYueAtTime(c, t)
+	return ComputeLiuYueAtTime(core, t)
 }
 
 // ComputeLiuYueAtTime computes the month pillar from a resolved solar-term month.
-func ComputeLiuYueAtTime(c Chart, t LiuYueTime) (*LiuYue, error) {
-	return computeLiuYue(c.ToBazi(), t)
+func ComputeLiuYueAtTime(core NatalCore, t LiuYueTime) (*LiuYue, error) {
+	return computeLiuYue(core.ToBazi(), t)
 }
 
 // ComputeLiuRi computes the day pillar and its interactions with the bazi chart.
-func ComputeLiuRi(c Chart, t LiuRiTime) (*LiuRi, error) {
+func ComputeLiuRi(core NatalCore, t LiuRiTime) (*LiuRi, error) {
 	// 流日的流年/大运按该日所属的立春年取，而不是公历年。
 	nianTime, err := ResolveLiuNianTime(t.Date)
 	if err != nil {
 		return nil, fmt.Errorf("computeLiuRi: liunian time: %w", err)
 	}
-	ds := dayunStepForYear(c.DaYun, c.BirthYear, nianTime.LichunYear)
+	ds := dayunStepForYear(core.DaYun, core.BirthYear, nianTime.LichunYear)
 	var dzZhu *ganzhi.Zhu
 	if ds != nil {
 		dzZhu = &ganzhi.Zhu{Gan: ds.Gan, Zhi: ds.Zhi}
 	}
-	ln, err := ComputeLiuNianAtTime(c, nianTime)
+	ln, err := ComputeLiuNianAtTime(core, nianTime)
 	if err != nil {
 		return nil, fmt.Errorf("computeLiuRi: liunian: %w", err)
 	}
@@ -192,12 +179,12 @@ func ComputeLiuRi(c Chart, t LiuRiTime) (*LiuRi, error) {
 	if ln != nil {
 		lnZhu = &ganzhi.Zhu{Gan: ln.NianGan, Zhi: ln.NianZhi}
 	}
-	return computeLiuRi(c.ToBazi(), t, dzZhu, lnZhu)
+	return computeLiuRi(core.ToBazi(), t, dzZhu, lnZhu)
 }
 
 // ComputeLiuShi computes the hour pillar and its interactions with the bazi chart.
-func ComputeLiuShi(c Chart, t LiuShiTime) (*LiuShi, error) {
-	return computeLiuShi(c.ToBazi(), t)
+func ComputeLiuShi(core NatalCore, t LiuShiTime) (*LiuShi, error) {
+	return computeLiuShi(core.ToBazi(), t)
 }
 
 // dayunStepForYear returns the DaYun step governing the given year, based on
@@ -218,8 +205,8 @@ func dayunStepForYear(dy *DaYun, birthYear, year int) *DaYunStep {
 }
 
 // ComputeXiaoYun computes the minor fortune (小运) by multiple schools.
-func ComputeXiaoYun(c Chart, maxAge int) []XiaoYunSet {
-	return computeXiaoYun(c.ToBazi(), c.Gender, maxAge)
+func ComputeXiaoYun(core NatalCore, maxAge int) []XiaoYunSet {
+	return computeXiaoYun(core.ToBazi(), core.Gender, maxAge)
 }
 
 // ComputeDaYunAt is the explicit-time entry for the big-fortune cycle.

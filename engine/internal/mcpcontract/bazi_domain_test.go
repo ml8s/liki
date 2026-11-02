@@ -49,7 +49,7 @@ func TestBaziChartRawProjectionMatchesWireDTO(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	full := bazi.ComputeFullChart(chart)
+	full := chart
 	for name, secondary := range map[string]*bazi.TiaoHouAvailability{
 		"present": full.TiaoHou.Secondary,
 		"absent":  nil,
@@ -57,7 +57,7 @@ func TestBaziChartRawProjectionMatchesWireDTO(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			value := full
 			value.TiaoHou.Secondary = secondary
-			raw, err := marshalRawBaziCompleteChart(value, chart.ZiShiRule)
+			raw, err := marshalRawBaziChart(value)
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -36,14 +36,14 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 		run  func(chart Chart) any
 	}{
 		{"liunian", func(c Chart) any {
-			v, err := ComputeLiuNian(c, 2026)
+			v, err := ComputeLiuNian(natalCoreFromChart(c), 2026)
 			if err != nil {
 				t.Fatal(err)
 			}
 			return v
 		}},
 		{"liuyue", func(c Chart) any {
-			v, err := ComputeLiuYue(c, 2026, 5)
+			v, err := ComputeLiuYue(natalCoreFromChart(c), 2026, 5)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -54,21 +54,21 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			v, err := ComputeLiuRi(c, lt)
+			v, err := ComputeLiuRi(natalCoreFromChart(c), lt)
 			if err != nil {
 				t.Fatal(err)
 			}
 			return v
 		}},
 		{"liushi", func(c Chart) any {
-			v, err := ComputeLiuShi(c, resolveTestLiuShi(t, 2026, 5, 20, 12, 30))
+			v, err := ComputeLiuShi(natalCoreFromChart(c), resolveTestLiuShi(t, 2026, 5, 20, 12, 30))
 			if err != nil {
 				t.Fatal(err)
 			}
 			return v
 		}},
 		{"xiaoyun", func(c Chart) any {
-			return ComputeXiaoYun(c, 3)
+			return ComputeXiaoYun(natalCoreFromChart(c), 3)
 		}},
 	}
 	for _, tc := range cases {

@@ -1879,7 +1879,7 @@
     }
    },
    "expect": "命中",
-   "basis": "engine bazi.fullchart 将完整三合组输出在 full.relation_groups，Python 只做机械匹配。"
+   "basis": "engine bazi.chart 将完整三合组输出在 full.relation_groups，Python 只做机械匹配。"
   },
   {
    "id": "natal_self_punishment_operator_reads_engine_group",

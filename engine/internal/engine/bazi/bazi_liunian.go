@@ -18,7 +18,6 @@ type LiuNian struct {
 	DaYunInteractions []zhuInteraction    `json:"da_yun_interactions"`
 	ShenSha           []ShenShaProjection `json:"shen_sha"`
 	FuYinFanYin       []FuYinFanYin       `json:"fu_yin_fan_yin"`
-	AtomicFacts       LiuNianAtomicFacts  `json:"atomic_facts_removed"`
 }
 
 // ComputeLiuNian computes the year pillar for a resolved 立春 year and
@@ -72,7 +71,6 @@ func computeLiuNian(bz ganzhi.Bazi, t LiuNianTime, currentDaYun *DaYunStep) (*Li
 	r.ShenSha = computeDynamicShenSha(nianZhi, bz.Nian.Zhi, bz.Ri.Zhi, riYuan)
 	r.ShenSha = append(r.ShenSha, computeAnnualShenSha(nianZhi, bz)...)
 	r.FuYinFanYin = computeFuYinFanYin(liuNianZhu, bz)
-	r.AtomicFacts = computeLiuNianAtomicFacts(bz, t.LichunYear, nianGan, nianZhi, tgName, currentDaYun)
 
 	return r, nil
 }

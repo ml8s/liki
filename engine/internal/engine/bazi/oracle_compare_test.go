@@ -16,8 +16,8 @@ func TestOracleComparison_19810826(t *testing.T) {
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
-	full := ComputeFullChart(chart)
-	pillars := [4]fullZhuInfo{full.Nian, full.Yue, full.Ri, full.Shi}
+	full := ComputeChartFromCore(natalCoreFromChart(chart))
+	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 
 	// 1. Pillars
 	wantPillars := []string{"辛酉", "丙申", "丙子", "己丑"}
@@ -104,7 +104,7 @@ func TestOracleComparison_19810826(t *testing.T) {
 	}
 
 	// 10. Six Po (子酉破)
-	hehui := ComputeHeHui(chart)
+	hehui := ComputeHeHui(chart.ToBazi())
 	foundPo := false
 	for _, po := range hehui.LiuPo {
 		if po.ZhiA == "子" && po.ZhiB == "酉" || po.ZhiA == "酉" && po.ZhiB == "子" {
@@ -131,13 +131,11 @@ func TestOracleComparison_19810826(t *testing.T) {
 }
 
 func canonicalChart(bz ganzhi.Bazi, gender ganzhi.Gender, year int) Chart {
-	pillars := bz.Slice()
-	zhuInfos := [4]zhuInfo{}
-	for i, p := range pillars {
-		zhuInfos[i] = zhuInfo{Zhu: p, NaYin: ganzhi.NayinLabel(p.Gan, p.Zhi)}
+	core := NatalCore{
+		Pillars:   bz.Slice(),
+		NaYin:     computeNaYin(bz),
+		Gender:    gender,
+		BirthYear: year,
 	}
-	return Chart{
-		Nian: zhuInfos[0], Yue: zhuInfos[1], Ri: zhuInfos[2], Shi: zhuInfos[3],
-		Gender: gender, BirthYear: year,
-	}
+	return ComputeChartFromCore(core)
 }

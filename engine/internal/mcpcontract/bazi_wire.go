@@ -379,31 +379,6 @@ type BaziChartCaiKu struct {
 	XingRuKu bool `json:"xing_ru_ku" jsonschema:"财星是否入墓库。"`
 }
 
-type BaziChartAtomicFacts struct {
-	DayMasterElement      ElementName                           `json:"day_master_element" jsonschema:"日主五行。"`
-	DayMasterStem         LiuyaoGanName                         `json:"day_master_stem" jsonschema:"日主天干。"`
-	DayBranch             LiuyaoZhiName                         `json:"day_branch" jsonschema:"日支。"`
-	MonthLongevity        ChangShengStageName                   `json:"month_longevity" jsonschema:"月令十二长生。"`
-	YearStemTenGod        YearStemTenGodName                    `json:"year_stem_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
-	MonthMainTenGod       YearStemTenGodName                    `json:"month_main_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
-	HourStemTenGod        YearStemTenGodName                    `json:"hour_stem_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
-	PatternGodTransparent bool                                  `json:"pattern_god_transparent" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 pattern_god_transparent。"`
-	PillarPunishments     BaziChartAtomicFactsPillarPunishments `json:"pillar_punishments" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 pillar_punishments。"`
-	OfficerKillingCleaned bool                                  `json:"officer_killing_cleaned" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 officer_killing_cleaned。"`
-	WealthTombPresent     bool                                  `json:"wealth_tomb_present" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 wealth_tomb_present。"`
-	WealthStarInTomb      bool                                  `json:"wealth_star_in_tomb" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 wealth_star_in_tomb。"`
-	SpousePalaceState     SpousePalaceStateName                 `json:"spouse_palace_state" jsonschema:"配偶宫状态。"`
-	DayBranchType         DayBranchTypeName                     `json:"day_branch_type" jsonschema:"日支类型。"`
-	YearOfficerKilling    bool                                  `json:"year_officer_killing" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 year_officer_killing。"`
-}
-
-type BaziChartAtomicFactsPillarPunishments struct {
-	Nian bool `json:"nian" jsonschema:"nian。"`
-	Yue  bool `json:"yue" jsonschema:"yue。"`
-	Ri   bool `json:"ri" jsonschema:"ri。"`
-	Shi  bool `json:"shi" jsonschema:"shi。"`
-}
-
 type BaziChartTiaoHou struct {
 	PrimaryWuxing      ElementName               `json:"primary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 primary_wuxing。"`
 	SecondaryWuxing    SecondaryWuxingName       `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
@@ -904,41 +879,6 @@ type BaziLiuNianNatalInteractionsItemZhiRelsItem struct {
 	ZhiA        *string                `json:"zhi_a" jsonschema:"甲支。"`
 	ZhiB        *LiuyaoZhiNameNullable `json:"zhi_b" jsonschema:"乙支。"`
 }
-
-type BaziLiuNianAtomicFacts struct {
-	ControlsTargets           BaziLiuNianAtomicFactsControlsTargets    `json:"controls_targets" jsonschema:"engine 流年原子事实 中的 controls_targets。"`
-	ControlsElements          []ElementName                            `json:"controls_elements" jsonschema:"engine 流年原子事实列表。"`
-	WealthBreaksSeal          bool                                     `json:"wealth_breaks_seal" jsonschema:"engine 流年原子事实 中的 wealth_breaks_seal。"`
-	YearBranchRelations       map[string]YearBranchRelationsName       `json:"year_branch_relations" jsonschema:"engine 流年原子事实 映射表。"`
-	YearBranchControlledBy    []ElementName                            `json:"year_branch_controlled_by" jsonschema:"engine 流年原子事实列表。"`
-	YearGanControlsDayGan     bool                                     `json:"year_gan_controls_day_gan" jsonschema:"engine 流年原子事实 中的 year_gan_controls_day_gan。"`
-	DayGanControlsYearGan     bool                                     `json:"day_gan_controls_year_gan" jsonschema:"engine 流年原子事实 中的 day_gan_controls_year_gan。"`
-	GanCombines               bool                                     `json:"gan_combines" jsonschema:"engine 流年原子事实 中的 gan_combines。"`
-	DayunGanCombines          bool                                     `json:"dayun_gan_combines" jsonschema:"engine 流年原子事实 中的 dayun_gan_combines。"`
-	DayunZhiClashesYear       bool                                     `json:"dayun_zhi_clashes_year" jsonschema:"engine 流年原子事实 中的 dayun_zhi_clashes_year。"`
-	DayVoidBranches           []LiuyaoZhiName                          `json:"day_void_branches" jsonschema:"engine 流年原子事实列表。"`
-	YearEqualsDayPillar       bool                                     `json:"year_equals_day_pillar" jsonschema:"engine 流年原子事实 中的 year_equals_day_pillar。"`
-	DayunEqualsYearPillar     bool                                     `json:"dayun_equals_year_pillar" jsonschema:"engine 流年原子事实 中的 dayun_equals_year_pillar。"`
-	YearGanEqualsNatalYearGan bool                                     `json:"year_gan_equals_natal_year_gan" jsonschema:"engine 流年原子事实 中的 year_gan_equals_natal_year_gan。"`
-	Combinations              []BaziLiuNianAtomicFactsCombinationsItem `json:"combinations" jsonschema:"engine 流年原子事实列表。"`
-}
-
-type BaziLiuNianAtomicFactsControlsTargets struct {
-	DayMaster      bool `json:"day_master" jsonschema:"day_master。"`
-	WealthStar     bool `json:"wealth_star" jsonschema:"wealth_star。"`
-	OfficerKilling bool `json:"officer_killing" jsonschema:"officer_killing。"`
-	SealStar       bool `json:"seal_star" jsonschema:"seal_star。"`
-	FoodInjury     bool `json:"food_injury" jsonschema:"food_injury。"`
-}
-
-type BaziLiuNianAtomicFactsCombinationsItem struct {
-	Kind         YearBranchRelationsName `json:"kind" jsonschema:"类别。"`
-	Group        string                  `json:"group" jsonschema:"分组。"`
-	Branches     []LiuyaoZhiName         `json:"branches" jsonschema:"地支列表。"`
-	IncludesYear bool                    `json:"includes_year" jsonschema:"includes_year。"`
-}
-
-// ── bazi.liuyue input ──
 
 type BaziLiuYueInput struct {
 	LiuYueStartTime StandardTime `json:"liu_yue_start_time" jsonschema:"流月选择起点：local standard time，RFC3339 fixed offset。"`

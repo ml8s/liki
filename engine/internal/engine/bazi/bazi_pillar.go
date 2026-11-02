@@ -2,29 +2,7 @@ package bazi
 
 import (
 	"liki-engine/internal/engine/ganzhi"
-	"time"
 )
-
-func computeChartCore(gt time.Time, st time.Time, bz ganzhi.Bazi, gender ganzhi.Gender) Chart {
-	ny := computeNaYin(bz)
-	ps := bz.Slice()
-
-	makePI := func(i int) zhuInfo {
-		return zhuInfo{Zhu: ps[i], NaYin: ny[i]}
-	}
-
-	cr := Chart{
-		Nian:   makePI(0),
-		Yue:    makePI(1),
-		Ri:     makePI(2),
-		Shi:    makePI(3),
-		Gender: gender,
-	}
-	cr.DaYun = computeDaYun(gt, bz, gender)
-	cr.BirthYear = gt.Year()
-	cr.ZiShiRule = "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
-	return cr
-}
 
 // PillarAnalysis holds the structural projections derived directly from the
 // four pillars. It is a concrete Bazi-domain value, not a generic fact bag.
@@ -53,8 +31,8 @@ func AnalyzePillars(bz ganzhi.Bazi, gender ganzhi.Gender) PillarAnalysis {
 	}
 }
 
-// assembleFullChart projects the pillar analysis into the published FullChart.
-func assembleFullChart(c Chart, bz ganzhi.Bazi, analysis PillarAnalysis) FullChart {
+// assembleChart projects pillar analysis into the published Chart pillars.
+func assembleChart(core NatalCore, bz ganzhi.Bazi, analysis PillarAnalysis) Chart {
 	hs := analysis.HiddenStems
 	ny := analysis.NaYin
 	tgTable := analysis.TenGods
@@ -64,7 +42,7 @@ func assembleFullChart(c Chart, bz ganzhi.Bazi, analysis PillarAnalysis) FullCha
 	voidHits := analysis.VoidPalaces
 	ps := bz.Slice()
 
-	makeFull := func(i int) fullZhuInfo {
+	makeFull := func(i int) Pillar {
 		isVoid := false
 		for _, vh := range voidHits {
 			if vh == i {
@@ -72,7 +50,7 @@ func assembleFullChart(c Chart, bz ganzhi.Bazi, analysis PillarAnalysis) FullCha
 				break
 			}
 		}
-		pi := fullZhuInfo{
+		pi := Pillar{
 			Zhu: ps[i], DayMasterTrend: dayMasterTrend[i],
 			Xun: ganzhi.XunName(ps[i].Gan, ps[i].Zhi), XunKong: xunKongPairLabel(ps[i].Gan, ps[i].Zhi),
 			NaYin: ny[i], CangGan: hs[i], ShiShens: tgTable[i], SelfSitting: selfSitting[i],
@@ -84,14 +62,14 @@ func assembleFullChart(c Chart, bz ganzhi.Bazi, analysis PillarAnalysis) FullCha
 		return pi
 	}
 
-	return FullChart{
-		BirthYear:  c.BirthYear,
+	return Chart{
+		BirthYear:  core.BirthYear,
 		Nian:       makeFull(0),
 		Yue:        makeFull(1),
 		Ri:         makeFull(2),
 		Shi:        makeFull(3),
-		DaYun:      c.DaYun,
-		Gender:     c.Gender,
+		DaYun:      core.DaYun,
+		Gender:     core.Gender,
 		DayXun:     ganzhi.XunName(bz.Ri.Gan, bz.Ri.Zhi),
 		DayXunKong: xunKongPairLabel(bz.Ri.Gan, bz.Ri.Zhi),
 	}

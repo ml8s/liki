@@ -11,7 +11,7 @@ import (
 // ── 用神候选（扶抑/调候）与格局证据对比测试 ──
 // 用神候选两派（扶抑 / 调候）与格局证据独立输出，无交叉污染。
 
-func TestThreeSchools_Consistency(t *testing.T) {
+func TestYongshenEvidence_Consistency(t *testing.T) {
 	tests := []struct {
 		name                   string
 		year, month, day, hour int
@@ -33,7 +33,7 @@ func TestThreeSchools_Consistency(t *testing.T) {
 			stgt := time.Time(birth)
 			st := tianwen.ApparentSolarFromCivil(birth, 116.4, 8)
 			chart := ComputeChart(stgt, st, tt.gender)
-			fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
+			fuYi, tiaoHou, geJu := ComputeYongshenEvidence(natalCoreFromChart(chart))
 
 			t.Logf("%s%s %s%s %s%s %s%s",
 				chart.Nian.Gan, chart.Nian.Zhi,

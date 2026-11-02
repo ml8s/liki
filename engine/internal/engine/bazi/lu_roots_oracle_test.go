@@ -28,8 +28,8 @@ func TestDomainOracle_LuRoots(t *testing.T) {
 	}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
-			chart := atomicChartFromStrings(t, tc.Pillars)
-			full := ComputeFullChart(chart)
+			chart := atomicCoreFromStrings(t, tc.Pillars)
+			full := ComputeChartFromCore(chart)
 			got := make([]LuRoot, 0, len(full.LuRoots))
 			for _, root := range full.LuRoots {
 				got = append(got, LuRoot{ShiShen: root.ShiShen, Gan: root.Gan, Zhi: root.Zhi})

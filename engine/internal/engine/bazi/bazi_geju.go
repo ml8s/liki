@@ -12,16 +12,16 @@ import "liki-engine/internal/engine/ganzhi"
 //   - 余气透干 → 用该干十神定格局
 //   - 都不透 → 月令本气虚格
 func GeJuAt(
-	c Chart,
+	bz ganzhi.Bazi,
 	analysis PillarAnalysis,
 ) GeJuResult {
 	shiShens := analysis.TenGods
-	riYuan := c.Ri.Gan
-	yueZhi := c.Yue.Zhi
+	riYuan := bz.Ri.Gan
+	yueZhi := bz.Yue.Zhi
 
 	// 建禄格/月刃格: month zhi is the day master's 临官(禄) or 帝旺(刃).
 	if isLu, isRen := jianLuYueRenZhi(riYuan, yueZhi); isLu || isRen {
-		return JianLuYueRen(c, isRen)
+		return JianLuYueRen(bz, isRen)
 	}
 
 	// 月令透干定格局: 本气→中气→余气, 第一个透干者定格.
@@ -36,8 +36,8 @@ func GeJuAt(
 			if ss.Source != source {
 				continue
 			}
-			if ss.Gan == c.Nian.Gan || ss.Gan == c.Yue.Gan ||
-				ss.Gan == c.Ri.Gan || ss.Gan == c.Shi.Gan {
+			if ss.Gan == bz.Nian.Gan || ss.Gan == bz.Yue.Gan ||
+				ss.Gan == bz.Ri.Gan || ss.Gan == bz.Shi.Gan {
 				patternGan = ss.Gan
 				patternShiShen = ss.ShiShen
 				patternSource = source
@@ -81,12 +81,12 @@ func GeJuAt(
 		PatternGod:       ganzhi.GanName(patternGan),
 		PatternGodTenGod: patternShiShen.String(),
 		PatternGodSource: patternSource,
-		Structure:        buildGeJuStructure(c, &patternGan, patternElem),
+		Structure:        buildGeJuStructure(bz, &patternGan, patternElem),
 	}
 }
 
-func JianLuYueRen(c Chart, isYueRen bool) GeJuResult {
-	dmElem := ganzhi.GanWuxing(c.Ri.Gan)
+func JianLuYueRen(bz ganzhi.Bazi, isYueRen bool) GeJuResult {
+	dmElem := ganzhi.GanWuxing(bz.Ri.Gan)
 	var patternName string
 	if isYueRen {
 		patternName = "月刃格"
@@ -97,7 +97,7 @@ func JianLuYueRen(c Chart, isYueRen bool) GeJuResult {
 		Pattern:          patternName,
 		Usage:            "逆用",
 		PatternGodSource: map[bool]string{true: "month_blade", false: "month_lu"}[isYueRen],
-		Structure:        buildGeJuStructure(c, nil, dmElem),
+		Structure:        buildGeJuStructure(bz, nil, dmElem),
 	}
 }
 

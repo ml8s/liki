@@ -17,13 +17,8 @@ func makeChart(year, month, day, hour, minute int, lon, tz float64, gender ganzh
 	return ComputeChart(time.Time(when), st, gender)
 }
 
-func makeFullChart(year, month, day, hour, minute int, lon, tz float64, gender ganzhi.Gender) FullChart {
-	c := makeChart(year, month, day, hour, minute, lon, tz, gender)
-	return ComputeFullChart(c)
-}
-
 // collectShenShaNames returns all shensha names for a pillar.
-func collectShenShaNames(p fullZhuInfo) map[string]bool {
+func collectShenShaNames(p Pillar) map[string]bool {
 	m := make(map[string]bool)
 	for _, ss := range p.ShenSha {
 		m[ss.Name] = true
@@ -715,7 +710,7 @@ func TestShenSha_RealChart(t *testing.T) {
 	//   日: 1900-01-01=甲戌(序号10)基准, 累加30725天 → 序号15=己卯
 	//   时: 08:00辰时, 己日→五鼠遁戊辰
 	// 八字: 甲子 丙寅 己卯 戊辰, 日主己土
-	cr := makeFullChart(1984, 2, 15, 8, 0, 120, 8, ganzhi.Male)
+	cr := makeChart(1984, 2, 15, 8, 0, 120, 8, ganzhi.Male)
 
 	// 验证四柱
 	if cr.Nian.Gan != ganzhi.GanJia || cr.Nian.Zhi != ganzhi.ZhiZi {
@@ -1011,14 +1006,14 @@ func TestShenSha_Triad_Dedup(t *testing.T) {
 }
 
 // ── 日柱旬空（day_xun_kong）字段 ──
-func TestFullChart_XunKong(t *testing.T) {
+func TestChart_XunKong(t *testing.T) {
 	// 1984-02-15 己卯日 → 甲戌旬 → 空申酉
-	cr := makeFullChart(1984, 2, 15, 8, 0, 120, 8, ganzhi.Male)
+	cr := makeChart(1984, 2, 15, 8, 0, 120, 8, ganzhi.Male)
 	if cr.DayXun != "甲戌旬" || cr.DayXunKong != "申酉" {
 		t.Errorf("day xun = %q/%q, want 甲戌旬/申酉", cr.DayXun, cr.DayXunKong)
 	}
 	// 1990-05-23 戊子日 → 甲申旬 → 空午未
-	cr2 := makeFullChart(1990, 5, 23, 16, 6, 120, 8, ganzhi.Male)
+	cr2 := makeChart(1990, 5, 23, 16, 6, 120, 8, ganzhi.Male)
 	if cr2.DayXun != "甲申旬" || cr2.DayXunKong != "午未" {
 		t.Errorf("day xun = %q/%q, want 甲申旬/午未", cr2.DayXun, cr2.DayXunKong)
 	}

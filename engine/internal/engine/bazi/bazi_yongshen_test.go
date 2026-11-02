@@ -8,14 +8,14 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
+func TestComputeYongshenEvidence_PresentsCandidatesAndStructure(t *testing.T) {
 	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
+	fuYi, tiaoHou, geJu := ComputeYongshenEvidence(natalCoreFromChart(chart))
 
 	validStrengths := map[string]bool{"身强": true, "身弱": true, "中和": true}
 	if !validStrengths[fuYi.Strength] {
@@ -64,14 +64,14 @@ func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
 
 func TestComputeGeJuYongShen_ShunYong(t *testing.T) {
 	cb := Chart{
-		Ri: zhuInfo{
+		Ri: Pillar{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin},
 		},
-		Yue: zhuInfo{
+		Yue: Pillar{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiYou},
 		},
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
 	}
 	wc := map[ganzhi.Wuxing]int{ganzhi.WxMu: 1, ganzhi.WxJin: 2}
 	result := computeGeJu(cb, wc)
@@ -85,14 +85,14 @@ func TestComputeGeJuYongShen_ShunYong(t *testing.T) {
 
 func TestComputeGeJuYongShen_NiYong(t *testing.T) {
 	cb := Chart{
-		Ri: zhuInfo{
+		Ri: Pillar{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin},
 		},
-		Yue: zhuInfo{
+		Yue: Pillar{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen},
 		},
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
 	}
 	wc := map[ganzhi.Wuxing]int{ganzhi.WxMu: 1, ganzhi.WxJin: 3, ganzhi.WxShui: 1}
 	result := computeGeJu(cb, wc)

@@ -34,7 +34,7 @@ func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessag
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.chart: %w", err)
 	}
-	return marshalRawOutput("ziwei.chart", ziwei.ComputeFullChart(chart))
+	return marshalRawOutput("ziwei.chart", chart)
 }
 
 // ZiweiDaXian returns the ten-year 大限 steps of a chart.

@@ -507,7 +507,7 @@ class TestZiweiPalaceAtomicFacts(unittest.TestCase):
         with self.assertRaises(ValueError):
             _op("宫含", ["本命", "贪狼", "忌"], "male", chart)
 
-    def test_za_yao_from_fullchart_gong_wei(self):
+    def test_za_yao_from_chart_gong_wei(self):
         chart = {"ziwei": {
             "gong_wei": [
                 {"name": "命宫", "za_yao": ["红鸾", "天姚"]},

@@ -55,7 +55,7 @@ func TestLiuNian_Golden(t *testing.T) {
 			}
 			chart := ComputeChart(time.Time(when), st, g)
 
-			ln, err := ComputeLiuNian(chart, gc.Year)
+			ln, err := ComputeLiuNian(natalCoreFromChart(chart), gc.Year)
 			if err != nil {
 				t.Fatalf("ComputeLiuNian(%d): %v", gc.Year, err)
 			}

@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-// TestComputeFullChartDeterministic guards against map-iteration ordering bugs:
+// TestChartPipelineDeterministic guards against map-iteration ordering bugs:
 // za_yao (and the resulting chart digest) must be identical across runs.
-func TestComputeFullChartDeterministic(t *testing.T) {
+func TestChartPipelineDeterministic(t *testing.T) {
 	base := Chart{
 		MingGong:   0,
 		NianZhi:    9, // 酉
@@ -25,9 +25,9 @@ func TestComputeFullChartDeterministic(t *testing.T) {
 		b, _ := json.Marshal(c)
 		return string(b)
 	}
-	first := dump(ComputeFullChart(base))
-	second := dump(ComputeFullChart(base))
+	first := dump(fillChartAreas(base))
+	second := dump(fillChartAreas(base))
 	if first != second {
-		t.Fatalf("ComputeFullChart not deterministic: za_yao order unstable")
+		t.Fatalf("chart pipeline not deterministic: za_yao order unstable")
 	}
 }

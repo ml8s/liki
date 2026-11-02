@@ -19,10 +19,10 @@ type tiaoHouExpectation struct {
 
 func mkTiaoHouChart(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) Chart {
 	return Chart{
-		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}},
-		Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: yueZhi}},
-		Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: riYuan, Zhi: ganzhi.ZhiChou}},
-		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+		Nian: Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}},
+		Yue:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: yueZhi}},
+		Ri:   Pillar{Zhu: ganzhi.Zhu{Gan: riYuan, Zhi: ganzhi.ZhiChou}},
+		Shi:  Pillar{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 	}
 }
 
@@ -40,7 +40,7 @@ func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 	for _, tt := range tests {
 		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.yueZhi) + "月"
 		t.Run(name, func(t *testing.T) {
-			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi))
+			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi).ToBazi())
 
 			if result.PrimaryWuxing != tt.wantYong {
 				// Also accept if fire is present as Xi (喜神) for winter entries
@@ -59,7 +59,7 @@ func TestTiaoHou_WinterWater_ShouldHaveFire(t *testing.T) {
 	// 注意: 壬亥月已有丙火(丙丁), 检查子/丑
 
 	// 穷通宝鉴: "壬水生子月, 戊土制水, 丙火调候" — primary=戊(土), secondary=丙(火)
-	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanRen, ganzhi.ZhiZi))
+	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanRen, ganzhi.ZhiZi).ToBazi())
 	if result.PrimaryWuxing != "土" && result.PrimaryWuxing != "火" {
 		t.Errorf("壬日子月调候 = yong=%s, 应为土或火", result.PrimaryWuxing)
 	}
@@ -70,7 +70,7 @@ func TestTiaoHou_WinterWater_ShouldHaveFire(t *testing.T) {
 func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
 	// 穷通宝鉴: "五月丙火, 愈炎, 壬庚又须并用"
 	// primary=壬正确, 但secondary应为庚(非戊)
-	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanBing, ganzhi.ZhiWu))
+	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanBing, ganzhi.ZhiWu).ToBazi())
 
 	t.Logf("丙午月: yong=%s xi=%s detail=%s",
 		result.PrimaryWuxing, result.SecondaryWuxing, result.TiaoHouExplanation)
@@ -97,7 +97,7 @@ func TestTiaoHou_AllWinterEntries_HaveFireWhenNeeded(t *testing.T) {
 	mismatches := 0
 	for _, dm := range coldDayMasters {
 		for _, mb := range coldMonths {
-			result := computeTiaoHou(mkTiaoHouChart(dm, mb))
+			result := computeTiaoHou(mkTiaoHouChart(dm, mb).ToBazi())
 			hasFire := result.PrimaryWuxing == "火" ||
 				(result.SecondaryWuxing != "" && result.SecondaryWuxing == "火")
 			if !hasFire {

@@ -66,7 +66,7 @@ func TestCongGe_AllRules(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.Gan(tt.riGan), Zhi: ganzhi.Zhi(tt.riZ)},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.Gan(tt.shiGan), Zhi: ganzhi.Zhi(tt.shiZ)},
 			}, ganzhi.Male, 2000)
-			pat, yong, xi, ji := lookupCongGe(c)
+			pat, yong, xi, ji := lookupCongGe(c.ToBazi())
 			if pat != tt.wantPattern {
 				bz := c.ToBazi()
 				t.Errorf("pattern=%q want=%q\n  pillars: %s%s %s%s %s%s %s%s\n  note: %s",
@@ -103,7 +103,7 @@ func TestCongGe_NotTriggered_NormalChart(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen},
 	}, ganzhi.Male, 2000)
-	pat, _, _, _ := lookupCongGe(gengShen)
+	pat, _, _, _ := lookupCongGe(gengShen.ToBazi())
 	if pat != "" {
 		t.Errorf("甲木+庚透干 should NOT trigger 从格, got %q", pat)
 	}

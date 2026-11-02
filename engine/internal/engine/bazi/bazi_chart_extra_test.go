@@ -9,13 +9,13 @@ import (
 func TestComputeChartExtra_SanYuan(t *testing.T) {
 	// 甲子年 丙寅月 戊辰日 庚申时 → known chart
 	ch := Chart{
-		Nian: zhuInfo{Zhu: zh("甲", "子")},
-		Yue:  zhuInfo{Zhu: zh("丙", "寅")},
-		Ri:   zhuInfo{Zhu: zh("戊", "辰")},
-		Shi:  zhuInfo{Zhu: zh("庚", "申")},
+		Nian: Pillar{Zhu: zh("甲", "子")},
+		Yue:  Pillar{Zhu: zh("丙", "寅")},
+		Ri:   Pillar{Zhu: zh("戊", "辰")},
+		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	extra := ComputeChartExtra(ch)
+	extra := ComputeChartExtra(natalCoreFromChart(ch))
 
 	// 胎元: 月柱丙寅 → 干+1=丁, 支+3=巳 → 丁巳
 	if extra.SanYuan.TaiYuan.Gan.String() != "丁" {
@@ -35,13 +35,13 @@ func TestComputeChartExtra_SanYuan(t *testing.T) {
 
 func TestComputeChartExtra_ChangSheng(t *testing.T) {
 	ch := Chart{
-		Nian: zhuInfo{Zhu: zh("甲", "子")},
-		Yue:  zhuInfo{Zhu: zh("丙", "寅")},
-		Ri:   zhuInfo{Zhu: zh("戊", "辰")},
-		Shi:  zhuInfo{Zhu: zh("庚", "申")},
+		Nian: Pillar{Zhu: zh("甲", "子")},
+		Yue:  Pillar{Zhu: zh("丙", "寅")},
+		Ri:   Pillar{Zhu: zh("戊", "辰")},
+		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	extra := ComputeChartExtra(ch)
+	extra := ComputeChartExtra(natalCoreFromChart(ch))
 
 	if len(extra.ChangSheng) != 12 {
 		t.Fatalf("chang_sheng len = %d, want 12", len(extra.ChangSheng))
@@ -53,13 +53,13 @@ func TestComputeChartExtra_ChangSheng(t *testing.T) {
 
 func TestComputeChartExtra_NayinRel(t *testing.T) {
 	ch := Chart{
-		Nian: zhuInfo{Zhu: zh("甲", "子")},
-		Yue:  zhuInfo{Zhu: zh("丙", "寅")},
-		Ri:   zhuInfo{Zhu: zh("戊", "辰")},
-		Shi:  zhuInfo{Zhu: zh("庚", "申")},
+		Nian: Pillar{Zhu: zh("甲", "子")},
+		Yue:  Pillar{Zhu: zh("丙", "寅")},
+		Ri:   Pillar{Zhu: zh("戊", "辰")},
+		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	extra := ComputeChartExtra(ch)
+	extra := ComputeChartExtra(natalCoreFromChart(ch))
 
 	if len(extra.NayinRel) == 0 {
 		t.Error("nayin_rel should not be empty")
@@ -73,13 +73,13 @@ func TestComputeChartExtra_NayinRel(t *testing.T) {
 
 func TestComputeChartExtra_AllFieldsPresent(t *testing.T) {
 	ch := Chart{
-		Nian: zhuInfo{Zhu: zh("甲", "子")},
-		Yue:  zhuInfo{Zhu: zh("丙", "寅")},
-		Ri:   zhuInfo{Zhu: zh("戊", "辰")},
-		Shi:  zhuInfo{Zhu: zh("庚", "申")},
+		Nian: Pillar{Zhu: zh("甲", "子")},
+		Yue:  Pillar{Zhu: zh("丙", "寅")},
+		Ri:   Pillar{Zhu: zh("戊", "辰")},
+		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	extra := ComputeChartExtra(ch)
+	extra := ComputeChartExtra(natalCoreFromChart(ch))
 
 	// SanYuan should have all three components
 	if extra.SanYuan.TaiYuan.Gan == 0 {
