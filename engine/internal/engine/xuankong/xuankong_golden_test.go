@@ -21,6 +21,15 @@ func TestGoldenComputeChart(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compute chart: %v", err)
 	}
+	if chart.Yun.YunNumber != 9 || chart.Yun.YunName != "九运" {
+		t.Fatalf("yun = %+v, want 2024-2043 九运", chart.Yun)
+	}
+	if chart.FourSituation.Name != "双星会坐" {
+		t.Fatalf("four situation = %s, want 双星会坐", chart.FourSituation.Name)
+	}
+	if got := chart.Palaces[4]; got.PeriodStar.Number != 9 || got.MountainStar.Number != 5 || got.FacingStar.Number != 4 {
+		t.Fatalf("center stars = %d/%d/%d, want 9/5/4", got.PeriodStar.Number, got.MountainStar.Number, got.FacingStar.Number)
+	}
 
 	got, marshalErr := json.MarshalIndent(chart, "", "  ")
 	if err != nil {

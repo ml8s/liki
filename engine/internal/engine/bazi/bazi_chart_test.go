@@ -186,22 +186,6 @@ func TestGoldenChart_ShenSha(t *testing.T) {
 	}
 }
 
-// ── TaiYuan / MingGong / ShenGong ──
-
-func TestGoldenChart_KongWang(t *testing.T) {
-	for _, g := range goldenCharts {
-		t.Run(g.Name, func(t *testing.T) {
-			cr := computeChart(g)
-
-			// Verify IsVoid fields exist and are accessible on all 4 pillars.
-			pillars := []bool{cr.Nian.IsVoid, cr.Yue.IsVoid, cr.Ri.IsVoid, cr.Shi.IsVoid}
-			for _, v := range pillars {
-				_ = v // valid bool by construction
-			}
-		})
-	}
-}
-
 // ── ShiShens table ──
 
 func TestGoldenChart_ShiShens(t *testing.T) {
