@@ -12,7 +12,7 @@ func fillChartAreas(chart Chart) Chart {
 	chart = fillZaYao(chart)
 	chart = fillJiangQianSuiQian(chart)
 	chart.Patterns = findPatterns(chart.GongWei)
-	chart.DaXian = ComputeDaXian(chart.ZiweiCore())
+	chart.DaXian = ComputeDaXian(chart.Core())
 	return chart
 }
 

@@ -16,7 +16,7 @@ func TestOracleComparison_19810826(t *testing.T) {
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
-	full := ComputeChartFromCore(chart.NatalCore())
+	full := ComputeChartFromCore(chart.Core())
 	detection := DetectRelations(chart.ToBazi())
 	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 
@@ -131,7 +131,7 @@ func TestOracleComparison_19810826(t *testing.T) {
 }
 
 func canonicalChart(bz ganzhi.Bazi, gender ganzhi.Gender, year int) Chart {
-	core := NatalCore{
+	core := Core{
 		Pillars:   bz.Slice(),
 		NaYin:     computeNaYin(bz),
 		Gender:    gender,

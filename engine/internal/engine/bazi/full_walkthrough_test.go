@@ -13,7 +13,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
-	full := ComputeChartFromCore(chart.NatalCore())
+	full := ComputeChartFromCore(chart.Core())
 	detection := DetectRelations(chart.ToBazi())
 
 	t.Run("TaiYuan", func(t *testing.T) {

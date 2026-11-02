@@ -32,7 +32,7 @@ func AnalyzePillars(bz ganzhi.Bazi, gender ganzhi.Gender) PillarAnalysis {
 }
 
 // assembleChart projects pillar analysis into the published Chart pillars.
-func assembleChart(core NatalCore, bz ganzhi.Bazi, analysis PillarAnalysis) Chart {
+func assembleChart(core Core, bz ganzhi.Bazi, analysis PillarAnalysis) Chart {
 	hs := analysis.HiddenStems
 	ny := analysis.NaYin
 	tgTable := analysis.TenGods

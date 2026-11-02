@@ -70,7 +70,7 @@ func TestExternalOracle_8CharUniApp_TrueSolarChart(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
-	full := ComputeChartFromCore(externalCanonicalChart(bz, ganzhi.Male, 1981).NatalCore())
+	full := ComputeChartFromCore(externalCanonicalChart(bz, ganzhi.Male, 1981).Core())
 	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 	if got := ganzhiZhuLabel(full.TaiXi); got != tc.Oracle.TaiXi {
 		t.Fatalf("tai_xi = %s, want %s", got, tc.Oracle.TaiXi)
@@ -127,7 +127,7 @@ func TestExternalOracle_8CharUniApp_FullDetailsAndShensha(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
-	full := ComputeChartFromCore(externalCanonicalChart(bz, ganzhi.Male, 1981).NatalCore())
+	full := ComputeChartFromCore(externalCanonicalChart(bz, ganzhi.Male, 1981).Core())
 	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 
 	for i, pillar := range pillars {
@@ -191,7 +191,7 @@ func includesOracleShensha(got, oracle []string) bool {
 }
 
 func externalCanonicalChart(bz ganzhi.Bazi, gender ganzhi.Gender, birthYear int) Chart {
-	core := NatalCore{
+	core := Core{
 		Pillars:   bz.Slice(),
 		NaYin:     computeNaYin(bz),
 		Gender:    gender,

@@ -37,7 +37,7 @@ func TestComputeLiuYue_WuHuDun(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ly, err := ComputeLiuYueAtTime(cb.NatalCore(), liuYueTime1)
+	ly, err := ComputeLiuYueAtTime(cb.Core(), liuYueTime1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestComputeLiuYue_EthYear(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ly, err := ComputeLiuYueAtTime(cb.NatalCore(), liuYueTime2)
+	ly, err := ComputeLiuYueAtTime(cb.Core(), liuYueTime2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func TestComputeLiuRi_DayPillar(t *testing.T) {
 		if err != nil {
 			t.Fatalf("day %s: %v", day.Format("2006-01-02"), err)
 		}
-		lr, err := ComputeLiuRi(cb.NatalCore(), lt)
+		lr, err := ComputeLiuRi(cb.Core(), lt)
 		if err != nil {
 			t.Fatalf("day %s: %v", day.Format("2006-01-02"), err)
 		}
@@ -130,7 +130,7 @@ func TestComputeLiuRi_HasRequiredFields(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	lr, err := ComputeLiuRi(chart.NatalCore(), lt)
+	lr, err := ComputeLiuRi(chart.Core(), lt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -181,7 +181,7 @@ func TestComputeLiuShi_WuShuDun(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		ls, err := ComputeLiuShi(cb.NatalCore(), resolveTestLiuShi(t, 2024, 6, 15, tt.hour, 30))
+		ls, err := ComputeLiuShi(cb.Core(), resolveTestLiuShi(t, 2024, 6, 15, tt.hour, 30))
 		if err != nil {
 			t.Fatalf("hour %d: %v", tt.hour, err)
 		}
@@ -204,7 +204,7 @@ func TestComputeLiuShi_HasRequiredFields(t *testing.T) {
 		nil,
 	)
 
-	ls, err := ComputeLiuShi(cb.NatalCore(), resolveTestLiuShi(t, 2024, 6, 15, 12, 30))
+	ls, err := ComputeLiuShi(cb.Core(), resolveTestLiuShi(t, 2024, 6, 15, 12, 30))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,7 +240,7 @@ func TestComputeLiuYue_ShenSha(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ly, err := ComputeLiuYueAtTime(cb.NatalCore(), liuYueTime4)
+	ly, err := ComputeLiuYueAtTime(cb.Core(), liuYueTime4)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -280,7 +280,7 @@ func TestComputeLiuRi_ShenSha(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ResolveLiuRiTime: %v", err)
 	}
-	lr, err := ComputeLiuRi(cb.NatalCore(), lt)
+	lr, err := ComputeLiuRi(cb.Core(), lt)
 	if err != nil {
 		t.Fatalf("ComputeLiuRi: %v", err)
 	}

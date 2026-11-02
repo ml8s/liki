@@ -85,7 +85,7 @@ func BenchmarkMCPBaziChartPhaseCompute(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = bazi.ComputeChartFromCore(bazi.NatalCore{
+		_ = bazi.ComputeChartFromCore(bazi.Core{
 			Pillars:   chart.ToBazi().Slice(),
 			NaYin:     chart.NaYinArray(),
 			DaYun:     chart.DaYun,
@@ -143,11 +143,11 @@ func BenchmarkMCPBaziBondPhaseDomainDecode(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := a.baziNatalCore()
+		_, err := a.baziCore()
 		if err != nil {
 			b.Fatal(err)
 		}
-		_, err = bb.baziNatalCore()
+		_, err = bb.baziCore()
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -157,11 +157,11 @@ func BenchmarkMCPBaziBondPhaseDomainDecode(b *testing.B) {
 func BenchmarkMCPBaziBondPhaseCompute(b *testing.B) {
 	a := testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")
 	bb := testNatalSubject(b, standardInputFromInstant(b, "1992-08-10T02:20:00Z", "Asia/Shanghai"), "female")
-	domainA, err := a.baziNatalCore()
+	domainA, err := a.baziCore()
 	if err != nil {
 		b.Fatal(err)
 	}
-	domainB, err := bb.baziNatalCore()
+	domainB, err := bb.baziCore()
 	if err != nil {
 		b.Fatal(err)
 	}

@@ -63,7 +63,7 @@ func loadZiweiOracle(t *testing.T) struct {
 	return doc
 }
 
-func TestDomainOracle_ZiweiCoreTables(t *testing.T) {
+func TestDomainOracle_CoreTables(t *testing.T) {
 	doc := loadZiweiOracle(t)
 	for _, tc := range doc.SiHua {
 		g, err := ganzhi.ParseGan(tc.Stem)

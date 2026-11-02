@@ -37,7 +37,7 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2026: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime1)
+	ln, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime1)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2026: %v", err)
 	}
@@ -53,7 +53,7 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 1999: %v", err)
 	}
-	ln99, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime2)
+	ln99, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime2)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 1999: %v", err)
 	}
@@ -69,7 +69,7 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 1985: %v", err)
 	}
-	ln85, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime3)
+	ln85, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime3)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 1985: %v", err)
 	}
@@ -149,7 +149,7 @@ func TestLiuNian_DaYunInteraction_NegativeIndex(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2023: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime4)
+	ln, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime4)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2023: %v", err)
 	}
@@ -172,7 +172,7 @@ func TestLiuNian_ShenSha(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2026: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime5)
+	ln, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime5)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2026: %v", err)
 	} // 丙午年
@@ -200,7 +200,7 @@ func TestLiuNian_ShenSha(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2025: %v", err)
 	}
-	ln2025, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime6)
+	ln2025, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime6)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2025: %v", err)
 	}
@@ -235,7 +235,7 @@ func TestLiuNian_FuYinFanYin_Exists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2044: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime7)
+	ln, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime7)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2044: %v", err)
 	}
@@ -259,7 +259,7 @@ func TestLiuNian_FuYinFanYin_Nil(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2026: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime8)
+	ln, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime8)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2026: %v", err)
 	} // 丙午, no relation to 甲子
@@ -285,7 +285,7 @@ func TestLiuNian_YearFields(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2026: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime9)
+	ln, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime9)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2026: %v", err)
 	}

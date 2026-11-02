@@ -19,7 +19,7 @@ type flowTarget struct {
 }
 
 // computeMonthlyIndex returns iztro's monthly index (display 寅=0).
-func computeMonthlyIndex(ctx ZiweiFlowContext, t flowTarget) int {
+func computeMonthlyIndex(ctx FlowContext, t flowTarget) int {
 	// 流年支 = 目标年份的支 → fixEB（display 寅=0）
 	_, liuZhi := yearGanZhi(t.Year)
 	yi := zhiIdxToAnXingIdx(zhiToZhiIdx(liuZhi))
@@ -39,13 +39,13 @@ func computeMonthlyIndex(ctx ZiweiFlowContext, t flowTarget) int {
 }
 
 // computeDailyIndex returns iztro's daily index (display 寅=0).
-func computeDailyIndex(ctx ZiweiFlowContext, t flowTarget) int {
+func computeDailyIndex(ctx FlowContext, t flowTarget) int {
 	mi := computeMonthlyIndex(ctx, t)
 	return ((mi+t.LunarDay-1)%12 + 12) % 12
 }
 
 // computeHourlyIndex returns iztro's hourly index (display 寅=0).
-func computeHourlyIndex(ctx ZiweiFlowContext, t flowTarget) int {
+func computeHourlyIndex(ctx FlowContext, t flowTarget) int {
 	di := computeDailyIndex(ctx, t)
 	return ((di+zhiToZhiIdx(t.ShiZhi))%12 + 12) % 12
 }

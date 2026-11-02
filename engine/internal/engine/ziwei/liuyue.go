@@ -49,7 +49,7 @@ type LunarMonth struct {
 // target IS a complete resolved lunar date. The day is required because the
 // iztro-compatible rule splits a leap month at day 15; no half/fixLeap flag
 // is exposed to callers.
-func ComputeLiuYueWith(ctx ZiweiFlowContext, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuYue, error) {
+func ComputeLiuYueWith(ctx FlowContext, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuYue, error) {
 	period, err := resolveLiuYuePeriodWith(p, target)
 	if err != nil {
 		return LiuYue{}, err
@@ -150,7 +150,7 @@ type LiuRi struct {
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native). Day pillar requires Gregorian:
 // internally converts lunar→solar via the projector inverse.
-func ComputeLiuRiWith(ctx ZiweiFlowContext, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuRi, error) {
+func ComputeLiuRiWith(ctx FlowContext, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuRi, error) {
 	if _, err := p.ValidateLunarDate(target); err != nil {
 		return LiuRi{}, fmt.Errorf("validate flow day: %w", err)
 	}
@@ -216,7 +216,7 @@ type LiuShi struct {
 
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native); shiZhi is the target hour zhi.
-func ComputeLiuShiWith(ctx ZiweiFlowContext, target tianwen.LunarDate, shiZhi Zhi, p tianwen.LunarProjector) (LiuShi, error) {
+func ComputeLiuShiWith(ctx FlowContext, target tianwen.LunarDate, shiZhi Zhi, p tianwen.LunarProjector) (LiuShi, error) {
 	if _, err := p.ValidateLunarDate(target); err != nil {
 		return LiuShi{}, fmt.Errorf("validate flow hour: %w", err)
 	}

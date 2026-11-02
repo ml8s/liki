@@ -243,6 +243,6 @@ func NextLiuShiTimeWith(p tianwen.LunarProjector, t LiuShiTime) (LiuShiTime, err
 
 // ComputeLiuShiAtTimeWith projects a resolved flow-hour time using an explicit
 // projector.
-func ComputeLiuShiAtTimeWith(ctx ZiweiFlowContext, t LiuShiTime, p tianwen.LunarProjector) (LiuShi, error) {
+func ComputeLiuShiAtTimeWith(ctx FlowContext, t LiuShiTime, p tianwen.LunarProjector) (LiuShi, error) {
 	return ComputeLiuShiWith(ctx, t.Lunar, t.Shichen, p)
 }

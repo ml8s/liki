@@ -19,7 +19,7 @@ type PairRef struct {
 // ComputeBond returns side-by-side natal palace facts. It deliberately does
 // not project one chart's stars or SiHua into the other chart: such cross-chart
 // placement is not treated here as a stable classical Ziwei rule.
-func ComputeBond(a, b ZiweiBondSideFacts) Bond {
+func ComputeBond(a, b BondSideFacts) Bond {
 	return Bond{
 		AMingGong: a.MingGong.Name,
 		BMingGong: b.MingGong.Name,
@@ -28,8 +28,8 @@ func ComputeBond(a, b ZiweiBondSideFacts) Bond {
 	}
 }
 
-func gongWeiDuiZhao(a, b ZiweiBondSideFacts, kind string) *PairRef {
-	var aPalace, bPalace ZiweiBondPalaceFacts
+func gongWeiDuiZhao(a, b BondSideFacts, kind string) *PairRef {
+	var aPalace, bPalace BondPalaceFacts
 	switch kind {
 	case "夫妻":
 		aPalace, bPalace = a.FuQiGong, b.FuQiGong

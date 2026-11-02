@@ -60,7 +60,7 @@ func TestLiuNian_Golden(t *testing.T) {
 			if err != nil {
 				t.Fatalf("resolve liunian time gc.Year: %v", err)
 			}
-			ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime1)
+			ln, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime1)
 			if err != nil {
 				t.Fatalf("ComputeLiuNian gc.Year: %v", err)
 			}

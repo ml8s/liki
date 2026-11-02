@@ -30,7 +30,7 @@ func computeChart(g chartSnapshot) Chart {
 		time.Date(g.Year, time.Month(g.Month), g.Day, g.Hour, g.Minute, 0, 0,
 			time.FixedZone("", int(g.TZ*3600))),
 		g.Lon, g.TZ)
-	return ComputeChartFromCore(ComputeChart(stgt, st, g.Gender).NatalCore())
+	return ComputeChartFromCore(ComputeChart(stgt, st, g.Gender).Core())
 }
 
 var goldenCharts = []chartSnapshot{

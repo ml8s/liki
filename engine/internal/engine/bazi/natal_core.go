@@ -6,10 +6,10 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// NatalCore is the narrow natal fact set consumed by derived Bazi methods.
+// Core is the narrow natal fact set consumed by derived Bazi methods.
 // It intentionally excludes derived chart projections; only the facts needed
 // to place a flow period or compare two natal subjects are carried forward.
-type NatalCore struct {
+type Core struct {
 	Pillars   [4]ganzhi.Zhu
 	NaYin     [4]string
 	DaYun     *DaYun
@@ -17,7 +17,7 @@ type NatalCore struct {
 	BirthYear int
 }
 
-func (core NatalCore) ToBazi() ganzhi.Bazi {
+func (core Core) ToBazi() ganzhi.Bazi {
 	return ganzhi.Bazi{
 		Nian: core.Pillars[0],
 		Yue:  core.Pillars[1],
@@ -26,11 +26,11 @@ func (core NatalCore) ToBazi() ganzhi.Bazi {
 	}
 }
 
-// NatalCore projects the chart back to the narrow fact set consumed by
+// Core projects the chart back to the narrow fact set consumed by
 // derived methods. The DaYun pointer is shared; derived methods treat it as
 // read-only input.
-func (c Chart) NatalCore() NatalCore {
-	return NatalCore{
+func (c Chart) Core() Core {
+	return Core{
 		Pillars:   [4]ganzhi.Zhu{c.Nian.Zhu, c.Yue.Zhu, c.Ri.Zhu, c.Shi.Zhu},
 		NaYin:     c.NaYinArray(),
 		DaYun:     c.DaYun,
@@ -39,8 +39,8 @@ func (c Chart) NatalCore() NatalCore {
 	}
 }
 
-func computeNatalCore(gt time.Time, st time.Time, bz ganzhi.Bazi, gender ganzhi.Gender) NatalCore {
-	return NatalCore{
+func computeCore(gt time.Time, st time.Time, bz ganzhi.Bazi, gender ganzhi.Gender) Core {
+	return Core{
 		Pillars:   bz.Slice(),
 		NaYin:     computeNaYin(bz),
 		DaYun:     computeDaYun(gt, bz, gender),

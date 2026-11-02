@@ -37,7 +37,7 @@ func BenchmarkComputeBond(b *testing.B) {
 	chartB := ComputeChart(stBgt, stB, ganzhi.Female)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ComputeBond(chartA.NatalCore(), chartB.NatalCore())
+		ComputeBond(chartA.Core(), chartB.Core())
 	}
 }
 
@@ -54,7 +54,7 @@ func BenchmarkComputeLiuNian(b *testing.B) {
 		if err != nil {
 			b.Fatal(err)
 		}
-		if _, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime); err != nil {
+		if _, err := ComputeLiuNianAtTime(chart.Core(), liuNianTime); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -69,6 +69,6 @@ func BenchmarkComputeXiaoYun(b *testing.B) {
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ComputeXiaoYun(chart.NatalCore(), 120)
+		ComputeXiaoYun(chart.Core(), 120)
 	}
 }

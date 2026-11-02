@@ -9,12 +9,12 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-func pillarsCoreFromStrings(t *testing.T, pillars []string) NatalCore {
+func pillarsCoreFromStrings(t *testing.T, pillars []string) Core {
 	t.Helper()
 	if len(pillars) != 4 {
 		t.Fatalf("pillars = %d, want 4", len(pillars))
 	}
-	var core NatalCore
+	var core Core
 	for index, pillar := range pillars {
 		runes := []rune(pillar)
 		gan, err := ganzhi.ParseGan(string(runes[0]))
@@ -44,12 +44,12 @@ func assertStrings(t *testing.T, got, want []string) {
 	}
 }
 
-func TestNatalCoreIsNotMutatedByDerivedMethods(t *testing.T) {
+func TestCoreIsNotMutatedByDerivedMethods(t *testing.T) {
 	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
 	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	core := ComputeChart(stgt, st, ganzhi.Male).NatalCore()
-	want := cloneNatalCoreForBondTest(core)
+	core := ComputeChart(stgt, st, ganzhi.Male).Core()
+	want := cloneCoreForBondTest(core)
 
 	liuNianTime, err := ResolveLiuNianTime(tianwen.NewCivilDate(2026, 6, 15))
 	if err != nil {
@@ -75,6 +75,6 @@ func TestNatalCoreIsNotMutatedByDerivedMethods(t *testing.T) {
 	ComputeBond(core, core)
 
 	if !reflect.DeepEqual(core, want) {
-		t.Fatal("a derived method mutated NatalCore")
+		t.Fatal("a derived method mutated Core")
 	}
 }

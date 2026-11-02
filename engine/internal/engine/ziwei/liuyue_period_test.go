@@ -111,21 +111,21 @@ func TestResolveLiuYuePeriod_Errors(t *testing.T) {
 
 func TestComputeLiuYue_LeapHalfMatchesFlowMonth(t *testing.T) {
 	chart := liuYueTestChart(t)
-	firstLeap, err := ComputeLiuYueWith(chart.ZiweiFlowContext(), lunarDate(2025, 6, 15, true), tianwen.LocalLabelProjector())
+	firstLeap, err := ComputeLiuYueWith(chart.FlowContext(), lunarDate(2025, 6, 15, true), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("first leap half: %v", err)
 	}
-	ordinarySix, err := ComputeLiuYueWith(chart.ZiweiFlowContext(), lunarDate(2025, 6, 15, false), tianwen.LocalLabelProjector())
+	ordinarySix, err := ComputeLiuYueWith(chart.FlowContext(), lunarDate(2025, 6, 15, false), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("ordinary sixth month: %v", err)
 	}
 	assertSameLiuYueChart(t, firstLeap, ordinarySix)
 
-	secondLeap, err := ComputeLiuYueWith(chart.ZiweiFlowContext(), lunarDate(2025, 6, 16, true), tianwen.LocalLabelProjector())
+	secondLeap, err := ComputeLiuYueWith(chart.FlowContext(), lunarDate(2025, 6, 16, true), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("second leap half: %v", err)
 	}
-	ordinarySeven, err := ComputeLiuYueWith(chart.ZiweiFlowContext(), lunarDate(2025, 7, 16, false), tianwen.LocalLabelProjector())
+	ordinarySeven, err := ComputeLiuYueWith(chart.FlowContext(), lunarDate(2025, 7, 16, false), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("ordinary seventh month: %v", err)
 	}

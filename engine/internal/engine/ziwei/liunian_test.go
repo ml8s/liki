@@ -19,6 +19,6 @@ func BenchmarkComputeLiuNian(b *testing.B) {
 	chart := benchLiuNianChart(b)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ComputeLiuNian(chart.ZiweiFlowContext(), 2026)
+		ComputeLiuNian(chart.FlowContext(), 2026)
 	}
 }

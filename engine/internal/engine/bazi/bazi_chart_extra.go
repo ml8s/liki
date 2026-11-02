@@ -17,7 +17,7 @@ type ChangShengStage struct {
 	Index ganzhi.Zhi `json:"index"`
 }
 
-func applyChartExtraFields(chart *Chart, core NatalCore) {
+func applyChartExtraFields(chart *Chart, core Core) {
 	bz := core.ToBazi()
 
 	stages := [12]ChangShengStage{}

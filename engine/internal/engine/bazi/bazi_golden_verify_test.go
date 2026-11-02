@@ -70,7 +70,7 @@ func verifyBaziGoldenCase(t *testing.T, gc baziGoldenCase, checks goldenChecks) 
 		g = ganzhi.Female
 	}
 	c := ComputeChart(tt, tt, g)
-	fc := ComputeChartFromCore(c.NatalCore())
+	fc := ComputeChartFromCore(c.Core())
 
 	// 四柱
 	p := fmt.Sprintf("%s%s %s%s %s%s %s%s",

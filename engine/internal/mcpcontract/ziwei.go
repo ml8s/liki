@@ -50,7 +50,7 @@ func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (ZiweiLiuNianSerie
 				return ZiweiLiuNianOutput{}, fmt.Errorf("ziwei.liunian: %w", err)
 			}
 			output, err := wireFromDomain[ZiweiLiuNianOutput](
-				ziwei.ComputeLiuNian(chart.ZiweiFlowContext(), resolved.LunarYear))
+				ziwei.ComputeLiuNian(chart.FlowContext(), resolved.LunarYear))
 			if err != nil {
 				return ZiweiLiuNianOutput{}, fmt.Errorf("ziwei.liunian: %w", err)
 			}
@@ -109,7 +109,7 @@ func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (ZiweiLiuYueSeries, 
 			if err != nil {
 				return ZiweiLiuYueOutput{}, fmt.Errorf("ziwei.liuyue: %w", err)
 			}
-			result, err := ziwei.ComputeLiuYueWith(chart.ZiweiFlowContext(), resolved.Lunar, projector)
+			result, err := ziwei.ComputeLiuYueWith(chart.FlowContext(), resolved.Lunar, projector)
 			if err != nil {
 				return ZiweiLiuYueOutput{}, fmt.Errorf("ziwei.liuyue: %w", err)
 			}
@@ -182,7 +182,7 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (ZiweiLiuRiSeries, err
 			if err != nil {
 				return ZiweiLiuRiOutput{}, fmt.Errorf("ziwei.liuri: %w", err)
 			}
-			result, err := ziwei.ComputeLiuRiWith(chart.ZiweiFlowContext(), resolved.Lunar, projector)
+			result, err := ziwei.ComputeLiuRiWith(chart.FlowContext(), resolved.Lunar, projector)
 			if err != nil {
 				return ZiweiLiuRiOutput{}, fmt.Errorf("ziwei.liuri: %w", err)
 			}
@@ -242,7 +242,7 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (ZiweiLiuShiSeries, 
 			if err != nil {
 				return ZiweiLiuShiOutput{}, fmt.Errorf("ziwei.liushi: %w", err)
 			}
-			result, err := ziwei.ComputeLiuShiAtTimeWith(chart.ZiweiFlowContext(), resolved, projector)
+			result, err := ziwei.ComputeLiuShiAtTimeWith(chart.FlowContext(), resolved, projector)
 			if err != nil {
 				return ZiweiLiuShiOutput{}, fmt.Errorf("ziwei.liushi: %w", err)
 			}
@@ -300,7 +300,7 @@ func ZiweiBond(_ context.Context, input ZiweiBondInput) (json.RawMessage, error)
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: chart b: %w", err)
 	}
-	raw, err := marshalRawOutput("ziwei.bond", ziwei.ComputeBond(chartA.ZiweiBondSideFacts(), chartB.ZiweiBondSideFacts()))
+	raw, err := marshalRawOutput("ziwei.bond", ziwei.ComputeBond(chartA.BondSideFacts(), chartB.BondSideFacts()))
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: %w", err)
 	}

@@ -6,7 +6,7 @@ func daXianQiSui(ju juShu) int {
 	return int(ju)
 }
 
-func ComputeDaXian(core ZiweiCore) []DaXianStep {
+func ComputeDaXian(core Core) []DaXianStep {
 	forward := isDaXianForward(core.Gender, core.NianGan)
 	qiSui := daXianQiSui(core.JuShu)
 	steps := make([]DaXianStep, 0, 12)

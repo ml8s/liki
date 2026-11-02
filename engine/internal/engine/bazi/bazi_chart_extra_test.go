@@ -15,7 +15,7 @@ func TestChartExtra_SanYuan(t *testing.T) {
 		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	chart := ComputeChartFromCore(ch.NatalCore())
+	chart := ComputeChartFromCore(ch.Core())
 
 	// 胎元: 月柱丙寅 → 干+1=丁, 支+3=巳 → 丁巳
 	if chart.SanYuan.TaiYuan.Gan.String() != "丁" {
@@ -41,7 +41,7 @@ func TestChartExtra_ChangSheng(t *testing.T) {
 		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	chart := ComputeChartFromCore(ch.NatalCore())
+	chart := ComputeChartFromCore(ch.Core())
 
 	if len(chart.ChangSheng) != 12 {
 		t.Fatalf("chang_sheng len = %d, want 12", len(chart.ChangSheng))
@@ -59,7 +59,7 @@ func TestChartExtra_NayinRel(t *testing.T) {
 		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	chart := ComputeChartFromCore(ch.NatalCore())
+	chart := ComputeChartFromCore(ch.Core())
 
 	if len(chart.NayinRel) == 0 {
 		t.Error("nayin_rel should not be empty")
@@ -79,7 +79,7 @@ func TestChartExtra_AllFieldsPresent(t *testing.T) {
 		Shi:  Pillar{Zhu: zh("庚", "申")},
 	}
 
-	chart := ComputeChartFromCore(ch.NatalCore())
+	chart := ComputeChartFromCore(ch.Core())
 
 	// SanYuan should have all three components
 	if chart.SanYuan.TaiYuan.Gan == 0 {

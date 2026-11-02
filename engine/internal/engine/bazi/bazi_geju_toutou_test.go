@@ -18,7 +18,7 @@ func chartFromGanZhi(nianGan, nianZhi, yueGan, yueZhi, riGan, riZhi, shiGan, shi
 	}
 	when := time.Date(2000, 1, 1, 12, 0, 0, 0, time.UTC)
 	st := time.Time(when)
-	return ComputeChartFromCore(computeNatalCore(time.Time(when), st, bz, g))
+	return ComputeChartFromCore(computeCore(time.Time(when), st, bz, g))
 }
 
 // ── 透干法格局测试 ──────────────────────────────────────────────

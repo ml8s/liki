@@ -38,7 +38,7 @@ func liuNianMinors(yearZhu ganzhi.Zhu, _ Zhi) map[starIndex]Zhi {
 }
 
 // ComputeLiuNian assembles the full annual analysis.
-func ComputeLiuNian(ctx ZiweiFlowContext, liuNian int) LiuNian {
+func ComputeLiuNian(ctx FlowContext, liuNian int) LiuNian {
 	siHua := liuNianSiHua(liuNian)
 	siHuaPalace := make(map[starIndex]gongIndex)
 	for star, palace := range ctx.SiHuaPalaces {

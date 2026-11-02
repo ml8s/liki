@@ -70,7 +70,7 @@ const (
 
 // Chart holds a complete bazi chart: four pillars, dayun, and gender.
 // Chart is the domain-owned, complete Bazi chart. Its fields are the canonical
-// bazi.chart projection; derived methods receive the narrower NatalCore.
+// bazi.chart projection; derived methods receive the narrower Core.
 type Chart struct {
 	Nian   Pillar        `json:"nian"`
 	Yue    Pillar        `json:"yue"`
