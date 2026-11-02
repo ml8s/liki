@@ -2,6 +2,7 @@ package ganzhi
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 )
 
@@ -1757,6 +1758,23 @@ func TestBazi_Slice(t *testing.T) {
 
 // ── WangShuai ──
 
+func parseWangShuai(s string) (WangShuai, error) {
+	switch s {
+	case "旺":
+		return WSWang, nil
+	case "相":
+		return WSXiang, nil
+	case "休":
+		return WSXiu, nil
+	case "囚":
+		return WSQiu, nil
+	case "死":
+		return WSSi, nil
+	default:
+		return 0, fmt.Errorf("unknown wangshuai: %q", s)
+	}
+}
+
 func TestParseWangShuai(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -1774,7 +1792,7 @@ func TestParseWangShuai(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseWangShuai(tt.input)
+			got, err := parseWangShuai(tt.input)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseWangShuai(%q) err=%v, wantErr=%v", tt.input, err, tt.wantErr)
 			}

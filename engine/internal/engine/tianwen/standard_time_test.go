@@ -1,6 +1,8 @@
 package tianwen
 
 import (
+	"fmt"
+	"sort"
 	"testing"
 	"time"
 )
@@ -64,13 +66,47 @@ func TestStandardDateAtNoDST(t *testing.T) {
 	}
 }
 
+func civilInstants(year int, month time.Month, day, hour, minute, second, nanosecond int, zone *time.Location) ([]time.Time, error) {
+	probe := time.Date(year, month, day, hour, minute, second, nanosecond, zone)
+	offsets := []int{}
+	seen := make(map[int]bool)
+	for _, candidate := range []time.Time{
+		probe.Add(-36 * time.Hour), probe.Add(-12 * time.Hour), probe,
+		probe.Add(12 * time.Hour), probe.Add(36 * time.Hour),
+	} {
+		_, offset := candidate.In(zone).Zone()
+		if seen[offset] {
+			continue
+		}
+		seen[offset] = true
+		fixed := time.FixedZone("", offset)
+		wall := time.Date(year, month, day, hour, minute, second, nanosecond, fixed)
+		back := wall.In(zone)
+		if back.Year() == year && back.Month() == month && back.Day() == day &&
+			back.Hour() == hour && back.Minute() == minute && back.Second() == second {
+			offsets = append(offsets, offset)
+		}
+	}
+	if len(offsets) == 0 {
+		return nil, fmt.Errorf("the recorded wall clock does not exist in %s (DST gap); confirm the time", zone)
+	}
+	sort.Slice(offsets, func(i, j int) bool { return offsets[i] < offsets[j] })
+	instants := make([]time.Time, 0, len(offsets))
+	for _, offset := range offsets {
+		fixed := time.FixedZone("", offset)
+		instants = append(instants, time.Date(year, month, day, hour, minute, second, nanosecond, fixed).UTC())
+	}
+	sort.Slice(instants, func(i, j int) bool { return instants[i].Before(instants[j]) })
+	return instants, nil
+}
+
 func TestCivilInstantsFoldAndGap(t *testing.T) {
 	ny, err := time.LoadLocation("America/New_York")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fold, err := CivilInstants(2024, 11, 3, 1, 30, 0, 0, ny)
+	fold, err := civilInstants(2024, 11, 3, 1, 30, 0, 0, ny)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +120,7 @@ func TestCivilInstantsFoldAndGap(t *testing.T) {
 		t.Fatalf("later = %s, want %s", fold[1], want)
 	}
 
-	if _, err := CivilInstants(2024, 3, 10, 2, 30, 0, 0, ny); err == nil {
+	if _, err := civilInstants(2024, 3, 10, 2, 30, 0, 0, ny); err == nil {
 		t.Fatal("gap civil time should fail")
 	}
 }

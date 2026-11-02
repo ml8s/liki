@@ -1,6 +1,9 @@
 package tianwen
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func civilDateFromLunarForTest(t *testing.T, lunar LunarDate) CivilDate {
 	t.Helper()
@@ -9,4 +12,8 @@ func civilDateFromLunarForTest(t *testing.T, lunar LunarDate) CivilDate {
 		t.Fatalf("CivilDateFromLunar(%+v): %v", lunar, err)
 	}
 	return date
+}
+
+func lunarDateAtForTest(ref *LunarReference, at time.Time) LunarDate {
+	return ref.SolarDateToLunar(ref.dateOf(at))
 }

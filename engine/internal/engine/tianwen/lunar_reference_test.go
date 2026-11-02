@@ -20,7 +20,7 @@ func TestLunarReferenceShanghaiMatchesLegacy(t *testing.T) {
 	end := time.Date(2027, 12, 31, 12, 0, 0, 0, cstLocation)
 
 	for at := start; !at.After(end); at = at.AddDate(0, 0, 1) {
-		got := ref.LunarDateAt(at)
+		got := lunarDateAtForTest(ref, at)
 		want := ref.SolarDateToLunar(ref.dateOf(at))
 		if got != want {
 			t.Fatalf("%s: reference = %+v, legacy = %+v", at.Format("2006-01-02"), got, want)
@@ -50,10 +50,10 @@ func TestLunarReferenceLocalDateAssignment(t *testing.T) {
 	}
 
 	at := time.Date(2024, 2, 9, 23, 30, 0, 0, ny)
-	if got, want := local.LunarDateAt(at), (LunarDate{Year: 2024, Month: 1, Day: 1}); got != want {
+	if got, want := lunarDateAtForTest(local, at), (LunarDate{Year: 2024, Month: 1, Day: 1}); got != want {
 		t.Fatalf("NY 2024-02-09 23:30 = %+v, want %+v", got, want)
 	}
-	if got, want := cst.LunarDateAt(at), (LunarDate{Year: 2024, Month: 1, Day: 1}); got != want {
+	if got, want := lunarDateAtForTest(cst, at), (LunarDate{Year: 2024, Month: 1, Day: 1}); got != want {
 		t.Fatalf("CST projection of NY 2024-02-09 23:30 = %+v, want %+v", got, want)
 	}
 }
@@ -108,7 +108,7 @@ func TestLunarReferenceLocalRoundTrip(t *testing.T) {
 	end := time.Date(2025, 12, 31, 12, 0, 0, 0, ny)
 
 	for at := start; !at.After(end); at = at.AddDate(0, 0, 1) {
-		lunar := ref.LunarDateAt(at)
+		lunar := lunarDateAtForTest(ref, at)
 		date, err := ref.CivilDateFromLunar(lunar)
 		if err != nil {
 			t.Fatalf("%s: %+v: %v", at.Format("2006-01-02"), lunar, err)
@@ -254,7 +254,7 @@ func TestLunarReferenceFixedUTC8MatchesOfficial(t *testing.T) {
 		time.Date(2025, 7, 25, 0, 0, 0, 0, fixedLoc),
 		time.Date(2026, 12, 21, 12, 0, 0, 0, fixedLoc),
 	} {
-		if got, want := projector.LunarAt(at), ShanghaiLunarReference().LunarDateAt(at); got != want {
+		if got, want := projector.LunarAt(at), lunarDateAtForTest(ShanghaiLunarReference(), at); got != want {
 			t.Fatalf("%s: local_astronomical fixed UTC+8 = %+v, official = %+v", at, got, want)
 		}
 	}

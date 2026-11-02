@@ -99,16 +99,22 @@ func computeGengGeFacts(chart Chart, bz ganzhi.Bazi) []GengGeFact {
 	return result
 }
 
-func levelRank(level string) int {
-	for rank, name := range []string{"year", "month", "day", "hour"} {
-		if level == name {
-			return rank
-		}
-	}
-	return len(nameRankPlaceholder())
-}
+const qimenLevelCount = 4
 
-func nameRankPlaceholder() []string { return []string{"year", "month", "day", "hour"} }
+func levelRank(level string) int {
+	switch level {
+	case "year":
+		return 0
+	case "month":
+		return 1
+	case "day":
+		return 2
+	case "hour":
+		return 3
+	default:
+		return qimenLevelCount
+	}
+}
 
 func computeLostContextFacts(chart Chart) []LostContextFact {
 	if chart.ShiGanPalace == 0 {

@@ -82,7 +82,7 @@ func TestTianwenMultiOracleGolden_LunarMonthBoundaries(t *testing.T) {
 
 		t.Run(golden.Name, func(t *testing.T) {
 			gregorian := time.Time(parsed)
-			gotLunar := ShanghaiLunarReference().LunarDateAt(gregorian)
+			gotLunar := lunarDateAtForTest(ShanghaiLunarReference(), gregorian)
 			wantLunar := LunarTime{
 				Year:  golden.Expected.Lunar.Year,
 				Month: golden.Expected.Lunar.Month,

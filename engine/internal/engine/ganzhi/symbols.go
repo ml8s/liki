@@ -126,11 +126,6 @@ func (ws *WangShuai) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("wang_shuai: unknown %q", s)
 }
 
-// ParseWangShuai converts a Chinese prosperity name to a WangShuai value.
-// WangShuaiOf returns the five-phase prosperity state for a given element
-// in a given solar month (zhi 1-12).
-//
-// Rule: 当令者旺 / 令生者相 / 生令者休 / 克令者囚 / 令克者死
 func WangShuaiOf(elem Wuxing, yueZhi Zhi) WangShuai {
 	if yueZhi < 1 || yueZhi > 12 {
 		return -1
@@ -244,12 +239,3 @@ var lunarMonths = [13]string{
 }
 
 // ZhiHourRangeLabel returns the two-hour range for a zhi, or "未知" if invalid.
-
-func ParseWangShuai(s string) (WangShuai, error) {
-	for i, name := range wangShuaiNames {
-		if name == s {
-			return WangShuai(i), nil
-		}
-	}
-	return 0, fmt.Errorf("unknown wangshuai: %q", s)
-}

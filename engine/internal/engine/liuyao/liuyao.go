@@ -33,22 +33,6 @@ const (
 
 var liuQinNames = [5]string{"父母", "兄弟", "官鬼", "妻财", "子孙"}
 
-func (q LiuQin) MarshalJSON() ([]byte, error) { return json.Marshal(q.String()) }
-
-func (q *LiuQin) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return fmt.Errorf("liu_qin: expected string, got %s", string(data))
-	}
-	for i, n := range liuQinNames {
-		if n == s {
-			*q = LiuQin(i)
-			return nil
-		}
-	}
-	return fmt.Errorf("liu_qin: unknown %q", s)
-}
-
 func (q LiuQin) String() string {
 	if q >= 0 && q <= 4 {
 		return liuQinNames[q]
@@ -69,22 +53,6 @@ const (
 )
 
 var liuShouNames = [6]string{"青龙", "朱雀", "勾陈", "螣蛇", "白虎", "玄武"}
-
-func (l LiuShou) MarshalJSON() ([]byte, error) { return json.Marshal(l.String()) }
-
-func (l *LiuShou) UnmarshalJSON(data []byte) error {
-	var name string
-	if err := json.Unmarshal(data, &name); err != nil {
-		return fmt.Errorf("liu shou must be a string, got %s", string(data))
-	}
-	for i, n := range liuShouNames {
-		if n == name {
-			*l = LiuShou(i)
-			return nil
-		}
-	}
-	return fmt.Errorf("unknown liushou: %q", name)
-}
 
 func (l LiuShou) String() string {
 	if l >= 0 && l <= 5 {

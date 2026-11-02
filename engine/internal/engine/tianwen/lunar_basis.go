@@ -59,9 +59,10 @@ func NewLunarProjector(basis LunarBasis, loc *time.Location) (LunarProjector, er
 	return LunarProjector{basis: parsed, ref: ref, loc: loc}, nil
 }
 
-// DefaultLunarProjector returns the legacy local-label basis used by
-// date-based callers that do not carry a location.
-func DefaultLunarProjector() LunarProjector {
+// LocalLabelProjector returns the official UTC+8 calendar keyed by the local
+// civil date label. It is the fallback for date-based callers without an
+// explicit basis.
+func LocalLabelProjector() LunarProjector {
 	return LunarProjector{
 		basis: LunarBasisLocalLabel,
 		ref:   ShanghaiLunarReference(),

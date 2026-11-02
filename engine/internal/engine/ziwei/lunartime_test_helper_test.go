@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-// lunarTimeFromSolar builds the transitional LunarTime (lunar date + solar
-// shichen) from a true-solar moment. Removed when ComputeChart takes Gregorian.
+// lunarTimeFromSolar builds the LunarTime used by lunar-native test charts from
+// a true-solar moment.
 func lunarTimeFromSolar(st time.Time) tianwen.LunarTime {
-	date := tianwen.ShanghaiLunarReference().LunarDateAt(st)
+	date := tianwen.ShanghaiLunarReference().SolarDateToLunar(tianwen.BeijingDateAt(st.UTC()))
 	minutes := float64(st.Hour()*60 + st.Minute())
 	return tianwen.LunarTime{
 		Year: date.Year, Month: date.Month, Day: date.Day, Leap: date.Leap,

@@ -3,18 +3,12 @@ package tianwen
 import (
 	"testing"
 	"time"
-
-	"liki-engine/internal/engine/ganzhi"
 )
 
 func ApparentSolarOffset(at time.Time, longitude float64) time.Duration {
 	_, offsetSeconds := at.Zone()
 	solar := ApparentSolarFromCivil(at, longitude, float64(offsetSeconds)/3600)
 	return solar.Sub(at)
-}
-
-func MonthBranchAt(at time.Time) ganzhi.Zhi {
-	return JianYue(time.Time(at))
 }
 
 func TestApparentSolarOffsetIsDeterministic(t *testing.T) {
@@ -44,7 +38,7 @@ func TestShichenAtLateZi(t *testing.T) {
 
 func TestLunarDateAtKnownDate(t *testing.T) {
 	at := time.Date(1990, 5, 20, 4, 0, 0, 0, time.UTC)
-	got := ShanghaiLunarReference().LunarDateAt(at)
+	got := lunarDateAtForTest(ShanghaiLunarReference(), at)
 	if got.Year != 1990 || got.Month != 4 || got.Day != 26 || got.Leap {
 		t.Fatalf("LunarDateAt = %+v", got)
 	}

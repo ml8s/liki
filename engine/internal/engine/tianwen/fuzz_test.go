@@ -23,17 +23,17 @@ func FuzzLunarDateAt(f *testing.F) {
 		gt := time.Time(time.Unix(epochSec, 0))
 
 		// LunarDateAt should never panic even for extreme values
-		lt := ShanghaiLunarReference().LunarDateAt(gt)
+		lt := lunarDateAtForTest(ShanghaiLunarReference(), gt)
 
 		// Basic sanity: lunar year should be reasonable
 		if lt.Year < -5000 || lt.Year > 5000 {
 			t.Skipf("skipping extreme lunar year %d from epoch %d", lt.Year, epochSec)
 		}
 		if lt.Month < 1 || lt.Month > 13 {
-			t.Errorf("ShanghaiLunarReference().LunarDateAt(epoch=%d).Month = %d, want 1-13", epochSec, lt.Month)
+			t.Errorf("lunarDateAtForTest(ShanghaiLunarReference(), epoch=%d).Month = %d, want 1-13", epochSec, lt.Month)
 		}
 		if lt.Day < 1 || lt.Day > 30 {
-			t.Errorf("ShanghaiLunarReference().LunarDateAt(epoch=%d).Day = %d, want 1-30", epochSec, lt.Day)
+			t.Errorf("lunarDateAtForTest(ShanghaiLunarReference(), epoch=%d).Day = %d, want 1-30", epochSec, lt.Day)
 		}
 	})
 }

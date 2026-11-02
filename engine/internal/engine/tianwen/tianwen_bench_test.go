@@ -9,7 +9,7 @@ func BenchmarkLunarDateAt(b *testing.B) {
 	gt := time.Time(time.Date(2026, 6, 28, 12, 0, 0, 0, time.UTC))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ShanghaiLunarReference().LunarDateAt(gt)
+		lunarDateAtForTest(ShanghaiLunarReference(), gt)
 	}
 }
 

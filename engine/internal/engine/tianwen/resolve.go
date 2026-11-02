@@ -80,10 +80,10 @@ const (
 // ResolveStandard normalizes a time fact into natal-subject candidates. It
 // deliberately removes DST offsets and uses the zone's standard offset.
 func ResolveStandard(in ResolveInput) (ResolveResult, error) {
-	return resolveCandidates(in, true)
+	return resolveCandidates(in)
 }
 
-func resolveCandidates(in ResolveInput, standardOnly bool) (ResolveResult, error) {
+func resolveCandidates(in ResolveInput) (ResolveResult, error) {
 	form, err := resolveFormOf(in)
 	if err != nil {
 		return ResolveResult{}, err
@@ -105,20 +105,11 @@ func resolveCandidates(in ResolveInput, standardOnly bool) (ResolveResult, error
 		return ResolveResult{}, err
 	}
 
-	offsets := []int{}
-	if standardOnly {
-		standard, err := standardOffsetForDate(year, month, day, zone)
-		if err != nil {
-			return ResolveResult{}, err
-		}
-		offsets = append(offsets, standard)
-	} else {
-		offsets, err = resolveOffsets(in, form, year, month, day, zone)
-		if err != nil {
-			return ResolveResult{}, err
-		}
+	standard, err := standardOffsetForDate(year, month, day, zone)
+	if err != nil {
+		return ResolveResult{}, err
 	}
-	standard := offsets[0]
+	offsets := []int{standard}
 
 	type candidate struct {
 		value ResolveCandidate
@@ -269,55 +260,6 @@ func resolveBaseDate(in ResolveInput, form resolveForm) (int, time.Month, int, e
 	}
 }
 
-func civilOffsets(year int, month time.Month, day, hour, minute, second, nanosecond int, zone *time.Location) ([]int, error) {
-	base := time.Date(year, month, day, hour, minute, second, nanosecond, zone)
-	probes := []time.Time{
-		base.Add(-36 * time.Hour),
-		base.Add(-12 * time.Hour),
-		base,
-		base.Add(12 * time.Hour),
-		base.Add(36 * time.Hour),
-	}
-	seen := make(map[int]bool, len(probes))
-	offsets := make([]int, 0, len(probes))
-	for _, probe := range probes {
-		_, offset := probe.In(zone).Zone()
-		if seen[offset] {
-			continue
-		}
-		seen[offset] = true
-		fixed := time.FixedZone("", offset)
-		wall := time.Date(year, month, day, hour, minute, second, 0, fixed)
-		back := wall.In(zone)
-		if back.Year() != year || back.Month() != month || back.Day() != day ||
-			back.Hour() != hour || back.Minute() != minute || back.Second() != second {
-			continue
-		}
-		offsets = append(offsets, offset)
-	}
-	if len(offsets) == 0 {
-		return nil, fmt.Errorf("the recorded wall clock does not exist in %s (DST gap); confirm the time", zone)
-	}
-	sort.Ints(offsets)
-	return offsets, nil
-}
-
-// CivilInstants resolves a civil wall clock to all matching instants. A DST
-// fold yields two instants sorted by time; a gap yields an error.
-func CivilInstants(year int, month time.Month, day, hour, minute, second, nanosecond int, zone *time.Location) ([]time.Time, error) {
-	offsets, err := civilOffsets(year, month, day, hour, minute, second, nanosecond, zone)
-	if err != nil {
-		return nil, err
-	}
-	instants := make([]time.Time, 0, len(offsets))
-	for _, offset := range offsets {
-		fixed := time.FixedZone("", offset)
-		instants = append(instants, time.Date(year, month, day, hour, minute, second, nanosecond, fixed).UTC())
-	}
-	sort.Slice(instants, func(i, j int) bool { return instants[i].Before(instants[j]) })
-	return instants, nil
-}
-
 // standardOffsetForDate finds the zone's non-DST offset around a civil date.
 // It intentionally probes nearby days because a requested wall clock may fall
 // inside a DST gap.
@@ -350,64 +292,6 @@ func absInt(value int) int {
 		return -value
 	}
 	return value
-}
-
-// resolveOffsets returns the UTC offsets for which the recorded wall clock
-// exists in the zone, standard offset first.
-func resolveOffsets(in ResolveInput, form resolveForm, year int, month time.Month, day int, zone *time.Location) ([]int, error) {
-	hour, minute, second, err := representativeWallClock(in, form)
-	if err != nil {
-		return nil, err
-	}
-	offsets, err := civilOffsets(year, month, day, hour, minute, second, 0, zone)
-	if err != nil {
-		return nil, err
-	}
-	// 标准时优先：tzdb 的 IsDST 标记（支持负夏令时的地区），否则取较小偏移。
-	standard := offsets[0]
-	for _, offset := range offsets {
-		fixed := time.FixedZone("", offset)
-		wall := time.Date(year, month, day, hour, minute, second, 0, fixed)
-		if !wall.In(zone).IsDST() {
-			standard = offset
-			break
-		}
-	}
-	if standard != offsets[0] {
-		reordered := []int{standard}
-		for _, offset := range offsets {
-			if offset != standard {
-				reordered = append(reordered, offset)
-			}
-		}
-		offsets = reordered
-	}
-	return offsets, nil
-}
-
-func representativeWallClock(in ResolveInput, form resolveForm) (int, int, int, error) {
-	switch form {
-	case formTime:
-		start, _, err := parseTimeWindow(in.Time)
-		if err != nil {
-			return 0, 0, 0, err
-		}
-		hours := int(start / time.Hour)
-		minutes := int((start % time.Hour) / time.Minute)
-		seconds := int((start % time.Minute) / time.Second)
-		return hours, minutes, seconds, nil
-	case formRange:
-		start, err := parseMinuteOfDay(in.Range.Start)
-		if err != nil {
-			return 0, 0, 0, err
-		}
-		return int(start / time.Hour), int((start % time.Hour) / time.Minute), 0, nil
-	case formShichen:
-		// 时辰窗口可能跨 DST 转换，用正午代表该日；逐秒边沿不在 v1 处理。
-		return 12, 0, 0, nil
-	default:
-		return 0, 0, 0, fmt.Errorf("unsupported time form")
-	}
 }
 
 // buildPrecisionWindow returns the civil window implied by the input precision:

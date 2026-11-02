@@ -74,7 +74,7 @@ func (o BoundaryOptions) lunarProjector() LunarProjector {
 	}
 	projector, err := NewLunarProjector(basis, o.zone())
 	if err != nil {
-		return DefaultLunarProjector()
+		return LocalLabelProjector()
 	}
 	return projector
 }

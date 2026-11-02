@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/ganzhi/ganzhitest"
 )
 
 func oracleGong(t *testing.T, name string) GongIndex {
@@ -203,7 +204,7 @@ func mustOracleZhi(t *testing.T, name string) ganzhi.Zhi {
 
 func oracleWangShuai(t *testing.T, name string) ganzhi.WangShuai {
 	t.Helper()
-	value, err := ganzhi.ParseWangShuai(name)
+	value, err := ganzhitest.ParseWangShuai(name)
 	if err != nil {
 		t.Fatal(err)
 	}

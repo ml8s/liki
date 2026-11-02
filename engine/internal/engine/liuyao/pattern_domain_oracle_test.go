@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/ganzhi/ganzhitest"
 )
 
 func parseOracleLiuQin(t *testing.T, name string) LiuQin {
@@ -205,7 +206,7 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				ws, err := ganzhi.ParseWangShuai(item.WangShuai)
+				ws, err := ganzhitest.ParseWangShuai(item.WangShuai)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -234,7 +235,7 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
-					ws, err := ganzhi.ParseWangShuai(item.WangShuai)
+					ws, err := ganzhitest.ParseWangShuai(item.WangShuai)
 					if err != nil {
 						t.Fatal(err)
 					}

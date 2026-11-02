@@ -129,12 +129,6 @@ func (r *LunarReference) leapMonthK(currentYearMonth11K, nextYearMonth11K float6
 	return -1
 }
 
-// LunarDateAt converts an instant to the Chinese lunar date whose civil date is
-// assigned by this reference.
-func (r *LunarReference) LunarDateAt(at time.Time) LunarDate {
-	return r.SolarDateToLunar(r.dateOf(at))
-}
-
 // SolarDateToLunar converts a civil solar date to the Chinese lunar date. The
 // date is taken as given; month/leap boundaries follow this reference.
 func (r *LunarReference) SolarDateToLunar(date CivilDate) LunarDate {

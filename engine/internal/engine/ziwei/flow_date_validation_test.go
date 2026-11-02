@@ -16,26 +16,26 @@ func TestComputeLiuRiAndLiuShiValidateLeapDate(t *testing.T) {
 	shiZhi := ganzhi.Zhi(1)
 
 	valid := flowDate(2025, 6, 20, true)
-	if _, err := ComputeLiuRiWith(chart, valid, tianwen.DefaultLunarProjector()); err != nil {
+	if _, err := ComputeLiuRiWith(chart, valid, tianwen.LocalLabelProjector()); err != nil {
 		t.Fatalf("valid leap flow day: %v", err)
 	}
-	if _, err := ComputeLiuShiWith(chart, valid, shiZhi, tianwen.DefaultLunarProjector()); err != nil {
+	if _, err := ComputeLiuShiWith(chart, valid, shiZhi, tianwen.LocalLabelProjector()); err != nil {
 		t.Fatalf("valid leap flow hour: %v", err)
 	}
 
 	missingLeap := flowDate(2024, 6, 20, true)
-	if _, err := ComputeLiuRiWith(chart, missingLeap, tianwen.DefaultLunarProjector()); err == nil {
+	if _, err := ComputeLiuRiWith(chart, missingLeap, tianwen.LocalLabelProjector()); err == nil {
 		t.Fatal("nonexistent leap flow day succeeded, want error")
 	}
-	if _, err := ComputeLiuShiWith(chart, missingLeap, shiZhi, tianwen.DefaultLunarProjector()); err == nil {
+	if _, err := ComputeLiuShiWith(chart, missingLeap, shiZhi, tianwen.LocalLabelProjector()); err == nil {
 		t.Fatal("nonexistent leap flow hour succeeded, want error")
 	}
 
 	beyondMonth := flowDate(2025, 6, 31, true)
-	if _, err := ComputeLiuRiWith(chart, beyondMonth, tianwen.DefaultLunarProjector()); err == nil {
+	if _, err := ComputeLiuRiWith(chart, beyondMonth, tianwen.LocalLabelProjector()); err == nil {
 		t.Fatal("date beyond lunar month succeeded, want error")
 	}
-	if _, err := ComputeLiuShiWith(chart, beyondMonth, shiZhi, tianwen.DefaultLunarProjector()); err == nil {
+	if _, err := ComputeLiuShiWith(chart, beyondMonth, shiZhi, tianwen.LocalLabelProjector()); err == nil {
 		t.Fatal("date beyond lunar month succeeded, want error")
 	}
 }

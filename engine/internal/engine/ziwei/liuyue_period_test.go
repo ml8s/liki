@@ -72,7 +72,7 @@ func TestResolveLiuYuePeriod(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := resolveLiuYuePeriodWith(tianwen.DefaultLunarProjector(), tt.target)
+			got, err := resolveLiuYuePeriodWith(tianwen.LocalLabelProjector(), tt.target)
 			if err != nil {
 				t.Fatalf("resolveLiuYuePeriod: %v", err)
 			}
@@ -102,7 +102,7 @@ func TestResolveLiuYuePeriod_Errors(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := resolveLiuYuePeriodWith(tianwen.DefaultLunarProjector(), tt.target); err == nil {
+			if _, err := resolveLiuYuePeriodWith(tianwen.LocalLabelProjector(), tt.target); err == nil {
 				t.Fatal("resolveLiuYuePeriod succeeded, want error")
 			}
 		})
@@ -111,21 +111,21 @@ func TestResolveLiuYuePeriod_Errors(t *testing.T) {
 
 func TestComputeLiuYue_LeapHalfMatchesFlowMonth(t *testing.T) {
 	chart := liuYueTestChart(t)
-	firstLeap, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 15, true), tianwen.DefaultLunarProjector())
+	firstLeap, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 15, true), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("first leap half: %v", err)
 	}
-	ordinarySix, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 15, false), tianwen.DefaultLunarProjector())
+	ordinarySix, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 15, false), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("ordinary sixth month: %v", err)
 	}
 	assertSameLiuYueChart(t, firstLeap, ordinarySix)
 
-	secondLeap, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 16, true), tianwen.DefaultLunarProjector())
+	secondLeap, err := ComputeLiuYueWith(chart, lunarDate(2025, 6, 16, true), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("second leap half: %v", err)
 	}
-	ordinarySeven, err := ComputeLiuYueWith(chart, lunarDate(2025, 7, 16, false), tianwen.DefaultLunarProjector())
+	ordinarySeven, err := ComputeLiuYueWith(chart, lunarDate(2025, 7, 16, false), tianwen.LocalLabelProjector())
 	if err != nil {
 		t.Fatalf("ordinary seventh month: %v", err)
 	}
