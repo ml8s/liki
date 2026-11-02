@@ -64,9 +64,6 @@ func TestLiuNian_Golden(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ComputeLiuNian gc.Year: %v", err)
 			}
-			if err != nil {
-				t.Fatalf("ComputeLiuNian(%d): %v", gc.Year, err)
-			}
 
 			// 流年干对日主的十神（shi_shen）
 			if ln.ShiShen != gc.ShiShen {

@@ -9,17 +9,17 @@ import (
 )
 
 // 无主星宫位借对宫主星。
-// 1981-08-26T12:00 男命（LunarDateAt 路径实测）：命宫空宫 → 借对宫主星（紫微/贪狼）。
+// 1900-01-01T12:00 男命：命宫空宫 → 借对宫迁移宫主星。
 func TestKongGong_BorrowFromDuiGong(t *testing.T) {
 	st := tianwen.ApparentSolarFromCivil(
-		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
+		time.Date(1900, 1, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	lt := lunarTimeFromSolar(st)
 	chart := computeChartFromLunarTime(lt, ganzhi.Male)
 
 	// 命宫确认为空宫（无主星）——测试前置
 	mg := chart.MingGong
 	if hasMajorStar(chart.GongWei[mg]) {
-		t.Skip("此命例命宫有主星，换锚点")
+		t.Fatalf("命宫 %s 不应有主星", gongLabels[mg])
 	}
 
 	// kong_gong 只表达借星关系；借入星曜仍由来源宫唯一承载。
