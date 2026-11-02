@@ -32,7 +32,7 @@ func benchmarkDecodeInput[In any](b *testing.B, registry *Registry, name string,
 	}
 }
 
-func benchmarkBaziChartPhases(b *testing.B) (json.RawMessage, BaziChartInput, bazi.Chart, bazi.Chart, BaziChartOutput) {
+func benchmarkBaziChartPhases(b *testing.B) (json.RawMessage, BaziChartInput, bazi.Chart, bazi.Chart) {
 	b.Helper()
 	subject := testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")
 	arguments := mustBenchmarkJSON(b, map[string]any{"subject": subject})
@@ -44,20 +44,16 @@ func benchmarkBaziChartPhases(b *testing.B) (json.RawMessage, BaziChartInput, ba
 	if err != nil {
 		b.Fatal(err)
 	}
-	output, err := wireFromDomain[BaziChartOutput](chart)
-	if err != nil {
-		b.Fatal(err)
-	}
-	return arguments, input, chart, chart, output
+	return arguments, input, chart, chart
 }
 
 func BenchmarkMCPBaziChartPhaseInputValidation(b *testing.B) {
-	arguments, _, _, _, _ := benchmarkBaziChartPhases(b)
+	arguments, _, _, _ := benchmarkBaziChartPhases(b)
 	benchmarkDecodeInput[BaziChartInput](b, testEngine(), "bazi_chart", arguments)
 }
 
 func BenchmarkMCPBaziChartPhaseTypedDecode(b *testing.B) {
-	arguments, _, _, _, _ := benchmarkBaziChartPhases(b)
+	arguments, _, _, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -70,7 +66,7 @@ func BenchmarkMCPBaziChartPhaseTypedDecode(b *testing.B) {
 }
 
 func BenchmarkMCPBaziChartPhaseDomainDecode(b *testing.B) {
-	_, input, _, _, _ := benchmarkBaziChartPhases(b)
+	_, input, _, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -81,7 +77,7 @@ func BenchmarkMCPBaziChartPhaseDomainDecode(b *testing.B) {
 }
 
 func BenchmarkMCPBaziChartPhaseCompute(b *testing.B) {
-	_, _, chart, _, _ := benchmarkBaziChartPhases(b)
+	_, _, chart, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -96,33 +92,11 @@ func BenchmarkMCPBaziChartPhaseCompute(b *testing.B) {
 }
 
 func BenchmarkMCPBaziChartPhaseRawProjection(b *testing.B) {
-	_, _, _, full, _ := benchmarkBaziChartPhases(b)
+	_, _, _, full := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if _, err := marshalRawBaziChart(full); err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func BenchmarkMCPBaziChartPhaseWireDTOConversion(b *testing.B) {
-	_, _, _, full, _ := benchmarkBaziChartPhases(b)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if _, err := wireFromDomain[BaziChartOutput](full); err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func BenchmarkMCPBaziChartPhaseOutputMarshal(b *testing.B) {
-	_, _, _, _, output := benchmarkBaziChartPhases(b)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if _, err := json.Marshal(output); err != nil {
 			b.Fatal(err)
 		}
 	}

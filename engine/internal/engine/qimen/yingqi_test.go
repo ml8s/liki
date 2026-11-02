@@ -143,7 +143,7 @@ func assertYingQiDates(
 			t.Fatalf("%s dates are not ascending: %+v", candidate.Type, candidate.Dates)
 		}
 		previous = item.Date
-		if item.Branch != branches[item.Date] || item.Reason == "" {
+		if item.Branch != branches[item.Date] {
 			t.Fatalf("invalid date fact %+v, want branch %s", item, branches[item.Date])
 		}
 	}

@@ -71,11 +71,11 @@ func TestMaoShanDingjuAnchors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if chart.Method.DingjuMethod != "maoshan" || chart.Method.DingjuMethodName != "茅山定局" ||
+			if chart.Method.DingjuMethod != "maoshan" ||
 				chart.Method.JieQi != anchor.ActualJieQi || chart.Method.YongJuJieQi != anchor.YongJuJieQi ||
 				chart.Board.YinDun != anchor.YinDun || chart.Board.Jushu != anchor.Ju || chart.Method.Yuan != anchor.Yuan {
-				t.Fatalf("dingju = %s/%s %s/%s %v/%d/%s; want %+v",
-					chart.Method.DingjuMethod, chart.Method.DingjuMethodName, chart.Method.JieQi,
+				t.Fatalf("dingju = %s %s/%s %v/%d/%s; want %+v",
+					chart.Method.DingjuMethod, chart.Method.JieQi,
 					chart.Method.YongJuJieQi, chart.Board.YinDun, chart.Board.Jushu, chart.Method.Yuan, anchor)
 			}
 		})

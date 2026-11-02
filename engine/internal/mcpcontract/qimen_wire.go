@@ -1,9 +1,7 @@
 // Engine wire DTOs for the MCP contract layer.
 //
-// These types are ordinary source now, not generated artifacts. Captured
-// fixtures under testdata/actual protect compatibility with the published
-// engine payload; edit them directly and keep TestEngineContractWireFidelity
-// green when a shape changes.
+// These types are ordinary source now, not generated artifacts. Edit them
+// directly when the published engine payload changes.
 package mcpcontract
 
 import (
@@ -265,35 +263,30 @@ type QimenChartOutput struct {
 }
 
 type QimenChartMethod struct {
-	Scope                MethodScopeName                `json:"scope" jsonschema:"时间层级"`
-	ScopeName            MethodScopeDisplayName         `json:"scope_name" jsonschema:"时间层级名称"`
-	School               MethodSchoolName               `json:"school" jsonschema:"盘式流派"`
-	SchoolName           MethodSchoolDisplayName        `json:"school_name" jsonschema:"盘式流派名称"`
-	DingjuMethod         *MethodDingjuMethodName        `json:"dingju_method,omitempty" jsonschema:"定局法；quarter 输出 quarter_rule，不输出本字段"`
-	DingjuMethodName     *MethodDingjuMethodDisplayName `json:"dingju_method_name,omitempty" jsonschema:"定局法名称"`
-	QuarterRule          *MethodQuarterRuleName         `json:"quarter_rule,omitempty" jsonschema:"刻家规则；仅 scope：quarter 输出"`
-	QuarterRuleName      *MethodQuarterRuleDisplayName  `json:"quarter_rule_name,omitempty" jsonschema:"刻家规则名称"`
-	BaseDingjuMethod     *MethodDingjuMethodName        `json:"base_dingju_method,omitempty" jsonschema:"十二分钟十分局的基准时家定局法"`
-	BaseDingjuMethodName *MethodDingjuMethodDisplayName `json:"base_dingju_method_name,omitempty" jsonschema:"基准时家定局法名称"`
-	MethodSource         MethodMethodSourceName         `json:"method_source" jsonschema:"方法来源：节气定局、刻家规则、月周期或年周期"`
-	DayBoundary          MethodDayBoundaryName          `json:"day_boundary" jsonschema:"枚举值：late_zi_rolls_day_pillar。"`
-	SpiritMode           MethodSpiritModeName           `json:"spirit_mode" jsonschema:"枚举值：day_gan_twelve_spirits、eight_spirits_yang_gouchen_zhuque_yin_baihu_xuanwu、nine_spirits_baihu_taichang_xuanwu、nine_spirits_gouchen_taichang_zhuque。"`
-	Geometry             MethodGeometryName             `json:"geometry" jsonschema:"枚举值：luoshu_ring_rotation、mingfa_star_door_forward_flight、palace_number_shift、solstice_day_star_flight。"`
-	StarMode             MethodStarModeName             `json:"star_mode" jsonschema:"枚举值：nine_stars_forward_with_center、star_gan_shift_together、taiyi_nine_stars_day_flight、tian_qin_lodges_kun。"`
-	DoorMode             MethodDoorModeName             `json:"door_mode" jsonschema:"枚举值：center_projects_kun、eight_doors_real_center_step、nine_doors_with_center_forward、three_day_eight_door_rotation。"`
-	SpiritFlight         MethodSpiritFlightName         `json:"spirit_flight" jsonschema:"枚举值：solstice_yang_forward_yin_reverse、yang_forward_yin_reverse。"`
-	TianQin              *QimenChartMethodTianQin       `json:"tian_qin,omitempty" jsonschema:"排盘方法元数据 中的 tian_qin。"`
-	JieQi                MethodJieQiName                `json:"jie_qi" jsonschema:"枚举值：冬至、处暑、夏至、大寒、大暑、大雪、寒露、小寒、小暑、小满、小雪、惊蛰、春分、清明、白露、秋分、立冬、立夏、立春、立秋、芒种、谷雨、雨水、霜降。"`
-	YongJuJieQi          *string                        `json:"yong_ju_jie_qi,omitempty" jsonschema:"排盘方法元数据 中的 yong_ju_jie_qi。"`
-	Yuan                 *MethodYuanName                `json:"yuan,omitempty" jsonschema:"枚举值：上元、下元、中元。"`
-	ZhiRunState          *MethodZhiRunStateName         `json:"zhi_run_state,omitempty" jsonschema:"枚举值：接气、正授、置闰、超神。"`
-	LeadPillar           *QimenChartMethodLeadPillar    `json:"lead_pillar,omitempty" jsonschema:"排盘方法元数据 中的 lead_pillar。"`
-	LeadXunShou          *QimenChartMethodLeadXunShou   `json:"lead_xun_shou,omitempty" jsonschema:"排盘方法元数据 中的 lead_xun_shou。"`
-	LeadXunShouGong      *QimenGongName                 `json:"lead_xun_shou_gong,omitempty" jsonschema:"排盘方法元数据。"`
-	DayFuTou             *QimenChartMethodDayFuTou      `json:"day_fu_tou,omitempty" jsonschema:"排盘方法元数据 中的 day_fu_tou。"`
-	Quarter              *QimenChartMethodQuarter       `json:"quarter,omitempty" jsonschema:"刻家序数与主柱口径；干支不重复输出，以 lead_pillar 为准"`
-	DunSource            *MethodDunSourceName           `json:"dun_source,omitempty" jsonschema:"枚举值：winter_solstice_yang_summer_solstice_yin。"`
-	MethodYiJu           *string                        `json:"method_yi_ju,omitempty" jsonschema:"金函方法依据。"`
+	Scope            MethodScopeName              `json:"scope" jsonschema:"时间层级"`
+	School           MethodSchoolName             `json:"school" jsonschema:"盘式流派"`
+	DingjuMethod     *MethodDingjuMethodName      `json:"dingju_method,omitempty" jsonschema:"定局法；quarter 输出 quarter_rule，不输出本字段"`
+	QuarterRule      *MethodQuarterRuleName       `json:"quarter_rule,omitempty" jsonschema:"刻家规则；仅 scope：quarter 输出"`
+	BaseDingjuMethod *MethodDingjuMethodName      `json:"base_dingju_method,omitempty" jsonschema:"十二分钟十分局的基准时家定局法"`
+	MethodSource     MethodMethodSourceName       `json:"method_source" jsonschema:"方法来源：节气定局、刻家规则、月周期或年周期"`
+	DayBoundary      MethodDayBoundaryName        `json:"day_boundary" jsonschema:"枚举值：late_zi_rolls_day_pillar。"`
+	SpiritMode       MethodSpiritModeName         `json:"spirit_mode" jsonschema:"枚举值：day_gan_twelve_spirits、eight_spirits_yang_gouchen_zhuque_yin_baihu_xuanwu、nine_spirits_baihu_taichang_xuanwu、nine_spirits_gouchen_taichang_zhuque。"`
+	Geometry         MethodGeometryName           `json:"geometry" jsonschema:"枚举值：luoshu_ring_rotation、mingfa_star_door_forward_flight、palace_number_shift、solstice_day_star_flight。"`
+	StarMode         MethodStarModeName           `json:"star_mode" jsonschema:"枚举值：nine_stars_forward_with_center、star_gan_shift_together、taiyi_nine_stars_day_flight、tian_qin_lodges_kun。"`
+	DoorMode         MethodDoorModeName           `json:"door_mode" jsonschema:"枚举值：center_projects_kun、eight_doors_real_center_step、nine_doors_with_center_forward、three_day_eight_door_rotation。"`
+	SpiritFlight     MethodSpiritFlightName       `json:"spirit_flight" jsonschema:"枚举值：solstice_yang_forward_yin_reverse、yang_forward_yin_reverse。"`
+	TianQin          *QimenChartMethodTianQin     `json:"tian_qin,omitempty" jsonschema:"排盘方法元数据 中的 tian_qin。"`
+	JieQi            MethodJieQiName              `json:"jie_qi" jsonschema:"枚举值：冬至、处暑、夏至、大寒、大暑、大雪、寒露、小寒、小暑、小满、小雪、惊蛰、春分、清明、白露、秋分、立冬、立夏、立春、立秋、芒种、谷雨、雨水、霜降。"`
+	YongJuJieQi      *string                      `json:"yong_ju_jie_qi,omitempty" jsonschema:"排盘方法元数据 中的 yong_ju_jie_qi。"`
+	Yuan             *MethodYuanName              `json:"yuan,omitempty" jsonschema:"枚举值：上元、下元、中元。"`
+	ZhiRunState      *MethodZhiRunStateName       `json:"zhi_run_state,omitempty" jsonschema:"枚举值：接气、正授、置闰、超神。"`
+	LeadPillar       *QimenChartMethodLeadPillar  `json:"lead_pillar,omitempty" jsonschema:"排盘方法元数据 中的 lead_pillar。"`
+	LeadXunShou      *QimenChartMethodLeadXunShou `json:"lead_xun_shou,omitempty" jsonschema:"排盘方法元数据 中的 lead_xun_shou。"`
+	LeadXunShouGong  *QimenGongName               `json:"lead_xun_shou_gong,omitempty" jsonschema:"排盘方法元数据。"`
+	DayFuTou         *QimenChartMethodDayFuTou    `json:"day_fu_tou,omitempty" jsonschema:"排盘方法元数据 中的 day_fu_tou。"`
+	Quarter          *QimenChartMethodQuarter     `json:"quarter,omitempty" jsonschema:"刻家序数与主柱口径；干支不重复输出，以 lead_pillar 为准"`
+	DunSource        *MethodDunSourceName         `json:"dun_source,omitempty" jsonschema:"枚举值：winter_solstice_yang_summer_solstice_yin。"`
+	MethodYiJu       *string                      `json:"method_yi_ju,omitempty" jsonschema:"金函方法依据。"`
 }
 
 type QimenChartMethodTianQin struct {
@@ -428,18 +421,16 @@ type QimenChartXingGongWuXingItem struct {
 }
 
 type QimenChartYingQi struct {
-	Candidates []QimenChartYingQiCandidatesItem `json:"candidates" jsonschema:"candidates列表。"`
-	Summary    string                           `json:"summary" jsonschema:"summary。"`
+	Candidates []QimenChartYingQiCandidatesItem `json:"candidates" jsonschema:"应期候选：马星、空亡、值符宫与值使宫给出的动期候选；候选不是吉凶结论。"`
 }
 
 type QimenChartYingQiCandidatesItem struct {
-	Type        CandidatesTypeName                            `json:"ying_qi_kind" jsonschema:"应期候选类型。"`
-	Mechanism   string                                        `json:"mechanism" jsonschema:"mechanism。"`
-	Branch      ZhiName                                       `json:"branch" jsonschema:"地支。"`
-	Gong        QimenEightGongName                            `json:"gong" jsonschema:"宫位。"`
-	RelatedTo   []QimenChartYingQiCandidatesItemRelatedToItem `json:"related_to" jsonschema:"related_to列表。"`
-	Description string                                        `json:"description" jsonschema:"说明。"`
-	Dates       []QimenChartYingQiCandidatesItemDatesItem     `json:"dates" jsonschema:"dates列表。"`
+	Type      CandidatesTypeName                            `json:"ying_qi_kind" jsonschema:"应期候选类型。"`
+	Mechanism string                                        `json:"mechanism" jsonschema:"mechanism。"`
+	Branch    ZhiName                                       `json:"branch" jsonschema:"地支。"`
+	Gong      QimenEightGongName                            `json:"gong" jsonschema:"宫位。"`
+	RelatedTo []QimenChartYingQiCandidatesItemRelatedToItem `json:"related_to" jsonschema:"用神解释可关联的落宫事实；空列表表示不进入用神解释。"`
+	Dates     []QimenChartYingQiCandidatesItemDatesItem     `json:"dates" jsonschema:"候选触发日期。"`
 }
 
 type QimenChartYingQiCandidatesItemRelatedToItem struct {
@@ -451,7 +442,6 @@ type QimenChartYingQiCandidatesItemDatesItem struct {
 	Date   DateString     `json:"trigger_date" jsonschema:"应期日期。"`
 	Branch ZhiName        `json:"branch" jsonschema:"地支。"`
 	Match  DatesMatchName `json:"match" jsonschema:"枚举值：opposite、same。"`
-	Reason string         `json:"explanation" jsonschema:"应期触发解释。"`
 }
 
 type QimenChartRiShiRelation struct {

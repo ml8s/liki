@@ -1,9 +1,7 @@
 // Engine wire DTOs for the MCP contract layer.
 //
-// These types are ordinary source now, not generated artifacts. Captured
-// fixtures under testdata/actual protect compatibility with the published
-// engine payload; edit them directly and keep TestEngineContractWireFidelity
-// green when a shape changes.
+// These types are ordinary source now, not generated artifacts. Edit them
+// directly when the published engine payload changes.
 package mcpcontract
 
 import "liki-engine/internal/engine/ziwei"

@@ -136,8 +136,6 @@ func buildChartMethod(ju juShu, bz ganzhi.Bazi) ChartMethod {
 	xunShouInfo.LiuYi = ganzhi.GanName(findXunShou(leadZhu))
 	scope := scopeMethods[ju.Method.Scope]
 	school := schoolMethods[ju.Method.School]
-	dingjuMethodName := dingjuMethodNames[ju.Method.Dingju]
-	quarterRuleName := quarterRuleNames[ju.Method.QuarterRule]
 	var tianQin *TianQinRule
 	if ju.Method.School == SchoolZhuanPan {
 		rule := tianQinRule
@@ -154,13 +152,10 @@ func buildChartMethod(ju juShu, bz ganzhi.Bazi) ChartMethod {
 		}
 	}
 	return ChartMethod{
-		Scope: scope.Scope, ScopeName: scope.Name,
-		School: school.School, SchoolName: school.Name,
-		DingjuMethod: string(ju.Method.Dingju), DingjuMethodName: dingjuMethodName,
-		QuarterRule: string(ju.Method.QuarterRule), QuarterRuleName: quarterRuleName,
-		BaseDingjuMethod:     string(ju.Method.BaseDingju),
-		BaseDingjuMethodName: dingjuMethodNames[ju.Method.BaseDingju],
-		MethodSource:         scope.MethodSource, DayBoundary: qimenDayBoundary,
+		Scope: scope.Scope, School: school.School,
+		DingjuMethod: string(ju.Method.Dingju), QuarterRule: string(ju.Method.QuarterRule),
+		BaseDingjuMethod: string(ju.Method.BaseDingju),
+		MethodSource:     scope.MethodSource, DayBoundary: qimenDayBoundary,
 		SpiritMode: school.SpiritMode, Geometry: school.Geometry,
 		StarMode: school.StarMode, DoorMode: school.DoorMode,
 		SpiritFlight: school.SpiritFlight,

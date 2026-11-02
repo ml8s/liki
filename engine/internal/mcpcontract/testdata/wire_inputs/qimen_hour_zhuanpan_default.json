@@ -1,0 +1,13 @@
+{
+  "input": {
+    "method": {
+      "scope": "hour",
+      "school": "zhuanpan",
+      "dingju_method": "chaibu"
+    },
+    "qi_ju": {
+      "time": "2026-03-02T18:30:00+08:00",
+      "longitude": 123.25
+    }
+  }
+}

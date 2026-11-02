@@ -55,8 +55,8 @@ func TestZhiRunTableContract(t *testing.T) {
 
 func TestComputeChartDefaultIsChaiBu(t *testing.T) {
 	chart := zhiRunChartForTest(t, "2026-01-05 13:00", DingjuChaiBu)
-	if chart.Method.DingjuMethod != "chaibu" || chart.Method.DingjuMethodName != "拆补定局" {
-		t.Fatalf("default method = %s/%s, want chaibu/拆补定局", chart.Method.DingjuMethod, chart.Method.DingjuMethodName)
+	if chart.Method.DingjuMethod != "chaibu" {
+		t.Fatalf("default method = %s, want chaibu", chart.Method.DingjuMethod)
 	}
 	if chart.Method.JieQi != "冬至" || chart.Method.YongJuJieQi != "冬至" || chart.Board.Jushu != 1 {
 		t.Fatalf("chai bu method = %s/%s/%d, want 冬至/冬至/1", chart.Method.JieQi, chart.Method.YongJuJieQi, chart.Board.Jushu)
@@ -127,8 +127,8 @@ func TestZhiRunExternalDingjuAnchors(t *testing.T) {
 	for _, anchor := range loadZhiRunGoldenFixture(t).DingjuVectors {
 		t.Run(anchor.When, func(t *testing.T) {
 			chart := zhiRunChartForTest(t, anchor.When, DingjuZhiRun)
-			if chart.Method.DingjuMethod != "zhirun" || chart.Method.DingjuMethodName != "置闰定局" {
-				t.Fatalf("method = %s/%s, want zhirun/置闰定局", chart.Method.DingjuMethod, chart.Method.DingjuMethodName)
+			if chart.Method.DingjuMethod != "zhirun" {
+				t.Fatalf("method = %s, want zhirun", chart.Method.DingjuMethod)
 			}
 			if chart.Method.JieQi != anchor.JieQi {
 				t.Errorf("actual term = %s, want %s", chart.Method.JieQi, anchor.JieQi)

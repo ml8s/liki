@@ -495,10 +495,16 @@ func zhiMembers(pillars, branches []string) []NatalRelationMember {
 }
 
 func pillarDistance(first, second string) int {
-	order := map[string]int{"nian": 0, "yue": 1, "ri": 2, "shi": 3}
-	a, okA := order[first]
-	b, okB := order[second]
-	if !okA || !okB {
+	a, b := -1, -1
+	for index, pillar := range zhuLabels {
+		if pillar == first {
+			a = index
+		}
+		if pillar == second {
+			b = index
+		}
+	}
+	if a < 0 || b < 0 {
 		return 0
 	}
 	distance := a - b

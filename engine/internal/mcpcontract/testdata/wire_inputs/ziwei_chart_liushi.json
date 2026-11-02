@@ -1,0 +1,12 @@
+{
+  "input": {
+    "subject": {
+      "birth_time": "2000-07-16T12:00:00+08:00",
+      "birth_longitude": 116.4,
+      "gender": "male"
+    },
+    "liu_shi_start_time": "2026-07-23T12:00:00+08:00",
+    "liu_shi_count": null,
+    "liu_shi_longitude": 116.4
+  }
+}

@@ -181,9 +181,37 @@ func computeDaYun(gt time.Time, bz ganzhi.Bazi, gender ganzhi.Gender) *DaYun {
 	return r
 }
 
-func daYunRootRefs(step ganzhi.Zhu, bz ganzhi.Bazi) []DaYunRootRef {
+// natalHiddenStems projects the four branch hidden-stem lists once so every
+// Da Yun root check reuses the same facts instead of re-reading the table.
+type natalHiddenStemFact struct {
+	Branch ganzhi.Zhi
+	Stems  []ganzhi.Gan
+}
+
+func natalHiddenStems(bz ganzhi.Bazi) [4]natalHiddenStemFact {
+	var result [4]natalHiddenStemFact
+	for pillarIndex, pillar := range bz.Slice() {
+		hidden := ganzhi.CangGanForZhi(pillar.Zhi)
+		result[pillarIndex] = natalHiddenStemFact{
+			Branch: pillar.Zhi,
+			Stems:  make([]ganzhi.Gan, 0, 3),
+		}
+		if hidden.Main != nil {
+			result[pillarIndex].Stems = append(result[pillarIndex].Stems, *hidden.Main)
+		}
+		if hidden.Mid != nil {
+			result[pillarIndex].Stems = append(result[pillarIndex].Stems, *hidden.Mid)
+		}
+		if hidden.Minor != nil {
+			result[pillarIndex].Stems = append(result[pillarIndex].Stems, *hidden.Minor)
+		}
+	}
+	return result
+}
+
+func daYunRootRefs(step ganzhi.Zhu, natalHidden [4]natalHiddenStemFact) []DaYunRootRef {
 	element := ganzhi.GanWuxing(step.Gan)
-	refs := []DaYunRootRef{}
+	refs := make([]DaYunRootRef, 0, 2)
 	sitting := ganzhi.CangGanForZhi(step.Zhi)
 	if sitting.Main != nil && ganzhi.GanWuxing(*sitting.Main) == element {
 		refs = append(refs, DaYunRootRef{
@@ -192,26 +220,15 @@ func daYunRootRefs(step ganzhi.Zhu, bz ganzhi.Bazi) []DaYunRootRef {
 			Branch: ganzhi.ZhiName(step.Zhi),
 		})
 	}
-	pillarNames := []string{"nian", "yue", "ri", "shi"}
-	for pillarIndex, pillar := range bz.Slice() {
-		hidden := ganzhi.CangGanForZhi(pillar.Zhi)
-		stems := []ganzhi.Gan{}
-		if hidden.Main != nil {
-			stems = append(stems, *hidden.Main)
-		}
-		if hidden.Mid != nil {
-			stems = append(stems, *hidden.Mid)
-		}
-		if hidden.Minor != nil {
-			stems = append(stems, *hidden.Minor)
-		}
-		for _, stem := range stems {
+	pillarNames := [4]string{"nian", "yue", "ri", "shi"}
+	for pillarIndex, fact := range natalHidden {
+		for _, stem := range fact.Stems {
 			if stem != 0 && ganzhi.GanWuxing(stem) == element {
 				refs = append(refs, DaYunRootRef{
 					Source: "natal_hidden_stem",
 					Pillar: pillarNames[pillarIndex],
 					Stem:   ganzhi.GanName(stem),
-					Branch: ganzhi.ZhiName(pillar.Zhi),
+					Branch: ganzhi.ZhiName(fact.Branch),
 				})
 			}
 		}

@@ -1,0 +1,10 @@
+{
+  "input": {
+    "subject": {
+      "birth_time": "2000-09-20T08:30:00+08:00",
+      "birth_longitude": 118.5,
+      "gender": "female"
+    },
+    "xiao_yun_count": 5
+  }
+}

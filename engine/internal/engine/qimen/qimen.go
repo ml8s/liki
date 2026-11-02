@@ -345,33 +345,28 @@ type TianQinRule struct {
 }
 
 type ChartMethod struct {
-	Scope                string        `json:"scope"`
-	ScopeName            string        `json:"scope_name"`
-	School               string        `json:"school"`
-	SchoolName           string        `json:"school_name"`
-	DingjuMethod         string        `json:"dingju_method,omitempty"`
-	DingjuMethodName     string        `json:"dingju_method_name,omitempty"`
-	QuarterRule          string        `json:"quarter_rule,omitempty"`
-	QuarterRuleName      string        `json:"quarter_rule_name,omitempty"`
-	BaseDingjuMethod     string        `json:"base_dingju_method,omitempty"`
-	BaseDingjuMethodName string        `json:"base_dingju_method_name,omitempty"`
-	MethodSource         string        `json:"method_source"`
-	DayBoundary          string        `json:"day_boundary"`
-	SpiritMode           string        `json:"spirit_mode"`
-	Geometry             string        `json:"geometry"`
-	StarMode             string        `json:"star_mode"`
-	DoorMode             string        `json:"door_mode"`
-	SpiritFlight         string        `json:"spirit_flight"`
-	TianQin              *TianQinRule  `json:"tian_qin,omitempty"`
-	JieQi                string        `json:"jie_qi"`
-	YongJuJieQi          string        `json:"yong_ju_jie_qi"`
-	Yuan                 string        `json:"yuan"`
-	ZhiRunState          string        `json:"zhi_run_state,omitempty"`
-	LeadPillar           PillarInfo    `json:"lead_pillar"`
-	LeadXunShou          PillarInfo    `json:"lead_xun_shou"`
-	LeadXunShouGong      GongIndex     `json:"lead_xun_shou_gong"`
-	DayFuTou             PillarInfo    `json:"day_fu_tou"`
-	Quarter              *ChartQuarter `json:"quarter,omitempty"`
+	Scope            string        `json:"scope"`
+	School           string        `json:"school"`
+	DingjuMethod     string        `json:"dingju_method,omitempty"`
+	QuarterRule      string        `json:"quarter_rule,omitempty"`
+	BaseDingjuMethod string        `json:"base_dingju_method,omitempty"`
+	MethodSource     string        `json:"method_source"`
+	DayBoundary      string        `json:"day_boundary"`
+	SpiritMode       string        `json:"spirit_mode"`
+	Geometry         string        `json:"geometry"`
+	StarMode         string        `json:"star_mode"`
+	DoorMode         string        `json:"door_mode"`
+	SpiritFlight     string        `json:"spirit_flight"`
+	TianQin          *TianQinRule  `json:"tian_qin,omitempty"`
+	JieQi            string        `json:"jie_qi"`
+	YongJuJieQi      string        `json:"yong_ju_jie_qi"`
+	Yuan             string        `json:"yuan"`
+	ZhiRunState      string        `json:"zhi_run_state,omitempty"`
+	LeadPillar       PillarInfo    `json:"lead_pillar"`
+	LeadXunShou      PillarInfo    `json:"lead_xun_shou"`
+	LeadXunShouGong  GongIndex     `json:"lead_xun_shou_gong"`
+	DayFuTou         PillarInfo    `json:"day_fu_tou"`
+	Quarter          *ChartQuarter `json:"quarter,omitempty"`
 }
 
 type PillarInfo struct {

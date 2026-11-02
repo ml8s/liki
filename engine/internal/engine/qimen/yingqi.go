@@ -1,7 +1,6 @@
 package qimen
 
 import (
-	"strings"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -14,38 +13,34 @@ type RelatedSymbol struct {
 }
 
 type YingQiCandidate struct {
-	Type        string          `json:"ying_qi_kind"`
-	Mechanism   string          `json:"mechanism"`
-	Branch      string          `json:"branch"`
-	Gong        GongIndex       `json:"gong"`
-	RelatedTo   []RelatedSymbol `json:"related_to"`
-	Dates       []YingQiDate    `json:"dates"`
-	Description string          `json:"description"`
+	Type      string          `json:"ying_qi_kind"`
+	Mechanism string          `json:"mechanism"`
+	Branch    string          `json:"branch"`
+	Gong      GongIndex       `json:"gong"`
+	RelatedTo []RelatedSymbol `json:"related_to"`
+	Dates     []YingQiDate    `json:"dates"`
 }
 
 type YingQiDate struct {
 	Date   string `json:"trigger_date"`
 	Branch string `json:"branch"`
 	Match  string `json:"match"`
-	Reason string `json:"explanation"`
 }
 
 type YingQi struct {
 	Candidates []YingQiCandidate `json:"candidates"`
-	Summary    string            `json:"summary"`
 }
 
 func computeYingQi(chart Chart, chartTime time.Time, focuses map[GongIndex][]RelatedSymbol) YingQi {
 	var result YingQi
-	days := yingQiDayWindow(chart, chartTime)
+	window := yingQiDayWindow(chart, chartTime)
 	appendCandidate := func(ruleType string, branchPalace BranchPalace) {
 		rule := yingqiRuleTable[ruleType]
 		result.Candidates = append(result.Candidates, YingQiCandidate{
 			Type: ruleType, Mechanism: rule.Mechanism,
 			Branch: ganzhi.ZhiName(branchPalace.Branch), Gong: branchPalace.Gong,
-			RelatedTo:   relatedSymbols(branchPalace.Gong, focuses),
-			Dates:       yingQiDates(ruleType, branchPalace.Branch, days),
-			Description: rule.Description,
+			RelatedTo: relatedSymbols(branchPalace.Gong, focuses),
+			Dates:     yingQiDates(ruleType, branchPalace.Branch, window),
 		})
 	}
 	if chart.Board.MaXing.Branch != 0 {
@@ -63,72 +58,67 @@ func computeYingQi(chart Chart, chartTime time.Time, focuses map[GongIndex][]Rel
 		}
 		appendCandidate("kong_wang", voidBranch)
 	}
-	result.Summary = yingqiSummary
 	return result
 }
 
-type yingQiDay struct {
-	Date   time.Time
-	Branch ganzhi.Zhi
+type yingQiWindow struct {
+	Anchor       time.Time
+	AnchorBranch ganzhi.Zhi
+	Horizon      int
 }
 
-func yingQiDayWindow(chart Chart, chartTime time.Time) []yingQiDay {
+func yingQiDayWindow(chart Chart, chartTime time.Time) yingQiWindow {
 	anchor := yingQiAnchorDate(chart, chartTime)
-	result := make([]yingQiDay, 0, yingqiHorizonDays)
-	for offset := 0; offset < yingqiHorizonDays; offset++ {
-		date := anchor.AddDate(0, 0, offset)
-		result = append(result, yingQiDay{
-			Date:   date,
-			Branch: tianwen.RiZhu(time.Time(date)).Zhi,
-		})
+	return yingQiWindow{
+		Anchor:       anchor,
+		AnchorBranch: tianwen.RiZhu(time.Time(anchor)).Zhi,
+		Horizon:      yingqiHorizonDays,
 	}
-	return result
 }
 
-func yingQiDates(ruleType string, target ganzhi.Zhi, days []yingQiDay) []YingQiDate {
+func yingQiDates(ruleType string, target ganzhi.Zhi, window yingQiWindow) []YingQiDate {
 	matches := yingqiDateMatches[ruleType]
 	if len(matches) == 0 {
 		return []YingQiDate{}
 	}
-	result := make([]YingQiDate, 0, len(days)/6+1)
-	for _, day := range days {
-		branch := day.Branch
-		branchName := ganzhi.ZhiName(branch)
-		for _, match := range matches {
-			matched := (match.Match == "same" && branch == target) ||
-				(match.Match == "opposite" && branch == oppositeZhi(target))
-			if !matched {
-				continue
-			}
-			result = append(result, YingQiDate{
-				Date:   day.Date.Format("2006-01-02"),
-				Branch: branchName,
-				Match:  match.Match,
-				Reason: match.reason(branch, target),
-			})
+	sameOffset, oppositeOffset := -1, -1
+	var sameMatch, oppositeMatch *yingqiDateMatch
+	for index := range matches {
+		match := &matches[index]
+		wanted := target
+		if match.Match == "opposite" {
+			wanted = oppositeZhi(target)
+		}
+		offset := (int(wanted) - int(window.AnchorBranch) + 12) % 12
+		if match.Match == "same" {
+			sameOffset, sameMatch = offset, match
+		} else {
+			oppositeOffset, oppositeMatch = offset, match
 		}
 	}
-	return result
-}
-
-func newYingQiDateMatch(match, reason string) yingqiDateMatch {
-	result := yingqiDateMatch{Match: match, Reason: reason}
-	for target := ganzhi.Zhi(1); target <= 12; target++ {
-		targetName := ganzhi.ZhiName(target)
-		for branch := ganzhi.Zhi(1); branch <= 12; branch++ {
-			result.rendered[target][branch] = formatYingQiReason(
-				reason, ganzhi.ZhiName(branch), targetName,
-			)
+	step := 12
+	start := sameOffset
+	if sameOffset < 0 {
+		start = oppositeOffset
+	}
+	if sameOffset >= 0 && oppositeOffset >= 0 {
+		step = 6
+		start = min(sameOffset, oppositeOffset)
+	}
+	result := make([]YingQiDate, 0, window.Horizon/step+1)
+	for offset := start; offset < window.Horizon; offset += step {
+		match, wanted := sameMatch, target
+		if oppositeMatch != nil && (sameMatch == nil || (offset-sameOffset+12)%12 != 0) {
+			match, wanted = oppositeMatch, oppositeZhi(target)
 		}
+		date := window.Anchor.AddDate(0, 0, offset)
+		result = append(result, YingQiDate{
+			Date:   date.Format("2006-01-02"),
+			Branch: ganzhi.ZhiName(wanted),
+			Match:  match.Match,
+		})
 	}
 	return result
-}
-
-func (match yingqiDateMatch) reason(branch, target ganzhi.Zhi) string {
-	if branch < 1 || branch > 12 || target < 1 || target > 12 {
-		return ""
-	}
-	return match.rendered[target][branch]
 }
 
 func yingQiAnchorDate(chart Chart, chartTime time.Time) time.Time {
@@ -150,16 +140,6 @@ func civilDate(value time.Time) time.Time {
 
 func oppositeZhi(value ganzhi.Zhi) ganzhi.Zhi {
 	return ganzhi.Zhi((int(value)+5)%12 + 1)
-}
-
-func formatYingQiReason(template, branch, target string) string {
-	// These are short data-owned templates with at most two placeholders.
-	// Constructing a generic replacer per matching day dominates YingQi in
-	// profiles, while direct replacement preserves the data contract.
-	return strings.ReplaceAll(
-		strings.ReplaceAll(template, "{branch}", branch),
-		"{target}", target,
-	)
 }
 
 func baseYingQiFocuses(chart Chart) map[GongIndex][]RelatedSymbol {

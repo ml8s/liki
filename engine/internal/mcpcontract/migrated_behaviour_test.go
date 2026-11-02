@@ -217,7 +217,7 @@ func TestMigratedQimenMaoShanContract(t *testing.T) {
 		"school": "zhuanpan", "dingju_method": "maoshan",
 	})
 	method := document["method"].(map[string]any)
-	if method["dingju_method"] != "maoshan" || method["dingju_method_name"] != "茅山定局" ||
+	if method["dingju_method"] != "maoshan" ||
 		method["jie_qi"] != "夏至" || method["yong_ju_jie_qi"] != "夏至" {
 		t.Fatalf("茅山定局 method = %+v", method)
 	}
@@ -240,9 +240,9 @@ func TestMigratedQimenQuarterRuleContract(t *testing.T) {
 		"qi_ju_time": "2026-09-07T00:00:00+08:00", "qi_ju_longitude": 116.4, "scope": "quarter", "school": "zhuanpan",
 	})
 	method := document["method"].(map[string]any)
-	if method["scope"] != "quarter" || method["scope_name"] != "刻家奇门" ||
+	if method["scope"] != "quarter" ||
 		method["school"] != "zhuanpan" || method["quarter_rule"] != "ten_minute_sanyuan" ||
-		method["quarter_rule_name"] != "十分钟三元刻家" || method["method_source"] != "quarter_rule" {
+		method["method_source"] != "quarter_rule" {
 		t.Fatalf("ten-minute quarter method = %+v", method)
 	}
 	quarter := method["quarter"].(map[string]any)
@@ -261,10 +261,6 @@ func TestMigratedQimenQuarterRuleContract(t *testing.T) {
 		"qi_ju_time": "2002-10-08T18:27:00+08:00", "qi_ju_longitude": 116.4, "scope": "quarter",
 		"school": "zhuanpan", "quarter_rule": "twelve_minute_ten_division",
 	})
-	twelveMethod := twelve["method"].(map[string]any)
-	if twelveMethod["quarter_rule_name"] != "十二分钟十分局刻家" {
-		t.Fatalf("twelve-minute quarter_rule_name = %v", twelveMethod["quarter_rule_name"])
-	}
 	assertJiaStaysHidden(t, twelve)
 }
 
@@ -277,7 +273,7 @@ func TestMigratedQimenJinhanContract(t *testing.T) {
 	})
 	method := document["method"].(map[string]any)
 	if method["scope"] != "day" || method["school"] != "jinhan_yujing" ||
-		method["dingju_method"] != "none" || method["dingju_method_name"] != "无定局" ||
+		method["dingju_method"] != "none" ||
 		method["dun_source"] != "winter_solstice_yang_summer_solstice_yin" {
 		t.Fatalf("金函玉镜 method = %+v", method)
 	}

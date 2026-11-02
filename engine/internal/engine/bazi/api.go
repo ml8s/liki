@@ -100,9 +100,10 @@ func fillDaYunRoots(chart *Chart, bz ganzhi.Bazi) {
 	if chart.DaYun == nil {
 		return
 	}
+	natalHidden := natalHiddenStems(bz)
 	for index := range chart.DaYun.Steps {
 		step := &chart.DaYun.Steps[index]
-		step.RootRefs = daYunRootRefs(ganzhi.Zhu{Gan: step.Gan, Zhi: step.Zhi}, bz)
+		step.RootRefs = daYunRootRefs(ganzhi.Zhu{Gan: step.Gan, Zhi: step.Zhi}, natalHidden)
 		rooted := len(step.RootRefs) > 0
 		step.Rooted = &rooted
 	}

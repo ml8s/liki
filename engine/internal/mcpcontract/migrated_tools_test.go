@@ -154,9 +154,8 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	method = callQimenChart(t, registry, map[string]any{
 		"qi_ju_time": "2026-01-05T13:00:00+08:00", "qi_ju_longitude": 116.4, "dingju_method": "zhirun",
 	})["method"].(map[string]any)
-	if method["dingju_method"] != "zhirun" || method["dingju_method_name"] != "置闰定局" {
-		t.Fatalf("dingju method = %v/%v, want zhirun/置闰定局",
-			method["dingju_method"], method["dingju_method_name"])
+	if method["dingju_method"] != "zhirun" {
+		t.Fatalf("dingju method = %v, want zhirun", method["dingju_method"])
 	}
 	if method["jie_qi"] != "冬至" || method["yong_ju_jie_qi"] != "小寒" {
 		t.Fatalf("terms = %v/%v, want 冬至/小寒", method["jie_qi"], method["yong_ju_jie_qi"])

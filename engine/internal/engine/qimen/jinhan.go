@@ -8,22 +8,19 @@ import (
 // JinhanChartMethod projects the closed method and the domain rules that are
 // specific to the Golden Mirror daily chart.
 type JinhanChartMethod struct {
-	Scope            Scope        `json:"scope"`
-	ScopeName        string       `json:"scope_name"`
-	School           School       `json:"school"`
-	SchoolName       string       `json:"school_name"`
-	DingjuMethod     DingjuMethod `json:"dingju_method"`
-	DingjuMethodName string       `json:"dingju_method_name"`
-	MethodSource     string       `json:"method_source"`
-	DayBoundary      string       `json:"day_boundary"`
-	Geometry         string       `json:"geometry"`
-	StarMode         string       `json:"star_mode"`
-	DoorMode         string       `json:"door_mode"`
-	SpiritMode       string       `json:"spirit_mode"`
-	SpiritFlight     string       `json:"spirit_flight"`
-	DunSource        string       `json:"dun_source"`
-	JieQi            string       `json:"jie_qi"`
-	MethodYiJu       string       `json:"method_yi_ju"`
+	Scope        Scope        `json:"scope"`
+	School       School       `json:"school"`
+	DingjuMethod DingjuMethod `json:"dingju_method"`
+	MethodSource string       `json:"method_source"`
+	DayBoundary  string       `json:"day_boundary"`
+	Geometry     string       `json:"geometry"`
+	StarMode     string       `json:"star_mode"`
+	DoorMode     string       `json:"door_mode"`
+	SpiritMode   string       `json:"spirit_mode"`
+	SpiritFlight string       `json:"spirit_flight"`
+	DunSource    string       `json:"dun_source"`
+	JieQi        string       `json:"jie_qi"`
+	MethodYiJu   string       `json:"method_yi_ju"`
 }
 
 // JinhanPalace is one Golden Mirror palace. It deliberately does not reuse the
@@ -79,12 +76,10 @@ func ComputeJinhanChart(gt time.Time, st time.Time) JinhanChart {
 }
 
 func buildJinhanMethod(term solarTermInfo) JinhanChartMethod {
-	scope := scopeMethods[ScopeDay]
 	school := schoolMethods[SchoolJinhanYuJing]
 	return JinhanChartMethod{
-		Scope: ScopeDay, ScopeName: scope.Name,
-		School: SchoolJinhanYuJing, SchoolName: school.Name,
-		DingjuMethod: DingjuNone, DingjuMethodName: dingjuMethodNames[DingjuNone],
+		Scope: ScopeDay, School: SchoolJinhanYuJing,
+		DingjuMethod: DingjuNone,
 		MethodSource: jinhanMethodSource, DayBoundary: qimenDayBoundary,
 		Geometry: school.Geometry, StarMode: school.StarMode,
 		DoorMode: school.DoorMode, SpiritMode: school.SpiritMode,

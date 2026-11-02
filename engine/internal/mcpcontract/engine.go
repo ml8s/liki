@@ -9,16 +9,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/google/jsonschema-go/jsonschema"
 	"liki-engine/internal/engine/liuyao"
 )
 
-// staticSchemaOptions adds reusable wire-level constraints that Go struct tags
+// buildStaticSchemaOptions builds wire-level constraints that Go struct tags
 // cannot express through this library. Field-level descriptions still come from
 // the DTO's `jsonschema` tags.
-func staticSchemaOptions() *jsonschema.ForOptions {
-	return &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschema.Schema{
+func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
+	return map[reflect.Type]*jsonschema.Schema{
 		// A few legacy wire fields carry more than one JSON type (a pillar 六破
 		// reference is a name in some charts and an index in others). Those fields
 		// keep their exact JSON value instead of being reshaped by a Go type.
@@ -183,13 +184,28 @@ func staticSchemaOptions() *jsonschema.ForOptions {
 			MinItems:    jsonschema.Ptr(1),
 			UniqueItems: true,
 		},
-	}}
+	}
 }
 
-// newSchemaOptions builds an immutable option set for one registry. Domain
-// enums that depend on loaded tables are added here, never to shared state.
-func newSchemaOptions(liuyaoHexagrams []string) *jsonschema.ForOptions {
-	options := staticSchemaOptions()
+var (
+	schemaOptionsOnce sync.Once
+	schemaOptions     *jsonschema.ForOptions
+	schemaOptionsErr  error
+)
+
+func cachedSchemaOptions() (*jsonschema.ForOptions, error) {
+	schemaOptionsOnce.Do(func() {
+		if err := liuyao.Load(); err != nil {
+			schemaOptionsErr = fmt.Errorf("load liuyao tables for MCP contracts: %w", err)
+			return
+		}
+		schemaOptions = buildSchemaOptions(liuyao.HexagramNames())
+	})
+	return schemaOptions, schemaOptionsErr
+}
+
+func buildSchemaOptions(liuyaoHexagrams []string) *jsonschema.ForOptions {
+	options := &jsonschema.ForOptions{TypeSchemas: buildStaticSchemaOptions()}
 	registerWireEnums(options)
 	registerSixItemArray[LiuyaoCoinRoundInput, LiuyaoCoinRoundsInput](options)
 	registerSixItemArray[LiuyaoYaoValue, LiuyaoYaoValuesInput](options)
@@ -247,10 +263,10 @@ func mustSeriesSchema[Out any](options *jsonschema.ForOptions, root string) json
 
 // NewEngine returns the engine's typed MCP contract registry.
 func NewEngine() *Registry {
-	if err := liuyao.Load(); err != nil {
-		panic(fmt.Sprintf("load liuyao tables for MCP contracts: %v", err))
+	options, err := cachedSchemaOptions()
+	if err != nil {
+		panic(err)
 	}
-	options := newSchemaOptions(liuyao.HexagramNames())
 	registry := New(options)
 	mustRegister(registry, Tool[TimeNowInput, TimeNowOutput]{
 		Name:        "time_now",

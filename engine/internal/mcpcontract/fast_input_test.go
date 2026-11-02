@@ -13,7 +13,7 @@ import (
 
 func TestFastInputValidatorMatchesGenericValidatorOnFixtures(t *testing.T) {
 	registry := testEngine()
-	entries, err := os.ReadDir(filepath.Join("testdata", "actual"))
+	entries, err := os.ReadDir(filepath.Join("testdata", "wire_inputs"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,7 +22,7 @@ func TestFastInputValidatorMatchesGenericValidatorOnFixtures(t *testing.T) {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
 		}
-		raw, err := os.ReadFile(filepath.Join("testdata", "actual", entry.Name()))
+		raw, err := os.ReadFile(filepath.Join("testdata", "wire_inputs", entry.Name()))
 		if err != nil {
 			t.Fatal(err)
 		}

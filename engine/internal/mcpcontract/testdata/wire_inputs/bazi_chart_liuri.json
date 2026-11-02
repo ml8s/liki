@@ -1,0 +1,12 @@
+{
+  "input": {
+    "subject": {
+      "birth_time": "2000-06-15T12:00:00+08:00",
+      "birth_longitude": 120.25,
+      "gender": "male"
+    },
+    "liu_ri_start_time": "2026-06-15T12:00:00+08:00",
+    "liu_ri_count": null,
+    "liu_ri_longitude": 116.4
+  }
+}

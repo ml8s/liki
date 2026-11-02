@@ -192,7 +192,7 @@ func TestMingFaCheckedInAnchor(t *testing.T) {
 		t.Fatal(err)
 	}
 	if chart.Method.Scope != "hour" || chart.Method.School != "mingfa_feipan" ||
-		chart.Method.DingjuMethod != "chaibu" || chart.Method.SchoolName != "鸣法飞盘" {
+		chart.Method.DingjuMethod != "chaibu" {
 		t.Fatalf("method = %+v", chart.Method)
 	}
 	if !chart.Board.YinDun || chart.Board.Jushu != 8 || chart.Method.Yuan != "下元" {

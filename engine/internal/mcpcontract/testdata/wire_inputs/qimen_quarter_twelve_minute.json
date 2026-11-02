@@ -1,0 +1,16 @@
+{
+  "input": {
+    "method": {
+      "quarter_rule": "twelve_minute_ten_division",
+      "school": "zhuanpan",
+      "scope": "quarter",
+      "base_dingju_method": "chaibu",
+      "dun_source": "hour_branch",
+      "hour_boundary": "late_zi"
+    },
+    "qi_ju": {
+      "time": "2026-09-07T00:00:00+08:00",
+      "longitude": 119.75
+    }
+  }
+}

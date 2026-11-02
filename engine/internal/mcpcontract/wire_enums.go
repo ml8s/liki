@@ -1,8 +1,5 @@
-// Wire enum types used by the migrated engine tool contracts.
-//
-// The value sets come from the legacy schemas and the captured payloads under
-// testdata/actual/. Edit them directly when the engine grows a value;
-// TestEngineContractWireFidelity fails if a captured payload no longer fits.
+// Wire enum types used by engine tool contracts. Edit value sets directly when
+// an engine domain grows.
 
 package mcpcontract
 
@@ -65,18 +62,14 @@ func registerWireEnums(options *jsonschema.ForOptions) {
 	registerWireNullableEnum[ZhiNameNullable](options, "丑", "亥", "午", "卯", "子", "寅", "巳", "戌", "未", "申", "辰", "酉")
 	registerWireEnum[MethodDayBoundaryName](options, "late_zi_rolls_day_pillar")
 	registerWireEnum[MethodDingjuMethodName](options, "chaibu", "maoshan", "none", "zhirun")
-	registerWireEnum[MethodDingjuMethodDisplayName](options, "拆补定局", "无定局", "置闰定局", "茅山定局")
 	registerWireEnum[MethodDoorModeName](options, "center_projects_kun", "eight_doors_real_center_step", "nine_doors_with_center_forward", "three_day_eight_door_rotation")
 	registerWireEnum[MethodDunSourceName](options, "winter_solstice_yang_summer_solstice_yin")
 	registerWireEnum[MethodGeometryName](options, "luoshu_ring_rotation", "mingfa_star_door_forward_flight", "palace_number_shift", "solstice_day_star_flight")
 	registerWireEnum[MethodJieQiName](options, "冬至", "处暑", "夏至", "大寒", "大暑", "大雪", "寒露", "小寒", "小暑", "小满", "小雪", "惊蛰", "春分", "清明", "白露", "秋分", "立冬", "立夏", "立春", "立秋", "芒种", "谷雨", "雨水", "霜降")
 	registerWireEnum[MethodMethodSourceName](options, "month_cycle", "quarter_rule", "solar_term", "solstice_day_cycle", "year_cycle")
 	registerWireEnum[MethodQuarterRuleName](options, "ten_minute_sanyuan", "twelve_minute_ten_division")
-	registerWireEnum[MethodQuarterRuleDisplayName](options, "十二分钟十分局刻家", "十分钟三元刻家")
 	registerWireEnum[MethodSchoolName](options, "jinhan_yujing", "luoshu_feipan", "mingfa_feipan", "zhuanpan")
-	registerWireEnum[MethodSchoolDisplayName](options, "洛书飞盘法", "转盘法", "金函玉镜", "鸣法飞盘")
 	registerWireEnum[MethodScopeName](options, "day", "hour", "month", "quarter", "year")
-	registerWireEnum[MethodScopeDisplayName](options, "刻家奇门", "年家周期奇门", "日家奇门", "时家奇门", "月家周期奇门")
 	registerWireEnum[MethodSpiritFlightName](options, "solstice_yang_forward_yin_reverse", "yang_forward_yin_reverse")
 	registerWireEnum[MethodSpiritModeName](options, "day_gan_twelve_spirits", "eight_spirits_yang_gouchen_zhuque_yin_baihu_xuanwu", "nine_spirits_baihu_taichang_xuanwu", "nine_spirits_gouchen_taichang_zhuque")
 	registerWireEnum[MethodStarModeName](options, "nine_stars_forward_with_center", "star_gan_shift_together", "taiyi_nine_stars_day_flight", "tian_qin_lodges_kun")
@@ -173,8 +166,6 @@ type MethodDayBoundaryName string
 
 type MethodDingjuMethodName string
 
-type MethodDingjuMethodDisplayName string
-
 type MethodDoorModeName string
 
 type MethodDunSourceName string
@@ -187,15 +178,9 @@ type MethodMethodSourceName string
 
 type MethodQuarterRuleName string
 
-type MethodQuarterRuleDisplayName string
-
 type MethodSchoolName string
 
-type MethodSchoolDisplayName string
-
 type MethodScopeName string
-
-type MethodScopeDisplayName string
 
 type MethodSpiritFlightName string
 

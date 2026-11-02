@@ -53,14 +53,11 @@ type wuxingRelationEntry struct {
 }
 
 type yingqiRuleEntry struct {
-	Mechanism   string
-	Description string
+	Mechanism string
 }
 
 type yingqiDateMatch struct {
-	Match    string
-	Reason   string
-	rendered [13][13]string
+	Match string
 }
 
 type zhiRunStateEntry struct {
@@ -294,7 +291,6 @@ var (
 	fuTouYuanTable         map[ganzhi.Zhi]int
 	yuanNames              [3]string
 	patternRules           []patternRule
-	yingqiSummary          string
 	yingqiRuleTable        map[string]yingqiRuleEntry
 	yingqiHorizonDays      int
 	yingqiDateMatches      map[string][]yingqiDateMatch
@@ -1675,26 +1671,22 @@ func uniqueGanInteraction(name string) ([2]ganzhi.Gan, ganEntry, error) {
 
 func loadYingQi() error {
 	var table struct {
-		Summary     string `json:"summary"`
-		HorizonDays int    `json:"horizon_days"`
+		HorizonDays int `json:"horizon_days"`
 		DateMatches map[string][]struct {
-			Match  string `json:"match"`
-			Reason string `json:"reason"`
+			Match string `json:"match"`
 		} `json:"date_matches"`
 		Rules []struct {
-			Type        string `json:"type"`
-			Mechanism   string `json:"mechanism"`
-			Description string `json:"description"`
+			Type      string `json:"type"`
+			Mechanism string `json:"mechanism"`
 		} `json:"rules"`
 	}
 	if err := json.Unmarshal(yingqiJSON, &table); err != nil {
 		return err
 	}
-	if table.Summary == "" || len(table.Rules) != 4 ||
+	if len(table.Rules) != 4 ||
 		table.HorizonDays <= 0 || table.HorizonDays > 60 || len(table.DateMatches) != 4 {
 		return fmt.Errorf("load yingqi: invalid table dimensions")
 	}
-	yingqiSummary = table.Summary
 	yingqiHorizonDays = table.HorizonDays
 	yingqiRuleTable = make(map[string]yingqiRuleEntry, len(table.Rules))
 	yingqiDateMatches = make(map[string][]yingqiDateMatch, len(table.DateMatches))
@@ -1703,20 +1695,20 @@ func loadYingQi() error {
 			return fmt.Errorf("load yingqi: duplicate type %q", entry.Type)
 		}
 		yingqiRuleTable[entry.Type] = yingqiRuleEntry{
-			Mechanism: entry.Mechanism, Description: entry.Description,
+			Mechanism: entry.Mechanism,
 		}
 		matches := make([]yingqiDateMatch, 0, len(table.DateMatches[entry.Type]))
 		for _, match := range table.DateMatches[entry.Type] {
-			if match.Match != "same" && match.Match != "opposite" || match.Reason == "" {
+			if match.Match != "same" && match.Match != "opposite" {
 				return fmt.Errorf("load yingqi: invalid date match for %q", entry.Type)
 			}
-			matches = append(matches, newYingQiDateMatch(match.Match, match.Reason))
+			matches = append(matches, yingqiDateMatch{Match: match.Match})
 		}
 		yingqiDateMatches[entry.Type] = matches
 	}
 	for _, ruleType := range []string{"ma_xing", "kong_wang", "duty_star", "duty_door"} {
 		rule, ok := yingqiRuleTable[ruleType]
-		if !ok || rule.Mechanism == "" || rule.Description == "" {
+		if !ok || rule.Mechanism == "" {
 			return fmt.Errorf("load yingqi: missing rule %q", ruleType)
 		}
 	}

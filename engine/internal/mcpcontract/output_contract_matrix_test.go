@@ -56,7 +56,7 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 
 	// Captured legacy fixtures cover the migrated high-volume bazi, ziwei, and
 	// qimen families, including every downstream chart consumer.
-	dir := filepath.Join("testdata", "actual")
+	dir := filepath.Join("testdata", "wire_inputs")
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatal(err)
