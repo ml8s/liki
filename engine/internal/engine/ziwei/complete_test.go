@@ -120,7 +120,7 @@ func TestComplete(t *testing.T) {
 			}
 
 			// 大限(通过ComputeDaXian获取)
-			dxResult := ComputeDaXian(fc)
+			dxResult := ComputeDaXian(fc.ZiweiCore())
 			for _, dx := range tc.DaXian {
 				var found bool
 				for _, s := range dxResult {

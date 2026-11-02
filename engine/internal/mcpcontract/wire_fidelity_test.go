@@ -13,14 +13,14 @@ import (
 
 // fidelityMethods maps captured fixture suffixes to the wire tool they replay.
 var fidelityMethods = []string{
-	"liunian", "liuyue", "liuri", "liushi", "xiaoyun", "daxian", "bond", "chart",
+	"liunian", "liuyue", "liuri", "liushi", "xiaoyun", "bond", "chart",
 }
 
 // migratedWireTools are the tools this migration moved to the typed registry.
 var migratedWireTools = []string{
 	"bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
 	"bazi_liushi", "bazi_xiaoyun",
-	"ziwei_chart", "ziwei_daxian", "ziwei_liunian", "ziwei_liuyue",
+	"ziwei_chart", "ziwei_liunian", "ziwei_liuyue",
 	"ziwei_liuri", "ziwei_liushi", "ziwei_bond",
 	"qimen_chart",
 }

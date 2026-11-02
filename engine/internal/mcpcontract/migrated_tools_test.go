@@ -82,10 +82,6 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiSubject, "liu_nian_start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
 	}
-	if _, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": ziweiSubject})); err != nil {
-		t.Fatalf("ziwei.daxian: %v", err)
-	}
-
 	// qimen.chart's legacy schema did close the root object, so unknown root
 	// arguments stay rejected there.
 	assertQimenChartError(t, registry, map[string]any{

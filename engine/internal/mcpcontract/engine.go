@@ -347,11 +347,6 @@ func NewEngine() *Registry {
 		Description: "紫微斗数排盘。返回完整十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前。",
 		Handler:     ZiweiChartCompute,
 	})
-	mustRegister(registry, Tool[ZiweiDaXianInput, ZiweiDaXianOutput]{
-		Name:        "ziwei_daxian",
-		Description: "紫微斗数大限。返回十年大限各宫吉凶。输入为已归一化的出生主体。",
-		Handler:     ZiweiDaXian,
-	})
 	mustRegister(registry, Tool[ZiweiLiuNianInput, ZiweiLiuNianSeries]{
 		Name:         "ziwei_liunian",
 		Description:  "紫微流年。count=1（默认）返回单年；count>1 返回领域数组批量。",

@@ -37,19 +37,6 @@ func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessag
 	return marshalRawOutput("ziwei.chart", chart)
 }
 
-// ZiweiDaXian returns the ten-year 大限 steps of a chart.
-func ZiweiDaXian(_ context.Context, input ZiweiDaXianInput) (ZiweiDaXianOutput, error) {
-	chart, err := input.Subject.ziweiChart()
-	if err != nil {
-		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
-	}
-	items, err := wireFromDomain[[]ZiweiDaXianItem](ziwei.ComputeDaXian(chart))
-	if err != nil {
-		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
-	}
-	return ZiweiDaXianOutput{DaXian: items}, nil
-}
-
 // ZiweiLiuNian returns the flow year palace and its 四化.
 func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (ZiweiLiuNianSeries, error) {
 	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuNianCount), MaxSeriesCount,

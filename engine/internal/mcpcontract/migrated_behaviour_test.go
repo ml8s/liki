@@ -34,7 +34,6 @@ func TestMigratedInputValidation(t *testing.T) {
 		{"bazi.chart bad gender", "bazi_chart", map[string]any{"subject": map[string]any{"birth_time": "1984-02-15T08:00:00+08:00", "birth_longitude": 116.4, "gender": "other"}}, ""},
 		{"ziwei.chart bad gender", "ziwei_chart", map[string]any{"subject": map[string]any{
 			"birth_time": "2000-09-20T08:00:00+08:00", "birth_longitude": 116.4, "gender": "bad"}}, ""},
-		{"ziwei.daxian missing subject", "ziwei_daxian", map[string]any{}, ""},
 		{"bazi.bond missing b", "bazi_bond", map[string]any{"a": map[string]any{"subject": subject}}, ""},
 		{"bazi.liunian missing subject", "bazi_liunian", map[string]any{"liu_nian_start_time": "2026-06-15T12:00:00+08:00"}, ""},
 		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"liu_nian_start_time": "0000-01-01T08:00:00", "subject": subject}, ""},
@@ -73,7 +72,7 @@ func TestMigratedInputValidation(t *testing.T) {
 	// Malformed JSON must not panic or be silently accepted.
 	for _, tool := range []string{
 		"bazi_chart", "bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
-		"bazi_liushi", "bazi_xiaoyun", "ziwei_chart", "ziwei_daxian",
+		"bazi_liushi", "bazi_xiaoyun", "ziwei_chart",
 		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi", "ziwei_bond", "qimen_chart",
 	} {
 		if _, err := registry.Call(context.Background(), tool, []byte("{bad")); err == nil {
@@ -147,18 +146,6 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 		"birth_time": "2000-07-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "female",
 	}
 
-	// ziwei.daxian keeps its schools list under the object-rooted items.
-	daxianRaw, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": chart}))
-	if err != nil {
-		t.Fatalf("ziwei.daxian: %v", err)
-	}
-	var daxian struct {
-		DaXian []any `json:"da_xian"`
-	}
-	decode(t, daxianRaw, &daxian)
-	if len(daxian.DaXian) == 0 {
-		t.Fatal("ziwei.daxian returned an empty list")
-	}
 	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"liu_nian_start_time": "2026-06-15T12:00:00+08:00", "subject": chart})
 	if len(liunian) == 0 {
 		t.Fatal("ziwei.liunian returned an empty document")

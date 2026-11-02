@@ -38,7 +38,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 		"liuyao_chart",
 		"bazi_bond",
 		"bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi", "bazi_xiaoyun",
-		"ziwei_chart", "ziwei_daxian", "ziwei_liunian",
+		"ziwei_chart", "ziwei_liunian",
 		"ziwei_liuyue", "ziwei_liuri", "ziwei_liushi", "ziwei_bond",
 		"qimen_chart",
 	}

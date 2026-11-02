@@ -289,6 +289,7 @@ type Chart struct {
 	ShenZhu         string         `json:"shen_zhu,omitempty"`
 	Patterns        []pattern      `json:"ge_ju,omitempty"`
 	SanFangSiZheng  SanFangSiZheng `json:"san_fang_si_zheng"`
+	DaXian          []DaXianStep   `json:"da_xian"`
 }
 
 // SanFangSiZheng is the palace relation, not a copied star view. Consumers

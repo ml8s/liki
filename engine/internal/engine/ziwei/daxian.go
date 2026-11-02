@@ -6,13 +6,13 @@ func daXianQiSui(ju juShu) int {
 	return int(ju)
 }
 
-func ComputeDaXian(chart Chart) []DaXianStep {
-	forward := isDaXianForward(chart.Gender, chart.NianGan)
-	qiSui := daXianQiSui(chart.JuShu)
+func ComputeDaXian(core ZiweiCore) []DaXianStep {
+	forward := isDaXianForward(core.Gender, core.NianGan)
+	qiSui := daXianQiSui(core.JuShu)
 	steps := make([]DaXianStep, 0, 12)
 	pos := gongIndex(0)
 	// 大限起于出生年：虚岁 QiSui → 公历年 = birthYear + QiSui − 1（虚岁 1 岁 = 出生年）。
-	startY := chart.BirthYear + qiSui - 1
+	startY := core.BirthYear + qiSui - 1
 	for i := 0; i < 12; i++ {
 		steps = append(steps, DaXianStep{
 			QiSui:     qiSui + i*10,

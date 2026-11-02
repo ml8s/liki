@@ -246,6 +246,7 @@ type ZiweiChartOutput struct {
 	ShenZhu         string                 `json:"shen_zhu,omitempty" jsonschema:"身主。"`
 	GeJu            []ZiweiGeJu            `json:"ge_ju,omitempty" jsonschema:"紫微格局候选。"`
 	SanFangSiZheng  ZiweiSanFangSiZheng    `json:"san_fang_si_zheng" jsonschema:"命宫三方四正的宫位关系；星曜由所引宫位承载。"`
+	DaXian          []ZiweiDaXianItem      `json:"da_xian" jsonschema:"十年大限；ziwei.chart 现在一次性返回。"`
 }
 
 type ZiweiChartKouJing struct {

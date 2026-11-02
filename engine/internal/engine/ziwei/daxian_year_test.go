@@ -14,7 +14,7 @@ func TestDaXian_StartYear(t *testing.T) {
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	lt := lunarTimeFromSolar(st)
 	chart := computeChartFromLunarTime(lt, ganzhi.Male)
-	steps := ComputeDaXian(chart)
+	steps := ComputeDaXian(chart.ZiweiCore())
 	if len(steps) == 0 {
 		t.Fatal("大限为空")
 	}

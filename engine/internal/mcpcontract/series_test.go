@@ -25,7 +25,7 @@ func seriesChart(t *testing.T) map[string]any {
 	return testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 }
 
-var namedSeriesRoots = []string{"liu_nian", "liu_yue", "liu_ri", "liu_shi", "xiao_yun", "da_xian"}
+var namedSeriesRoots = []string{"liu_nian", "liu_yue", "liu_ri", "liu_shi", "xiao_yun"}
 
 func decodeSeriesItems(t *testing.T, raw json.RawMessage) []map[string]any {
 	t.Helper()
