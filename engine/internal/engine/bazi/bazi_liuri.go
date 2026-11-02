@@ -7,10 +7,10 @@ import (
 // LiuRi holds the daily flow (流日) analysis: today's pillar
 // and its interactions with the bazi chart, dayun, and liunian pillars.
 type LiuRi struct {
-	Date        string              `json:"liu_ri_date"`
-	RiGan       ganzhi.Gan          `json:"ri_gan"`
-	RiZhi       ganzhi.Zhi          `json:"ri_zhi"`
-	DayNaYin    string              `json:"liu_ri_na_yin"`
+	Date        string              `json:"date"`
+	RiGan       ganzhi.Gan          `json:"gan"`
+	RiZhi       ganzhi.Zhi          `json:"zhi"`
+	DayNaYin    string              `json:"na_yin"`
 	ShiShen     string              `json:"shi_shen"`
 	GanRels     []GanRelation       `json:"gan_rels"`
 	ZhiRels     []ZhiRelation       `json:"zhi_rels"`

@@ -7,10 +7,10 @@ import (
 // LiuNian holds the annual (流年) analysis output.
 type LiuNian struct {
 	Year              int                 `json:"year"`
-	NianGan           ganzhi.Gan          `json:"nian_gan"`
-	NianZhi           ganzhi.Zhi          `json:"nian_zhi"`
-	NianGanWuxing     string              `json:"nian_gan_wuxing"`
-	LiuNianNaYin      string              `json:"liu_nian_na_yin"`
+	NianGan           ganzhi.Gan          `json:"gan"`
+	NianZhi           ganzhi.Zhi          `json:"zhi"`
+	NianGanWuxing     string              `json:"gan_wuxing"`
+	LiuNianNaYin      string              `json:"na_yin"`
 	ShiShen           string              `json:"shi_shen"`
 	ShengRi           int                 `json:"sheng_ri"`
 	KeRi              int                 `json:"ke_ri"`

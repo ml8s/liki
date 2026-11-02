@@ -174,12 +174,12 @@ func TestSeriesCountSchemaMatchesRuntimeBound(t *testing.T) {
 			}
 			check(schema.Properties["count"])
 			if minimum == nil {
-				check(schema.Properties["liu_nian_count"])
+				check(schema.Properties["count"])
 			}
 			if minimum == nil {
 				for _, branch := range schema.OneOf {
 					check(branch.Properties["count"])
-					check(branch.Properties["liu_nian_count"])
+					check(branch.Properties["count"])
 					if minimum != nil {
 						break
 					}
@@ -250,13 +250,13 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	if len(days) != 2 {
 		t.Fatalf("bazi liu_ri returned %d items, want 2", len(days))
 	}
-	firstDay := days[0]["ri_jie"].(map[string]any)["liu_ri_solar_date"].(string)
-	secondDay := days[1]["ri_jie"].(map[string]any)["liu_ri_solar_date"].(string)
+	firstDay := days[0]["ri_jie"].(map[string]any)["solar_date"].(string)
+	secondDay := days[1]["ri_jie"].(map[string]any)["solar_date"].(string)
 	if firstDay == secondDay {
 		t.Fatalf("bazi liu_ri repeated LAST date %s", firstDay)
 	}
 
-	if got := days[0]["ri_jie"].(map[string]any)["liu_ri_start_time"].(string); got != "2024-01-01T22:52:00Z" {
+	if got := days[0]["ri_jie"].(map[string]any)["start_time"].(string); got != "2024-01-01T22:52:00Z" {
 		t.Fatalf("bazi liu_ri first selector = %s, want the input selector", got)
 	}
 
@@ -267,7 +267,7 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	if len(hours) != 2 {
 		t.Fatalf("bazi liu_shi returned %d items, want 2", len(hours))
 	}
-	if got := hours[0]["shi_chen"].(map[string]any)["liu_shi_start_time"].(string); got != "2024-01-02T20:28:00Z" {
+	if got := hours[0]["shi_chen"].(map[string]any)["start_time"].(string); got != "2024-01-02T20:28:00Z" {
 		t.Fatalf("bazi liu_shi first selector = %s, want the input selector", got)
 	}
 	if first := hours[0]["shi_chen"].(map[string]any)["shichen"].(string); first != "巳" {
@@ -333,7 +333,7 @@ func TestSeriesBatchOutputContract(t *testing.T) {
 		{"ziwei_liupan", map[string]any{"subject": ziweiChart, "scope": "liu_yue", "start_time": ziweiDate + "T12:00:00+08:00", "count": 2}},
 		{"ziwei_liupan", map[string]any{"subject": ziweiChart, "scope": "liu_ri", "start_time": ziweiDate + "T12:00:00+08:00", "count": 2}},
 		{"ziwei_liupan", map[string]any{"subject": ziweiChart, "scope": "liu_shi", "start_time": ziweiCivilTime, "longitude": 116.4, "count": 2}},
-		{"xuankong_liunian", map[string]any{"zhai": xuankongZhai, "liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 2}},
+		{"xuankong_liunian", map[string]any{"zhai": xuankongZhai, "start_time": "2026-06-15T12:00:00+08:00", "count": 2}},
 	}
 
 	for _, tc := range cases {

@@ -8,9 +8,9 @@ import (
 type LiuYue struct {
 	Year         int                 `json:"year"`
 	Month        int                 `json:"month"`
-	YueGan       ganzhi.Gan          `json:"yue_gan"`
-	YueZhi       ganzhi.Zhi          `json:"yue_zhi"`
-	YueGanWuxing string              `json:"yue_gan_wuxing"`
+	YueGan       ganzhi.Gan          `json:"gan"`
+	YueZhi       ganzhi.Zhi          `json:"zhi"`
+	YueGanWuxing string              `json:"gan_wuxing"`
 	ShiShen      string              `json:"shi_shen"`
 	ShengRi      int                 `json:"sheng_ri"`
 	KeRi         int                 `json:"ke_ri"`

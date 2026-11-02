@@ -158,7 +158,7 @@ func TestTimeInputsCanonical(t *testing.T) {
 					timeField := map[string]string{
 						"huangli_days":     "start_date",
 						"bazhai_chart":     "subject",
-						"xuankong_liunian": "liu_nian_start_time",
+						"xuankong_liunian": "start_time",
 					}[name]
 					if _, ok := schema.Properties[timeField]; !ok {
 						t.Fatalf("schema[%d]: missing %s", schemaIndex, timeField)

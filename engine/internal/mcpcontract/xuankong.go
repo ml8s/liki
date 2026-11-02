@@ -86,12 +86,12 @@ type XuankongChart struct {
 
 type XuankongLiunianInput struct {
 	Zhai             XuankongZhaiInput `json:"zhai" jsonschema:"玄空宅的事实；流年与其宅盘叠加。"`
-	LiuNianStartTime StandardTime      `json:"liu_nian_start_time" jsonschema:"流年选择地标准时间（无 DST），RFC3339 带 offset。"`
-	LiuNianCount     *SeriesCount      `json:"liu_nian_count,omitempty" jsonschema:"连续查询年数。"`
+	LiuNianStartTime StandardTime      `json:"start_time" jsonschema:"流年选择地标准时间（无 DST），RFC3339 带 offset。"`
+	LiuNianCount     *SeriesCount      `json:"count,omitempty" jsonschema:"连续查询年数。"`
 }
 
 type XuankongLiuNianJie struct {
-	LiuNianStartTime StandardTime `json:"liu_nian_start_time" jsonschema:"流年选择器时区标准时间（无 DST）。"`
+	LiuNianStartTime StandardTime `json:"start_time" jsonschema:"流年选择器时区标准时间（无 DST）。"`
 	LichunYear       int          `json:"lichun_year" jsonschema:"该瞬间所在的立春年。"`
 	LichunStart      DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
 	LichunEnd        DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
