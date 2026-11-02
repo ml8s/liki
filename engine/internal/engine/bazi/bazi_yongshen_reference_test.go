@@ -23,7 +23,7 @@ func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	fuYi, tiaoHou, geJu := computeYongshenEvidence(chart.NatalCore())
+	fuYi, tiaoHou, geJu := chart.FuYi, chart.TiaoHou, chart.GeJu
 
 	if tiaoHou.PrimaryWuxing == "" {
 		t.Error("TiaoHou.PrimaryWuxing 不应为空")
@@ -54,7 +54,7 @@ func TestFuYi_SanHui_HuoJu(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	fuYi, _, _ := computeYongshenEvidence(chart.NatalCore())
+	fuYi := chart.FuYi
 
 	t.Logf("三会火方: 八字=%s%s %s%s %s%s %s%s, strength=%s",
 		chart.Nian.Gan, chart.Nian.Zhi,
@@ -80,7 +80,7 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	fuYi, tiaoHou, geJu := computeYongshenEvidence(chart.NatalCore())
+	fuYi, tiaoHou, geJu := chart.FuYi, chart.TiaoHou, chart.GeJu
 
 	t.Logf("滴天髓: %s%s %s%s %s%s %s%s",
 		chart.Nian.Gan, chart.Nian.Zhi,
@@ -111,7 +111,7 @@ func TestReference_ZiPing_ZhengGuanGe(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
-	_, _, geJu := computeYongshenEvidence(chart.NatalCore())
+	geJu := chart.GeJu
 
 	t.Logf("子平真诠: %s%s %s%s %s%s %s%s, 格局=%s %s",
 		chart.Nian.Gan, chart.Nian.Zhi,

@@ -100,7 +100,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 	})
 
 	t.Run("WuxingCount", func(t *testing.T) {
-		fuYi, _, _ := computeYongshenEvidence(chart.NatalCore())
+		fuYi := chart.FuYi
 		wc := fuYi.WuxingCount
 		if wc["金"] != 4 || wc["木"] != 0 || wc["水"] != 3 || wc["火"] != 2 || wc["土"] != 3 {
 			t.Fatalf("wuxing_count = %v, want 金4 木0 水3 火2 土3（干+藏干口径）", wc)

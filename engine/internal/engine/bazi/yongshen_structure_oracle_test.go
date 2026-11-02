@@ -49,7 +49,7 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 	}
 	for _, tc := range doc.GeJuCases {
 		t.Run(tc.ID, func(t *testing.T) {
-			_, _, got := computeYongshenEvidence(pillarsCoreFromStrings(t, tc.Pillars))
+			got := ComputeChartFromCore(pillarsCoreFromStrings(t, tc.Pillars)).GeJu
 			if got.Pattern != tc.ExpectedPattern || got.PatternGod != tc.ExpectedPatternGod {
 				t.Fatalf("pattern = %s/%s, want %s/%s", got.Pattern, got.PatternGod, tc.ExpectedPattern, tc.ExpectedPatternGod)
 			}
@@ -68,7 +68,7 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 	}
 	for _, tc := range doc.FuYiCases {
 		t.Run(tc.ID, func(t *testing.T) {
-			got, _, _ := computeYongshenEvidence(pillarsCoreFromStrings(t, tc.Pillars))
+			got := ComputeChartFromCore(pillarsCoreFromStrings(t, tc.Pillars)).FuYi
 			if got.Basis.RiGanGen != tc.ExpectedRootType {
 				t.Fatalf("ri gan gen = %s, want %s", got.Basis.RiGanGen, tc.ExpectedRootType)
 			}
@@ -83,7 +83,7 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 	}
 	for _, tc := range doc.TiaoHouCases {
 		t.Run(tc.ID, func(t *testing.T) {
-			_, got, _ := computeYongshenEvidence(pillarsCoreFromStrings(t, tc.Pillars))
+			got := ComputeChartFromCore(pillarsCoreFromStrings(t, tc.Pillars)).TiaoHou
 			assertTiaoHouGod(t, got.Primary, tc.ExpectedPrimary)
 			if tc.ExpectedSecondary == nil {
 				if got.Secondary != nil {

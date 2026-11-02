@@ -44,9 +44,6 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ComputeLiuNian 2026: %v", err)
 			}
-			if err != nil {
-				t.Fatal(err)
-			}
 			return v
 		}},
 		{"liuyue", func(c Chart) any {
