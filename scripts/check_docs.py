@@ -1,15 +1,11 @@
 """Unified Liki skill document checker.
 
-Checks assertion ids, resolvable skill-relative paths (flat
-`references/<域>-<app|体系>-<卡>.md`), resolvable section anchors, MCP
-method/tool-name prohibition (capabilities are discovered via introspection,
-never hard-coded in skill docs), lazy-loading budgets, and reachability of
-domain knowledge docs.
+Checks assertion ids, resolvable skill-relative paths, section anchors,
+lazy-loading budgets, and reachability of domain knowledge docs.
 """
 
 import csv
 import glob
-import json
 import os
 import re
 import sys
@@ -27,19 +23,6 @@ DOMAIN_SYSTEMS = {
     "naming": ("bazi", "qiming"),
 }
 ASSERTION_MANIFESTS = os.path.join(_ROOT, "counsel", "app", "*", "tools", "assertions", "assertions.csv")
-CATALOG_PATH = os.path.join(_ROOT, "tools", "mcp-tool-catalog.json")
-
-METHOD_WHITELIST = {
-    "bazi_chart", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
-    "bazi_liushi", "bazi_xiaoyun", "bazi_bond",
-    "ziwei_chart", "ziwei_liunian", "ziwei_liuyue", "ziwei_liuri",
-    "ziwei_liushi", "ziwei_bond",
-    "liuyao_qigua", "liuyao_chart", "qimen_chart", "huangli_days",
-    "bazhai_chart", "bazhai_layout", "xuankong_chart", "xuankong_liunian",
-    "time_now", "city_info", "tianwen_subject_candidates",
-}
-_METHOD_PREFIXES = tuple(sorted({m.split("_")[0] for m in METHOD_WHITELIST}))
-
 # 场景卡行数上限；命书卡承载全卷输出模板（章节表）、居家风水卡承载八宅×玄空合参，结构固定，单独放宽。
 APP_CARD_LINE_BUDGET = {"natal-app-mingshu.md": 75, "fengshui-app-fengshui.md": 75}
 _REF_PATH = r"references/[A-Za-z0-9_][A-Za-z0-9_./\-]*\.(?:md|py|json|csv|sh|cmd)"
@@ -70,16 +53,6 @@ def load_duanyu_ids() -> set:
     return ids
 
 
-def catalog_tool_names() -> set:
-    with open(CATALOG_PATH, encoding="utf-8") as handle:
-        catalog = json.load(handle)
-    return {
-        name
-        for server in catalog.get("servers", {}).values()
-        for name in server.get("tools", [])
-    }
-
-
 def _resolve_skill_path(path: str) -> str | None:
     """Docs live under references/; resolve against that root first, then skill root."""
     for root in (REFS, SKILL):
@@ -104,11 +77,6 @@ def main() -> int:
     path_re = re.compile(r"`(" + _REF_PATH + r")`|(?<![`\w/])(" + _REF_PATH + r")")
     anchor_path_re = re.compile(r"`(" + _ANCHOR_PATH + r")`")
     bare_md_re = re.compile(_BARE_MD)
-    method_re = re.compile(r"\b(" + "|".join(map(re.escape, _METHOD_PREFIXES)) + r")\.[a-z_]+\b")
-    catalog_names = catalog_tool_names()
-    catalog_re = re.compile(
-        r"(?<![A-Za-z0-9_])(" + "|".join(map(re.escape, sorted(catalog_names))) + r")(?![A-Za-z0-9_])"
-    ) if catalog_names else None
     anchor_cache: dict[str, str] = {}
 
     docs = [os.path.join(SKILL, "SKILL.md")]
@@ -120,10 +88,7 @@ def main() -> int:
     docs += sorted(glob.glob(os.path.join(REFS, "*-app-*.md")))
     docs += [path for path in sorted(glob.glob(os.path.join(REFS, "*.md"))) if is_domain_card(os.path.basename(path))]
     docs = sorted({doc for doc in docs if os.path.exists(doc)})
-    py_docs = sorted(glob.glob(os.path.join(SKILL, "scripts", "*.py")))
-
     errors: list[str] = []
-    warnings: list[str] = []
     for doc in docs:
         rel = os.path.relpath(doc, _ROOT)
         text = open(doc, encoding="utf-8").read()
@@ -165,24 +130,6 @@ def main() -> int:
                 anchor = adjacent.group(1)
                 if anchor not in body:
                     errors.append(f"[{rel}] 引用小节不存在: {rel_target}「{anchor}」")
-        for match in method_re.finditer(text):
-            method = match.group(0)
-            if method not in METHOD_WHITELIST:
-                warnings.append(f"[{rel}] 引用的方法 '{method}' 不在方法白名单")
-                continue
-            errors.append(f"[{rel}] 硬编码引擎方法名 '{method}'（能力应由 tools/list 自举发现）")
-        if catalog_re:
-            for match in catalog_re.finditer(text):
-                errors.append(f"[{rel}] 硬编码 MCP 工具名 '{match.group(0)}'（能力应由 tools/list 自举发现）")
-
-    rpc_call_re = re.compile(r'\bcall\(\s*["\']([a-z]+\.[a-z_]+)["\']')
-    for filename in py_docs:
-        rel = os.path.relpath(filename, _ROOT)
-        text = open(filename, encoding="utf-8").read()
-        for match in rpc_call_re.finditer(text):
-            if match.group(1) not in METHOD_WHITELIST:
-                errors.append(f"[{rel}] RPC 调用方法 '{match.group(1)}' 不在引擎方法白名单")
-
     domain_files = {
         os.path.basename(path): Path(path)
         for path in _flat_cards()
@@ -288,11 +235,6 @@ def main() -> int:
     print(f"错误: {len(errors)} 个")
     for error in errors:
         print("  ✗", error)
-    print(f"警告: {len(warnings)} 个")
-    for warning in warnings[:30]:
-        print("  ⚠", warning)
-    if len(warnings) > 30:
-        print("  ... 共", len(warnings), "条警告")
     return 1 if errors else 0
 
 

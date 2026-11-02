@@ -32,7 +32,6 @@ Put a test where its contract lives; the suite that owns the contract also owns 
 | Engine tool schema, DTO, wire fidelity | `engine/internal/mcpcontract/*_test.go` | `make test-engine` |
 | Engine domain algorithm or data table | `engine/internal/engine/<domain>/*_test.go` | `make test-engine` |
 | Counsel tool models, factors, assertions | `counsel/tests/` | `make test-counsel` |
-| Cross-language surface (skill docs, both registries) | `engine/internal/mcpcontract/skill_docs_sync_test.go` | `make test-engine` |
 | Repository surface (README, skill layout, deployment, versions, CI contracts) | root `tests/` | `make test-content` |
 | Independent domain truth (data only, never implementation-derived) | `tests/fixtures/domain_oracle/` | oracle tests |
 | Characterization snapshot (drift detector) | `tests/golden/<domain>/` | `make golden` |
@@ -59,7 +58,7 @@ script set is pinned by `tests/test_check_scripts_contract.py`, so adding a scri
 | `scripts/check-runtime-versions.sh` | Local node/python must equal `.nvmrc`/`.python-version` |
 | `scripts/check_actions_pinned.py` | Rejects mutable workflow/action references |
 | `scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
-| `scripts/check_docs.py` | Distributed skill documentation: assertions, paths, budgets, method whitelist |
+| `scripts/check_docs.py` | Distributed skill documentation: assertions, paths, budgets |
 | `scripts/check_doc_paths.py` | Markdown link targets and top-level code-span paths resolve |
 | `scripts/sync_domain_language.py` | `docs/DOMAIN_LANGUAGE.md` is generated from the canonical concept registry |
 | `scripts/check_domain_language.py` | Concept/alias uniqueness and forbidden-alias drift across code, contracts, docs, and tests |

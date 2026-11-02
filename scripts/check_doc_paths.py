@@ -15,9 +15,8 @@ not a pointer, so it is left alone: short names resolve against several roots
 (skill root, references root) and cannot be checked without a per-file rule. Targets are accepted if they resolve against the Markdown file's
 own directory or against the repository root.
 
-Division of labour with ``check_docs.py``: that checker owns skill-document
-semantics (assertion ids, section budgets, method whitelist) inside ``skills/liki``;
-this one owns the path surface of every other Markdown file.
+Owns the path surface of every Markdown file. Skill-document semantics are
+checked separately in ``check_docs.py``.
 """
 
 import re

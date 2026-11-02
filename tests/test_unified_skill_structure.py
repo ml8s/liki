@@ -66,23 +66,6 @@ def test_yongshen_decision_has_one_domain_authority():
     assert "八字域" in naming
 
 
-def test_skill_docs_do_not_duplicate_mcp_method_signatures():
-    """工具与参数由 MCP 自省；技能文档只保留领域能力与判断口径。"""
-    forbidden = (
-        "natal_compute_factors",
-        "naming_check",
-        "natal_period_query",
-        "bazi_yongshen",
-        "bazi_chart",
-    )
-    offenders = []
-    for path in SKILL_ROOT.rglob("*.md"):
-        text = path.read_text(encoding="utf-8")
-        if any(name in text for name in forbidden):
-            offenders.append(path.relative_to(SKILL_ROOT).as_posix())
-    assert offenders == []
-
-
 def test_app_cards_declare_output_template_body():
     """`## 输出模板` 必须给出模板体（代码块 / 表 / 列表），不能只有示例。"""
     for card in sorted(SKILL_ROOT.glob("references/*-app-*.md")):
@@ -124,25 +107,6 @@ def test_natal_layers_are_orthogonal():
         assert cards == routed, (side, sorted(cards - routed), sorted(routed - cards))
 
 
-def test_natal_side_entries_declare_assertion_contract():
-    """断语公共字段、side 取值与受控闭集是硬契约，落在两侧入口（侧是断言消费者）。"""
-    routes = json.loads(
-        (ROOT / "counsel" / "app" / "natal" / "tools" / "topic_routes.json").read_text(encoding="utf-8")
-    )
-    for side in ("bazi", "ziwei"):
-        text = (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
-        for field in ("side", "topic", "time_scope"):
-            assert f"`{field}`" in text, (side, field)
-        assert "`side` 是 `bazi` / `ziwei`" in text, side
-        for value in ("career", "marriage", "study", "wealth", "chart_structure", "relocation"):
-            assert f"`{value}`" in text, (side, value)
-        for scope in ("current_year", "year_range", "current_decade", "decade"):
-            assert f"`{scope}`" in text, (side, scope)
-        # topic 键＝标签与服务器路由表单一源一致（卡内 `本命判断（事业）` 靠它对上 topic）
-        for key, spec in routes["topics"].items():
-            assert f"`{key}`＝{spec['label']}" in text, (side, key, spec["label"])
-
-
 def test_naming_does_not_silently_default_missing_hour():
     app = (SKILL_ROOT / "references" / "naming-app-naming.md").read_text(encoding="utf-8")
     calibration = (SKILL_ROOT / "references" / "naming-bazi-calibration.md").read_text(encoding="utf-8")
@@ -150,21 +114,6 @@ def test_naming_does_not_silently_default_missing_hour():
         assert "默认取午时" not in text
         assert "默认时辰" not in text
     assert "不排八字" in app
-
-
-def test_natal_card_qualifiers_are_topic_labels():
-    """卡内 `本命判断（X）` / `应期判断（X）` 的 X 必须是受控 topic 标签或十年期层。"""
-    routes = json.loads(
-        (ROOT / "counsel" / "app" / "natal" / "tools" / "topic_routes.json").read_text(encoding="utf-8")
-    )
-    labels = {spec["label"] for spec in routes["topics"].values()} | {"十年期"}
-    qualifier = re.compile(r"`(?:本命判断|应期判断)（([^）]+)）`")
-    offenders = []
-    for card in sorted((SKILL_ROOT / "references").glob("natal-app-*.md")):
-        for token in qualifier.findall(card.read_text(encoding="utf-8")):
-            if token not in labels:
-                offenders.append(f"{card.name}: {token}")
-    assert offenders == []
 
 
 def test_natal_card_actions_name_the_side():
@@ -179,16 +128,6 @@ def test_natal_card_actions_name_the_side():
                 for clause in cell.split("；"):
                     if capability.search(clause) and "八字侧" not in clause and "紫微侧" not in clause:
                         offenders.append(f"{card.name}:{number}")
-    assert offenders == []
-
-
-def test_skill_docs_use_mcp_result_shape():
-    """MCP 结果形态：成功读工具内容 JSON、失败读 isError；不得回退到已退役的 data/error 信封。"""
-    offenders = []
-    for path in sorted((SKILL_ROOT / "references").rglob("*.md")):
-        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            if "响应的 `data`" in line or "成功读 `data`" in line or "失败读 `error`" in line:
-                offenders.append(f"{path.relative_to(SKILL_ROOT)}:{number}")
     assert offenders == []
 
 

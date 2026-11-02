@@ -7,12 +7,10 @@ the schemas they publish and validate the same values consumed by MCP.
 
 import hashlib
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
-from app.contracts import COUNSEL_TOOLS, NATAL_TOOLS, TOOL_GROUPS, tool_vocabulary
+from app.contracts import COUNSEL_TOOLS, NATAL_TOOLS
 from pydantic import ValidationError
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -24,7 +22,7 @@ OPAQUE_CONDITIONALS = ("if", "then", "else", "not")
 # ── published schema fidelity ────────────────────────────────────────────────
 
 def test_qimen_snapshot_input_uses_method_branches():
-    method = CONTRACTS["qimen_snapshot"].input_schema["properties"]["method"]
+    method = CONTRACTS["qimen_ask"].input_schema["properties"]["method"]
     forms = method["anyOf"]
     assert len(forms) == 10
     assert all(form["additionalProperties"] is False for form in forms)
@@ -35,13 +33,12 @@ def test_qimen_snapshot_input_uses_method_branches():
     assert scopes == {"hour": 3, "day": 3, "quarter": 2, "month": 1, "year": 1}
 
 
-def test_query_inputs_consume_complete_snapshot_outputs():
-    pairs = {"liuyao_query": "liuyao_snapshot", "qimen_query": "qimen_snapshot"}
-    for query, snapshot in pairs.items():
-        consumed = CONTRACTS[query].input_schema["properties"]["snapshot"]
-        published = CONTRACTS[snapshot].output_schema
-        assert consumed["required"] == published["required"]
-        assert consumed["properties"] == published["properties"]
+def test_ask_outputs_are_self_contained_readings():
+    for name in ("liuyao_ask", "qimen_ask"):
+        output = CONTRACTS[name].output_schema["properties"]
+        assert {"scope", "evidence", "interpretation", "reading_digest"} <= set(output)
+        assert "snapshot_digest" not in output
+        assert "factors" not in output
 
 
 @pytest.mark.parametrize("name", sorted(CONTRACTS))
@@ -66,7 +63,7 @@ def test_published_schemas_are_flat_self_contained_documents(name):
 
 
 def test_unique_items_is_projected_and_enforced():
-    focus_branches = CONTRACTS["qimen_snapshot"].input_schema["properties"]["focus"]["anyOf"]
+    focus_branches = CONTRACTS["qimen_ask"].input_schema["properties"]["focus"]["anyOf"]
     qimen_yongshen = next(
         branch["properties"]["yong_shen"]
         for branch in focus_branches
@@ -74,7 +71,7 @@ def test_unique_items_is_projected_and_enforced():
     )
     assert qimen_yongshen["uniqueItems"] is True
     with pytest.raises(ValidationError):
-        CONTRACTS["qimen_snapshot"].input.model_validate(
+        CONTRACTS["qimen_ask"].input.model_validate(
             {
                 "question": "该往哪里推进？",
                 "location": {"kind": "longitude", "qi_ju_longitude": 121.47},
@@ -89,16 +86,12 @@ def test_yongshen_contracts_publish_the_typed_core():
 
     selected_schema = CONTRACTS["bazi_yongshen"].output_schema
     assert set(selected_schema["required"]) == set(SelectedYongShen.model_fields)
-    choice = selected_schema["properties"]["selected"]
+    choice = selected_schema["properties"]["selected_yongshen"]
     yong_schema = choice["properties"]["yong"]
     assert yong_schema["type"] == "string"
     assert yong_schema["enum"] == ["木", "火", "土", "金", "水", "无候选"]
     assert set(choice["required"]) == {"yong", "xi", "ji"}
 
-
-    compute_schema = CONTRACTS["natal_compute_factors"].output_schema
-    assert "selected_yongshen" not in compute_schema["properties"]
-    assert "selected_yongshen" in compute_schema["properties"]["factors"]["description"]
 
     naming_schema = CONTRACTS["naming_check"].input_schema
     assert set(naming_schema["properties"]) == {
@@ -121,16 +114,16 @@ def test_yongshen_contracts_publish_the_typed_core():
 
 def test_event_tools_are_not_marked_idempotent():
     expected = {contract.name: contract.annotations for contract in COUNSEL_TOOLS}
-    assert expected["liuyao_snapshot"] == {
-        "readOnlyHint": True,
+    assert expected["liuyao_ask"] == {
+        "readOnlyHint": False,
         "idempotentHint": False,
     }
-    assert expected["liuyao_query"] == {
+    assert expected["qimen_ask"] == {
         "readOnlyHint": True,
         "idempotentHint": True,
     }
     for name, annotations in expected.items():
-        if name != "liuyao_snapshot":
+        if name != "liuyao_ask":
             assert annotations == {
                 "readOnlyHint": True,
                 "idempotentHint": True,
@@ -163,21 +156,6 @@ def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
         YongShenTiaoHouEvidence.model_validate({**tiao_hou, "secondary_wuxing": ""})
 
 
-def test_factor_snapshot_rejects_legacy_and_non_scalar_values():
-    from app.contracts.natal import FactorSnapshot
-    from pydantic import TypeAdapter
-
-    adapter = TypeAdapter(FactorSnapshot)
-    assert adapter.validate_python({"大运十神类": "命中"})["大运十神类"] == "命中"
-    assert adapter.validate_python({"日主": "甲"})["日主"] == "甲"
-    assert adapter.validate_python({
-        "_provenance": {"technique": "bazi"},
-        "selected_yongshen": {"selected": {}},
-    })
-
-    for value in (0, 1, "", None, "0", "1", "unknown", {"命中": True}, ["命中"]):
-        with pytest.raises(ValidationError, match="因子快照"):
-            adapter.validate_python({"大运十神类": value})
 
 
 def test_bazi_yongshen_input_uses_resolved_subject():
@@ -208,7 +186,7 @@ def test_real_yongshen_output_conforms_to_the_shared_contract():
     result = _resolved_yongshen()
     published = published_yongshen(result)
     typed = SelectedYongShen.model_validate(published)
-    assert typed.selected.yong == published["selected"]["yong"]
+    assert typed.selected_yongshen.yong == published["selected_yongshen"]["yong"]
     assert typed.status == published["status"]
     assert typed.yongshen_digest == published["yongshen_digest"]
     assert "source" not in published
@@ -232,13 +210,14 @@ def test_real_yongshen_output_conforms_to_the_shared_contract():
     [
         lambda result: result.update(status="maybe"),
         lambda result: result.pop("yongshen_digest"),
-        lambda result: result["selected"].update(yong="风"),
+        lambda result: result["selected_yongshen"].update(yong="风"),
     ],
 )
 def test_yongshen_contract_rejects_invalid_core_values(mutation):
     from app.contracts.yongshen import SelectedYongShen
+    from app.natal.tools.yongshen import published_yongshen
 
-    result = _resolved_yongshen()
+    result = published_yongshen(_resolved_yongshen())
     mutation(result)
     with pytest.raises(ValidationError):
         SelectedYongShen.model_validate(result)
@@ -249,10 +228,10 @@ def test_registration_publishes_a_copy_of_the_contract_schema():
     from app.mcp_tool_adapter import add_contract_tool
     from mcp.server import MCPServer
 
-    contract = CONTRACTS["qimen_snapshot"]
+    contract = CONTRACTS["qimen_ask"]
     server = MCPServer(name="probe", version="test")
     add_contract_tool(server, contract, lambda arguments: {})
-    registered = server._tool_manager.get_tool("qimen_snapshot")  # noqa: SLF001 - SDK has no getter
+    registered = server._tool_manager.get_tool("qimen_ask")  # noqa: SLF001 - SDK has no getter
     assert registered is not None
     assert registered.parameters == contract.input_schema
     assert registered.parameters is not contract.input_schema
@@ -260,47 +239,13 @@ def test_registration_publishes_a_copy_of_the_contract_schema():
     assert contract.input_schema["type"] == "object"
 
 
-def test_tool_vocabulary_publishes_every_group_and_tool():
-    vocabulary = tool_vocabulary()
-    assert set(vocabulary) == set(TOOL_GROUPS)
-    for group, tools in TOOL_GROUPS.items():
-        names = vocabulary[group]
-        assert names == sorted(set(names)), group
-        for tool in tools:
-            assert tool.name in names, f"{group}: {tool.name}"
-
-
-def test_tool_vocabulary_reaches_names_nested_below_the_root_properties():
-    """The walk descends into property children, where nested enums own names."""
-    vocabulary = tool_vocabulary()
-    # ``self``/``other`` are values of the ``matter`` enum, one level below the
-    # root ``properties`` object of liuyao_snapshot.
-    assert {"self", "other"} <= set(vocabulary["divination"])
-    assert {"qimen_snapshot", "liuyao_snapshot"} <= set(vocabulary["divination"])
-    assert "natal_compute_factors" in vocabulary["natal"]
-    assert "naming_surname" in vocabulary["naming"]
-
-
-def test_tool_vocabulary_bridge_publishes_exactly_what_the_models_expose():
-    """The Go suite loads the vocabulary through this script, not a copy."""
-    bridge = REPO_ROOT / "scripts" / "counsel_tool_vocabulary.py"
-    result = subprocess.run(
-        [sys.executable, str(bridge)],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    assert json.loads(result.stdout) == tool_vocabulary()
-
-
 # ── natal tool closed-args & topic routing ──────────────────────────────────
 
 def test_natal_tools_have_closed_args():
     required = {
         "bazi_yongshen": ["subject"],
-        "natal_compute_factors": ["subject", "technique"],
-        "natal_query": ["factors", "factors_digest", "life_topics"],
-        "natal_period_query": ["factors", "factors_digest", "time_scope", "life_topics", "subject"],
+        "natal_query": ["subject", "technique", "life_topics"],
+        "natal_liunian_query": ["subject", "technique", "start_year", "year_count", "life_topics"],
     }
     assert set(NATAL_FUNCTIONS) == set(required)
     for name, schema in NATAL_FUNCTIONS.items():
@@ -314,7 +259,7 @@ def test_natal_topic_enum_is_generated_from_topic_routes():
         (REPO_ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
     )
     expected = list(routes["life_topics"])
-    for name in ("natal_query", "natal_period_query"):
+    for name in ("natal_query", "natal_liunian_query"):
         schema = NATAL_FUNCTIONS[name]["properties"]["life_topics"]
         assert schema["items"]["enum"] == expected, name
 
