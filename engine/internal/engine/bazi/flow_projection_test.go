@@ -40,7 +40,7 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 			if err != nil {
 				t.Fatalf("resolve liunian time 2026: %v", err)
 			}
-			v, err := ComputeLiuNianAtTime(natalCoreFromChart(c), liuNianTime1)
+			v, err := ComputeLiuNianAtTime(c.NatalCore(), liuNianTime1)
 			if err != nil {
 				t.Fatalf("ComputeLiuNian 2026: %v", err)
 			}
@@ -54,7 +54,7 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			v, err := ComputeLiuYueAtTime(natalCoreFromChart(c), liuYueTime)
+			v, err := ComputeLiuYueAtTime(c.NatalCore(), liuYueTime)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -65,21 +65,21 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			v, err := ComputeLiuRi(natalCoreFromChart(c), lt)
+			v, err := ComputeLiuRi(c.NatalCore(), lt)
 			if err != nil {
 				t.Fatal(err)
 			}
 			return v
 		}},
 		{"liushi", func(c Chart) any {
-			v, err := ComputeLiuShi(natalCoreFromChart(c), resolveTestLiuShi(t, 2026, 5, 20, 12, 30))
+			v, err := ComputeLiuShi(c.NatalCore(), resolveTestLiuShi(t, 2026, 5, 20, 12, 30))
 			if err != nil {
 				t.Fatal(err)
 			}
 			return v
 		}},
 		{"xiaoyun", func(c Chart) any {
-			return ComputeXiaoYun(natalCoreFromChart(c), 3)
+			return ComputeXiaoYun(c.NatalCore(), 3)
 		}},
 	}
 	for _, tc := range cases {

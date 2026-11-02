@@ -26,6 +26,19 @@ func (core NatalCore) ToBazi() ganzhi.Bazi {
 	}
 }
 
+// NatalCore projects the chart back to the narrow fact set consumed by
+// derived methods. The DaYun pointer is shared; derived methods treat it as
+// read-only input.
+func (c Chart) NatalCore() NatalCore {
+	return NatalCore{
+		Pillars:   [4]ganzhi.Zhu{c.Nian.Zhu, c.Yue.Zhu, c.Ri.Zhu, c.Shi.Zhu},
+		NaYin:     c.NaYinArray(),
+		DaYun:     c.DaYun,
+		Gender:    c.Gender,
+		BirthYear: c.BirthYear,
+	}
+}
+
 func computeNatalCore(gt time.Time, st time.Time, bz ganzhi.Bazi, gender ganzhi.Gender) NatalCore {
 	return NatalCore{
 		Pillars:   bz.Slice(),

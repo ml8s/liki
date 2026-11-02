@@ -13,7 +13,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
-	full := ComputeChartFromCore(natalCoreFromChart(chart))
+	full := ComputeChartFromCore(chart.NatalCore())
 
 	t.Run("TaiYuan", func(t *testing.T) {
 		// Oracle: 胎元 = 丁亥 (月干丙+1=丁, 月支申+3=亥)
@@ -100,7 +100,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 	})
 
 	t.Run("WuxingCount", func(t *testing.T) {
-		fuYi, _, _ := computeYongshenEvidence(natalCoreFromChart(chart))
+		fuYi, _, _ := computeYongshenEvidence(chart.NatalCore())
 		wc := fuYi.WuxingCount
 		if wc["金"] != 4 || wc["木"] != 0 || wc["水"] != 3 || wc["火"] != 2 || wc["土"] != 3 {
 			t.Fatalf("wuxing_count = %v, want 金4 木0 水3 火2 土3（干+藏干口径）", wc)

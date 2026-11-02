@@ -36,7 +36,7 @@ func TestFuYi_Strength_Reference(t *testing.T) {
 			stgt := time.Time(birth)
 			st := tianwen.ApparentSolarFromCivil(birth, tt.longitude, tt.timezone)
 			chart := ComputeChart(stgt, st, tt.gender)
-			fuYi, _, _ := computeYongshenEvidence(natalCoreFromChart(chart))
+			fuYi, _, _ := computeYongshenEvidence(chart.NatalCore())
 			if fuYi.Strength != tt.expectStrength {
 				t.Errorf("Strength=%q, want=%q (%s%s %s%s %s%s %s%s)",
 					fuYi.Strength, tt.expectStrength,

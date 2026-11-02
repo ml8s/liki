@@ -6,20 +6,6 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// natalCoreFromChart is a test-only adapter for tests that still construct a
-// partial chart literal. Production code constructs NatalCore directly.
-func natalCoreFromChart(chart Chart) NatalCore {
-	return NatalCore{
-		Pillars: [4]ganzhi.Zhu{
-			chart.Nian.Zhu, chart.Yue.Zhu, chart.Ri.Zhu, chart.Shi.Zhu,
-		},
-		NaYin:     chart.NaYinArray(),
-		DaYun:     chart.DaYun,
-		Gender:    chart.Gender,
-		BirthYear: chart.BirthYear,
-	}
-}
-
 func computeYongshenEvidence(core NatalCore) (FuYiResult, TiaoHouResult, GeJuResult) {
 	return computeYongShenEvidenceFromAnalysis(core, AnalyzePillars(core.ToBazi(), core.Gender))
 }

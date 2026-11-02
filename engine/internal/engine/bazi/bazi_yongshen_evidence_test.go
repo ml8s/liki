@@ -33,7 +33,7 @@ func TestYongshenEvidence_Consistency(t *testing.T) {
 			stgt := time.Time(birth)
 			st := tianwen.ApparentSolarFromCivil(birth, 116.4, 8)
 			chart := ComputeChart(stgt, st, tt.gender)
-			fuYi, tiaoHou, geJu := computeYongshenEvidence(natalCoreFromChart(chart))
+			fuYi, tiaoHou, geJu := computeYongshenEvidence(chart.NatalCore())
 
 			t.Logf("%s%s %s%s %s%s %s%s",
 				chart.Nian.Gan, chart.Nian.Zhi,

@@ -16,7 +16,7 @@ func TestOracleComparison_19810826(t *testing.T) {
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
-	full := ComputeChartFromCore(natalCoreFromChart(chart))
+	full := ComputeChartFromCore(chart.NatalCore())
 	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 
 	// 1. Pillars

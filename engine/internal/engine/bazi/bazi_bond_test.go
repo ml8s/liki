@@ -12,7 +12,7 @@ import (
 func TestComputeBond_IsPureAndDeterministic(t *testing.T) {
 	ca := computeChartForTest(t, 1984, 2, 15, 8, ganzhi.Male)
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
-	coreA, coreB := natalCoreFromChart(ca), natalCoreFromChart(cb)
+	coreA, coreB := ca.NatalCore(), cb.NatalCore()
 	wantA, wantB := cloneNatalCoreForBondTest(coreA), cloneNatalCoreForBondTest(coreB)
 
 	first, second := ComputeBond(coreA, coreB), ComputeBond(coreA, coreB)
@@ -63,7 +63,7 @@ func TestComputeBond_GoldenValues(t *testing.T) {
 	// 1990-06-15 12:00 Beijing
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
 
-	bond := ComputeBond(natalCoreFromChart(ca), natalCoreFromChart(cb))
+	bond := ComputeBond(ca.NatalCore(), cb.NatalCore())
 
 	// ZhuCross: 4x4=16 pairs
 	if len(bond.ZhuCross.Pairs) != 16 {
@@ -113,8 +113,8 @@ func computeChartForTest(t *testing.T, year, month, day, hour int, g ganzhi.Gend
 func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 	ca := computeChartForTest(t, 1984, 2, 15, 8, ganzhi.Male) // 甲子 丙寅 己卯 戊辰
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
-	bond := ComputeBond(natalCoreFromChart(ca), natalCoreFromChart(cb))
-	aFc, bFc := ComputeChartFromCore(natalCoreFromChart(ca)), ComputeChartFromCore(natalCoreFromChart(cb))
+	bond := ComputeBond(ca.NatalCore(), cb.NatalCore())
+	aFc, bFc := ComputeChartFromCore(ca.NatalCore()), ComputeChartFromCore(cb.NatalCore())
 	aCount := convertWuxingCount(map[ganzhi.Wuxing]int(WuxingCountsAt(ca.ToBazi(), HiddenStemFacts(ca.ToBazi()))))
 	bCount := convertWuxingCount(map[ganzhi.Wuxing]int(WuxingCountsAt(cb.ToBazi(), HiddenStemFacts(cb.ToBazi()))))
 

@@ -59,7 +59,7 @@ func TestLiuNian_AnnualBingFu(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2021: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime1)
+	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime1)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2021: %v", err)
 	} // 辛丑
@@ -86,7 +86,7 @@ func TestLiuNian_AnnualSangMen(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2022: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime2)
+	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime2)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2022: %v", err)
 	} // 壬寅
@@ -112,7 +112,7 @@ func TestLiuNian_AnnualDiaoKe(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2006: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime3)
+	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime3)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2006: %v", err)
 	} // 丙戌
@@ -138,7 +138,7 @@ func TestLiuNian_AnnualDaHao(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2026: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime4)
+	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime4)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2026: %v", err)
 	} // 丙午
@@ -179,7 +179,7 @@ func TestLiuNian_AnnualAndDynamicCoexist(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2022: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime5)
+	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime5)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2022: %v", err)
 	}
@@ -220,7 +220,7 @@ func TestLiuNian_ShenSha_DynamicEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve liunian time 2006: %v", err)
 	}
-	ln, err := ComputeLiuNianAtTime(natalCoreFromChart(chart), liuNianTime6)
+	ln, err := ComputeLiuNianAtTime(chart.NatalCore(), liuNianTime6)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian 2006: %v", err)
 	}
