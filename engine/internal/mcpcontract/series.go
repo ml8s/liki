@@ -66,9 +66,11 @@ func seriesOutputSchema[Out any](options *jsonschema.ForOptions, root string) (j
 		"type": "object",
 		"properties": map[string]any{
 			root: map[string]any{
-				"type":     "array",
-				"items":    mustJSONSchemaRaw(schema),
-				"minItems": 1,
+				"type":        "array",
+				"description": "领域事实序列；长度与请求 count 一致。",
+				"items":       mustJSONSchemaRaw(schema),
+				"minItems":    1,
+				"maxItems":    MaxSeriesCount,
 			},
 		},
 		"required":             []string{root},

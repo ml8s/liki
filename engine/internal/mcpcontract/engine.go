@@ -270,12 +270,12 @@ func NewEngine() *Registry {
 	registry := New(options)
 	mustRegister(registry, Tool[TimeNowInput, TimeNowOutput]{
 		Name:        "time_now",
-		Description: "获取服务端当前时间。返回 UTC、本地、北京时间，用于 AI agent 获取准确时间避免幻觉。",
+		Description: "按 IANA 时区返回服务端当前标准时间（无 DST）。用于获取可信时间基准，避免模型使用幻觉时间。",
 		Handler:     TimeNow,
 	})
 	mustRegister(registry, Tool[HuangliDaysInput, HuangliDaysOutput]{
 		Name:        "huangli_days",
-		Description: "黄历查日。返回连续N天的黄历信息；event 给定时按建除事项规则输出 suitability。",
+		Description: "黄历查日。返回连续日期的黄历事实；指定事项时返回该事项的适配结论与判定依据。",
 		Handler:     HuangliDays,
 	})
 	resolveSchema, err := tianwenResolveFormsSchema(options)
@@ -310,7 +310,7 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[XuankongChartInput, XuankongChart]{
 		Name:        "xuankong_chart",
-		Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",
+		Description: "玄空飞星。宅运起盘日期属于宅体事实（如建成、入住或改宅日期），不是命主出生时间；坐山与向山使用二十四山序号。",
 		Handler:     XuankongChartCompute,
 	})
 	mustRegister(registry, Tool[XuankongLiunianInput, XuankongLiuNianSeries]{
@@ -331,7 +331,7 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartOutput]{
 		Name:        "liuyao_chart",
-		Description: "六爻装卦。只接受 liuyao.qigua 返回的完整 casting 收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
+		Description: "六爻装卦。只接受 liuyao_qigua 返回的完整起卦收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
 		Handler:     LiuyaoChart,
 	})
 	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{

@@ -19,8 +19,8 @@ type ZiweiDaXianItems []ZiweiDaXianItem
 type ZiweiDaXianItem struct {
 	StartYear int             `json:"start_year" jsonschema:"本限起始公历年"`
 	EndYear   int             `json:"end_year" jsonschema:"本限结束公历年"`
-	QiSui     int             `json:"qi_sui" jsonschema:"qi_sui。"`
-	ZhiSui    int             `json:"zhi_sui" jsonschema:"zhi_sui。"`
+	QiSui     int             `json:"qi_sui" jsonschema:"起运虚岁。"`
+	ZhiSui    int             `json:"zhi_sui" jsonschema:"止运虚岁。"`
 	MingGong  ZiweiPalaceName `json:"ming_gong" jsonschema:"大限命宫。"`
 }
 
@@ -110,8 +110,8 @@ type ZiweiLiuYueResolvedPeriodCalendarPeriod struct {
 	Month    int                    `json:"month" jsonschema:"月。"`
 	Leap     bool                   `json:"leap" jsonschema:"是否闰月。"`
 	Half     CalendarPeriodHalfName `json:"half" jsonschema:"枚举值：first、second、whole。"`
-	DayStart int                    `json:"day_start" jsonschema:"day_start。"`
-	DayEnd   int                    `json:"day_end" jsonschema:"day_end。"`
+	DayStart int                    `json:"day_start" jsonschema:"流月日段起始农历日序。"`
+	DayEnd   int                    `json:"day_end" jsonschema:"流月日段结束农历日序。"`
 }
 
 type ZiweiLiuYueResolvedPeriodFlowMonth struct {
