@@ -11,7 +11,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-// ── tianwen.resolve input ──
+// ── tianwen_subject_candidates input ──
 
 // TianwenSubjectCandidatesLunarInput is a lunar calendar date (with leap month).
 type TianwenSubjectCandidatesLunarInput struct {
@@ -50,7 +50,7 @@ type TianwenSubjectCandidatesInput struct {
 	RecordedTimeRange *TianwenSubjectCandidatesRangeInput `json:"recorded_time_range,omitempty" jsonschema:"同日民用时间区间；与 recorded_time/recorded_shichen 二选一。"`
 }
 
-// ── tianwen.resolve input variants (public oneOf) ──
+// ── tianwen_subject_candidates input variants (public oneOf) ──
 
 type TianwenDateTimeForm struct {
 	RecordedDate        string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
@@ -118,7 +118,7 @@ func tianwenResolveFormsSchema(options *jsonschema.ForOptions) (json.RawMessage,
 	return json.Marshal(map[string]any{"type": "object", "oneOf": forms})
 }
 
-// ── tianwen.resolve output ──
+// ── tianwen_subject_candidates output ──
 
 // TianwenSubjectCandidatesReasonOutput explains why a candidate exists.
 type TianwenSubjectCandidatesReasonOutput struct {

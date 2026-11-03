@@ -112,14 +112,14 @@ func TestEngineContractInputConstraints(t *testing.T) {
 	}
 	decode(t, mustDefinition(t, registry, "tianwen_subject_candidates").InputSchema, &resolveInput)
 	if len(resolveInput.OneOf) != 4 {
-		t.Fatalf("tianwen.resolve oneOf forms = %d, want 4", len(resolveInput.OneOf))
+		t.Fatalf("tianwen_subject_candidates oneOf forms = %d, want 4", len(resolveInput.OneOf))
 	}
 	for _, form := range resolveInput.OneOf {
 		if !slices.Contains(form.Required, "place_longitude") {
-			t.Fatalf("tianwen.resolve form must require longitude: %#v", form.Required)
+			t.Fatalf("tianwen_subject_candidates form must require longitude: %#v", form.Required)
 		}
 		if form.AdditionalProperties == nil || *form.AdditionalProperties {
-			t.Fatalf("tianwen.resolve form must be closed: %#v", form.Required)
+			t.Fatalf("tianwen_subject_candidates form must be closed: %#v", form.Required)
 		}
 	}
 
@@ -428,10 +428,10 @@ func TestEngineContractCalls(t *testing.T) {
 
 	cityRaw, err := registry.Call(context.Background(), "city_info", mustJSON(t, CityInfoInput{City: "北京"}))
 	if err != nil {
-		t.Fatalf("city.coords: %v", err)
+		t.Fatalf("city_info: %v", err)
 	}
 	if err := registry.ValidateOutput("city_info", cityRaw); err != nil {
-		t.Fatalf("city.coords output contract: %v", err)
+		t.Fatalf("city_info output contract: %v", err)
 	}
 	var cityOutput CityInfoOutput
 	if err := json.Unmarshal(cityRaw, &cityOutput); err != nil {

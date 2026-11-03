@@ -82,7 +82,7 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	if _, err := registry.Call(context.Background(), "ziwei_liupan", mustJSON(t, map[string]any{
 		"subject": ziweiSubject, "scope": "liu_nian", "start_time": "2030-06-15T12:00:00+08:00",
 	})); err != nil {
-		t.Fatalf("ziwei.liunian: %v", err)
+		t.Fatalf("ziwei.liupan liu_nian: %v", err)
 	}
 	// qimen.chart's legacy schema did close the root object, so unknown root
 	// arguments stay rejected there.
@@ -95,21 +95,21 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 	registry := testEngine()
 	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 
-	// bazi.xiaoyun returns one entry per 小运 school; every entry carries the
+	// bazi.liupan xiao_yun returns one entry per 小运 school; every entry carries the
 	// same number of 柱 as the requested count (12 by default).
 	raw, err := registry.Call(context.Background(), "bazi_liupan", mustJSON(t, map[string]any{"subject": chart, "scope": "xiao_yun"}))
 	if err != nil {
-		t.Fatalf("bazi.xiaoyun: %v", err)
+		t.Fatalf("bazi.liupan xiao_yun: %v", err)
 	}
 	var document struct {
 		XiaoYun []any `json:"xiao_yun"`
 	}
 	decode(t, raw, &document)
 	if err := registry.ValidateOutput("bazi_liupan", raw); err != nil {
-		t.Fatalf("bazi.xiaoyun output contract: %v", err)
+		t.Fatalf("bazi.liupan xiao_yun output contract: %v", err)
 	}
 	if len(document.XiaoYun) == 0 {
-		t.Fatal("bazi.xiaoyun returned no schools")
+		t.Fatal("bazi.liupan xiao_yun returned no schools")
 	}
 	for i, entry := range document.XiaoYun {
 		set, _ := entry.(map[string]any)
@@ -121,14 +121,14 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 
 	raw, err = registry.Call(context.Background(), "bazi_liupan", mustJSON(t, map[string]any{"subject": chart, "scope": "xiao_yun", "count": 5}))
 	if err != nil {
-		t.Fatalf("bazi.xiaoyun(xiao_yun_count=5): %v", err)
+		t.Fatalf("bazi.liupan xiao_yun(xiao_yun_count=5): %v", err)
 	}
 	var fiveDocument struct {
 		XiaoYun []any `json:"xiao_yun"`
 	}
 	decode(t, raw, &fiveDocument)
 	if err := registry.ValidateOutput("bazi_liupan", raw); err != nil {
-		t.Fatalf("bazi.xiaoyun(xiao_yun_count=5) output contract: %v", err)
+		t.Fatalf("bazi.liupan xiao_yun(xiao_yun_count=5) output contract: %v", err)
 	}
 	for i, entry := range fiveDocument.XiaoYun {
 		set, _ := entry.(map[string]any)
@@ -462,10 +462,10 @@ func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 	registry := testEngine()
 	resolved, err := TianwenSubjectCandidates(context.Background(), civilResolveInput(t, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137))
 	if err != nil {
-		t.Fatalf("tianwen.resolve: %v", err)
+		t.Fatalf("tianwen_subject_candidates: %v", err)
 	}
 	if len(resolved.Candidates) == 0 {
-		t.Fatal("tianwen.resolve returned no candidates")
+		t.Fatal("tianwen_subject_candidates returned no candidates")
 	}
 	candidate := resolved.Candidates[0]
 	if len(candidate.Reasons) != 1 || candidate.Reasons[0].ReasonKind != "input" {

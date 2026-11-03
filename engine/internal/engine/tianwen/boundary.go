@@ -87,7 +87,7 @@ func (o BoundaryOptions) dayLocation() *time.Location {
 	return o.zone()
 }
 
-// AllBoundaryKinds is the union watched by tianwen.resolve: every boundary any
+// AllBoundaryKinds is the union watched by tianwen_subject_candidates: every boundary any
 // system cares about (see doc comment on each kind).
 var AllBoundaryKinds = []BoundaryKind{
 	BoundaryDay, BoundarySolarDay, BoundaryShichen, BoundarySolarTerm, BoundaryLunarYear,

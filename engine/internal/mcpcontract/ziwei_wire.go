@@ -38,7 +38,7 @@ type ZiweiLiupanInput struct {
 // a oneOf of the four named domain roots.
 type ZiweiLiupanOutput struct{}
 
-// ── ziwei.liunian output ──
+// ── ziwei.liupan liu_nian output ──
 
 type ZiweiLiuNianOutput struct {
 	MingGong ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
@@ -70,7 +70,7 @@ type ZiweiFlowPalace struct {
 	IsLiuMing bool            `json:"is_liu_ming" jsonschema:"是否流盘命宫。"`
 }
 
-// ── ziwei.liuyue output ──
+// ── ziwei.liupan liu_yue output ──
 
 type ZiweiLunarDate struct {
 	Year  int  `json:"year" jsonschema:"农历年。"`
@@ -127,7 +127,7 @@ type ZiweiLiuRiJie struct {
 	Lunar          ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
 }
 
-// ── ziwei.liuri output ──
+// ── ziwei.liupan liu_ri output ──
 
 type ZiweiLiuRiOutput struct {
 	RiJie    ZiweiLiuRiJie             `json:"ri_jie" jsonschema:"流日日界。"`
@@ -137,7 +137,7 @@ type ZiweiLiuRiOutput struct {
 	GongWei  []ZiweiFlowPalace         `json:"gong_wei" jsonschema:"流日十二宫盘。"`
 }
 
-// ── ziwei.liushi output ──
+// ── ziwei.liupan liu_shi output ──
 
 type ZiweiLiuShiChen struct {
 	LiuShiStartTime StandardTime   `json:"start_time" jsonschema:"流时选择器时区标准时间（无 DST）。"`

@@ -633,7 +633,7 @@ type BaziLiupanInput struct {
 // a oneOf of the five named domain roots.
 type BaziLiupanOutput struct{}
 
-// ── bazi.liunian output ──
+// ── bazi.liupan liu_nian output ──
 
 type BaziLiuNianResolved struct {
 	LiuNianStartTime StandardTime `json:"start_time" jsonschema:"流年选择器时区标准时间（无 DST）。"`
@@ -712,7 +712,7 @@ type BaziSeriesZhiRelationItem struct {
 	ZhiB        *ZhiNameNullable `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-// ── bazi.liuyue output ──
+// ── bazi.liupan liu_yue output ──
 
 type BaziLiuYueJieQi struct {
 	LiuYueStartTime StandardTime `json:"start_time" jsonschema:"流月选择器时区标准时间（无 DST）。"`
@@ -742,7 +742,7 @@ type BaziLiuRiJie struct {
 	BeijingDate    DateString   `json:"beijing_date" jsonschema:"北京时间民用日。"`
 }
 
-// ── bazi.liuri output ──
+// ── bazi.liupan liu_ri output ──
 
 type BaziLiuRiOutput struct {
 	Date        string                       `json:"date" jsonschema:"流日日期 YYYY-MM-DD。"`
@@ -765,7 +765,7 @@ type BaziLiuRiLiunianRelsItem struct {
 	ZhiB        *string `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-// ── bazi.liushi output ──
+// ── bazi.liupan liu_shi output ──
 
 type BaziLiuShiChen struct {
 	LiuShiStartTime StandardTime `json:"start_time" jsonschema:"流时选择器时区标准时间（无 DST）。"`
@@ -783,7 +783,7 @@ type BaziLiuShiOutput struct {
 	ShiChen    BaziLiuShiChen               `json:"shi_chen" jsonschema:"流时时辰定位。"`
 }
 
-// ── bazi.xiaoyun output ──
+// ── bazi.liupan xiao_yun output ──
 
 type BaziXiaoYunOutput struct {
 	XiaoYun []BaziXiaoYunItem `json:"xiao_yun" jsonschema:"各学派小运列表；长度 = count。"`

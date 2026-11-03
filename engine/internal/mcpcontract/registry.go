@@ -23,7 +23,7 @@ type Tool[In, Out any] struct {
 	Description string
 	Handler     func(context.Context, In) (Out, error)
 	// InputSchema overrides the schema derived from In when the public input is
-	// a union of forms (e.g. tianwen.resolve's five input variants). The derived
+	// a union of forms (e.g. tianwen_subject_candidates's five input variants). The derived
 	// schema is still used for boundary validation.
 	InputSchema json.RawMessage
 	// OutputSchema overrides the schema derived from Out. Used by series

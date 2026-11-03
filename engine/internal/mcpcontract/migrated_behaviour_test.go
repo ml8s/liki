@@ -129,7 +129,7 @@ func TestMigratedBaziLiuNianShiShen(t *testing.T) {
 		})
 		item := firstSeriesItem(t, document)
 		if shiShen, _ := item["shi_shen"].(string); shiShen == "" {
-			t.Errorf("bazi.liunian(%d) shi_shen is empty", year)
+			t.Errorf("bazi.liupan liu_nian(%d) shi_shen is empty", year)
 		}
 	}
 }
@@ -146,26 +146,26 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 
 	liunian := callToolDocument(t, registry, "ziwei_liupan", map[string]any{"scope": "liu_nian", "start_time": "2026-06-15T12:00:00+08:00", "subject": chart})
 	if len(liunian) == 0 {
-		t.Fatal("ziwei.liunian returned an empty document")
+		t.Fatal("ziwei.liupan liu_nian returned an empty document")
 	}
 	liuyue := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
 		"scope": "liu_yue", "start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuyue) == 0 {
-		t.Fatal("ziwei.liuyue returned an empty document")
+		t.Fatal("ziwei.liupan liu_yue returned an empty document")
 	}
 	liuri := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
 		"scope": "liu_ri", "start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuri) == 0 {
-		t.Fatal("ziwei.liuri returned an empty document")
+		t.Fatal("ziwei.liupan liu_ri returned an empty document")
 	}
 	liushi := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
 		"scope": "liu_shi", "start_time": "2026-06-24T11:00:00+08:00",
 		"longitude": 116.4, "subject": chart,
 	})
 	if len(liushi) == 0 {
-		t.Fatal("ziwei.liushi returned an empty document")
+		t.Fatal("ziwei.liupan liu_shi returned an empty document")
 	}
 	bond := callToolDocument(t, registry, "ziwei_bond", map[string]any{"a": map[string]any{"subject": chart}, "b": map[string]any{"subject": chartB}})
 	if len(bond) == 0 {
@@ -192,18 +192,18 @@ func TestMigratedBaziBondAndXiaoYunValid(t *testing.T) {
 	}
 	liuyue := callToolDocument(t, registry, "bazi_liupan", map[string]any{"scope": "liu_yue", "start_time": "2026-06-15T12:00:00+08:00", "subject": chartA})
 	if len(liuyue) == 0 {
-		t.Fatal("bazi.liuyue returned an empty document")
+		t.Fatal("bazi.liupan liu_yue returned an empty document")
 	}
 	liuri := callToolDocument(t, registry, "bazi_liupan", map[string]any{"scope": "liu_ri", "start_time": "2026-06-15T12:00:00+08:00", "longitude": 116.4, "subject": chartA})
 	if len(liuri) == 0 {
-		t.Fatal("bazi.liuri returned an empty document")
+		t.Fatal("bazi.liupan liu_ri returned an empty document")
 	}
 	liushi := callToolDocument(t, registry, "bazi_liupan", map[string]any{
 		"scope": "liu_shi", "start_time": "2026-06-15T12:00:00+08:00",
 		"longitude": 116.4, "subject": chartA,
 	})
 	if len(liushi) == 0 {
-		t.Fatal("bazi.liushi returned an empty document")
+		t.Fatal("bazi.liupan liu_shi returned an empty document")
 	}
 }
 
@@ -353,21 +353,21 @@ func TestMigratedQimenBoundaryDates(t *testing.T) {
 }
 
 // TestMigratedQimenConsumesTianwenGregorian keeps the cross-tool contract that
-// qimen.chart accepts the Gregorian candidate produced by tianwen.resolve.
+// qimen.chart accepts the Gregorian candidate produced by tianwen_subject_candidates.
 func TestMigratedQimenConsumesTianwenGregorian(t *testing.T) {
 	resolved, err := TianwenSubjectCandidates(context.Background(), civilResolveInput(t, "2026-03-02T10:30:00Z", "Asia/Shanghai", 116.4))
 	if err != nil {
-		t.Fatalf("tianwen.resolve: %v", err)
+		t.Fatalf("tianwen_subject_candidates: %v", err)
 	}
 	if len(resolved.Candidates) == 0 || resolved.Candidates[0].Subject.BirthTime == "" {
-		t.Fatalf("tianwen.resolve candidates = %+v", resolved.Candidates)
+		t.Fatalf("tianwen_subject_candidates candidates = %+v", resolved.Candidates)
 	}
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
 		"qi_ju_time": standardInputFromInstant(t, "2026-03-02T10:30:00Z", "Asia/Shanghai"), "qi_ju_longitude": 116.4,
 	})
 	if document["method"] == nil || document["pan"] == nil {
-		t.Fatalf("qimen.chart from tianwen.resolve = %#v", document)
+		t.Fatalf("qimen.chart from tianwen_subject_candidates = %#v", document)
 	}
 }
 
