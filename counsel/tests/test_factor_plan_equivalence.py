@@ -6,12 +6,11 @@
 
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
 from app.natal.tools.factors import _evaluate_compiled, _get_plan
-from tests.time_helpers import civil_time_from_instant
 
 from tests.factor_oracle import oracle_atomic as _atomic
 from tests.factor_oracle import oracle_evaluate_truth_table as _evaluate_truth_table
 
-BIRTH = (civil_time_from_instant("1990-05-20T03:49:00Z", "Asia/Shanghai"), "Asia/Shanghai", "male", 116.4)
+BIRTH = ("1990-05-20T03:49:00Z", "Asia/Shanghai", "male", 116.4)
 
 
 def _assert_equivalent(old: dict, new: dict, ctx: str) -> None:
@@ -40,13 +39,21 @@ def _run_both(rows, atomic_fn, plan, gender, chart, ctx=None,
 
 
 def _build_natal():
-    from app.natal.tools.charts import build_natal_chart
-    return build_natal_chart(*BIRTH)
+    from app.natal.tools.counsel import _build_natal_chart
+    from tests.time_helpers import standard_time_from_instant
+
+    instant, timezone, gender, longitude = BIRTH
+    subject = {
+        "birth_time": standard_time_from_instant(instant, timezone),
+        "birth_longitude": longitude,
+        "gender": gender,
+    }
+    return _build_natal_chart(subject)
 
 
 def _build_liunian(natal_chart):
-    from app.natal.tools.charts import _bazi_liunian
-    return _bazi_liunian(natal_chart["subject"], 2030)
+    from app.natal.tools.charts import _bazi_liunian_range
+    return _bazi_liunian_range(natal_chart["subject"], 2030, 1)[0]
 
 
 class TestNatalEquivalence:
@@ -120,8 +127,8 @@ class TestLiunianEquivalence:
 
     def test_ziwei_liunian_full(self):
         natal = _build_natal()
-        from app.natal.tools.charts import _ziwei_liunian
-        zw_ln = _ziwei_liunian(natal["subject"], 2030)
+        from app.natal.tools.charts import _ziwei_liunian_range
+        zw_ln = _ziwei_liunian_range(natal["subject"], 2030, 1)[0]
         ctx = {"liunian": {}, "zw_liunian": zw_ln, "year": 2030,
                "chart": natal, "base": {}, "snapshot": {}}
         rows = [r for r in load_liunian_rows() if r["术数"] == "ziwei"]

@@ -10,43 +10,28 @@ tools:
       - list_skills
       - load_skill
       - load_skill_resource
-    engine:
+    liki:
+      - time_now
+      - subject_candidates
+      - city_info
+      - huangli_days
+      - bazi_chart
+      - ziwei_chart
+      - bazi_liupan
+      - ziwei_liupan
+      - bazi_bond
+      - ziwei_bond
       - bazhai_chart
       - bazhai_layout
-      - bazi_bond
-      - bazi_chart
-      - bazi_liunian
-      - bazi_liuri
-      - bazi_liushi
-      - bazi_liuyue
-      - bazi_xiaoyun
-      - city_coords
-      - huangli_days
-      - liuyao_chart
-      - liuyao_qigua
-      - qimen_chart
-      - tianwen_resolve
-      - time_now
       - xuankong_chart
       - xuankong_liunian
-      - ziwei_bond
-      - ziwei_chart
-      - ziwei_daxian
-      - ziwei_liunian
-      - ziwei_liuri
-      - ziwei_liushi
-      - ziwei_liuyue
-    counsel:
       - bazi_yongshen
-      - natal_compute_factors
       - natal_query
-      - natal_period_query
+      - natal_liunian_query
       - naming_surname
       - naming_pick
-      - naming_char
+      - naming_character
       - naming_compose
       - naming_check
-      - liuyao_snapshot
-      - liuyao_query
-      - qimen_snapshot
-      - qimen_query
+      - liuyao_ask
+      - qimen_ask

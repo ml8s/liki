@@ -2,14 +2,14 @@
   "conclusion_scope": "conditional_rule_restoration_not_absolute_verdict",
   "state_classes": {
     "strong": {
-      "path": "focus.yong_shen.wang_shuai",
+      "path": "selected_yongshen_context.selected_yongshen.wang_shuai",
       "values": [
         "旺",
         "相"
       ]
     },
     "weak": {
-      "path": "focus.yong_shen.wang_shuai",
+      "path": "selected_yongshen_context.selected_yongshen.wang_shuai",
       "values": [
         "休",
         "囚",
@@ -23,7 +23,7 @@
       "statement": "月破必废",
       "restored": "月破只在休囚静爻且无救应时，才作为真破 / 当下无力候选；旺相有救为假破候选。",
       "applies_if": {
-        "focus.yong_shen.yue_po": true
+        "selected_yongshen_context.selected_yongshen.yue_po": true
       },
       "strong_branch": {
         "status": "accepted",
@@ -51,7 +51,7 @@
       "statement": "旬空无用",
       "restored": "旬空须分真空 / 假空；旺相、发动、有救不作无用。",
       "applies_if": {
-        "focus.yong_shen.xun_kong": true
+        "selected_yongshen_context.selected_yongshen.xun_kong": true
       },
       "strong_branch": {
         "status": "accepted",
@@ -161,7 +161,7 @@
       "statement": "用神不现即无成",
       "restored": "用神伏藏须核对伏神旺衰、飞神压制与出伏条件；伏神有气只作迟成候选。",
       "applies_if": {
-        "focus.yong_shen.is_hidden": true
+        "selected_yongshen_context.selected_yongshen.is_hidden": true
       },
       "strong_branch": {
         "status": "accepted",
@@ -189,7 +189,7 @@
       "statement": "动爻必然决定吉凶",
       "restored": "动爻只是引动源，须核对动爻六亲、旺衰、动变关系与是否实际作用用神。",
       "applies_if": {
-        "focus.yong_line.flags.moving": true
+        "selected_yongshen_context.yong_line.flags.moving": true
       },
       "strong_branch": {
         "status": "accepted",
@@ -413,7 +413,7 @@
       "statement": "玄武即未登场",
       "restored": "玄武=未登场须并列条件齐备（静+伏吟+玄武等），单凭玄武不判未登场；玄武可只表暗藏/私下行动而非不现身。",
       "applies_if": {
-        "focus.yong_line.liu_shou": "玄武"
+        "selected_yongshen_context.yong_line.liu_shou": "玄武"
       },
       "strong_branch": {
         "status": "accepted",

@@ -123,7 +123,6 @@ type ZiweiLiuYueResolvedPeriodFlowMonth struct {
 type ZiweiLiuRiJie struct {
 	LiuRiStartTime StandardTime   `json:"start_time" jsonschema:"流日选择器时区标准时间（无 DST）。"`
 	LiuRiLocalDate DateString     `json:"local_date" jsonschema:"流日当地民用日。"`
-	BeijingDate    DateString     `json:"beijing_date" jsonschema:"北京时间民用日。"`
 	Lunar          ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
 }
 

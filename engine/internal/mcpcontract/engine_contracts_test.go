@@ -30,7 +30,7 @@ var testEngine = sync.OnceValue(NewEngine)
 func TestEngineContractDefinitions(t *testing.T) {
 	registry := testEngine()
 	want := []string{
-		"time_now", "huangli_days", "tianwen_subject_candidates", "city_info",
+		"time_now", "huangli_days", "subject_candidates", "city_info",
 		"bazi_chart",
 		"bazhai_chart", "bazhai_layout",
 		"xuankong_chart", "xuankong_liunian",
@@ -110,16 +110,16 @@ func TestEngineContractInputConstraints(t *testing.T) {
 			} `json:"properties"`
 		} `json:"oneOf"`
 	}
-	decode(t, mustDefinition(t, registry, "tianwen_subject_candidates").InputSchema, &resolveInput)
+	decode(t, mustDefinition(t, registry, "subject_candidates").InputSchema, &resolveInput)
 	if len(resolveInput.OneOf) != 4 {
-		t.Fatalf("tianwen_subject_candidates oneOf forms = %d, want 4", len(resolveInput.OneOf))
+		t.Fatalf("subject_candidates oneOf forms = %d, want 4", len(resolveInput.OneOf))
 	}
 	for _, form := range resolveInput.OneOf {
 		if !slices.Contains(form.Required, "place_longitude") {
-			t.Fatalf("tianwen_subject_candidates form must require longitude: %#v", form.Required)
+			t.Fatalf("subject_candidates form must require longitude: %#v", form.Required)
 		}
 		if form.AdditionalProperties == nil || *form.AdditionalProperties {
-			t.Fatalf("tianwen_subject_candidates form must be closed: %#v", form.Required)
+			t.Fatalf("subject_candidates form must be closed: %#v", form.Required)
 		}
 	}
 
@@ -594,7 +594,7 @@ func TestEngineContractCalls(t *testing.T) {
 
 	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
 		QiGua: LiuyaoQiGuaInput{
-			Time:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+			QiGuaTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
 			Longitude: 116.4,
 			Casting:   &qigua.Casting,
 		},
@@ -618,7 +618,7 @@ func TestEngineContractCalls(t *testing.T) {
 	tamperedQigua.Casting.Yaos[0] = 8
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
 		QiGua: LiuyaoQiGuaInput{
-			Time:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+			QiGuaTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
 			Longitude: 116.4,
 			Casting:   &tamperedQigua.Casting,
 		},

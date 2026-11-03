@@ -16,7 +16,7 @@ TOOLS = Path(__file__).resolve().parents[1] / "counsel" / "app" / "natal" / "too
 
 
 def test_ten_god_state_projection_is_readonly() -> None:
-    natal_chart = {"full": {
+    natal_chart = {"bazi": {
         "ten_god_states": [
             {"shi_shen": "正官", "wuxing": "金", "transparent": True, "hidden": False, "count": 1},
             {"shi_shen": "正印", "wuxing": "水", "transparent": False, "hidden": True, "count": 1},
@@ -34,7 +34,7 @@ def test_ten_god_state_projection_is_readonly() -> None:
 def test_ge_shen_uses_engine_gan_source() -> None:
     base = mock_base_context()
     base["ge_ju"] = {"ge_ju": "正官格"}
-    chart = {"full": {"atomic_facts": {"pattern_god_transparent": True}, "yue": {"shi_shens": [
+    chart = {"bazi": {"atomic_facts": {"pattern_god_transparent": True}, "yue": {"shi_shens": [
         {"source": "gan", "gan": "辛", "shi_shen": "正官"}
     ]}}}
     assert _op("格神透", [], "male", {**base, **chart}) == 1

@@ -5,7 +5,7 @@ import app.natal.tools.duanyu as duanyu
 import app.natal.tools.factors as factors
 import pytest
 from app.natal.tools.charts import RPCError
-from app.natal.tools.duanyu import load_rule_table, query, resolve_current_year
+from app.natal.tools.duanyu import load_rule_table, resolve_current_year
 
 
 def _fac() -> dict:
@@ -35,28 +35,6 @@ def test_evaluate_flow_factors_propagates_operator_errors() -> None:
             )
 
 
-def test_query_rejects_snapshot_input() -> None:
-    with pytest.raises(ValueError, match="natal_chart 必须是 build_natal_chart"):
-        query("十神", {"八字": {}, "紫微": {}})
-
-
-@pytest.mark.parametrize("natal_chart", [
-    {"full": {"ri": {"gan": "甲", "zhi": "子"}}},
-    {"chart": {"ri": {"gan": "甲", "zhi": "子"}}},
-    {
-        "standard_time": "1990-05-20T12:00:00",
-        "chart": {"ri": {"gan": "甲", "zhi": "子"}},
-        "full": {"ri": {"gan": "甲", "zhi": "子"}},
-        "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
-        "ziwei": {},
-        "gender": "male",
-    },
-])
-def test_query_rejects_partial_pan(natal_chart) -> None:
-    with pytest.raises(ValueError, match="build_natal_chart|完整本命盘|四柱结构|缺失"):
-        query("十神", natal_chart)
-
-
 def test_current_year_does_not_fall_back_to_local_time() -> None:
     with mock.patch("app.natal.tools.charts.call", side_effect=RPCError("time.now failed")):
         with pytest.raises(RPCError, match="time.now failed"):
@@ -71,19 +49,12 @@ def _year_call(cst: str):
     def fake(name, params):
         if name == "time.now":
             return {"data": {
-                "standard_time": cst + "T12:00:00+08:00", "offset": 28800,
+                "local_standard_time": cst + "T12:00:00+08:00", "offset_seconds": 28800,
             }}
-        if name == "tianwen.resolve":
-            date, clock = params["date"], params["time"]
-            return {"data": {"candidates": [{
-                "standard_time": f"{date}T{clock}:00+08:00",
-                "offset": 28800,
-                "reasons": [{"domain": "input", "detail": "输入时间"}],
-            }]}}
-        if name == "bazi.chart":
-            return {"data": {"nian": {"gan": "丙", "zhi": "午"}, "birth_year": 2026}}
-        if name == "ziwei.chart":
-            return {"data": {"birth_year": 2026}}
+        if name == "bazi_liupan":
+            return {"data": {"liu_nian": [{"year": 2026, "nian_jie": {"lichun_year": 2026}}]}}
+        if name == "ziwei_liupan":
+            return {"data": {"liu_nian": [{"year": 2026, "nian_jie": {"lunar_year": 2026}}]}}
         raise AssertionError(f"unexpected tool {name}")
     return fake
 

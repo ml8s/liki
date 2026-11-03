@@ -18,7 +18,7 @@ type QimenYongShenSymbols []string
 
 // QimenChart computes a qimen chart for an explicitly selected method.
 func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, error) {
-	at, _, err := parseStandardTime(input.QiJu.Time)
+	at, _, err := parseStandardTime(input.QiJu.QiJuTime)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}

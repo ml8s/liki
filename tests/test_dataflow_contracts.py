@@ -54,7 +54,8 @@ def _pan() -> dict:
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             "da_yun": {"steps": [], "current_step_index": -1},
         },
-        "full": {
+        "natal_chart_digest": "a" * 64,
+        "bazi": {
             **{
                 pillar: {
                     "gan": "甲", "zhi": "子",

@@ -1,4 +1,4 @@
-"""六爻因子投影编排：调用 engine 排盘并投影 snapshot 内部因子。"""
+"""六爻因子投影编排：调用 engine 排盘并投影 case 内部因子。"""
 
 from typing import Any
 
@@ -54,7 +54,7 @@ def factors(
         "yong_shen": resolved_yong_shen,
     }
     params["qi_gua"] = {
-        "time": qi_gua_time,
+        "qi_gua_time": qi_gua_time,
         "longitude": resolved_longitude,
         "casting": casting,
     }

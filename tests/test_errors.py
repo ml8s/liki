@@ -33,11 +33,11 @@ def test_chart_schema_error():
 
 def test_year_range_error():
     try:
-        duanyu.yearly_range({}, 2027, 2026, rules=["yingqi"])
+        duanyu.yearly_range({}, 2026, 0, rules=["yingqi"])
     except ValueError as exc:
         assert isinstance(exc, YearRangeError)
     else:
-        raise AssertionError("reversed range did not raise")
+        raise AssertionError("zero count did not raise")
 
 
 def test_factor_table_error():

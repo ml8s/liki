@@ -68,7 +68,6 @@
         "liu_ri.0.gan": "丙",
         "liu_ri.0.zhi": "午",
         "liu_ri.0.ri_jie.local_date": "2026-06-01",
-        "liu_ri.0.ri_jie.beijing_date": "2026-06-01",
         "liu_ri.0.ri_jie.solar_date": "2026-06-01"
       }
     },
@@ -84,7 +83,6 @@
       },
       "expect": {
         "liu_ri.0.ri_jie.local_date": "2026-06-01",
-        "liu_ri.0.ri_jie.beijing_date": "2026-06-02",
         "liu_ri.0.ri_jie.lunar.year": 2026,
         "liu_ri.0.ri_jie.lunar.month": 4,
         "liu_ri.0.ri_jie.lunar.day": 17,
@@ -169,7 +167,6 @@
       },
       "expect": {
         "liu_ri.0.ri_jie.local_date": "2024-02-09",
-        "liu_ri.0.ri_jie.beijing_date": "2024-02-10",
         "liu_ri.0.ri_jie.lunar.year": 2024,
         "liu_ri.0.ri_jie.lunar.month": 1,
         "liu_ri.0.ri_jie.lunar.day": 1
@@ -245,7 +242,7 @@
       }
     },
     {
-      "tool": "tianwen_subject_candidates",
+      "tool": "subject_candidates",
       "input": {
         "calendar_kind": "lunar",
         "recorded_lunar": {
@@ -259,7 +256,7 @@
         "place_longitude": -74.0,
         "subject_gender": "male"
       },
-      "name": "tianwen_subject_candidates_lunar_local_astronomical",
+      "name": "subject_candidates_lunar_local_astronomical",
       "expect": {
         "candidates.0.subject.birth_time": "2024-02-09T12:00:00-05:00"
       }

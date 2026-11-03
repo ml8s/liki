@@ -280,14 +280,14 @@
               "minimum": -180,
               "type": "number"
             },
-            "time": {
+            "qi_ju_time": {
               "description": "起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。",
               "format": "date-time",
               "type": "string"
             }
           },
           "required": [
-            "time",
+            "qi_ju_time",
             "longitude"
           ],
           "type": "object"
@@ -372,14 +372,14 @@
               "minimum": -180,
               "type": "number"
             },
-            "time": {
+            "qi_ju_time": {
               "description": "起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。",
               "format": "date-time",
               "type": "string"
             }
           },
           "required": [
-            "time",
+            "qi_ju_time",
             "longitude"
           ],
           "type": "object"

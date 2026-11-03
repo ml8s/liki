@@ -366,7 +366,7 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
 
     与 evaluate_factors 同构——流年因子定义在表，本函数只做机械求值。
     factor_names 可限定流年因子闭包；None=该侧全量。
-    liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化。
+    liunian_data: bazi_liupan 返回（调用方预取）；zw_liunian_data: 紫微流年四化。
     chart=排盘 natal_chart 或内部 FactorContext；基础上下文不写回调用方 chart。
     """
     ctx = {

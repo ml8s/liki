@@ -4,7 +4,7 @@
 
 ## 引擎输出字段说明
 
-- `yong_shen.liu_shou`：用神临的六神（青龙/朱雀/勾陈/螣蛇/白虎/玄武）
+- `用神.六兽`：用神临的六神（青龙/朱雀/勾陈/螣蛇/白虎/玄武）
 
 ## 📖 解读：六神 → 色彩/情状
 
@@ -40,6 +40,6 @@
 
 ### 玄武未登场的判定边界
 
-“玄武=未登场”的组合判断由工具按 `liuyao_condition_rules.json` 的 `xuanwu-presence-needs-compound-conditions` 输出（并列条件齐备才判未登场，单凭玄武不判）；LLM 只解读工具返回的 `statement / restored / conclusion / forbidden`。
+“玄武=未登场”的组合判断由工具按 `六爻条件候选.json` 的 `xuanwu-presence-needs-compound-conditions` 输出（并列条件齐备才判未登场，单凭玄武不判）；LLM 只解读工具返回的 `陈述、条件还原、结论与禁断`。
 
 六神不决定吉凶方向，但决定"人/事是否在场"这一事实，两者都要读。

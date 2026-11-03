@@ -187,7 +187,7 @@ def _normalize_selected_yongshen(selected_yongshen: object) -> dict:
 
     if raw_selected_yongshen.get("status") not in ("resolved", "partial"):
         raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
-    raw = raw_selected_yongshen.get("selected")
+    raw = raw_selected_yongshen.get("selected_yongshen")
     if not isinstance(raw, dict):
         raise ValueError("selected_yongshen.selected must be an object")
 
@@ -290,7 +290,6 @@ def compose_names(first: list, second: list, max_names: int = 0) -> dict:
 
     first_chars = _lookup_characters(first)
     second_chars = _lookup_characters(second)
-    total_possible = len(first_chars) * len(second_chars) if double_name else len(first_chars)
     names: list[str] = []
     for fc in first_chars:
         if len(names) >= max_names:
@@ -302,7 +301,7 @@ def compose_names(first: list, second: list, max_names: int = 0) -> dict:
             if len(names) >= max_names:
                 break
             names.append(fc.char + sc.char)
-    return {"total_possible": total_possible, "names": names}
+    return {"names": names}
 
 
 def _lookup_characters(chars: list) -> list[Character]:
@@ -489,8 +488,6 @@ MATCH_PINYIN_EXACT = "pinyin_exact"
 MATCH_ROMANIZATION_EXACT = "romanization_exact"
 MATCH_PHONETIC_CLOSE = "phonetic_close"
 MATCH_FALLBACK_BAIJIAXING = "fallback_baijiaxing"
-STRATEGY_PHONETIC = "phonetic"
-STRATEGY_BAIJIAXING_FALLBACK = "baijiaxing_fallback"
 
 _NON_DECOMPOSING_LATIN = {
     "æ": "ae", "œ": "oe", "ß": "ss", "ø": "o", "đ": "d", "ð": "d",
@@ -522,12 +519,11 @@ def match_surnames(source_surname: str, max_candidates: int = 0) -> dict:
             matches.append((_new_surname_candidate(record, level, basis), token_size))
     matches.sort(key=lambda m: (_match_order(m[0]["match_kind"]), -m[1], m[0]["baijiaxing_index"]))
 
-    result: dict = {"source_surname": source, "strategy": STRATEGY_PHONETIC}
+    result: dict = {"source_surname": source}
     if matches:
         result["candidates"] = [m[0] for m in matches[:max_candidates]]
         return result
 
-    result["strategy"] = STRATEGY_BAIJIAXING_FALLBACK
     result["candidates"] = [
         _new_surname_candidate(r, MATCH_FALLBACK_BAIJIAXING, ["classic_baijiaxing_order"])
         for r in _surname_records[:max_candidates]

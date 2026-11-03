@@ -2,7 +2,7 @@
 
 The public engine time model has two boundaries:
 
-1. **Recorded wall-clock input** goes to `tianwen.resolve` as a civil recorded date/time
+1. **Recorded wall-clock input** goes to `subject_candidates` as a civil recorded date/time
    (or lunar date, shichen, or range) plus an explicit IANA timezone and
    longitude.
 2. **Chart and flow tools** accept only `standard_time` plus longitude. They do
@@ -41,11 +41,11 @@ Chart and flow tools:
   local standard dates.
 - `longitude` is required only for capabilities that use local apparent solar
   time (LAST).
-- `tianwen.resolve` is the only place where civil time and DST exist.
+- `subject_candidates` is the only place where civil time and DST exist.
 
 ## DST boundary
 
-`tianwen.resolve` converts civil wall time to an instant once:
+`subject_candidates` converts civil wall time to an instant once:
 
 - Normal time: one candidate.
 - Fold: two candidates; the caller must disambiguate.
@@ -131,7 +131,7 @@ wire layer.
 ## Anti-patterns
 
 - Do not pass `instant` or `civil_time` to chart tools.
-- Do not apply DST a second time after `tianwen.resolve`.
+- Do not apply DST a second time after `subject_candidates`.
 - Do not infer an IANA timezone from a `standard_time` offset.
 - Do not use a Beijing date label for a birth day/hour pillar.
 - Do not use a Beijing date label for local 命理 facts; use the recorded
@@ -140,7 +140,7 @@ wire layer.
 
 ## Enforcement
 
-`tianwen.resolve` is the only tool that accepts civil time, lunar time, or an
+`subject_candidates` is the only tool that accepts civil time, lunar time, or an
 IANA timezone. Chart and flow schemas require `standard_time`; the engine's
 `TestTimeInputsCanonical` rejects reintroduced `instant`, `civil_time`,
 `timezone`, `fold`, or bare-date inputs on those tools.

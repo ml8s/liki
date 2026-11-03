@@ -415,7 +415,7 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 // LiuyaoQiGuaInput is one auditable divination event: the casting receipt plus
 // the local standard time and place used to derive day/month and hour facts.
 type LiuyaoQiGuaInput struct {
-	Time      StandardTime         `json:"time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
+	QiGuaTime StandardTime         `json:"qi_gua_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude float64              `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
 	Casting   *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao_qigua 返回的完整可审计起卦收据。"`
 }
@@ -434,7 +434,7 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, 
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
 	}
-	standard, _, err := parseStandardTime(input.QiGua.Time)
+	standard, _, err := parseStandardTime(input.QiGua.QiGuaTime)
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}

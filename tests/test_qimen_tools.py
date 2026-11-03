@@ -704,7 +704,7 @@ def test_engine_mcp_client_preserves_aggregate_endpoint(monkeypatch):
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
     monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://127.0.0.1:18081/mcp")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
-    for name in ["tianwen_subject_candidates", "ziwei.chart", "bazi_chart", "time.now"]:
+    for name in ["subject_candidates", "ziwei.chart", "bazi_chart", "time.now"]:
         engine_mcp_client.call(name, {})
     assert seen == [
         "http://127.0.0.1:18081/mcp",

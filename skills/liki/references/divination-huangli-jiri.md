@@ -2,7 +2,7 @@
 
 用于从引擎返回的多日中筛选推荐。
 
-> **字段契约**：只读 engine 黄历实际返回字段（`jian_chu` 建除 / `huangdao` 黄黑道 / `gan_ji`+`zhi_ji` 日忌干支 / `mansion` 二十八宿）。天德/月德/三煞/四离/四绝等日神煞不在返回字段中（见 `references/divination-huangli-yiji.md`）。
+> **领域事实边界**：只读 排盘引擎黄历实际返回事实（`建除` 建除 / `黄黑道` 黄黑道 / `日干支`+`日忌干支` 日忌干支 / `二十八宿` 二十八宿）。天德/月德/三煞/四离/四绝等日神煞不在返回事实中（见 `references/divination-huangli-yiji.md`）。
 
 ## 📖 翻译表：吉日优先级
 

@@ -11,7 +11,7 @@ from app.naming import naming  # noqa: E402
 
 def selected_yongshen(yong="木", xi=None, ji=None):
     return {
-        "selected": {"yong": yong, "xi": xi or [], "ji": ji or []},
+        "selected_yongshen": {"yong": yong, "xi": xi or [], "ji": ji or []},
         "status": "resolved",
     }
 
@@ -62,12 +62,12 @@ def test_pick_errors():
 
 def test_compose_double():
     r = naming.compose_names(["子", "轩"], ["然", "宇"], 5)
-    assert r == {"total_possible": 4, "names": ["子然", "子宇", "轩然", "轩宇"]}
+    assert r == {"names": ["子然", "子宇", "轩然", "轩宇"]}
 
 
 def test_compose_single():
     r = naming.compose_names(["安", "宁", "静"], [], 3)
-    assert r == {"total_possible": 3, "names": ["安", "宁", "静"]}
+    assert r == {"names": ["安", "宁", "静"]}
 
 
 def test_compose_errors():
@@ -149,7 +149,7 @@ def test_evaluate_errors():
 
 def test_surname_zhang():
     r = naming.match_surnames("zhang", 3)
-    assert r["strategy"] == "phonetic"
+    assert "strategy" not in r
     assert [c["surname"] for c in r["candidates"]] == ["张", "章", "赵"]
     assert [c["match_kind"] for c in r["candidates"]] == [
         "pinyin_exact", "pinyin_exact", "phonetic_close",
@@ -167,7 +167,7 @@ def test_surname_liu():
 
 def test_surname_fallback():
     r = naming.match_surnames("zyxwv", 3)
-    assert r["strategy"] == "baijiaxing_fallback"
+    assert "strategy" not in r
     assert [c["surname"] for c in r["candidates"]] == ["赵", "钱", "孙"]
     assert all(c["match_kind"] == "fallback_baijiaxing" for c in r["candidates"])
 

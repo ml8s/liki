@@ -42,20 +42,20 @@ func TestMigratedInputValidation(t *testing.T) {
 		{"bazi.liupan invalid longitude", "bazi_liupan", map[string]any{
 			"scope": "liu_shi", "start_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "subject": subject}, ""},
 		{"qimen.chart bad scope", "qimen_chart", map[string]any{
-			"qi_ju":  map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
+			"qi_ju":  map[string]any{"qi_ju_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 			"method": map[string]any{"scope": "ke", "school": "zhuanpan", "dingju_method": "chaibu"},
 		}, ""},
 		{"qimen.chart unknown yong_shen", "qimen_chart", map[string]any{
-			"qi_ju":     map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
+			"qi_ju":     map[string]any{"qi_ju_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 			"method":    map[string]any{"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
 			"yong_shen": []string{"不存在的符号"}}, ""},
 		{"qimen.chart unknown field", "qimen_chart", map[string]any{
-			"qi_ju":      map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
+			"qi_ju":      map[string]any{"qi_ju_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 			"method":     map[string]any{"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
 			"birth_year": 1984,
 		}, ""},
 		{"qimen.chart invalid utc", "qimen_chart", map[string]any{
-			"qi_ju": map[string]any{"time": "not-a-time"}, "method": map[string]any{
+			"qi_ju": map[string]any{"qi_ju_time": "not-a-time"}, "method": map[string]any{
 				"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
 			},
 		}, ""},
@@ -353,21 +353,21 @@ func TestMigratedQimenBoundaryDates(t *testing.T) {
 }
 
 // TestMigratedQimenConsumesTianwenGregorian keeps the cross-tool contract that
-// qimen.chart accepts the Gregorian candidate produced by tianwen_subject_candidates.
+// qimen.chart accepts the Gregorian candidate produced by subject_candidates.
 func TestMigratedQimenConsumesTianwenGregorian(t *testing.T) {
 	resolved, err := TianwenSubjectCandidates(context.Background(), civilResolveInput(t, "2026-03-02T10:30:00Z", "Asia/Shanghai", 116.4))
 	if err != nil {
-		t.Fatalf("tianwen_subject_candidates: %v", err)
+		t.Fatalf("subject_candidates: %v", err)
 	}
 	if len(resolved.Candidates) == 0 || resolved.Candidates[0].Subject.BirthTime == "" {
-		t.Fatalf("tianwen_subject_candidates candidates = %+v", resolved.Candidates)
+		t.Fatalf("subject_candidates candidates = %+v", resolved.Candidates)
 	}
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
 		"qi_ju_time": standardInputFromInstant(t, "2026-03-02T10:30:00Z", "Asia/Shanghai"), "qi_ju_longitude": 116.4,
 	})
 	if document["method"] == nil || document["pan"] == nil {
-		t.Fatalf("qimen.chart from tianwen_subject_candidates = %#v", document)
+		t.Fatalf("qimen.chart from subject_candidates = %#v", document)
 	}
 }
 

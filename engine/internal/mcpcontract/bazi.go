@@ -338,7 +338,6 @@ func computeBaziLiuRi(input BaziLiupanInput, core bazi.Core) (BaziLiuRiOutput, e
 		LiuRiStartTime: standardTimeValue(resolved.Standard.In(loc)),
 		LiuRiLocalDate: civilDateString(resolved.Date),
 		LiuRiSolarDate: civilDateString(resolved.Date),
-		BeijingDate:    civilDateString(resolved.BeijingDate),
 	}
 	return output, nil
 }

@@ -9,7 +9,7 @@ from app.natal.tools.errors import YearRangeError
 from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.factor_context import NatalContext
 
-MAX_YEARS = 120
+MAX_YEARS = 50
 
 
 def resolve_rules(

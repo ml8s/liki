@@ -8,24 +8,15 @@
 出生信息
   → 排盘
   → 用神裁决能力
-  → selected_yongshen.status / selected
-  → 取字能力 / 起名校验能力.selected_yongshen
+  → 选定用神.status / 选定用神
+  → 取字能力 / 起名校验能力.选定用神
 ```
 
 八字域负责用神裁决。起名域只消费 `status` 与 `selected` 计划；不读取冲突、证据、规则、策略来源等八字审计字段，也不重新裁决用神。
 
 ## 计划形状
 
-```json
-{
-  "status": "resolved",
-  "selected": {
-    "yong": "木",
-    "xi": ["水"],
-    "ji": ["金"]
-  }
-}
-```
+以工具实际返回的完整性摘要为准，只解释命理含义，不复制接口形态。
 
 约束：
 
@@ -33,14 +24,14 @@
 - `xi`、`ji` 是五行数组。
 - 用、喜、忌互斥。
 
-八字结果为 `resolved` 或 `partial`，且 `selected.yong` 是具体五行时，才把 `selected_yongshen` 传给起名工具。
+八字结果为 `resolved` 或 `partial`，且 `选定用神.yong` 是具体五行时，才把 `选定用神` 传给起名工具。
 
 ## 组合策略
 
 | 字位 | 可用角色 | 说明 |
 | --- | --- | --- |
-| `first_role` | `yong` / `xi` | 第一字位 |
-| `second_role` | `yong` / `xi` | 第二字位；省略表示单名 |
+| `第一用神` | `yong` / `xi` | 第一字位 |
+| `第二用神` | `yong` / `xi` | 第二字位；省略表示单名 |
 
 默认：
 
@@ -62,7 +53,7 @@ xi + yong
 
 ## 起名校验能力
 
-`起名校验能力` 使用同一个 `selected_yongshen` 返回对象。工具内部只读取 `selected.yong / xi / ji`，对名字每个字的实际五行逐一分类：
+`起名校验能力` 使用同一个 `选定用神` 返回对象。工具内部只读取 `选定用神.yong / xi / ji`，对名字每个字的实际五行逐一分类：
 
 ```text
 yong     命中用神五行
@@ -85,8 +76,8 @@ check 不预设「用+用」或「用+喜」，只如实返回每个字的角色
 
 ```text
 八字依据：用神裁决能力.status / selected
-选字策略：first_role + second_role
-逐字事实：char、wuxing、wuxing_role
+选字策略：第一用神 + 第二用神
+逐字事实：char、wuxing、五行角色
 ```
 
 不输出分数、排名、置信度或目标命中汇总。

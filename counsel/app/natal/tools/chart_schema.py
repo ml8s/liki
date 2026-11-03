@@ -105,12 +105,3 @@ def validate_natal_chart(natal_chart: object, action: str = "natal_chart") -> No
     _validate_ziwei(natal_chart["ziwei"], action)
     _validate_daxian(natal_chart["ziwei_daxian"], action)
     validate_natal_chart_digest(natal_chart, action=action)
-
-
-def validate_side_chart(natal_chart: object, side: str, action: str = "natal_chart") -> None:
-    """校验单侧求值输入；输入仍是 canonical natal_chart。"""
-    if not isinstance(natal_chart, dict):
-        raise ChartSchemaError(f"{action} natal_chart 必须是 object。")
-    validate_natal_chart(natal_chart, action=action)
-    if technique not in ("bazi", "ziwei"):
-        raise ChartSchemaError(f"{action} side 只支持 bazi/ziwei，收到: {side!r}。")

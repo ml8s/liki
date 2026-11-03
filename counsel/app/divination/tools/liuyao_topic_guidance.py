@@ -31,31 +31,17 @@ def get_topic(topic: str) -> dict:
     }
 
 
-def project_topic_guidance(snapshot: dict, topic: str) -> dict:
-    """把专题规则与 snapshot 主判层绑定；仍不输出吉凶。"""
+def project_topic_guidance(factors: dict, topic: str) -> dict:
+    """把专题规则与 factors 主判层绑定；仍不输出吉凶。"""
     guidance = get_topic(topic)
-    evidence = snapshot.get("evidence", {})
-    primary_ids = [
-        item.get("id")
-        for item in evidence.get("primary", [])
-        if isinstance(item, dict) and item.get("id")
-    ]
-    secondary_ids = [
-        item.get("id")
-        for item in evidence.get("secondary", [])
-        if isinstance(item, dict) and item.get("id")
-    ]
     return {
-        "topic": topic,
         "name": guidance["name"],
-        "yong_shen": guidance["yong_shen"],
+        "expected_yongshen": guidance["yong_shen"],
         "force_roles": {
             "yuan_shen": guidance["yuan_shen"],
             "ji_shen": guidance["ji_shen"],
             "chou_shen": guidance["chou_shen"],
         },
-        "available_primary_evidence": primary_ids,
-        "available_secondary_evidence": secondary_ids,
         "primary_factors": guidance["primary_factors"],
         "reference_factors": guidance["reference_factors"],
         "timing_focus": guidance["timing_focus"],

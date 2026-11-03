@@ -5,17 +5,15 @@ facts from the resulting canonical charts, but it never accepts a large chart
 back from the caller as a substitute for that subject.
 """
 
+from concurrent.futures import ThreadPoolExecutor
+
 from app.integrity.digest import sha256_json
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
-from app.natal.tools.charts import _bazi_chart, _ziwei_chart, _ziwei_daxian
+from app.natal.tools.charts import _bazi_chart, _ziwei_chart
 from app.natal.tools.duanyu import match_rule
 from app.natal.tools.factors import evaluate_factors
 from app.natal.tools.yongshen import published_yongshen, resolve_yongshen
-
-
-def _factors_digest(factors: dict) -> str:
-    return sha256_json(factors)
 
 
 def _validate_subject(subject: object, action: str = "subject") -> dict:
@@ -27,46 +25,20 @@ def _validate_subject(subject: object, action: str = "subject") -> dict:
     return subject
 
 
-def _factor_provenance(factors: dict) -> dict:
-    provenance = factors.get("_provenance")
-    if not isinstance(provenance, dict):
-        raise ValueError("factors 缺少 natal_compute_factors 生成的 _provenance")
-    return provenance
-
-
-def verify_factors_digest(factors: dict, factors_digest: str) -> None:
-    if not isinstance(factors_digest, str):
-        raise ValueError("factors_digest 必须是 SHA-256 字符串")
-    if factors_digest != _factors_digest(factors):
-        raise ValueError("factors_digest mismatch；必须原样传递 natal_compute_factors 返回的 factors")
-
-
-def _hour_calibration_facts(bazi: dict) -> dict:
-    from app.natal.tools.bazi_projection import build_atomic_facts
-    hour = bazi.get("shi") or {}
-    atomic = build_atomic_facts(bazi)
-    shen_sha = (bazi.get("shi") or {}).get("shen_sha") or []
-    return {
-        "hour_pillar": {"gan": hour.get("gan", ""), "zhi": hour.get("zhi", "")},
-        "hour_stem_ten_god": atomic.get("hour_stem_ten_god", ""),
-        "hour_shen_sha": [
-            item.get("name") or item.get("xing") or ""
-            for item in shen_sha if isinstance(item, dict)
-        ],
-    }
-
-
 def _build_natal_chart(subject: dict) -> dict:
     subject = _validate_subject(subject)
-    bazi = _bazi_chart(subject)
-    ziwei = _ziwei_chart(subject)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        bazi_future = executor.submit(_bazi_chart, subject)
+        ziwei_future = executor.submit(_ziwei_chart, subject)
+        bazi = bazi_future.result()
+        ziwei = ziwei_future.result()
     natal_chart = with_natal_chart_digest({
         "subject": subject,
         "bazi": bazi,
         "ziwei": ziwei,
-        "ziwei_daxian": _ziwei_daxian(subject),
+        "ziwei_daxian": ziwei.get("da_xian"),
     })
-    validate_natal_chart(natal_chart, action="natal_compute_factors")
+    validate_natal_chart(natal_chart, action="internal factor snapshot")
     return natal_chart
 
 
@@ -80,118 +52,109 @@ def bazi_yongshen(subject: dict) -> dict:
     return published_yongshen(resolve_yongshen(bazi, source_digest))
 
 
-def natal_compute_factors(subject: dict, technique: str) -> dict:
-    """Resolve subject -> canonical charts -> one-side factor snapshot."""
+def _selected_yongshen(natal_chart: dict) -> dict:
+    return published_yongshen(resolve_yongshen(
+        natal_chart["bazi"], sha256_json(natal_chart["bazi"]),
+    ))
+
+
+def _factor_snapshots(subject: dict) -> dict[str, dict]:
+    """Internal subject -> canonical charts -> both technique factor snapshots."""
     natal_chart = _build_natal_chart(subject)
     gender = natal_chart["subject"]["gender"]
-    context = {"性别": gender}
-
-    selected_yongshen = None
-    if technique == "bazi":
-        source_digest = sha256_json(natal_chart["bazi"])
-        selected_yongshen = published_yongshen(resolve_yongshen(
-            natal_chart["bazi"], source_digest,
-        ))
-        factors = evaluate_factors(gender, natal_chart, shushi="bazi")
-        factors["selected_yongshen"] = selected_yongshen
-    elif technique == "ziwei":
-        factors = evaluate_factors(gender, natal_chart, shushi="ziwei")
-    else:
-        raise ValueError(f"technique 只支持 bazi/ziwei，收到: {technique!r}")
-
-    factors["_provenance"] = {
-        "technique": technique,
-        "subject": subject,
-        "context": context,
-    }
-    if technique == "bazi":
-        factors["_provenance"].update({
-            "yongshen_digest": selected_yongshen["yongshen_digest"],
-            "policy_id": selected_yongshen["policy_id"],
-        })
-    return {"factors": factors, "factors_digest": _factors_digest(factors)}
+    selected_yongshen = _selected_yongshen(natal_chart)
+    snapshots: dict[str, dict] = {}
+    for technique, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
+        factor_snapshot = {
+            "provenance": {
+                "technique": technique,
+                "subject": subject,
+                "context": {"gender": gender},
+                "natal_chart_digest": natal_chart["natal_chart_digest"],
+            },
+            "facts": evaluate_factors(gender, natal_chart, shushi=technique),
+        }
+        if technique == "bazi":
+            factor_snapshot["selected_yongshen"] = {
+                "selected_yongshen": selected_yongshen["selected_yongshen"],
+                "status": selected_yongshen["status"],
+            }
+            factor_snapshot["provenance"].update({
+                "yongshen_digest": selected_yongshen["yongshen_digest"],
+                "policy_id": selected_yongshen["policy_id"],
+                "bazi_chart_digest": selected_yongshen["bazi_chart_digest"],
+            })
+        snapshots[technique] = factor_snapshot
+    return snapshots
 
 
-def natal_query(factors: dict, life_topics: list[str], factors_digest: str,
-                technique: str = "bazi") -> dict:
-    """Factor snapshot + topics -> natal assertions."""
-    from app.natal.tools.analytics import _flatten_side_result, _load_routes, _require_life_topics
+def _factor_snapshot(subject: dict, technique: str) -> dict:
+    """Internal one-side snapshot helper for focused internal callers."""
+    return _factor_snapshots(subject)[technique]
 
-    verify_factors_digest(factors, factors_digest)
-    provenance = _factor_provenance(factors)
-    if provenance.get("technique") != technique:
-        raise ValueError(
-            f"factors provenance technique mismatch: expected {technique!r}, "
-            f"got {provenance.get('technique')!r}"
-        )
-    if technique not in ("bazi", "ziwei"):
-        raise ValueError(f"natal_query technique 只支持 bazi/ziwei，收到: {technique!r}")
-    context = provenance.get("context") or {}
+
+def natal_query(subject: dict, life_topics: list[str]) -> dict:
+    """Subject + topics -> combined Bazi and Ziwei natal assertions."""
+    from app.natal.tools.analytics import (
+        _deduplicate,
+        _flatten_side_result,
+        _load_routes,
+        _public_assertion,
+        _require_life_topics,
+    )
     from app.natal.tools.factor_constants import load_constants
 
+    factor_snapshots = _factor_snapshots(subject)
+    context = factor_snapshots["bazi"]["provenance"]["context"] or {}
     side_labels = load_constants()["命理侧"]["标签"]
     selected = _require_life_topics(life_topics)
     routes = _load_routes()
     snapshots = {
-        side_labels["bazi"]: factors if technique == "bazi" else {},
-        side_labels["ziwei"]: factors if technique == "ziwei" else {},
-        "context": context or {},
+        side_labels["bazi"]: factor_snapshots["bazi"]["facts"],
+        side_labels["ziwei"]: factor_snapshots["ziwei"]["facts"],
+        "context": context,
     }
-    all_assertions: list[dict] = []
-    seen: set[tuple[str, str]] = set()
+    grouped: dict[str, list[dict]] = {"bazi": [], "ziwei": []}
     for topic, route in selected:
         for rule in route["natal_rules"]:
             result = match_rule(rule, snapshots)
             result["_rule"] = rule
-            part, _count = _flatten_side_result(result, selected, routes, "natal")
-            for item in part:
-                key = (item["assertion_id"], item["technique"])
-                if key not in seen:
-                    seen.add(key)
-                    all_assertions.append(item)
-    return {"assertions": all_assertions}
+            part, _count = _flatten_side_result(result, selected, routes)
+            for technique in ("bazi", "ziwei"):
+                grouped[technique].extend(part[technique])
+
+    side_results = {}
+    for technique in ("bazi", "ziwei"):
+        side_results[technique] = {
+            "assertions": [
+                _public_assertion(item)
+                for item in _deduplicate(grouped[technique])
+            ],
+        }
+    return {
+        "natal_chart_digest": factor_snapshots["bazi"]["provenance"]["natal_chart_digest"],
+        **side_results,
+    }
 
 
-def natal_period_query(factors: dict, factors_digest: str, time_scope: dict,
-                       life_topics: list[str], subject: dict,
-                       technique: str = "bazi") -> dict:
-    """Factor snapshot + time scope + subject -> period assertions."""
-    from app.natal.tools.analytics import _analyze_periods
+def natal_liunian_query(subject: dict, start_year: int,
+                        year_count: int, life_topics: list[str]) -> dict:
+    """Subject + start/count -> combined Bazi and Ziwei annual assertions."""
+    from app.natal.tools.analytics import _analyze_liunian
 
-    verify_factors_digest(factors, factors_digest)
-    provenance = _factor_provenance(factors)
-    if provenance.get("technique") != technique:
-        raise ValueError(
-            f"factors provenance technique mismatch: expected {technique!r}, "
-            f"got {provenance.get('technique')!r}"
-        )
-    _validate_subject(subject, "subject")
-    if provenance.get("subject") != subject:
-        raise ValueError("subject 与 natal_compute_factors 因子来源不一致")
-    if technique not in ("bazi", "ziwei"):
-        raise ValueError(f"natal_period_query technique 只支持 bazi/ziwei，收到: {technique!r}")
-
-    if technique == "bazi":
-        selected_yongshen = factors.get("selected_yongshen")
-        if not isinstance(selected_yongshen, dict):
-            raise ValueError("factors 缺少 selected_yongshen；必须原样传递 factors")
-        if provenance.get("yongshen_digest") != selected_yongshen.get("yongshen_digest"):
-            raise ValueError("factors _provenance 的用神来源与 selected_yongshen 不一致")
+    subject = _validate_subject(subject, "subject")
     natal_chart = _build_natal_chart(subject)
-    if technique == "bazi":
-        natal_chart["_selected_yongshen"] = selected_yongshen
-
-    result = _analyze_periods(
+    selected_yongshen = _selected_yongshen(natal_chart)
+    natal_chart["_selected_yongshen"] = {
+        "selected": selected_yongshen["selected_yongshen"],
+        "status": selected_yongshen["status"],
+    }
+    return _analyze_liunian(
         natal_chart,
-        {"life_topics": life_topics, "time_scope": time_scope or {}},
+        {
+            "life_topics": life_topics,
+            "start_year": start_year,
+            "year_count": year_count,
+        },
         validate_pan=False,
     )
-    for scope in result["periods"]:
-        scope["assertions"] = [
-            item for item in scope["assertions"] if item.get("technique") == technique
-        ]
-        if "counts" in scope:
-            scope["counts"]["returned"] = len(scope["assertions"])
-    if technique == "bazi":
-        result["calibration_facts"] = _hour_calibration_facts(natal_chart["bazi"])
-    return result

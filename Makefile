@@ -35,7 +35,8 @@ export GOTOOLCHAIN ?= go1.26.10
         brand-marks \
         sync-expert-packs sync-domain-language check-domain-language check-actions check-content \
         build-web-skill-bundle \
-        runtime-validate image image-engine image-counsel image-assembly
+        runtime-validate image image-engine image-counsel image-liki-mcp image-assembly \
+        smoke smoke-engine smoke-counsel smoke-liki-mcp
 
 build-skill build-archive: ## Build the installable skill archive
 	scripts/build-archive.sh
@@ -103,6 +104,9 @@ image-engine: ## Build the local engine development image
 image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
+image-liki-mcp: ## Build the LIKI product MCP gateway image
+	docker build -f liki-mcp/Dockerfile -t $(IMAGE_REGISTRY)/liki-mcp:$(IMAGE_TAG) liki-mcp
+
 image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE=<local runtime ref> required)
 	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/liki assembly/dist/agents/liki
@@ -110,10 +114,19 @@ image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-expert:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 
-image: image-engine image-counsel ## Build all liki-owned local images
+image: image-engine image-counsel image-liki-mcp ## Build all liki-owned local images
 
-smoke: image ## Smoke engine RPC/MCP and counsel MCP images
+smoke: image ## Smoke ENGINE, COUNSEL, and LIKI-MCP images separately
 	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-image.sh
+
+smoke-engine: image-engine ## Smoke the ENGINE image
+	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-image.sh engine
+
+smoke-counsel: image-counsel ## Smoke the COUNSEL image
+	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-image.sh counsel
+
+smoke-liki-mcp: image-liki-mcp ## Smoke the LIKI-MCP image
+	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-image.sh liki-mcp
 
 fmt: ## Format Go sources
 	@cd engine && gofmt -w .

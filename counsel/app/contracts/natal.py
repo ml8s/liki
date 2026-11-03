@@ -5,51 +5,13 @@
 """
 
 
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
-from pydantic.json_schema import WithJsonSchema
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
 from app.contracts.schema import ToolContract, unique_list
 from app.contracts.yongshen import BaziYongshenOutput
-from app.natal.tools.factor_semantics import validate_published_factor_value
 
-
-def _validate_factor_snapshot(value: object) -> object:
-    if not isinstance(value, dict):
-        raise ValueError("因子快照必须是对象")
-    reserved = {"_provenance", "selected_yongshen"}
-    for key, item in value.items():
-        if key in reserved:
-            if not isinstance(item, dict):
-                raise ValueError(f"因子快照保留键 {key} 必须是对象")
-            continue
-        try:
-            validate_published_factor_value(item, where=f"因子快照.{key}")
-        except ValueError as exc:
-            raise ValueError(str(exc)) from exc
-    return value
-
-
-FactorSnapshot = Annotated[
-    dict[str, Any],
-    BeforeValidator(_validate_factor_snapshot),
-    WithJsonSchema({
-        "type": "object",
-        "additionalProperties": {
-            "oneOf": [
-                {"enum": ["命中", "没命中", "不适用", "不可判定"]},
-                {
-                    "type": "string",
-                    "minLength": 1,
-                },
-            ],
-        },
-    }),
-]
-
-# ── bazi_yongshen ──
-TOOL_BAZI_YONGSHEN_DESCRIPTION = "考时后的 subject → 八字排盘与唯一用神裁决。返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要；起名只消费 selected.yong 投影出的目标五行。"
 
 class NatalSubjectInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -57,7 +19,14 @@ class NatalSubjectInput(BaseModel):
     birth_longitude: Annotated[float, Field(ge=-180, le=180, description="出生地经度。")]
     gender: Literal["male", "female"] = Field(description="性别。")
 
+
+
+# ── bazi_yongshen ──
+TOOL_BAZI_YONGSHEN_DESCRIPTION = "考时后的 subject → 八字排盘与唯一用神裁决。返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要；起名只消费 selected.yong 投影出的目标五行。"
+
 class BaziYongshenInput(BaseModel):
+    """八字用神裁决输入。"""
+
     model_config = ConfigDict(extra="forbid")
     subject: NatalSubjectInput = Field(description="已考时归一化的出生主体。")
 
@@ -70,82 +39,83 @@ TOOL_BAZI_YONGSHEN = ToolContract(
 )
 
 
-# ── natal_compute_factors ──
-TOOL_COMPUTE_FACTORS_DESCRIPTION = "考时后的 subject → canonical charts → 单侧因子快照。八字侧裁决唯一用神；subject 原样写入 provenance，factors_digest 防篡改。"
-
-class ComputeFactorsInput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    subject: NatalSubjectInput = Field(description="已考时归一化的出生主体。")
-    technique: Literal["bazi", "ziwei"] = Field(description="命理术数侧。")
-
-
-class ComputeFactorsOutput(BaseModel):
-    """Immutable factor snapshot derived from an engine chart."""
-    model_config = ConfigDict(extra="allow")
-    factors: FactorSnapshot = Field(
-        description="Canonical factor snapshot; includes _provenance with technique, subject, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
-    )
-    factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
-        description="SHA-256 hex digest of the canonical factor snapshot.",
-    )
-TOOL_COMPUTE_FACTORS = ToolContract(
-    name="natal_compute_factors",
-    description=TOOL_COMPUTE_FACTORS_DESCRIPTION,
-    input=ComputeFactorsInput,
-    output=ComputeFactorsOutput,
-)
-
-
 # ── natal_query ──
-TOOL_NATAL_QUERY_DESCRIPTION = "已绑定来源的因子快照 + 人生问题 → 本命断语。来源 context 由服务端从 factors._provenance 读取并与 digest 一并校验，调用方无需重复传递。"
+TOOL_NATAL_QUERY_DESCRIPTION = "已确认出生主体 + 人生问题 → 八字与紫微本命合参断语。因子计算由服务端内部完成，不对外返回。"
+
+LifeTopic = Literal[
+    "marriage", "family", "children", "career", "wealth", "health", "mental",
+    "study", "personality", "appearance", "origin", "relocation", "social",
+    "property", "adversity", "chart_structure",
+]
+LifeTopicList = Annotated[
+    unique_list[LifeTopic],
+    Field(min_length=1, max_length=16, description="受控人生问题域闭集。"),
+]
 
 class NatalQueryInput(BaseModel):
+    """八字与紫微本命合参断语输入。"""
+
     model_config = ConfigDict(extra="forbid")
-    factors: FactorSnapshot = Field(
-        description="natal_compute_factors 返回的因子快照",
-    )
-    factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
-        description="natal_compute_factors 返回的 SHA-256 因子摘要；必须与 factors 原样匹配",
-    )
-    life_topics: Annotated[unique_list[Annotated[Literal["marriage", "family", "children", "career", "wealth", "health", "mental", "study", "personality", "appearance", "origin", "relocation", "social", "property", "adversity", "chart_structure"], Field(description="受控人生问题领域闭集")]], Field(min_length=1, max_length=16)] = Field(
-        description="人生问题域：marriage/family/children/career/wealth/health/mental/study/personality/appearance/origin/relocation/social/property/adversity/chart_structure 等",
+    subject: NatalSubjectInput = Field(description="已考时归一化的出生主体。")
+    life_topics: LifeTopicList = Field(
+        description="人生问题域。",
     )
 
 
-class NatalQueryOutputAssertionsItem(BaseModel):
-    model_config = ConfigDict(extra="allow")
+class NatalAssertionEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    condition_group: int | None = Field(default=None, description="条件组编号。")
+    factor: str = Field(description="命中的因子名。")
+    expected: StrictStr | None = Field(default=None, description="因子期望值。")
+    actual: StrictStr | None = Field(default=None, description="因子实际值。")
+    gender_scope: Literal["男", "女"] | None = Field(
+        default=None, description="性别专属因子的作用范围。",
+    )
+
+
+class NatalAssertionSource(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["assertion_table"] = Field(description="断语来源类型。")
+    rule_domain: str = Field(description="断语规则在来源表中的命理领域。")
+    basis: str = Field(description="规则依据。")
+    classic_basis: str = Field(description="经典依据。")
+
+
+class NatalAssertion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     assertion_id: str = Field(
         description="Stable assertion id.",
     )
-    technique: Literal["bazi", "ziwei"] = Field(
-        description="命理术数侧：bazi 或 ziwei。",
+    life_topics: Annotated[list[LifeTopic], Field(min_length=1)] = Field(
+        description="命中的受控人生问题域。",
     )
-    topic: str = Field(
-        description="人生问题域。",
-    )
-    method: str | None = Field(
-        default=None,
-        description="Judgment method id.",
-    )
+    rule_id: str = Field(description="命理断语规则 ID。")
+    event_type: str = Field(description="事件类型。")
+    event: str = Field(description="事件摘要。")
     conclusion: str = Field(
         description="Deterministic assertion conclusion.",
     )
-    source: str | dict[str, Any] = Field(
-        default=None,
-        description="Classical/rule source. May be a text citation or structured source object.",
+    source: NatalAssertionSource = Field(
+        description="断语规则来源与依据。",
     )
-    evidence: list[dict[str, Any]] = Field(
-        default=None,
+    evidence: list[NatalAssertionEvidence] = Field(
+        default_factory=list,
         description="Factor evidence used by the rule.",
     )
 
 
+class NatalSideResult(BaseModel):
+    """One technique side of a combined natal result."""
+    model_config = ConfigDict(extra="forbid")
+    assertions: list[NatalAssertion] = Field(description="该侧命理断语结果。")
+
+
 class NatalQueryOutput(BaseModel):
     """Deterministic natal assertions for requested topics."""
-    model_config = ConfigDict(extra="allow")
-    assertions: list[NatalQueryOutputAssertionsItem] = Field(
-        description="命理断语结果。",
-    )
+    model_config = ConfigDict(extra="forbid")
+    natal_chart_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="完整本命盘 SHA-256 摘要。")
+    bazi: NatalSideResult = Field(description="八字本命断语。")
+    ziwei: NatalSideResult = Field(description="紫微本命断语。")
 
 TOOL_NATAL_QUERY = ToolContract(
     name="natal_query",
@@ -155,174 +125,80 @@ TOOL_NATAL_QUERY = ToolContract(
 )
 
 
-# ── natal_period_query ──
-TOOL_PERIOD_QUERY_DESCRIPTION = "本命因子快照 + 时间层 + 人生问题 → 应期断语（大运/大限/流年）。内部据 chart 调 engine 流年/大限取应期字段后匹配断语表；来源 context 与 chart 绑定校验由服务端从 factors._provenance 完成。"
-
-IanaTimezone = Annotated[str, Field(min_length=1, description="IANA 时区，如 Asia/Shanghai。")]
+# ── natal_liunian_query ──
+TOOL_LIUNIAN_QUERY_DESCRIPTION = "已确认出生主体 + 起始年号/年数 + 人生问题 → 八字与紫微逐年流年合参断语。因子计算由服务端内部完成；year_count=1 表示单年，单次最多 50 年。"
 
 
-class TimeScopeYear(BaseModel):
-    """时间层变体：指定公历年的流年。"""
+class LiunianQueryInput(BaseModel):
+    """八字与紫微流年合参断语输入。"""
+
     model_config = ConfigDict(extra="forbid")
-    type: Literal["year"] = Field(description="指定公历年的流年断语。")
-    year: int = Field(ge=1, description="目标公历年。")
-    timezone: IanaTimezone
-
-
-class TimeScopeYearRange(BaseModel):
-    """时间层变体：指定公历年区间的逐年断语。"""
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["year_range"] = Field(description="指定公历年区间的逐年断语。")
-    start_year: int = Field(ge=1, description="起始公历年。")
-    end_year: int = Field(ge=1, description="结束公历年（含）。")
-    timezone: IanaTimezone
-
-
-class TimeScopeDecade(BaseModel):
-    """时间层变体：指定公历年所在的大限（十年层）。"""
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["decade"] = Field(description="指定公历年所在大限（十年层）。")
-    year: int = Field(ge=1, description="目标公历年。")
-    timezone: IanaTimezone
-
-
-class TimeScopeCurrentYear(BaseModel):
-    """时间层变体：以当前时间解析的流年；时区为变体必填字段。"""
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["current_year"] = Field(description="以当前时间解析的流年；时区必填。")
-    timezone: IanaTimezone
-
-
-class TimeScopeCurrentDecade(BaseModel):
-    """时间层变体：以当前时间解析的大限；时区为变体必填字段。"""
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["current_decade"] = Field(description="以当前时间解析的大限；时区必填。")
-    timezone: IanaTimezone
-
-
-TimeScope = (
-    TimeScopeYear
-    | TimeScopeYearRange
-    | TimeScopeDecade
-    | TimeScopeCurrentYear
-    | TimeScopeCurrentDecade
-)
-
-
-class PeriodQueryInput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    factors: FactorSnapshot = Field(
-        description="natal_compute_factors 返回的因子快照",
+    subject: NatalSubjectInput = Field(description="已考时归一化的出生主体。")
+    start_year: Annotated[int, Field(ge=1, description="起始流年年号；八字按公历立春年，紫微按农历年。")] = Field(
+        description="起始流年年号。",
     )
-    factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
-        description="natal_compute_factors 返回的 SHA-256 因子摘要；必须与 factors 原样匹配",
+    year_count: Annotated[int, Field(ge=1, le=50, description="连续查询年数；1 表示单年，最多 50 年。")] = Field(
+        description="连续查询年数。",
     )
-    time_scope: TimeScope = Field(
-        description="时间层：year=指定公历年的流年，year_range=逐年区间，decade=指定年所在大限，current_year/current_decade=按当前时间解析。年界与“当前”都按 timezone 确定。",
-    )
-    life_topics: Annotated[unique_list[Annotated[Literal["marriage", "family", "children", "career", "wealth", "health", "mental", "study", "personality", "appearance", "origin", "relocation", "social", "property", "adversity", "chart_structure"], Field(description="受控人生问题领域闭集")]], Field(min_length=1, max_length=16)] = Field(
+    life_topics: LifeTopicList = Field(
         description="人生问题域（同 natal_query）。",
     )
-    subject: NatalSubjectInput = Field(
-        description="已考时归一化的出生主体；必须与 factors._provenance.subject 完全一致。内部据此重取 engine 流年/大限。",
-    )
 
 
-class PeriodQueryOutputChart(BaseModel):
-    """Chart identity and digest used for period computation."""
-    model_config = ConfigDict(extra="allow")
-    id: str = Field(
-        description="Chart id.",
-    )
-    digest: str | None = Field(
-        description="Canonical natal chart digest."
-    )
-    completeness: str = Field(
-        description="Chart completeness.",
-    )
+class LiunianCounts(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    matched: int = Field(ge=0, description="来源断语命中次数。")
+    returned: int = Field(ge=0, description="过滤后返回的断语数。")
 
 
-class PeriodQueryOutputPeriodsItem(BaseModel):
-    model_config = ConfigDict(extra="allow")
-    time_scope: dict[str, Any] = Field(
-        description="Resolved output scope.",
-    )
-    assertions: list[dict[str, Any]] = Field(
-        default=None,
-        description="Assertions for this scope.",
-    )
-    counts: dict[str, Any] = Field(
-        default=None,
-        description="Table match and returned counts.",
-    )
-    error: dict[str, Any] = Field(
-        default=None,
-        description="Engine error for this scope, if any.",
-    )
+class LiunianYearError(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    code: Literal["ENGINE_UNAVAILABLE"] = Field(description="错误码。")
+    message: str = Field(description="错误信息。")
 
 
-class PeriodQueryOutputCalibrationFactsHourPillar(BaseModel):
-    """Hour stem and branch."""
-    model_config = ConfigDict(extra="allow")
-    gan: str
-    zhi: str
+class LiunianSideResult(BaseModel):
+    """One technique side of a combined yearly result."""
+    model_config = ConfigDict(extra="forbid")
+    assertions: list[NatalAssertion] = Field(description="该侧流年断语。")
+    counts: LiunianCounts = Field(description="命中与返回计数。")
 
 
-class PeriodQueryOutputCalibrationFacts(BaseModel):
-    """Hour-pillar-sensitive facts for birth-time calibration. Present for bazi period queries."""
-    model_config = ConfigDict(extra="allow")
-    hour_pillar: PeriodQueryOutputCalibrationFactsHourPillar = Field(
-        description="Hour stem and branch.",
-    )
-    hour_stem_ten_god: str = Field(
-        description="Ten-god name of the hour stem.",
-    )
-    hour_shen_sha: list[str] = Field(
-        description="Shen sha attached to the hour pillar.",
-    )
+class LiunianYearSuccess(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    year: int = Field(description="流年年号。")
+    bazi: LiunianSideResult = Field(description="八字流年断语。")
+    ziwei: LiunianSideResult = Field(description="紫微流年断语。")
 
 
-class PeriodQueryOutput(BaseModel):
-    """Deterministic period assertions grouped by requested time scopes."""
-    model_config = ConfigDict(extra="allow")
-    natal_chart_identity: PeriodQueryOutputChart = Field(
-        description="Chart identity and digest used for period computation.",
+class LiunianYearFailure(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    year: int = Field(description="流年年号。")
+    error: LiunianYearError = Field(description="流年计算失败信息。")
+
+
+LiunianYearResult = LiunianYearSuccess | LiunianYearFailure
+class LiunianQueryOutput(BaseModel):
+    """Deterministic Liunian assertions."""
+    model_config = ConfigDict(extra="forbid")
+    natal_chart_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
+        description="流年计算使用的完整本命盘摘要。",
     )
-    request_scope: dict[str, Any] = Field(
-        description="Resolved period request scope, topics, and rules.",
-    )
-    year_basis: dict[str, Any] | None = Field(
-        default=None,
-        description="Engine year basis, when available.",
-    )
-    current_year: int | None = Field(
-        default=None,
-        description="Engine current year, when available.",
-    )
-    current_year_source: str | None = Field(
-        default=None,
-        description="Source of current year.",
-    )
-    periods: list[PeriodQueryOutputPeriodsItem] = Field(
-        description="Per-year or per-decade assertion scopes.",
-    )
-    calibration_facts: PeriodQueryOutputCalibrationFacts = Field(
-        default=None,
-        description="Hour-pillar-sensitive facts for birth-time calibration. Present for bazi period queries.",
+    years: list[LiunianYearResult] = Field(
+        description="逐年流年结果。",
     )
 
-TOOL_PERIOD_QUERY = ToolContract(
-    name="natal_period_query",
-    description=TOOL_PERIOD_QUERY_DESCRIPTION,
-    input=PeriodQueryInput,
-    output=PeriodQueryOutput,
+TOOL_LIUNIAN_QUERY = ToolContract(
+    name="natal_liunian_query",
+    description=TOOL_LIUNIAN_QUERY_DESCRIPTION,
+    input=LiunianQueryInput,
+    output=LiunianQueryOutput,
 )
 
 
 
 NATAL_TOOLS = (
     TOOL_BAZI_YONGSHEN,
-    TOOL_COMPUTE_FACTORS,
     TOOL_NATAL_QUERY,
-    TOOL_PERIOD_QUERY,
+    TOOL_LIUNIAN_QUERY,
 )

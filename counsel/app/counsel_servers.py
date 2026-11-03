@@ -1,7 +1,6 @@
 """Counsel aggregate MCP server construction and tool registration."""
 
 from mcp.server import MCPServer
-from mcp.server.mcpserver.exceptions import ToolError
 
 # 工具层为 app.* 绝对导入包（无 sys.path 注入）。
 from app.contracts import COUNSEL_TOOLS  # noqa: E402
@@ -12,17 +11,6 @@ from app.natal.tools import counsel  # noqa: E402
 _CONTRACTS = {contract.name: contract for contract in COUNSEL_TOOLS}
 
 
-def _factor_side(arguments: dict) -> str:
-    factors = arguments.get("factors")
-    if not isinstance(factors, dict):
-        raise ToolError("invalid_arguments: factors 必须是 natal_compute_factors 返回的对象")
-    provenance = factors.get("_provenance")
-    if not isinstance(provenance, dict):
-        raise ToolError("invalid_arguments: factors 缺少可验证的 technique provenance")
-    technique = provenance.get("technique")
-    if technique not in ("bazi", "ziwei"):
-        raise ToolError("invalid_arguments: factors 缺少可验证的 technique provenance")
-    return technique
 
 
 def _add_natal_tools(server: MCPServer) -> None:
@@ -33,35 +21,24 @@ def _add_natal_tools(server: MCPServer) -> None:
     """
     for name in (
         "bazi_yongshen",
-        "natal_compute_factors",
         "natal_query",
-        "natal_period_query",
+        "natal_liunian_query",
     ):
         contract = _CONTRACTS[name]
 
         def invoke_natal(_name=name, **arguments):
             if _name == "bazi_yongshen":
                 return counsel.bazi_yongshen(subject=arguments["subject"])
-            if _name == "natal_compute_factors":
-                return counsel.natal_compute_factors(
-                    subject=arguments["subject"], technique=arguments["technique"],
-                )
             if _name == "natal_query":
-                technique = _factor_side(arguments)
                 return counsel.natal_query(
-                    factors=arguments["factors"],
+                    subject=arguments["subject"],
                     life_topics=arguments["life_topics"],
-                    factors_digest=arguments["factors_digest"],
-                    technique=technique,
                 )
-            technique = _factor_side(arguments)
-            return counsel.natal_period_query(
-                factors=arguments["factors"],
-                factors_digest=arguments["factors_digest"],
-                time_scope=arguments["time_scope"],
-                life_topics=arguments["life_topics"],
+            return counsel.natal_liunian_query(
                 subject=arguments["subject"],
-                technique=technique,
+                start_year=arguments["start_year"],
+                year_count=arguments["year_count"],
+                life_topics=arguments["life_topics"],
             )
 
         _add_contract_tool(server, contract, invoke_natal)
@@ -83,22 +60,17 @@ def create_counsel_root_mcp() -> MCPServer:
 
 
 def _add_divination_tools(server: MCPServer, domain: str) -> None:
-    """Register snapshot/query for one divination technique."""
+    """Register the one-shot ask capability for a divination technique."""
     if domain == "liuyao":
-        from app.divination.tools.liuyao_ask import ask as query_ask
-        from app.divination.tools.liuyao_snapshot import create as snapshot_create
+        from app.divination.tools.liuyao_ask import ask
     else:
-        from app.divination.tools.qimen_ask import ask as query_ask
-        from app.divination.tools.qimen_snapshot import create as snapshot_create
-    for suffix, implementation in (
-        ("snapshot", snapshot_create),
-        ("query", query_ask),
-    ):
-        _add_contract_tool(
-            server,
-            _CONTRACTS[f"{domain}_{suffix}"],
-            implementation,
-        )
+        from app.divination.tools.qimen_ask import ask
+
+    _add_contract_tool(
+        server,
+        _CONTRACTS[f"{domain}_ask"],
+        ask,
+    )
 
 
 def _naming_check(**arguments):
@@ -142,7 +114,7 @@ def _add_naming_tools(server: MCPServer) -> None:
     implementations = {
         "naming_surname": match_surnames,
         "naming_pick": _pick,
-        "naming_char": _char,
+        "naming_character": _char,
         "naming_compose": _compose,
         "naming_check": _naming_check,
     }

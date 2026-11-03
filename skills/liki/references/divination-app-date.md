@@ -6,13 +6,13 @@
 
 | 步骤 | 动作 |
 | --- | --- |
-| 1 | 黄历择日（engine 黄历；边界见 `references/divination-ENTRY.md`「流程产物与边界」）；事项适配由 engine 判定 |
+| 1 | 黄历择日（排盘引擎黄历；边界见 `references/divination-ENTRY.md`「流程产物与边界」）；事项适配由 engine 判定 |
 | 2 | 读取 `references/divination-huangli-jiri.md`、`references/divination-huangli-yiji.md` |
 | 3 | 输出推荐日、排除日和边界 |
 
 ## 事项枚举
 
-事项取值以 MCP schema 的枚举为准，本页不复制枚举：先经 `tools/list` 读当前枚举，再把用户目标映射到其中一个值。
+事项取值以 MCP 契约 的枚举为准，本页不复制枚举：先经 `能力发现` 读当前枚举，再把用户目标映射到其中一个值。
 
 表外事项不自行改写为相近 event；先向用户确认目标，再选枚举内的值或仅输出通用黄历事实。
 

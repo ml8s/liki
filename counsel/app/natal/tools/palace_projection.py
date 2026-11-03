@@ -21,13 +21,15 @@ def _star_groups(star: dict) -> list[str]:
 
 def build_palace_facts(ziwei: dict) -> list[dict]:
     facts: list[dict] = []
-    add = lambda palace, kind, target, star="", value="": facts.append({
-        "palace": palace,
-        "kind": kind,
-        "target": target,
-        "star": star,
-        "value": value,
-    })
+
+    def add(palace: str, kind: str, target: str, star: str = "", value: str = "") -> None:
+        facts.append({
+            "palace": palace,
+            "kind": kind,
+            "target": target,
+            "star": star,
+            "value": value,
+        })
 
     for palace in ziwei.get("shi_er_gong") or []:
         name = palace.get("ming") or ""

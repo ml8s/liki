@@ -15,7 +15,7 @@ def test_naming_tools_use_domain_prefix():
     assert tools >= {
         "naming_surname",
         "naming_pick",
-        "naming_char",
+        "naming_character",
         "naming_compose",
         "naming_check",
     }

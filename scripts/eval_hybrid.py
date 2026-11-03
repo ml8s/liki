@@ -25,7 +25,13 @@ for _p in (_COUNSEL, _LOCAL):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from app.natal.tools.charts import build_natal_chart, liunian
+from app.engine_mcp_client import call
+from app.natal.tools.chart_integrity import with_natal_chart_digest
+from app.natal.tools.chart_schema import validate_natal_chart
+from app.natal.tools.charts import (
+    _bazi_chart,
+    _ziwei_chart,
+)
 from app.natal.tools.duanyu import NATAL_RULES, YEARLY_RULES, match_rule, query_yearly, resolve_current_year
 from app.natal.tools.factors import evaluate_liunian_snap_from_natal_chart, evaluate_snap_from_natal_chart
 from birth import parse_birth
@@ -37,6 +43,53 @@ with open(os.path.join(BENCHMARK, "births.json"), encoding="utf-8") as _file:
     BIRTHS = json.load(_file)
 
 
+def build_natal_chart(civil_time: str, gender: str, longitude: float) -> dict:
+    """Evaluation-only orchestration: normalize civil time, then chart both sides."""
+    date, clock = civil_time[:19].split("T", 1)
+    resolved = call("subject_candidates", {
+        "calendar_kind": "solar", "recorded_date": date, "recorded_time": clock,
+        "record_timezone": "Asia/Shanghai", "place_longitude": longitude,
+        "subject_gender": gender,
+    })["data"]
+    candidates = resolved.get("candidates") or []
+    if not candidates:
+        raise ValueError("subject_candidates returned no candidates")
+    candidate = next(
+        (item for item in candidates
+         if any(reason.get("reason_kind") == "input" for reason in item.get("reasons", []))),
+        candidates[0],
+    )
+    subject = candidate["subject"]
+    natal_chart = with_natal_chart_digest({
+        "subject": subject,
+        "bazi": _bazi_chart(subject),
+        "ziwei": _ziwei_chart(subject),
+        "ziwei_daxian": _ziwei_chart(subject).get("da_xian", []),
+    })
+    validate_natal_chart(natal_chart, action="eval_hybrid natal_chart")
+    return natal_chart
+
+
+def _bazi_liupan(subject: dict, scope: str, start_time: str, count: int = 1) -> list[dict]:
+    result = call("bazi_liupan", {
+        "subject": subject, "scope": scope, "start_time": start_time, "count": count,
+    })
+    root = next((key for key, value in result["data"].items() if isinstance(value, list)), None)
+    if root is None:
+        raise ValueError("bazi_liupan returned no domain series")
+    return result["data"][root]
+
+
+def _ziwei_liupan(subject: dict, scope: str, start_time: str, count: int = 1) -> list[dict]:
+    result = call("ziwei_liupan", {
+        "subject": subject, "scope": scope, "start_time": start_time, "count": count,
+    })
+    root = next((key for key, value in result["data"].items() if isinstance(value, list)), None)
+    if root is None:
+        raise ValueError("ziwei_liupan returned no domain series")
+    return result["data"][root]
+
+
 def query_all(natal_chart: dict) -> dict:
     """断语查询（数据检查用）——本命域查本命快照，流年域用当前年流年盘采样。"""
     snap = evaluate_snap_from_natal_chart(natal_chart)
@@ -45,8 +98,12 @@ def query_all(natal_chart: dict) -> dict:
     for rule in sorted(NATAL_RULES):
         domains[rule] = match_rule(rule, snap)
     # 流年域——用当前年采样（完整流年覆盖需多年扫描，此处仅验证规则表不崩/有产出）
-    cur_year, _ = resolve_current_year()
-    lnp = liunian(natal_chart, cur_year)
+    cur_year, _ = resolve_current_year("Asia/Shanghai")
+    subject = natal_chart["subject"]
+    lnp = {
+        "bazi": _bazi_liupan(subject, "liu_nian", f"{cur_year:04d}-06-15T12:00:00+08:00")[0],
+        "ziwei": _ziwei_liupan(subject, "liu_nian", f"{cur_year:04d}-06-15T12:00:00+08:00")[0],
+    }
     snap_y = evaluate_liunian_snap_from_natal_chart(natal_chart, lnp, year=cur_year)
     for rule in sorted(YEARLY_RULES):
         domains[rule] = query_yearly(rule, snap_y)
@@ -91,7 +148,7 @@ def main() -> int:
             civil_time, gender, lon, _corr = parse_birth(birth)
             # 经度未知时用北京默认（与产品默认一致）；题干时间即 Gregorian time事实。
             natal_chart = build_natal_chart(
-                civil_time[:19], "Asia/Shanghai", gender,
+                civil_time[:19], gender,
                 lon if lon is not None else 116.4,
             )
             cache[case_id] = query_all(natal_chart)

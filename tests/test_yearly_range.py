@@ -10,6 +10,14 @@ from app.natal.tools.yearly_eval import query_year_rules
 
 def _valid_mock_pan() -> dict:
     return with_natal_chart_digest({
+        "subject": {
+            "birth_time": "1990-05-20T12:00:00+08:00",
+            "birth_longitude": 116.4,
+            "gender": "male",
+        },
+        "bazi": {
+            **{pillar: {"gan": "甲", "zhi": "子"} for pillar in ("nian", "yue", "ri", "shi")},
+        },
         "standard_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
@@ -59,9 +67,9 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
         result = duanyu.yearly_range(
             _valid_mock_pan(),
             2026,
-            2026,
+            1,
             rules=["年十神", "年合会"],
-            timezone="Asia/Shanghai",
+            validate_pan=False,
         )
 
     assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": []}
@@ -81,8 +89,8 @@ def test_yearly_range_degrades_prefetch_error_without_empty_chart() -> None:
          ) as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
         result = duanyu.yearly_range(
-            _valid_mock_pan(), 2026, 2026, rules=["年十神"],
-            timezone="Asia/Shanghai",
+            _valid_mock_pan(), 2026, 1, rules=["年十神"],
+            validate_pan=False,
         )
 
     assert result["years"]["2026"] == {"error": "RPCError: unavailable"}
@@ -124,27 +132,27 @@ def test_yearly_range_rejects_empty_or_reversed_range() -> None:
         with mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot:
             with mock.patch.object(duanyu, "query_yearly"):
                 with pytest.raises(ValueError, match="rules 不能为空"):
-                    duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=None, timezone="Asia/Shanghai")
+                    duanyu.yearly_range(_valid_mock_pan(), 2026, 1, rules=None, validate_pan=False)
                 with pytest.raises(ValueError, match="rules 不能为空"):
-                    duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=[], timezone="Asia/Shanghai")
+                    duanyu.yearly_range(_valid_mock_pan(), 2026, 1, rules=[], validate_pan=False)
                 with pytest.raises(ValueError, match="rules 不能有重复域"):
                     duanyu.yearly_range(
-                        _valid_mock_pan(), 2026, 2026,
+                        _valid_mock_pan(), 2026, 1,
                         rules=["yearly_career", "yearly_career"],
-                        timezone="Asia/Shanghai",
+                        validate_pan=False,
                     )
-                with pytest.raises(ValueError, match="start 不能大于 end"):
-                    duanyu.yearly_range(_valid_mock_pan(), 2027, 2026, rules=["yingqi"], timezone="Asia/Shanghai")
+                with pytest.raises(ValueError, match="year_count 必须是正整数"):
+                    duanyu.yearly_range(_valid_mock_pan(), 2026, 0, rules=["yingqi"], validate_pan=False)
 
     make_snapshot.assert_not_called()
 
 
-def test_yearly_range_rejects_oversized_span() -> None:
+def test_yearly_range_rejects_span_over_engine_series_limit() -> None:
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
          mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
-        with pytest.raises(ValueError, match="单次最多 120 年"):
-            duanyu.yearly_range(_valid_mock_pan(), 1900, 2100, rules=["yingqi"], timezone="Asia/Shanghai")
+        with pytest.raises(ValueError, match="单次最多 50 年"):
+            duanyu.yearly_range(_valid_mock_pan(), 1900, 51, rules=["yingqi"], validate_pan=False)
 
     make_snapshot.assert_not_called()
 
@@ -153,8 +161,8 @@ def test_yearly_range_rejects_incomplete_pan() -> None:
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
          mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
-        with pytest.raises(ValueError, match="完整本命盘"):
-            duanyu.yearly_range({"gender": "male"}, 2026, 2026, rules=["yingqi"], timezone="Asia/Shanghai")
+        with pytest.raises(ValueError, match="缺少字段"):
+            duanyu.yearly_range({"gender": "male"}, 2026, 1, rules=["yingqi"], validate_pan=True)
 
     make_snapshot.assert_not_called()
 
@@ -176,7 +184,7 @@ def test_yearly_range_prepares_natal_context_once() -> None:
              duanyu, "evaluate_liunian_snap_from_natal_chart", return_value=flow_snapshot
          ) as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly", return_value={"八字": [], "紫微": []}):
-        duanyu.yearly_range(natal_chart, 2026, 2027, rules=["yingqi"], timezone="Asia/Shanghai")
+        duanyu.yearly_range(natal_chart, 2026, 2, rules=["yingqi"], validate_pan=False)
 
     prepare.assert_called_once()
     assert prepare.call_args.args == (natal_chart,)
@@ -202,13 +210,17 @@ def test_eval_hybrid_builds_one_flow_snapshot_per_pan() -> None:
     with mock.patch.object(eval_hybrid, "evaluate_snap_from_natal_chart", return_value=natal_snapshot), \
          mock.patch.object(eval_hybrid, "match_rule", return_value={"八字": [], "紫微": []}), \
          mock.patch.object(eval_hybrid, "resolve_current_year", return_value=(2026, "server")), \
-         mock.patch.object(eval_hybrid, "liunian", return_value={"bazi": {}, "ziwei": {}}), \
+         mock.patch.object(eval_hybrid, "_bazi_liupan", return_value=[{}]), \
+         mock.patch.object(eval_hybrid, "_ziwei_liupan", return_value=[{}]), \
          mock.patch.object(
              eval_hybrid,
              "evaluate_liunian_snap_from_natal_chart",
              return_value=flow_snapshot,
          ) as make_flow, \
          mock.patch.object(eval_hybrid, "query_yearly", return_value={"八字": [], "紫微": []}):
-        eval_hybrid.query_all({"base": {}, "gender": "male"})
+        eval_hybrid.query_all({
+            "subject": {"birth_time": "x", "birth_longitude": 116.4, "gender": "male"},
+            "base": {}, "gender": "male",
+        })
 
     make_flow.assert_called_once()

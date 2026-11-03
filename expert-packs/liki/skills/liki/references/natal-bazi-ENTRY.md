@@ -31,13 +31,13 @@
 2. 因子与用神：因子快照内含唯一用神裁决，直接消费同一份，不自行裁决、不改口径。
 3. 本命判断：因子快照 + 问题域 → 本侧断语。
 4. 应期判断：因子快照 + 时间层 + 问题域 → 大运 / 流年 / 流月断语。
-5. 完成时以 `finish_task` 提交：盘面要点、裁决与断语、依据摘要、不确定项。
+5. 完成时以 `完成任务` 提交：盘面要点、裁决与断语、依据摘要、不确定项。
 
 ## 断语契约
 
-- 断语公共字段（`side` / `topic` / `time_scope` 等）以 counsel 输出 schema 为准（自省读取）；`side` 是 `bazi` / `ziwei`。
-- topic 标签（counsel topic_routes 单一源）：`marriage`＝婚姻、`family`＝家庭、`children`＝子女、`career`＝事业、`wealth`＝财运、`health`＝健康、`mental`＝精神、`study`＝学业、`personality`＝性格、`appearance`＝外貌、`origin`＝出身、`relocation`＝迁移、`social`＝人际、`property`＝房产、`adversity`＝风险、`chart_structure`＝盘面结构。
-- 时间层 `time_scope`：`current_year` / `year` / `year_range` / `current_decade` / `decade`；年份为年号（八字公历立春界），不做日期换算；区间含端点。
+- 断语公共事实（技域 / `人生主题` 等）以 counsel 输出 契约 为准（自省读取）；技域 是 `bazi` / `ziwei`。
+- topic 标签（counsel 主题路由 单一源）：`marriage`＝婚姻、`family`＝家庭、`children`＝子女、`career`＝事业、`wealth`＝财运、`health`＝健康、`mental`＝精神、`study`＝学业、`personality`＝性格、`appearance`＝外貌、`origin`＝出身、`relocation`＝迁移、`social`＝人际、`property`＝房产、`adversity`＝风险、`命盘结构`＝盘面结构。
+- 流年区间 `起始年 + 年数`；`年数=1` 即单年，最多 50 年；年份为年号（八字公历立春界），不做日期换算。
 - 直接采纳判断输出为最终判断；判断输出与规则卡冲突 → 以判断输出为准并说明冲突。
 - 排盘失败 → 提示重试，不降级查表。
 - 重结论（无子、重大灾变、残疾等）须宫、星、限运、流年独立闭环；现实已发生事实可作验证，不作命理反推。

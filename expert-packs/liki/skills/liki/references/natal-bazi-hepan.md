@@ -21,7 +21,7 @@
 
 ## Engine 契约
 
-合盘 的八字层返回 `day_master`、`spouse_palace`、`zhu_cross`、`shi_shen_cross`、`wuxing_cross`、`nayin_cross`、`spouse_star`、`shensha_cross`。
+合盘 的八字层返回 `日主`、`配偶宫`、`四柱交叉`、`十神交叉`、`五行交叉`、`纳音交叉`、`配偶星`、`神煞交叉`。
 
 - 两支关系不得由交叉工具输出完整三合 / 三会；完整成局仍须看单一命盘全盘结构。
 - 引擎不输出“良配 / 可配 / 慎配 / 不利”，也不输出“缘分分数”。

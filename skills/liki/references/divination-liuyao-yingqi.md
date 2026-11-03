@@ -4,11 +4,11 @@
 
 ## 引擎输出字段说明
 
-- `yong_shen.wang_shuai`：用神旺衰
-- `yong_shen.yue_po`：用神月破
-- `yong_shen.xun_kong`：用神旬空
-- `yong_shen.mu_ku`：用神入墓
-- `dong_yao_relations`：动爻关系
+- `用神.旺衰`：用神旺衰
+- `用神.月破`：用神月破
+- 用神逢旬空
+- `用神.墓库`：用神入墓
+- `动爻关系`：动爻关系
 
 ## 📖 解读：用神状态 → 应期
 

@@ -49,12 +49,12 @@ def _topic_bonus(mechanism: str, candidate_id: str, topic: str | None) -> int:
     ) else 0
 
 
-def project_timing_plan(snapshot: dict, *, topic: str | None = None, limit: int = 6) -> dict:
+def project_timing_plan(factors: dict, *, topic: str | None = None, limit: int = 6) -> dict:
     """按表驱动 policy 投影应期计划；数组顺序表达上下文排序。"""
     rules = _rules()
-    source_candidates = snapshot.get("timing_candidates", [])
+    source_candidates = factors.get("timing_candidates", [])
     if not isinstance(source_candidates, list):
-        raise ValueError("snapshot.timing_candidates must be an array")
+        raise ValueError("factors.timing_candidates must be an array")
     if limit < 1 or limit > 20:
         raise ValueError("limit must be 1-20")
 
@@ -67,7 +67,12 @@ def project_timing_plan(snapshot: dict, *, topic: str | None = None, limit: int 
         order_score += rules["target_bonus"] if _targets_hit(candidate) else 0
         order_score += _topic_bonus(mechanism, str(candidate.get("id", "")), topic)
         candidates.append({
-            **candidate,
+            "id": candidate["id"],
+            "mechanism": candidate.get("mechanism", ""),
+            "position": candidate.get("position"),
+            "trigger_branch": candidate.get("trigger_branch"),
+            "window": candidate.get("window"),
+            "basis": candidate.get("basis", []),
             "horizon": rules["topic_horizon"].get(topic or "", rules["default_horizon"]),
             "conclusion_scope": "conditional_timing_candidate_not_date",
             "required_check": rules["required_check"],
@@ -80,12 +85,6 @@ def project_timing_plan(snapshot: dict, *, topic: str | None = None, limit: int 
         item.pop("_order_score", None)
 
     return {
-        "topic": topic,
         "candidates": candidates,
         "boundary": rules["boundary"],
-        "policy": {
-            "may_output": ["time_window", "condition", "watchpoint"],
-            "forbidden": ["exact_destiny_date", "guarantee", "probability_percent"],
-            "advice_scope": "traditional_reference_not_professional_advice",
-        },
     }

@@ -47,12 +47,20 @@ def _counsel_groups(errors: list[str]) -> list[tuple[str, Any]]:
     return [(group, tool) for group, tools in TOOL_GROUPS.items() for tool in tools]
 
 
-def _catalog_document(engine_names: set[str], counsel_names: list[str]) -> dict[str, Any]:
-    """The generated catalog: a sorted engine list and an ordered counsel list."""
+FORBIDDEN_LIKI_TOOLS = {"qimen_chart", "liuyao_chart", "liuyao_qigua"}
+
+
+def _catalog_document(
+    engine_names: set[str],
+    counsel_names: list[str],
+    liki_names: set[str],
+) -> dict[str, Any]:
+    """The generated catalog: internal servers plus the LIKI product surface."""
     return {
         "servers": {
             "engine": {"tools": sorted(engine_names)},
             "counsel": {"tools": list(counsel_names)},
+            "liki": {"tools": sorted(liki_names)},
         },
     }
 
@@ -150,13 +158,13 @@ def main(argv: list[str] | None = None) -> int:
             server: set(definition.get("tools", []))
             for server, definition in catalog.get("servers", {}).items()
         }
-        if set(catalog_tools) != {"engine", "counsel"}:
-            catalog_errors.append("catalog: servers must be exactly engine and counsel")
+        if set(catalog_tools) != {"engine", "counsel", "liki"}:
+            catalog_errors.append("catalog: servers must be exactly engine, counsel, and liki")
         if "schema_version" in catalog:
             catalog_errors.append("catalog: generated tool names must not carry a contract schema_version")
     except Exception as exc:
         catalog_errors.append(f"catalog: {exc}")
-        catalog_tools = {"engine": set(), "counsel": set()}
+        catalog_tools = {"engine": set(), "counsel": set(), "liki": set()}
 
     counsel_tools: dict[str, Any] = {}
     counsel_bytes: dict[str, int] = {group: 0 for group in COUNSEL_GROUPS}
@@ -200,7 +208,10 @@ def main(argv: list[str] | None = None) -> int:
     engine_names = engine_tool_names()
     if not engine_names:
         errors.append("engine: no tool declarations found")
-    expected_catalog = _render(_catalog_document(engine_names, list(counsel_tools)))
+    liki_names = set(counsel_tools) | (set(engine_names) - FORBIDDEN_LIKI_TOOLS)
+    expected_catalog = _render(
+        _catalog_document(engine_names, list(counsel_tools), liki_names)
+    )
     missing_engine = engine_names - catalog_tools.get("engine", set())
     extra_engine = catalog_tools.get("engine", set()) - engine_names
     if missing_engine:
@@ -215,7 +226,18 @@ def main(argv: list[str] | None = None) -> int:
     if extra_counsel:
         catalog_errors.append(f"catalog.counsel unknown: {sorted(extra_counsel)}")
 
-    drift = missing_engine or extra_engine or missing_counsel or extra_counsel
+    missing_liki = liki_names - catalog_tools.get("liki", set())
+    extra_liki = catalog_tools.get("liki", set()) - liki_names
+    if missing_liki:
+        catalog_errors.append(f"catalog.liki missing: {sorted(missing_liki)}")
+    if extra_liki:
+        catalog_errors.append(f"catalog.liki unknown: {sorted(extra_liki)}")
+
+    drift = (
+        missing_engine or extra_engine
+        or missing_counsel or extra_counsel
+        or missing_liki or extra_liki
+    )
     if not drift and catalog_text != expected_catalog:
         # Tool sets agree, so this is hand-edited ordering, formatting, or metadata.
         drift = True

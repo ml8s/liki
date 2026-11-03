@@ -66,8 +66,8 @@ class TestDeploymentGeneration(unittest.TestCase):
         deployment = self._deployment("liki")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
         allow = agents["liki"]["tools"]["allow"]
-        assert len(allow["engine"]) == 27, f"engine tools = {len(allow['engine'])}"
-        assert len(allow["counsel"]) == 13, f"counsel tools = {len(allow['counsel'])}"
+        assert len(allow["liki"]) == 24, f"LIKI tools = {len(allow['liki'])}"
+        assert not {"engine", "counsel"} & allow.keys()
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
         """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""
         for profile in PROFILES:
@@ -108,8 +108,7 @@ class TestDeploymentGeneration(unittest.TestCase):
     def test_mcp_servers_use_contract_endpoint_env_names(self):
         deployment = self._deployment("liki")
         servers = {s["name"]: s for s in deployment["spec"]["mcpServers"]}
-        self.assertEqual(servers["engine"]["endpointEnv"], "LIKI_ENGINE_MCP_URL")
-        self.assertEqual(servers["counsel"]["endpointEnv"], "LIKI_COUNSEL_MCP_URL")
+        self.assertEqual(servers["liki"]["endpointEnv"], "LIKI_MCP_URL")
 
     def test_profiles_expose_complete_catalogued_tool_surface(self):
         catalog = json.loads(
@@ -119,6 +118,7 @@ class TestDeploymentGeneration(unittest.TestCase):
             server: set(definition["tools"])
             for server, definition in catalog["servers"].items()
         }
+        assert set(catalog_tools) == {"engine", "counsel", "liki"}
         exposed = {server: set() for server in catalog_tools}
         for profile in PROFILES:
             deployment = self._deployment(profile)
@@ -133,7 +133,10 @@ class TestDeploymentGeneration(unittest.TestCase):
                         continue
                     self.assertTrue(allowed <= catalog_tools[server])
                     exposed[server].update(allowed)
-        self.assertEqual(exposed, {server: set(tools) for server, tools in catalog_tools.items()})
+        # ENGINE / COUNSEL remain internal catalogs; LIKI is the product surface.
+        self.assertEqual(exposed["liki"], set(catalog_tools["liki"]))
+        self.assertEqual(exposed["engine"], set())
+        self.assertEqual(exposed["counsel"], set())
 
     def test_instruction_body_comes_from_identity_source(self):
         """聚合专家 instruction＝agents/liki/liki.md 正文。"""

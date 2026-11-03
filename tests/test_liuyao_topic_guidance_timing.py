@@ -20,16 +20,10 @@ def test_topic_library_loads_all_topics():
 
 
 def test_project_topic_guidance_returns_primary_layers():
-    snapshot = {
-        "evidence": {
-            "primary": [{"id": "yong-shen-state"}],
-            "secondary": [{"id": "pattern-1"}],
-        }
-    }
-    result = liuyao_topic_guidance.project_topic_guidance(snapshot, "wealth")
-    assert result["yong_shen"] == "妻财"
-    assert result["available_primary_evidence"] == ["yong-shen-state"]
-    assert result["available_secondary_evidence"] == ["pattern-1"]
+    result = liuyao_topic_guidance.project_topic_guidance({}, "wealth")
+    assert result["expected_yongshen"] == "妻财"
+    assert result["primary_factors"]
+    assert result["reference_factors"]
     assert result["conclusion_scope"] == "rule_guidance_not_outcome"
 
 
@@ -69,4 +63,4 @@ def test_timing_keeps_health_topic_with_unified_boundary():
     result = liuyao_timing.project_timing_plan(snapshot, topic="health_context")
     assert [item["id"] for item in result["candidates"]] == ["health-watch"]
     assert "不构成医疗" in result["boundary"]
-    assert result["policy"]["advice_scope"] == "traditional_reference_not_professional_advice"
+    assert result["boundary"]

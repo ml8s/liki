@@ -37,6 +37,25 @@ def load_factors_contract() -> dict:
             _CONTRACT = json.load(stream)
     return _CONTRACT
 
+
+def public_palace_keys(value):
+    """Project engine-facing `gong` identifiers to canonical `palace` wire keys."""
+    if isinstance(value, list):
+        return [public_palace_keys(item) for item in value]
+    if isinstance(value, dict):
+        result = {}
+        for key, item in value.items():
+            public_key = key
+            if key == "gong":
+                public_key = "palace"
+            elif key.endswith("_gong"):
+                public_key = key[:-len("_gong")] + "_palace"
+            elif key.startswith("gong_"):
+                public_key = "palace_" + key[len("gong_"):]
+            result[public_key] = public_palace_keys(item)
+        return result
+    return value
+
 def _load_lookup(
     path: Path,
     key_fields: tuple[str, ...],
@@ -153,6 +172,12 @@ def _type_matches(value, expected: str, nullable: bool = False) -> bool:
 def _project_fields(source: dict, fields: dict) -> dict:
     result = {}
     for name, spec in fields.items():
+        if "kind" in spec:
+            found, value = _read_path(source, spec["path"])
+            if not found and spec.get("required", True):
+                raise ValueError(f"chart source lacks field: {spec['path']}")
+            result[name] = _project_source(value if found else None, spec)
+            continue
         found, value = _read_path(source, spec["path"])
         if not found:
             if spec.get("required", True):

@@ -273,7 +273,6 @@ func computeZiweiLiuRi(input ZiweiLiupanInput, chart ziwei.Chart) (ZiweiLiuRiOut
 	output.RiJie = ZiweiLiuRiJie{
 		LiuRiStartTime: standardTimeValue(resolved.Standard.In(loc)),
 		LiuRiLocalDate: civilDateString(resolved.LocalDate),
-		BeijingDate:    civilDateString(resolved.BeijingDate),
 		Lunar:          ziweiLunarDate(resolved.Lunar),
 	}
 	return output, nil

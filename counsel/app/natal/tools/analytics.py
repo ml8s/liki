@@ -3,21 +3,15 @@
 TopicRouter 只做受控配置投影：topic → 命理规则 + 断语领域。这里不解释命理，
 不修改断语真值表；输出统一使用英文契约字段，中文只保留在展示内容中。
 
-counsel MCP 的 natal_query / natal_period_query 复用本模块的路由与展平逻辑
-（`_require_life_topics` / `_load_routes` / `_flatten_side_result` / `_analyze_periods`）。
+counsel MCP 的 natal_query / natal_liunian_query 复用本模块的路由与展平逻辑
+（`_require_life_topics` / `_load_routes` / `_flatten_side_result` / `_analyze_liunian`）。
 """
 
 import json
 import os
 from functools import lru_cache
 
-from app.natal.tools.chart_id import chart_id
-from app.natal.tools.duanyu import (
-    CURRENT_LIMIT_RULES,
-    query,
-    resolve_current_year,
-    yearly_range,
-)
+from app.natal.tools.duanyu import yearly_range
 from app.natal.tools.errors import LikiToolError
 from app.natal.tools.factor_constants import load_constants
 
@@ -69,23 +63,19 @@ def _life_topics_for_row(row: dict, selected: list[tuple[str, dict]],
 
 
 def _normalize_row(
-    row: dict, *, technique: str, life_topics: list[str], method: str, time_scope: str,
-    year: int | None = None, source_rule: str | None = None,
+    row: dict, *, life_topics: list[str], rule_id: str,
+    year: int | None = None,
 ) -> dict:
     result = {
         "assertion_id": row.get("id"),
-        "technique": technique,
         "life_topics": life_topics,
-        "topic": life_topics[0] if life_topics else "",
-        "method": method,
-        "time_scope": time_scope,
+        "rule_id": rule_id,
         "event_type": row.get("事件类型", ""),
         "event": row.get("事件", ""),
         "conclusion": row.get("结论", ""),
         "source": {
             "kind": "assertion_table",
-            "domain": row.get("领域", ""),
-            "rule": source_rule or row.get("rule", ""),
+            "rule_domain": row.get("领域", ""),
             "basis": row.get("依据", ""),
             "classic_basis": row.get("经典依据", ""),
         },
@@ -115,170 +105,108 @@ def _normalize_row(
 
 def _flatten_side_result(
     result: dict, selected: list[tuple[str, dict]], routes: dict,
-    time_scope: str, year: int | None = None,
-) -> tuple[list[dict], int]:
-    assertions: list[dict] = []
-    matched = 0
+    year: int | None = None,
+) -> tuple[dict[str, list[dict]], dict[str, int]]:
+    assertions: dict[str, list[dict]] = {}
+    matched: dict[str, int] = {}
     cross_cutting = frozenset(routes.get("cross_cutting_domains") or ())
     for label, technique in _side_pairs():
+        assertions[technique] = []
+        matched[technique] = 0
         for row in result.get(label, []):
             if not isinstance(row, dict):
                 continue
-            matched += 1
+            matched[technique] += 1
             life_topics = _life_topics_for_row(row, selected, cross_cutting)
             if not life_topics:
                 continue
             source_rule = row.get("rule") or result.get("_rule", "")
-            assertions.append(_normalize_row(
-                row, technique=technique, life_topics=life_topics,
-                method=routes["method_ids"].get(source_rule, source_rule),
-                time_scope=time_scope, year=year, source_rule=source_rule,
+            assertions[technique].append(_normalize_row(
+                row, life_topics=life_topics,
+                rule_id=routes["method_ids"].get(source_rule, source_rule),
+                year=year,
             ))
     return assertions, matched
 
-
-def _resolve_time_scope(time_scope: dict, timezone: str) -> tuple[str, int, int]:
-    if not isinstance(time_scope, dict):
-        raise TopicRouteError("time_scope 必须是对象")
-    allowed = {"type", "year", "start_year", "end_year", "timezone"}
-    unknown = set(time_scope) - allowed
-    if unknown:
-        raise TopicRouteError(f"time_scope 含无效字段: {sorted(unknown)}")
-    scope_type = time_scope.get("type")
-    if scope_type == "current_year":
-        year, _ = resolve_current_year(timezone)
-        return "year", year, year
-    if scope_type == "year":
-        year = time_scope.get("year")
-        if not isinstance(year, int) or isinstance(year, bool) or year <= 0:
-            raise TopicRouteError("time_scope.year 必须是正整数")
-        return "year", year, year
-    if scope_type == "year_range":
-        start = time_scope.get("start_year")
-        end = time_scope.get("end_year")
-        if not all(isinstance(value, int) and not isinstance(value, bool)
-                   and value > 0 for value in (start, end)):
-            raise TopicRouteError("time_scope.start_year/end_year 必须是正整数")
-        if start > end:
-            raise TopicRouteError("time_scope.start_year 不能大于 end_year")
-        return "year_range", start, end
-    if scope_type == "current_decade":
-        year, _ = resolve_current_year(timezone)
-        return "decade", year, year
-    if scope_type == "decade":
-        year = time_scope.get("year")
-        if not isinstance(year, int) or isinstance(year, bool) or year <= 0:
-            raise TopicRouteError("time_scope.decade 需要 year 正整数")
-        return "decade", year, year
-    raise TopicRouteError(
-        "time_scope.type 只支持 current_year/year/year_range/current_decade/decade"
-    )
 
 
 def _deduplicate(items: list[dict]) -> list[dict]:
     output, seen = [], set()
     for item in items:
-        key = (item.get("year"), item.get("assertion_id"), item.get("technique"))
+        key = (item.get("year"), item.get("assertion_id"))
         if key not in seen:
             seen.add(key)
             output.append(item)
     return output
 
 
-def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -> dict:
-    """natal_period_query 主体：natal_chart 已就绪（完整盘或分侧盘）。"""
+def _public_assertion(item: dict) -> dict:
+    """Year belongs to the period envelope, not to each repeated assertion."""
+    return {key: value for key, value in item.items() if key != "year"}
+
+
+def _analyze_liunian(natal_chart: dict, args: dict, validate_pan: bool = True) -> dict:
+    """natal_liunian_query 主体：输入是 engine series 的 start/count 口径。"""
     selected_pairs = _require_life_topics(args["life_topics"])
     routes = _load_routes()
-    timezone = str(args["time_scope"].get("timezone") or "")
-    scope_type, start, end = _resolve_time_scope(args["time_scope"], timezone)
-    output_scopes: list[dict] = []
+    start, count = args["start_year"], args["year_count"]
+    if not isinstance(start, int) or isinstance(start, bool) or start <= 0:
+        raise TopicRouteError("start_year 必须是正整数")
+    if (not isinstance(count, int) or isinstance(count, bool)
+            or not 1 <= count <= 50):
+        raise TopicRouteError("year_count 必须在 1-50 之间")
 
-    if scope_type == "decade":
-        rule_order: list[str] = []
-        for _, route in selected_pairs:
-            for rule in route["decade_rules"]:
-                if rule not in rule_order:
-                    rule_order.append(rule)
-        assertions: list[dict] = []
-        matched = 0
-        for rule in rule_order:
-            if rule not in CURRENT_LIMIT_RULES:
-                raise TopicRouteError(f"decade route 含非限运规则: {rule}")
-            result = query(rule, natal_chart, year=start, validate_pan=validate_pan)
-            result["_rule"] = rule
-            part, count = _flatten_side_result(
-                result, selected_pairs, routes, "decade", start
-            )
-            matched += count
-            assertions.extend(part)
-        unique = _deduplicate(assertions)
-        output_scopes.append({
-            "time_scope": {"type": "decade", "anchor_year": start},
-            "assertions": unique,
-            "counts": {"table_matches": matched, "returned": len(unique)},
-        })
-        year_basis = None
-        current_year = start
-        current_year_source = (
-            "server"
-            if args["time_scope"].get("type") == "current_decade"
-            else "specified"
-        )
-    else:
-        rule_order = []
-        for _, route in selected_pairs:
-            for rule in route["annual_rules"]:
-                if rule not in rule_order:
-                    rule_order.append(rule)
-        if not rule_order:
-            raise TopicRouteError("所选 topic 没有流年规则")
-        raw = yearly_range(
-            natal_chart, start, end, rules=rule_order, detail=True,
-            validate_pan=validate_pan, timezone=timezone,
-        )
-        years = raw.get("years", {})
-        for year in range(start, end + 1):
-            result = years.get(str(year), {})
-            if "error" in result:
-                output_scopes.append({
-                    "time_scope": {"type": "year", "year": year},
-                    "error": {"code": "ENGINE_UNAVAILABLE",
-                              "message": result["error"]},
-                })
-                continue
-            assertions: list[dict] = []
-            matched = 0
-            for rule, rule_result in result.items():
-                rule_result["_rule"] = rule
-                part, count = _flatten_side_result(
-                    rule_result, selected_pairs, routes, "annual", year
-                )
-                matched += count
-                assertions.extend(part)
-            unique = _deduplicate(assertions)
+    rule_order: list[str] = []
+    for _, route in selected_pairs:
+        for rule in route["annual_rules"]:
+            if rule not in rule_order:
+                rule_order.append(rule)
+    if not rule_order:
+        raise TopicRouteError("所选 topic 没有流年规则")
+
+    raw = yearly_range(
+        natal_chart, start, count, rules=rule_order, detail=True,
+        validate_pan=validate_pan,
+    )
+    years = raw.get("years", {})
+    output_scopes: list[dict] = []
+    for year in range(start, start + count):
+        result = years.get(str(year), {})
+        if "error" in result:
             output_scopes.append({
-                "time_scope": {"type": "year", "year": year},
-                "assertions": unique,
-                "counts": {"table_matches": matched, "returned": len(unique)},
+                "year": year,
+                "error": {"code": "ENGINE_UNAVAILABLE", "message": result["error"]},
             })
-        year_basis = raw.get("year_basis")
-        current_year = raw.get("current_year")
-        current_year_source = raw.get("current_year_source")
+            continue
+        grouped: dict[str, list[dict]] = {}
+        matched: dict[str, int] = {}
+        for rule, rule_result in result.items():
+            rule_result["_rule"] = rule
+            part, matched_count = _flatten_side_result(
+                rule_result, selected_pairs, routes, year
+            )
+            for technique in ("bazi", "ziwei"):
+                grouped.setdefault(technique, []).extend(part[technique])
+                matched[technique] = matched.get(technique, 0) + matched_count[technique]
+        side_results = {}
+        for technique in ("bazi", "ziwei"):
+            unique = [
+                _public_assertion(item)
+                for item in _deduplicate(grouped.get(technique, []))
+            ]
+            side_results[technique] = {
+                "assertions": unique,
+                "counts": {
+                    "matched": matched.get(technique, 0),
+                    "returned": len(unique),
+                },
+            }
+        output_scopes.append({
+            "year": year,
+            **side_results,
+        })
 
     return {
-        "natal_chart_identity": {
-            "id": chart_id(natal_chart),
-            "digest": natal_chart.get("natal_chart_digest"),
-            "completeness": "full",
-        },
-        "request_scope": {
-            "scope": "periods",
-            "life_topics": [topic for topic, _ in selected_pairs],
-            "time_scope": args["time_scope"],
-            "rules": [routes["method_ids"].get(rule, rule) for rule in rule_order],
-        },
-        "year_basis": year_basis,
-        "current_year": current_year,
-        "current_year_source": current_year_source,
-        "periods": output_scopes,
+        "natal_chart_digest": natal_chart["natal_chart_digest"],
+        "years": output_scopes,
     }

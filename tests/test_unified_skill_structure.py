@@ -131,17 +131,16 @@ def test_natal_card_actions_name_the_side():
     assert offenders == []
 
 
-def test_root_mcp_uses_counsel_and_engine():
+def test_root_mcp_uses_liki_product_surface():
     text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
-    assert "counsel" in text
-    assert "engine" in text
+    assert "LIKI-MCP" in text
     # 路由按领域（natal/divination/naming/fengshui），不按专家包 id
     for domain in DOMAINS:
         assert domain in text
     # 路由按领域（natal/divination/fengshui/naming），不按专家包 id
     assert not re.search(r"liki-(?:natal|divination|fengshui|naming)", text)
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
-    assert any("counsel" in name for name in mcp["mcpServers"])
+    assert any("liki" in name for name in mcp["mcpServers"])
 
 
 def test_root_skill_references_no_expert_pack_ids():
@@ -160,21 +159,17 @@ def test_root_skill_references_no_expert_pack_ids():
 
 
 def test_root_mcp_declares_manual_install_surface():
-    """Embedded and manual clients get the two aggregate MCP surfaces.
+    """Embedded and manual clients get the single LIKI product MCP surface.
 
-    Expert packs do not ship their own MCP manifest: they depend on the two
-    published WorkBuddy connectors (plugin.json.dependencies.connectors).
-    Domain-specific MCP endpoints are intentionally absent from every artifact.
+    Expert packs do not ship their own MCP manifest: they depend on the published
+    LIKI connector. Internal ENGINE / COUNSEL endpoints are intentionally absent
+    from every artifact.
     """
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert mcp["mcpServers"] == {
-        "counsel-mcp": {
+        "liki-mcp": {
             "type": "streamableHttp",
-            "url": "https://liki.hk/counsel/mcp",
-        },
-        "engine-mcp": {
-            "type": "streamableHttp",
-            "url": "https://liki.hk/engine/mcp",
+            "url": "https://liki.hk/mcp",
         },
     }
 

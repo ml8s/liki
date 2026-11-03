@@ -3,13 +3,10 @@ import copy
 import json
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"
 
-from app.integrity.digest import sha256_json  # noqa: E402
-from app.natal.tools.counsel import _factors_digest, natal_period_query  # noqa: E402
+from app.natal.tools.counsel import natal_liunian_query  # noqa: E402
 from app.natal.tools.factor_semantics import PredicateState  # noqa: E402
 from app.natal.tools.factors import evaluate_factors  # noqa: E402
 from app.natal.tools.operators_liunian import _flow_element_in_selected  # noqa: E402
@@ -18,11 +15,14 @@ from app.natal.tools.yongshen.evaluator import _MISSING  # noqa: E402
 
 INTERNAL_TEST_CHART_DIGEST = "a" * 64
 
-ACTUAL = ROOT / "engine" / "internal" / "mcpcontract" / "testdata" / "actual"
+WIRE_INPUTS = ROOT / "engine" / "internal" / "mcpcontract" / "testdata" / "wire_inputs"
 
 
 def _bazi_chart_fixture(name: str) -> dict:
-    return json.loads((ACTUAL / name).read_text(encoding="utf-8"))["output"]
+    from app.natal.tools.charts import _bazi_chart
+
+    subject = json.loads((WIRE_INPUTS / name).read_text(encoding="utf-8"))
+    return _bazi_chart(subject["input"]["subject"])
 
 
 def _pan(full: dict, gender: str = "male") -> dict:
@@ -69,7 +69,7 @@ def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
         "ji": ["水", "土"],
     }
     assert result["alternatives"]["neutral"]["overstrong"]["value"] == "木"
-    assert result["ge_ju_context"]["clear"] is True
+    assert result["ge_ju_context"]["is_clear"] is True
     assert result["factors"]["phase"] == "pre_yongshen"
     assert result["factors"]["direct"]["fu_yi"]["qiang_ruo"] == "中和"
     assert result["factors"]["secondary"]["tiaohou_yong"] == "火"
@@ -246,8 +246,8 @@ def test_geju_clear_changes_context_without_yongshen():
     result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
     assert result["rule_id"] == baseline["rule_id"] == "YS-FUYI"
     assert result["selected"] == baseline["selected"]
-    assert result["ge_ju_context"]["clear"] is True
-    assert baseline["ge_ju_context"]["clear"] is False
+    assert result["ge_ju_context"]["is_clear"] is True
+    assert baseline["ge_ju_context"]["is_clear"] is False
 
 
 def test_congge_label_requires_matching_season_and_stem_evidence():
@@ -375,21 +375,18 @@ def test_yongshen_digest_binds_published_decision_to_source_chart():
     assert first["yongshen_digest"] != second["yongshen_digest"]
 
 
-def test_natal_period_query_requires_precomputed_selected_yongshen():
+def test_natal_liunian_query_computes_selected_yongshen_internally():
     subject = {
         "birth_time": "1990-05-20T11:49:00+08:00",
         "birth_longitude": 116.4,
         "gender": "male",
     }
-    factors = {
-        "_provenance": {"technique": "bazi", "subject": subject, "context": {}}
-    }
-    with pytest.raises(ValueError, match="selected_yongshen"):
-        natal_period_query(
-            factors,
-            _factors_digest(factors),
-            {"type": "year", "year": 2026, "timezone": "Asia/Shanghai"},
-            ["career"],
-            subject,
-            "bazi",
-        )
+    result = natal_liunian_query(
+        subject,
+        2026, 1,
+        ["career"],
+    )
+    assert result["natal_chart_digest"]
+    assert result["years"]
+    assert result["years"][0]["bazi"]["assertions"] == []
+    assert isinstance(result["years"][0]["ziwei"]["assertions"], list)

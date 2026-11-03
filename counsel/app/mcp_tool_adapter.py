@@ -7,7 +7,6 @@ validation all come from them. No JSON Schema is written or parsed by hand here.
 
 from __future__ import annotations
 
-import asyncio
 import copy
 import inspect
 import time
@@ -32,7 +31,7 @@ _UNSET = object()
 def _metric_domain(tool: str) -> str:
     if tool.startswith(("bazi_", "ziwei_", "liuyao_", "qimen_", "naming_")):
         return tool.split("_", 1)[0]
-    if tool in {"natal_compute_factors", "natal_query", "natal_period_query"}:
+    if tool in {"natal_query", "natal_liunian_query"}:
         return "natal"
     return "aggregate"
 
@@ -149,19 +148,9 @@ def add_contract_tool(server: MCPServer, contract: Any, invoke) -> None:
         # behaved before.
         try:
             validate_arguments(contract, arguments)
-            output = TypeAdapter(contract.output) if contract.output is not None else None
+            output = output_adapter
             try:
-                invoke_task = asyncio.ensure_future(
-                    anyio.to_thread.run_sync(lambda: invoke(**arguments))
-                )
-                # Yield the event loop while the sync implementation runs.
-                # A cooperative yield keeps callback dispatch responsive without
-                # timer polling.
-                yield_delay = 0.0
-                while not invoke_task.done():
-                    await asyncio.sleep(yield_delay)
-                    yield_delay = 0.001
-                result = invoke_task.result()
+                result = await anyio.to_thread.run_sync(lambda: invoke(**arguments))
             except (ValueError, LikiToolError) as exc:
                 raise ToolError(f"tool_failed: {exc}") from exc
             except EngineMCPError as exc:
@@ -190,6 +179,8 @@ def add_contract_tool(server: MCPServer, contract: Any, invoke) -> None:
                 _metric_status(terminal_error),
                 time.perf_counter() - started,
             )
+
+    output_adapter = TypeAdapter(contract.output) if contract.output is not None else None
 
     handler.__signature__ = tool_signature(contract)
 

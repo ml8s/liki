@@ -29,14 +29,14 @@ def _fake_call(cst):
                 "local_standard_time": cst + "T12:00:00+08:00",
                 "offset": 28800,
             }}
-        gt = params["liu_nian_start_time"]
+        gt = params["start_time"]
         if name == "bazi.chart":
             year = BAZI[_date(gt)]
             gan, zhi = GZ[year]
             return {"data": {"nian": {"gan": gan, "zhi": zhi}, "birth_year": int(gt[:4])}}
         if name == "ziwei.chart":
             return {"data": {"birth_year": LUNAR[_date(gt)]}}
-        if name == "bazi.liunian":
+        if name == "bazi_liupan":
             year = BAZI[_date(gt)]
             gan, zhi = GZ[year]
             return {"data": {"liu_nian": [{
@@ -44,7 +44,7 @@ def _fake_call(cst):
                 "nian": {"gan": gan, "zhi": zhi},
                 "nian_jie": {"lichun_year": year},
             }]}}
-        if name == "ziwei.liunian":
+        if name == "ziwei_liupan":
             year = LUNAR[_date(gt)]
             return {"data": {"liu_nian": [{
                 "nian_jie": {"lunar_year": year},

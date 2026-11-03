@@ -36,8 +36,7 @@
   "compose": {
     "names": [
       "伟"
-    ],
-    "total_possible": 1
+    ]
   },
   "pick": {
     "pools": [
@@ -7993,7 +7992,6 @@
         "tone": 3
       }
     ],
-    "source_surname": "zhang",
-    "strategy": "phonetic"
+    "source_surname": "zhang"
   }
 }

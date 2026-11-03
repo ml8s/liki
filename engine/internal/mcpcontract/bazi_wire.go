@@ -653,7 +653,7 @@ type BaziLiuNianOutput struct {
 	LiuNianNaYin      *string                             `json:"na_yin,omitempty" jsonschema:"流年干支纳音。"`
 	ShengRi           *int                                `json:"sheng_ri,omitempty" jsonschema:"流年是否生扶日主：0/1。"`
 	KeRi              *int                                `json:"ke_ri,omitempty" jsonschema:"流年是否克制日主：0/1。"`
-	ShenSha           *[]BaziSeriesShenshaItem            `json:"shen_sha,omitempty" jsonschema:"流年神煞（动态：桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天乙贵人/羊刃——年支+日支双查；值年：病符/丧门/吊客/大耗——命局四柱逢煞支即应）"`
+	ShenSha           *[]BaziSeriesShenshaItem            `json:"shen_sha,omitempty" jsonschema:"流年神煞名称与类别（吉/凶/中性）；取象见 chart 层 shen_sha description。年支+日支双查；值年按流年地支查命局四柱"`
 	FuYinFanYin       *[]BaziLiuNianFuyinFanyinItem       `json:"fu_yin_fan_yin,omitempty" jsonschema:"伏吟反吟"`
 	DaYunInteractions *[]BaziLiuNianDayunInteractionsItem `json:"da_yun_interactions,omitempty" jsonschema:"查询年份所在大运与流年交互（未起运或大运过完时为空数组）"`
 	NatalInteractions *[]BaziLiuNianNatalInteractionsItem `json:"natal_interactions,omitempty" jsonschema:"流年与命局交互"`
@@ -661,9 +661,8 @@ type BaziLiuNianOutput struct {
 }
 
 type BaziSeriesShenshaItem struct {
-	Name        ShenshaName         `json:"name" jsonschema:"名称。"`
-	Category    ShenShaCategoryName `json:"category" jsonschema:"类别。"`
-	Description string              `json:"description" jsonschema:"说明。"`
+	Name     ShenshaName         `json:"name" jsonschema:"名称。"`
+	Category ShenShaCategoryName `json:"category" jsonschema:"类别。"`
 }
 
 type BaziLiuNianFuyinFanyinItem struct {
@@ -729,7 +728,7 @@ type BaziLiuYueOutput struct {
 	YueGanWuxing *string                      `json:"gan_wuxing,omitempty" jsonschema:"流月天干五行。"`
 	ShengRi      *int                         `json:"sheng_ri,omitempty" jsonschema:"流月是否生扶日主：0/1。"`
 	KeRi         *int                         `json:"ke_ri,omitempty" jsonschema:"流月是否克制日主：0/1。"`
-	ShenSha      *[]BaziSeriesShenshaItem     `json:"shen_sha,omitempty" jsonschema:"流月神煞（动态：桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天乙贵人/羊刃——年支+日支双查）"`
+	ShenSha      *[]BaziSeriesShenshaItem     `json:"shen_sha,omitempty" jsonschema:"流月神煞名称与类别；取象见 chart 层 shen_sha description"`
 	GanRels      *[]BaziSeriesGanRelationItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
 	ZhiRels      *[]BaziSeriesZhiRelationItem `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
 	JieQi        BaziLiuYueJieQi              `json:"jie_qi" jsonschema:"流月节气月界。"`
@@ -739,7 +738,6 @@ type BaziLiuRiJie struct {
 	LiuRiStartTime StandardTime `json:"start_time" jsonschema:"流日选择器时区标准时间（无 DST）。"`
 	LiuRiLocalDate DateString   `json:"local_date" jsonschema:"流日当地标准日。"`
 	LiuRiSolarDate DateString   `json:"solar_date" jsonschema:"真太阳时日（日柱所用日期）。"`
-	BeijingDate    DateString   `json:"beijing_date" jsonschema:"北京时间民用日。"`
 }
 
 // ── bazi.liupan liu_ri output ──
@@ -750,7 +748,7 @@ type BaziLiuRiOutput struct {
 	RiGan       *GanName                     `json:"gan,omitempty" jsonschema:"流日天干"`
 	RiZhi       *ZhiName                     `json:"zhi,omitempty" jsonschema:"流日地支"`
 	DayNayin    *string                      `json:"na_yin,omitempty" jsonschema:"流日干支纳音。"`
-	Shensha     *[]BaziSeriesShenshaItem     `json:"shen_sha,omitempty" jsonschema:"流日神煞（动态：天乙贵人/文昌/驿马/桃花/华盖——按流日干支查表）"`
+	Shensha     *[]BaziSeriesShenshaItem     `json:"shen_sha,omitempty" jsonschema:"流日神煞名称与类别；取象见 chart 层 shen_sha description"`
 	GanRels     *[]BaziSeriesGanRelationItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
 	ZhiRels     *[]BaziSeriesZhiRelationItem `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
 	DaYunRels   *[]BaziSeriesZhiRelationItem `json:"da_yun_rels,omitempty" jsonschema:"与大运关系"`

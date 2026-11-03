@@ -50,11 +50,11 @@ func TestTimeNowNewYork(t *testing.T) {
 
 func TestTianwenSubjectCandidatesOutputContract(t *testing.T) {
 	registry := testEngine()
-	raw, err := registry.Call(context.Background(), "tianwen_subject_candidates", mustJSON(t, civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4)))
+	raw, err := registry.Call(context.Background(), "subject_candidates", mustJSON(t, civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4)))
 	if err != nil {
-		t.Fatalf("tianwen_subject_candidates: %v", err)
+		t.Fatalf("subject_candidates: %v", err)
 	}
-	if err := registry.ValidateOutput("tianwen_subject_candidates", raw); err != nil {
-		t.Fatalf("tianwen_subject_candidates output contract: %v", err)
+	if err := registry.ValidateOutput("subject_candidates", raw); err != nil {
+		t.Fatalf("subject_candidates output contract: %v", err)
 	}
 }

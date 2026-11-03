@@ -9,7 +9,6 @@ Field/Literal/union + engine DTO schema），不在本模块重复。这里只�
 """
 
 _QUESTION_MIN = 2
-_MESSAGE_MIN = 2
 
 
 def require_question(text: str) -> str:
@@ -24,16 +23,6 @@ def require_question(text: str) -> str:
     return stripped
 
 
-def require_message(text: str) -> str:
-    """strip 后要求非空且至少 2 字；返回规范化文本。"""
-    if not isinstance(text, str):
-        raise ValueError("message must be non-empty text")
-    stripped = text.strip()
-    if not stripped:
-        raise ValueError("message must be non-empty text")
-    if len(stripped) < _MESSAGE_MIN:
-        raise ValueError("message must be at least 2 characters")
-    return stripped
 
 
 def require_exactly_one(**alternatives: object) -> None:

@@ -275,7 +275,7 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[HuangliDaysInput, HuangliDaysOutput]{
 		Name:        "huangli_days",
-		Description: "黄历查日。返回连续日期的黄历事实；指定事项时返回该事项的适配结论与判定依据。",
+		Description: "黄历查日。用户询问适合某事项的日期或某日吉凶时调用。返回连续日期的黄历事实；指定事项时返回该事项的适配结论与判定依据。",
 		Handler:     HuangliDays,
 	})
 	resolveSchema, err := tianwenResolveFormsSchema(options)
@@ -283,7 +283,7 @@ func NewEngine() *Registry {
 		panic("tianwen.subject_candidates input schema: " + err.Error())
 	}
 	mustRegister(registry, Tool[TianwenSubjectCandidatesInput, TianwenSubjectCandidatesOutput]{
-		Name:        "tianwen_subject_candidates",
+		Name:        "subject_candidates",
 		InputSchema: resolveSchema,
 		Description: "把时间事实归一化为考时候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。输出永远包含一个 input 候选（输入的直接换算）；若时间/地点不确定性触及时辰、日界、交节或夏令时边界，追加候选并标注原因领域（时辰/日界/交节/时制）。下游排盘能力使用候选 subject 排盘。",
 		Handler:     TianwenSubjectCandidates,
@@ -295,7 +295,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[BaziChartInput, BaziChartOutput]{
 		Name:        "bazi_chart",
-		Description: "排八字确定性命盘。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑候选、调候候选、格局结构证据与命盘关系事实。",
+		Description: "排八字确定性命盘。在 subject_candidates 产出候选后、用户询问本命（性格、婚姻、事业、财运、健康、学业、六亲等）时调用。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑候选、调候候选、格局结构证据与命盘关系事实。",
 		Handler:     BaziChartCompute,
 	})
 	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
@@ -331,12 +331,12 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartOutput]{
 		Name:        "liuyao_chart",
-		Description: "六爻装卦。只接受 liuyao_qigua 返回的完整起卦收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
+		Description: "六爻装卦。在 liuyao_qigua 起卦后、需要解读卦象吉凶或判断应期时调用。只接受 liuyao_qigua 返回的完整起卦收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
 		Handler:     LiuyaoChart,
 	})
 	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{
 		Name:        "bazi_bond",
-		Description: "八字合盘原始事实。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
+		Description: "八字合盘原始事实。用户提供双方出生信息、询问关系配适度（合婚、合作、亲子等）时调用。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
 		Handler:     BaziBond,
 	})
 	baziLiupanInput, err := baziLiupanFormsSchema(options)
@@ -356,7 +356,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",
-		Description: "紫微斗数确定性命盘。返回十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前与大限。",
+		Description: "紫微斗数确定性命盘。在 subject_candidates 产出候选后、需要十二宫细节（宫位主星、亮度、四化、大限等）时调用。返回十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前与大限。",
 		Handler:     ZiweiChartCompute,
 	})
 	ziweiLiupanInput, err := ziweiLiupanFormsSchema(options)
@@ -376,7 +376,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiBondInput, ZiweiBondOutput]{
 		Name:        "ziwei_bond",
-		Description: "紫微合盘原始事实。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
+		Description: "紫微合盘原始事实。用户询问两人关系并需要紫微侧证据（命宫、夫妻宫、子女宫主星对比）时调用。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
 		Handler:     ZiweiBond,
 	})
 	qimenSchema, err := qimenChartFormsSchema(options)

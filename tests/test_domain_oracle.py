@@ -29,7 +29,7 @@ def _lu_chart(case: dict) -> dict:
             "shi_shen": item["shi_shen"], "gan": item["gan"], "source": "main_qi",
         })
     full["lu_roots"] = case.get("lu_roots", [])
-    return {"full": full}
+    return {"bazi": full}
 
 
 def test_domain_oracle_datasets_have_expected_coverage() -> None:

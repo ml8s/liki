@@ -4,20 +4,27 @@ Liki currently ships one deterministic Go engine with an MCP runtime:
 
 | Runtime | Interface | Purpose | Lifecycle |
 | --- | --- | --- | --- |
-| `engine-mcp` | Streamable MCP | Skill, counsel, and agent-facing compute API | Current architecture |
-| `counsel-mcp` | Streamable MCP | Factor, assertion, divination, and naming judgment | Current architecture |
+| `engine-mcp` | Streamable MCP | Internal chart / fact API; also used by WEB chart profile | Current architecture |
+| `counsel-mcp` | Streamable MCP | Internal factor, assertion, divination, and naming judgment API | Current architecture |
+| `liki-mcp` | Streamable MCP | Product-facing SKILL / EXPERT gateway over selected ENGINE + COUNSEL tools | Current architecture |
 
 `engine-rpc` and its public JSON-RPC endpoint are retired.
 
 The edge owns public service prefixes:
 
 ```text
-https://<host>/engine/mcp       → engine-mcp /mcp
-https://<host>/counsel/mcp      → counsel-mcp /mcp
+https://<host>/mcp              → liki-mcp /mcp
+https://<host>/engine/mcp       → engine-mcp /mcp, technical/internal only
+https://<host>/counsel/mcp      → counsel-mcp /mcp, technical/internal only
 ```
 
 Services must not depend on the public prefix. The gateway strips `/engine` or
 `/counsel` before proxying.
+
+`liki-mcp` is a separate stateless image and process. Its container exposes
+`/mcp`, reads `LIKI_EXPOSE_CONFIG`, and routes only its configured product
+allowlist to internal ENGINE / COUNSEL endpoints. Keep ENGINE / COUNSEL
+endpoints off the public SKILL discovery declaration.
 
 The published engine image defaults to `engine-mcp`.
 Performance policy and benchmark entry points are described in
@@ -29,7 +36,7 @@ Time inputs are split into two public forms:
 
 | Tool layer | Fields | Rule |
 | --- | --- | --- |
-| `tianwen.resolve` | `recorded_date`/`recorded_lunar` + `recorded_time`/`recorded_shichen`/`recorded_time_range` + `record_timezone` + `place_longitude` | Civil wall-clock input. DST is resolved once; fold returns two candidates and gap fails. |
+| `subject_candidates` | `recorded_date`/`recorded_lunar` + `recorded_time`/`recorded_shichen`/`recorded_time_range` + `record_timezone` + `place_longitude` | Civil wall-clock input. DST is resolved once; fold returns two candidates and gap fails. |
 | Chart/flow tools | `standard_time` + `longitude` | Local standard time (no DST), RFC3339 with a known offset. `Z` is valid UTC standard time; `-00:00` is rejected as unknown offset. `timezone`, `instant`, and `fold` are rejected. |
 
 `standard_time` is not an IANA timezone and its offset is not used to infer
@@ -38,7 +45,7 @@ can identify the same instant while projecting different standard dates.
 Tools that need true-solar time also accept `longitude`.
 
 Do not default a missing timezone to `Asia/Shanghai`. Missing timezone at
-`tianwen.resolve`, or missing longitude where LAST is required, is fail-closed for
+`subject_candidates`, or missing longitude where LAST is required, is fail-closed for
 any capability that needs it.
 
 ## Process configuration
@@ -70,6 +77,18 @@ the public edge. Rate limiting and X-Forwarded-For trust are owned by the edge
 | `LIKI_HTTP_MAX_BODY_BYTES` | `1048576` | Maximum HTTP request body |
 | `LIKI_VERSION` | build-injected | Runtime version reported by counsel |
 
+### liki-mcp
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `LIKI_BIND_HOST` / uvicorn port | `127.0.0.1` / `8087` | Gateway bind host and port |
+| `LIKI_UPSTREAM_ENGINE_URL` | `http://engine-mcp:8081/mcp` | Internal ENGINE MCP endpoint |
+| `LIKI_UPSTREAM_COUNSEL_URL` | `http://counsel-mcp:8086/mcp` | Internal COUNSEL MCP endpoint |
+| `LIKI_UPSTREAM_ENGINE_TIMEOUT_SECONDS` | `35` | ENGINE tools/call timeout |
+| `LIKI_UPSTREAM_COUNSEL_TIMEOUT_SECONDS` | `35` | COUNSEL tools/call timeout |
+| `LIKI_EXPOSE_CONFIG` | built-in `expose.json` | LIKI product allowlist |
+| `LIKI_VERSION` | `0.1.0` | Runtime version reported by LIKI gateway |
+
 `GET /healthz` is counsel liveness and does not contact the engine. `GET /readyz`
 performs one bounded `server/discover` call to the engine; if that dependency is
 unreachable, it returns 503. `GET /metrics` exposes low-cardinality Prometheus
@@ -80,11 +99,11 @@ birth data, chart payloads, endpoint URLs, tokens, or exception text. Rate
 limiting is owned by the edge (cloud LB / WAF / Caddy); the service itself does
 not rate-limit.
 
-`/mcp` is the only counsel MCP surface. It exposes every judgment tool:
-`bazi_yongshen`, `natal_compute_factors`, `natal_query`,
-`natal_period_query`, the five naming tools, and the Liuyao/Qimen
-snapshot/query pairs. Bazi, Ziwei, Liuyao, Qimen, and naming are internal
-technique groups rather than separate deployment surfaces.
+LIKI-MCP is the public SKILL / EXPERT MCP surface. It exposes the selected
+ENGINE chart / fact tools, COUNSEL judgment tools, naming tools, and
+`liuyao_ask` / `qimen_ask`. Raw `qimen_chart`, `liuyao_chart`, and
+`liuyao_qigua` are not exposed. ENGINE / COUNSEL endpoints remain technical
+services for WEB, tests, and internal composition.
 
 ## Deployment rules
 

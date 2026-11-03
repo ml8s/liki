@@ -27,13 +27,12 @@ def test_career_palace_main_star_prosperity_is_not_always_true() -> None:
         "male",
         {**_minimal_fac(),
          "ziwei": {
-            "palace_facts": [{
-                "palace": "官禄", "kind": "brightness",
-                "target": "庙旺", "star": "紫微", "value": "庙",
-            }, {
-                "palace": "官禄", "kind": "brightness",
-                "target": "紫微主星", "star": "紫微", "value": "庙",
-            }]
+            "shi_er_gong": [
+                {"ming": "官禄", "xing_yao": [
+                    {"ming": "紫微", "lei": ["zhu_xing"], "liang_du": "庙"},
+                ]},
+                {"ming": "命宫", "xing_yao": []},
+            ]
          }},
         shushi="ziwei",
     )
@@ -45,7 +44,7 @@ def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
     base["ge_ju"] = {"ge_ju": "正官格"}
 
     matching = {
-        "full": {
+        "bazi": {
             "atomic_facts": {"pattern_god_transparent": True},
             "yue": {
                 "shi_shens": [
@@ -57,7 +56,7 @@ def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
     assert _op("格神透", [], "male", {**base, **matching}) == 1
 
     non_matching = {
-        "full": {
+        "bazi": {
             "atomic_facts": {"pattern_god_transparent": False},
             "yue": {
                 "shi_shens": [

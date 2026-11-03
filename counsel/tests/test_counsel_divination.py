@@ -1,28 +1,8 @@
-"""counsel 六爻/奇门（divination）MCP wiring 回归测试。
-
-定位：**不是 correctness oracle**。它断言"经 MCP 工具调用 == 直接调用模块函数"，
-即 MCP 装配/透传没有引入差异（正交化只改入口 ask→query，不改逻辑）。
-领域正确性由 engine 的 `*_oracle_test.go` 与 `tests/fixtures/domain_oracle/` 独立承担。
-"""
+"""六爻 / 奇门 one-shot ask MCP wiring tests."""
 
 import asyncio
 
 from app.counsel_mcp import create_counsel_root_mcp  # noqa: E402
-
-# 动态字段（digest/快照元数据）——1v1 对照时归一化
-DYNAMIC = {
-    "snapshot_digest", "_meta", "meta", "created_at",
-    "captured_at",
-}
-
-
-def _core(d):
-    if isinstance(d, dict):
-        return {k: _core(v) for k, v in d.items() if k not in DYNAMIC}
-    if isinstance(d, list):
-        return [_core(v) for v in d]
-    return d
-
 
 LIUYAO_ARGS = {
     "question": "测试这次面试能不能通过",
@@ -32,55 +12,66 @@ LIUYAO_ARGS = {
     "qi_gua_time": "2026-10-01T10:00:00+08:00",
 }
 
-
-def test_liuyao_snapshot_matches_old():
-    from app.divination.tools.liuyao_snapshot import create
-
-    srv = create_counsel_root_mcp()
-    got = asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).structured_content
-    want = create(**LIUYAO_ARGS)
-    assert _core(got) == _core(want), "liuyao_snapshot 与老实现不一致"
-    assert got["pan"] == want["pan"]
-    assert got["evidence"] == want["evidence"]
-
-
-def test_liuyao_query_matches_old_ask():
-    from app.divination.tools.liuyao_ask import ask
-
-    srv = create_counsel_root_mcp()
-    snap = asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).structured_content
-    got = asyncio.run(srv.call_tool(
-        "liuyao_query", {"snapshot": snap, "message": "什么时候有结果"},
-    )).structured_content
-    want = ask(snap, message="什么时候有结果")
-    assert _core(got) == _core(want), "liuyao_query 与老 ask 不一致"
-
-
 QIMEN_ARGS = {
     "question": "测试谈判时机",
-    "location": {"kind": "city", "city": "北京"},
+    "location": {"kind": "longitude", "longitude": 116.4},
     "qi_ju_time": "2026-10-01T10:00:00+08:00",
     "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
     "focus": {"kind": "matter", "matter": "career"},
 }
 
 
-def test_qimen_snapshot_matches_old():
-    from app.divination.tools.qimen_snapshot import create
-
+def test_liuyao_ask_returns_self_contained_reading():
     srv = create_counsel_root_mcp()
-    got = asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).structured_content
-    want = create(**QIMEN_ARGS)
-    assert _core(got) == _core(want), "qimen_snapshot 与老实现不一致"
+    got = asyncio.run(srv.call_tool("liuyao_ask", dict(LIUYAO_ARGS))).structured_content
+    assert got["technique"] == "liuyao"
+    assert len(got["reading_digest"]) == 64
+    assert got["scope"]["focus_value"] == "general"
+    assert got["interpretation"]["headline"]
+    assert any(item["layer"] == "primary" for item in got["evidence"])
+    assert isinstance(got["timing_candidates"], list)
+    assert all(item["source_kind"] for item in got["evidence"])
+    assert all("kind" in pattern for pattern in got["chart_view"]["patterns"])
+    if got["chart_view"]["gua_ci"] is not None:
+        assert {"name", "text", "yao_ci"} <= set(got["chart_view"]["gua_ci"])
+    policy = got["scope"]["followup_policy"]
+    assert set(policy["same_matter"]) == {"clarification", "timing", "obstacle"}
+    assert "used_evidence_ids" not in got["interpretation"]
+    assert all("applies" not in item for item in got["condition_candidates"])
 
 
-def test_qimen_query_matches_old_ask():
-    from app.divination.tools.qimen_ask import ask
-
+def test_qimen_ask_returns_self_contained_reading():
     srv = create_counsel_root_mcp()
-    snap = asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).structured_content
-    got = asyncio.run(srv.call_tool(
-        "qimen_query", {"snapshot": snap, "message": "哪个方向有利"},
-    )).structured_content
-    want = ask(snap, message="哪个方向有利")
-    assert _core(got) == _core(want), "qimen_query 与老 ask 不一致"
+    got = asyncio.run(srv.call_tool("qimen_ask", dict(QIMEN_ARGS))).structured_content
+    assert got["technique"] == "qimen"
+    assert len(got["reading_digest"]) == 64
+    assert got["scope"]["focus_value"] == "career"
+    assert got["interpretation"]["headline"]
+    assert got["evidence"]
+    assert isinstance(got["timing_candidates"], list)
+    assert all(item["fact_ref"] for item in got["evidence"])
+    assert all("ying_qi_kind" in item for item in got["timing_candidates"])
+    assert "used_evidence_ids" not in got["interpretation"]
+    assert "used_timing_ids" not in got["interpretation"]
+    assert all("applies" not in item for item in got["judgment_assertions"])
+
+
+def test_qimen_ask_compacts_relation_evidence_without_dropping_pairs():
+    srv = create_counsel_root_mcp()
+    got = asyncio.run(srv.call_tool("qimen_ask", dict(QIMEN_ARGS))).structured_content
+    relation = next(
+        item for item in got["evidence"]
+        if item["fact_ref"] == "factors.spirit_star_relations"
+    )
+
+    assert isinstance(relation["fact"], list)
+    assert relation["fact"]
+    pair_count = 0
+    for left in relation["fact"]:
+        assert {"spirit", "spirit_name", "spirit_palace", "relations"} <= set(left)
+        for targets in left["relations"].values():
+            pair_count += len(targets)
+            for target in targets:
+                assert {"star", "palace", "same_palace"} <= set(target)
+                assert "gong" not in target
+    assert pair_count == 72

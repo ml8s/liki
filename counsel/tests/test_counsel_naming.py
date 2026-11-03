@@ -18,7 +18,7 @@ GOLDEN = (
 
 def _selected_yongshen(yong="木", xi=None, ji=None, status="resolved"):
     return {
-        "selected": {
+        "selected_yongshen": {
             "yong": yong,
             "xi": xi or [],
             "ji": ji or [],
@@ -27,7 +27,7 @@ def _selected_yongshen(yong="木", xi=None, ji=None, status="resolved"):
         "conflicts": [],
         "rule_id": "TEST-RULE",
         "policy_id": "liki.bazi.yongshen",
-        "chart_digest": "a" * 64,
+        "bazi_chart_digest": "a" * 64,
         "yongshen_digest": "b" * 64,
     }
 
@@ -47,7 +47,7 @@ def test_naming_tools_registered(srv):
     assert names >= {
         "naming_surname",
         "naming_pick",
-        "naming_char",
+        "naming_character",
         "naming_compose",
         "naming_check",
     }
@@ -103,7 +103,7 @@ def test_naming_pick_rejects_ji_role(srv):
 
 
 def test_naming_char_matches_baseline(srv, baseline):
-    result = _call(srv, "naming_char", {"char": "伟"})
+    result = _call(srv, "naming_character", {"char": "伟"})
     assert result.structured_content == baseline["char"]
 
 

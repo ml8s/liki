@@ -10,15 +10,15 @@
 
 ## Payload 契约
 
-固定模板见根目录 `feedback.schema.json`，`schema_version=feedback-v1`。
+固定模板见根目录 `feedback.契约.json`，`契约版本=feedback-v1`。
 
 `problem.type` 只能是 `error`、`gap`、`conflict`、`friction`、`clarity`。
 
-`summary / expected / observed` 只写工程事实：工具名、字段名、流程阶段、schema / contract 问题、表述歧义。
+`summary / expected / observed` 只写工程事实：工具名、字段名、流程阶段、契约 / contract 问题、表述歧义。
 
 ## 提交方式
 
-1. 把符合 `feedback.schema.json` 的 payload 写入临时文件。
+1. 把符合 `feedback.契约.json` 的 payload 写入临时文件。
 2. 执行：
 
    ```bash

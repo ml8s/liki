@@ -25,7 +25,7 @@ def _factors(*, duty_door="死门", duty_gong="离", door_ji="大凶",
             {"star": star, "gong": gong, "ji_xiong": ji}
             for gong, star, ji in star_gongs
         ],
-        "patterns": [{"name": name, "gong": duty_gong} for name in patterns],
+        "ge_ju": [{"name": name, "gong": duty_gong} for name in patterns],
     }
 
 
@@ -65,7 +65,7 @@ def test_big_failure_not_hit_without_bad_star_or_pattern():
 
 def test_rules_all_are_candidates_not_verdicts():
     result = qimen_judgment.evaluate(_factors())
-    assert result["policy"]["candidate_not_absolute_verdict"] is True
+    assert all(item["conclusion_scope"] == "candidate_not_absolute_verdict" for item in result["results"])
     assert all(
         rule["conclusion_scope"] == "candidate_not_absolute_verdict"
         for rule in result["results"]

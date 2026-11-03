@@ -1,30 +1,13 @@
-"""问卦文档运行时校验；公开契约唯一源是 Pydantic model。"""
+"""问卦内部 case 校验；公开契约唯一源是 Pydantic model。"""
 
 from pydantic import ValidationError
 
-from app.contracts.divination import (
-    DIVINATION_TOOLS,
-    LiuyaoQueryOutput,
-    LiuyaoSnapshotOutput,
-    QimenQueryOutput,
-    QimenSnapshotOutput,
-)
+from app.contracts.divination import LiuyaoCase, QimenCase
 
 DOCUMENT_MODELS = {
-    "liuyao_snapshot": LiuyaoSnapshotOutput,
-    "qimen_snapshot": QimenSnapshotOutput,
-    "liuyao_query": LiuyaoQueryOutput,
-    "qimen_query": QimenQueryOutput,
+    "liuyao_case": LiuyaoCase,
+    "qimen_case": QimenCase,
 }
-_CONTRACT_SCHEMAS = {tool.name: tool.output_schema for tool in DIVINATION_TOOLS}
-
-
-def load_contract(name: str) -> dict:
-    """Return the already-published Pydantic schema for inspection/tests."""
-    try:
-        return _CONTRACT_SCHEMAS[name]
-    except KeyError as exc:
-        raise ValueError(f"unknown contract: {name}") from exc
 
 
 def validate_document(name: str, document: dict) -> None:

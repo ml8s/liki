@@ -5,8 +5,7 @@ from app.divination.tools.divination_answer import validate_common_core
 ALLOWED_FIELDS = {
     "headline",
     "verdict",
-    "evidence_refs",
-    "assertion_refs",
+    "refs",
     "timing_refs",
     "action",
     "boundary",
@@ -14,10 +13,10 @@ ALLOWED_FIELDS = {
 }
 
 
-def _validate_snapshot(snapshot: dict) -> None:
-    factors = snapshot.get("factors")
+def _validate_case(case: dict) -> None:
+    factors = case.get("factors")
     if not isinstance(factors, dict) or factors.get("kind") != "jinhan":
-        raise ValueError("snapshot must contain jinhan factors")
+        raise ValueError("case must contain jinhan factors")
     palaces = factors.get("palaces")
     day_spirits = factors.get("day_spirits")
     if not isinstance(palaces, list) or len(palaces) != 9:
@@ -26,25 +25,24 @@ def _validate_snapshot(snapshot: dict) -> None:
         raise ValueError("jinhan factors require 12 day spirits")
 
 
-def available_ids(snapshot: dict) -> set[str]:
-    _validate_snapshot(snapshot)
+def available_ids(case: dict) -> set[str]:
+    _validate_case(case)
     return {
-        "snapshot:method",
-        "snapshot:palaces",
-        "snapshot:day_spirits",
+        "case:method",
+        "case:palaces",
+        "case:day_spirits",
     }
 
 
-def build(snapshot: dict) -> dict:
+def build(case: dict) -> dict:
     return {
         "headline": "",
         "verdict": "",
-        "evidence_refs": [
-            "snapshot:method",
-            "snapshot:palaces",
-            "snapshot:day_spirits",
+        "refs": [
+            "case:method",
+            "case:palaces",
+            "case:day_spirits",
         ],
-        "assertion_refs": [],
         "timing_refs": [],
         "action": "",
         "boundary": "金函玉镜日家视角；不构成医疗、法律、财务、人事或紧急决策建议。",
@@ -52,32 +50,32 @@ def build(snapshot: dict) -> dict:
     }
 
 
-def validate_core(core: dict, snapshot: dict) -> dict:
+def validate_core(core: dict, case: dict) -> dict:
     errors = validate_common_core(
         core,
         allowed_fields=ALLOWED_FIELDS,
         required_text_fields=("headline", "verdict", "action"),
     )
 
-    allowed_ids = available_ids(snapshot)
-    for ref in core.get("evidence_refs", []):
+    allowed_ids = available_ids(case)
+    for ref in core.get("refs", []):
         if ref not in allowed_ids:
-            errors.append({"field": "evidence_refs", "reason": "unknown ref", "ref": ref})
-    if not core.get("evidence_refs"):
-        errors.append({"field": "evidence_refs", "reason": "at least one snapshot fact is required"})
-    for field in ("assertion_refs", "timing_refs"):
+            errors.append({"field": "refs", "reason": "unknown ref", "ref": ref})
+    if not core.get("refs"):
+        errors.append({"field": "refs", "reason": "at least one case fact is required"})
+    for field in ("timing_refs",):
         refs = core.get(field, [])
         if not isinstance(refs, list):
             errors.append({"field": field, "reason": "must be array"})
         elif refs:
             errors.append({
                 "field": field,
-                "reason": "jinhan snapshot has no assertions or timing candidates",
+                "reason": "jinhan case has no timing candidates",
             })
 
     return {
         "accepted": not errors,
         "errors": errors,
-        "checked": ["fields", "evidence refs", "forbidden language"],
+        "checked": ["fields", "refs", "forbidden language"],
         "unchecked": ["星门组合主次", "吉凶结论", "现实建议", "十二神用途"],
     }

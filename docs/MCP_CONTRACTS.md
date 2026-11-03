@@ -19,7 +19,7 @@ runtime shapes and keeps generated schemas stable.
 
 ### Time fields
 
-Birth/event wall-clock input is resolved once by `tianwen.resolve`:
+Birth/event wall-clock input is resolved once by `subject_candidates`:
 
 ```json
 {
@@ -43,7 +43,7 @@ Chart and flow tools then use only `standard_time` plus longitude:
 a known offset. `Z` is valid UTC standard time; `-00:00` is rejected because
 RFC3339 defines it as an unknown local offset. The offset is not an IANA
 timezone identity, but it selects the local standard representation used by
-date facts. `timezone` is accepted only by `tianwen.resolve`; chart tools fail
+date facts. `timezone` is accepted only by `subject_candidates`; chart tools fail
 closed if it is present. Missing `longitude` fails closed when the tool needs
 LAST.
 
@@ -81,10 +81,9 @@ optimization, and all consumers (browser, expert SDK, external agents) read
 the structured field. Tool failures still surface as text content with
 `isError`.
 
-Tools whose domain JSON shape is already locked by wire-fidelity fixtures may
-marshal that domain value directly through `RawTool`; the wire DTO remains the
-schema source of truth. This avoids a domain-to-DTO-to-JSON round trip without
-publishing an untyped contract.
+Raw handlers may marshal a domain value directly through `RawTool`; the wire
+DTO remains the schema source of truth. This avoids a domain-to-DTO-to-JSON
+round trip without publishing an untyped contract.
 
 Rules:
 
@@ -95,9 +94,6 @@ Rules:
   `[1, MaxSeriesCount]` bounds that runtime validation enforces; omitted count means one item and explicit zero is invalid;
 - output schemas validate actual JSON in contract tests and diagnostic tooling;
 - wire DTOs do not publish `schema_version` or `contract_version` fields;
-- a tool that replaced a legacy raw-JSON method sets
-  `Tool.TolerateUnknownArgs`, because the legacy params schemas left
-  `additionalProperties` unset and therefore ignored unknown arguments;
 - output fields are required unless explicitly modeled as optional;
 - tools are registered in deterministic order;
 - business failures become MCP tool errors, not private RPC envelopes;
@@ -156,7 +152,7 @@ There is no committed schema file. Every consumer imports the models:
 `app.contracts` for the budget and description lint, and the root test suite
 (`tests/`) imports them where it asserts on the tool surface, so a contract edit
 can never leave a stale copy behind. A client that needs the schemas asks the
-server: `tools/list` is the published surface.
+server: 能力发现 is the published surface.
 
 The one committed derived artifact is the tool-name catalog,
 `tools/mcp-tool-catalog.json`. It holds names only, never schemas, and it is
@@ -167,7 +163,7 @@ registry plus `app.contracts.TOOL_GROUPS`; `make check` runs the same script in
 ## Counsel contract
 
 All 10 counsel tools (`bazi_yongshen`, `natal_query`, `natal_liunian_query`,
-`naming_surname`, `naming_pick`, `naming_characteracter`, `naming_compose`,
+`naming_surname`, `naming_pick`, `naming_character`, `naming_compose`,
 `naming_check`, `liuyao_ask`, `qimen_ask`) are typed contracts.
 They are published together on the aggregate `/mcp` surface.
 
@@ -180,8 +176,8 @@ so a `needs_review` result is auditable over MCP. Naming reads the decision's
 results.
 
 Natal factor evaluation is internal. `natal_query` and `natal_liunian_query`
-accept the resolved subject and technique, build the chart and factors inside
-the service, and return assertions / periods with evidence. They do not expose
+accept the confirmed resolved subject, build both Bazi and Ziwei charts and factors inside
+the service, and return Bazi / Ziwei assertions or grouped yearly periods with evidence. They do not expose
 the factor table, factor digest, or internal provenance artifact.
 
 `counsel/tests/test_tool_contracts.py` inspects the current Pydantic schemas and

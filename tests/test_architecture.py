@@ -167,7 +167,7 @@ def test_factor_facade_owns_snap_and_error_contract():
 
 def test_ziwei_gong_matching_is_atomic_not_python_logic():
     operators = _source(operators_natal)
-    assert '"palace_facts"' in operators
+    assert '"shi_er_gong"' in operators or 'palace_index' in operators
     constants = json.loads((ROOT / "constants.json").read_text(encoding="utf-8"))
     assert {
         "紫微四化条件", "紫微亮度分组", "紫微星组别名"

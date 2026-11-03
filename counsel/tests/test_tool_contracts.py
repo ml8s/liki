@@ -21,7 +21,7 @@ OPAQUE_CONDITIONALS = ("if", "then", "else", "not")
 
 # ── published schema fidelity ────────────────────────────────────────────────
 
-def test_qimen_snapshot_input_uses_method_branches():
+def test_qimen_ask_input_uses_method_branches():
     method = CONTRACTS["qimen_ask"].input_schema["properties"]["method"]
     forms = method["anyOf"]
     assert len(forms) == 10
@@ -37,7 +37,7 @@ def test_ask_outputs_are_self_contained_readings():
     for name in ("liuyao_ask", "qimen_ask"):
         output = CONTRACTS[name].output_schema["properties"]
         assert {"scope", "evidence", "interpretation", "reading_digest"} <= set(output)
-        assert "snapshot_digest" not in output
+        assert "case_digest" not in output and "snapshot_digest" not in output
         assert "factors" not in output
 
 
@@ -74,7 +74,7 @@ def test_unique_items_is_projected_and_enforced():
         CONTRACTS["qimen_ask"].input.model_validate(
             {
                 "question": "该往哪里推进？",
-                "location": {"kind": "longitude", "qi_ju_longitude": 121.47},
+                "location": {"kind": "longitude", "longitude": 121.47},
                 "focus": {"kind": "yong_shen", "yong_shen": ["生门", "生门"]},
             }
         )
@@ -143,7 +143,7 @@ def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
         "secondary_condition": "", "condition_ok": False, "secondary_usable": False,
         "primary_present": False, "primary_visible": False,
         "secondary_present": False, "secondary_visible": False,
-        "season": "春", "detail": "test", "tiao_hou_model_id": "test", "yong": "无候选",
+        "yong": "无候选",
         "yong_source": "none", "yong_present": False, "yong_visible": False,
         "control_wuxing": "无候选",
     }
@@ -170,12 +170,15 @@ def test_bazi_yongshen_input_uses_resolved_subject():
 def _resolved_yongshen():
     from app.natal.tools.yongshen import resolve_yongshen
 
-    path = (
+    input_path = (
         REPO_ROOT / "engine" / "internal" / "mcpcontract" / "testdata"
-        / "actual" / "bazi_chart_1990.json"
+        / "wire_inputs" / "bazi_chart_1990.json"
     )
+    subject = json.loads(input_path.read_text(encoding="utf-8"))["input"]["subject"]
+    from app.natal.tools.charts import _bazi_chart
+
     return resolve_yongshen(
-        json.loads(path.read_text(encoding="utf-8"))["output"], "a" * 64
+        _bazi_chart(subject), "a" * 64
     )
 
 
@@ -244,8 +247,8 @@ def test_registration_publishes_a_copy_of_the_contract_schema():
 def test_natal_tools_have_closed_args():
     required = {
         "bazi_yongshen": ["subject"],
-        "natal_query": ["subject", "technique", "life_topics"],
-        "natal_liunian_query": ["subject", "technique", "start_year", "year_count", "life_topics"],
+        "natal_query": ["subject", "life_topics"],
+        "natal_liunian_query": ["subject", "start_year", "year_count", "life_topics"],
     }
     assert set(NATAL_FUNCTIONS) == set(required)
     for name, schema in NATAL_FUNCTIONS.items():

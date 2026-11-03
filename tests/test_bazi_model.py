@@ -163,7 +163,7 @@ def test_yong_shen_guidance_requires_effective_support_not_team_labels() -> None
         / "expert-packs/liki/skills/liki/references/natal-bazi-yongshen.md"
     ).read_text(encoding="utf-8")
     assert "数量不等于有效力量" in text
-    assert "禁止用 `wuxing_count` 做加总评分" in text
+    assert "决策表裁决" in text  # card rewritten: wuxing_count scoring removed
     assert "喜神由实际作用决定" in text
     for required in ("生克方向", "力量反转", "通关条件", "合冲牵制", "调候辅证"):
         assert required in text

@@ -142,8 +142,13 @@ func TestTimeInputsCanonical(t *testing.T) {
 					if err := json.Unmarshal(object, &nested); err != nil {
 						t.Fatalf("decode %s: %v", timeObject, err)
 					}
-					fields := []string{"time", "longitude"}
-					if timeObject == "zhai" {
+					fields := []string{"longitude"}
+					switch timeObject {
+					case "qi_gua":
+						fields = []string{"qi_gua_time", "longitude"}
+					case "qi_ju":
+						fields = []string{"qi_ju_time", "longitude"}
+					case "zhai":
 						fields = []string{"yun_start_time", "zuo_shan", "xiang_shan"}
 					}
 					for _, field := range fields {

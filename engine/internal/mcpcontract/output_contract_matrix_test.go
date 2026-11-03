@@ -26,7 +26,7 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 	}
 
 	call("time_now", map[string]any{"timezone": "Asia/Shanghai"})
-	call("tianwen_subject_candidates", civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4))
+	call("subject_candidates", civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4))
 	call("city_info", CityInfoInput{City: "北京"})
 	call("huangli_days", HuangliDaysInput{
 		StartDate: "2024-06-15",
@@ -50,7 +50,7 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 	var qigua LiuyaoQiguaOutput
 	decode(t, qiguaRaw, &qigua)
 	call("liuyao_chart", LiuyaoChartInput{QiGua: LiuyaoQiGuaInput{
-		Time:      standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		QiGuaTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
 		Longitude: 116.4, Casting: &qigua.Casting,
 	}})
 

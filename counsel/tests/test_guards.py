@@ -9,7 +9,6 @@ from pathlib import Path
 import pytest
 from app.guards import (
     require_exactly_one,
-    require_message,
     require_mutually_exclusive,
     require_object,
     require_question,
@@ -34,14 +33,6 @@ def test_require_question_rejects_single_char():
         require_question(" 丢 ")
 
 
-def test_require_message_canonical_messages():
-    assert require_message("  继续推进  ") == "继续推进"
-    with pytest.raises(ValueError, match="message must be non-empty text"):
-        require_message(None)
-    with pytest.raises(ValueError, match="message must be non-empty text"):
-        require_message(" ")
-    with pytest.raises(ValueError, match="message must be at least 2 characters"):
-        require_message("冲")
 
 
 def test_require_exactly_one():
@@ -87,13 +78,22 @@ def test_no_inline_duplicates_in_tools():
 
 def test_tools_delegate_to_guards():
     expected = {
-        "liuyao_snapshot.py": "require_question",
-        "qimen_snapshot.py": "require_question",
+        "liuyao_case.py": "require_question",
+        "qimen_case.py": "require_question",
         "liuyao_board.py": "require_mutually_exclusive",
         "qimen_charts.py": "require_mutually_exclusive",
-        "liuyao_ask.py": "require_message",
-        "qimen_ask.py": "require_message",
+    }
+    multi_expected = {
+        "liuyao_case.py": {"require_question", "assess"},
+        "qimen_case.py": {"require_question", "assess"},
+        "liuyao_ask.py": {"require_question"},
+        "qimen_ask.py": {"require_question"},
     }
     for name, symbol in expected.items():
         text = (TOOLS / name).read_text(encoding="utf-8")
         assert "app.guards" in text and symbol in text, name
+    for name, symbols in multi_expected.items():
+        text = (TOOLS / name).read_text(encoding="utf-8")
+        assert "app.guards" in text, name
+        for symbol in symbols:
+            assert symbol in text, f"{name}: {symbol}"

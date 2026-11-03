@@ -253,11 +253,11 @@ def query(rule: str, natal_chart: dict, year: int | None = None,
         )
     result = dict(filter_domains(match_rule(rule, snapshots), domains))
     if rule == "用神":
-        result["fu_yi"] = natal_chart["full"]["fu_yi"]
-        result["tiao_hou"] = natal_chart["full"]["tiao_hou"]
-        result["ge_ju"] = natal_chart["full"]["ge_ju"]
-        result["element_states"] = natal_chart["full"]["element_states"]
-        result["ten_god_states"] = natal_chart["full"]["ten_god_states"]
+        result["fu_yi"] = natal_chart["bazi"]["fu_yi"]
+        result["tiao_hou"] = natal_chart["bazi"]["tiao_hou"]
+        result["ge_ju"] = natal_chart["bazi"]["ge_ju"]
+        result["element_states"] = natal_chart["bazi"]["element_states"]
+        result["ten_god_states"] = natal_chart["bazi"]["ten_god_states"]
     if resolved_current_year:
         result["current_year"] = resolved_current_year
         result["current_year_source"] = current_year_source
@@ -368,14 +368,12 @@ def _resolve_rules(rules):
 
 
 def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, dict]:
-    """批量预取流年盘数据，返回 year → {bazi, ziwei} 查找表。
+    """单次预取流年盘数据，返回 year → {bazi, ziwei} 查找表。
 
-    engine 的 series count 上限是 50；这里按上限分块，每个 chunk 内 bazi 与
-    ziwei 两次 RPC 并发。单个 chunk 失败只污染该 chunk 覆盖的年份，失败项
-    保持 {bazi: {}, ziwei: {}, error: ...} 形状，供 yearly_range 显式降级。
+    engine series 支持 start/count；yearly_range 上限与 engine count 上限一致。
+    八字和紫微各调用一次；单侧失败只影响本次范围，保持显式 error 降级。
     """
     from app.natal.tools.charts import (
-        MAX_LIUNIAN_BATCH,
         RPCError,
         _bazi_liunian_range,
         _ziwei_liunian_range,
@@ -387,36 +385,34 @@ def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, 
     fetch_ziwei = bool(ziwei)
     years = {}
 
-    for chunk_start in range(start, start + count, MAX_LIUNIAN_BATCH):
-        chunk_count = min(MAX_LIUNIAN_BATCH, start + count - chunk_start)
-        chunk_years = range(chunk_start, chunk_start + chunk_count)
-        try:
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                bazi_future = (
-                    executor.submit(_bazi_liunian_range, subject, chunk_start, chunk_count)
-                    if fetch_bazi else None
-                )
-                ziwei_future = (
-                    executor.submit(_ziwei_liunian_range, subject, chunk_start, chunk_count)
-                    if fetch_ziwei else None
-                )
-                bazi_items = (
-                    bazi_future.result() if bazi_future is not None
-                    else [{} for _ in chunk_years]
-                )
-                ziwei_items = (
-                    ziwei_future.result() if ziwei_future is not None
-                    else [{} for _ in chunk_years]
-                )
-            for i, year in enumerate(chunk_years):
-                years[year] = {
-                    "bazi": bazi_items[i] if i < len(bazi_items) else {},
-                    "ziwei": ziwei_items[i] if i < len(ziwei_items) else {},
-                }
-        except (RPCError, ConnectionError, TimeoutError, OSError) as e:
-            error = {"error": f"{type(e).__name__}: {e}"}
-            for year in chunk_years:
-                years[year] = {"bazi": {}, "ziwei": {}, **error}
+    year_range = range(start, start + count)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            bazi_future = (
+                executor.submit(_bazi_liunian_range, subject, start, count)
+                if fetch_bazi else None
+            )
+            ziwei_future = (
+                executor.submit(_ziwei_liunian_range, subject, start, count)
+                if fetch_ziwei else None
+            )
+            bazi_items = (
+                bazi_future.result() if bazi_future is not None
+                else [{} for _ in year_range]
+            )
+            ziwei_items = (
+                ziwei_future.result() if ziwei_future is not None
+                else [{} for _ in year_range]
+            )
+        for i, year in enumerate(year_range):
+            years[year] = {
+                "bazi": bazi_items[i] if i < len(bazi_items) else {},
+                "ziwei": ziwei_items[i] if i < len(ziwei_items) else {},
+            }
+    except (RPCError, ConnectionError, TimeoutError, OSError) as e:
+        error = {"error": f"{type(e).__name__}: {e}"}
+        for year in year_range:
+            years[year] = {"bazi": {}, "ziwei": {}, **error}
     return years
 
 
@@ -444,13 +440,13 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
 # Backward compatibility: match_table/match_rule/assert_snapshot_factors
 # moved to duanyu_match.py; re-exported here for existing import sites.
 
-def yearly_range(natal_chart: dict, start: int, end: int,
+def yearly_range(natal_chart: dict, start: int, year_count: int,
                  rules: list, detail: bool = False,
                  domains: list[str] | None = None,
-                 validate_pan: bool = True, timezone: str = "") -> dict:
-    """流年断语（年粒度）。
+                 validate_pan: bool = True) -> dict:
+    """流年断语（年粒度）；输入是 engine series 同款 start/count 口径。
 
-    start/end 为流年年号（直接作为年号使用，不做公历/农历日期换算）：
+    start 为流年年号（直接作为年号使用，不做公历/农历日期换算）：
     - 八字流年：干支年号（公历立春界，年中代表 = 公历年号）
     - 紫微流年：农历年号（春节界，年号级与八字一致，如 2030 → 庚戌）
     年号级下八字与紫微一致（2024 = 甲辰），故同一年号两边通用；不做换算
@@ -461,11 +457,12 @@ def yearly_range(natal_chart: dict, start: int, end: int,
         domains = default_scene_domains(rules)
     if domains is not None:
         domains = list(domains)
-    if start > end:
-        raise YearRangeError(f"yearly_range start 不能大于 end：{start} > {end}")
-    if end - start + 1 > MAX_YEARS:
+    end = start + year_count - 1
+    if year_count <= 0:
+        raise YearRangeError(f"yearly_range year_count 必须是正整数：{year_count}")
+    if year_count > MAX_YEARS:
         raise YearRangeError(
-            f"yearly_range 年份跨度过大：{start}-{end} 共 {end - start + 1} 年，"
+            f"yearly_range 年份跨度过大：{year_count} 年，"
             f"单次最多 {MAX_YEARS} 年。"
         )
     if validate_pan:
@@ -474,9 +471,6 @@ def yearly_range(natal_chart: dict, start: int, end: int,
         for key in ("subject", "bazi", "ziwei"):
             if not natal_chart.get(key):
                 raise ChartSchemaError(f"yearly_range natal_chart 缺 {key}，无法流年求值。")
-    if not timezone:
-        raise ValueError("yearly_range 必须提供 timezone（IANA）")
-    cur_year, cur_source = resolve_current_year(timezone)
     flow_factors = flow_factor_names(rules)
     yearly_tables = [
         table
@@ -500,9 +494,8 @@ def yearly_range(natal_chart: dict, start: int, end: int,
         natal_chart, factor_names=natal_factors_for_flow(flow_factors)
     )
 
-    total = end - start + 1
     from app.natal.tools.charts import RPCError
-    liunian_cache = _batch_liunian_data(natal_chart, start, total)
+    liunian_cache = _batch_liunian_data(natal_chart, start, year_count)
 
     def _liunian_cached(_natal_chart: dict, year: int) -> dict:
         """从预取缓存查找流年盘，零 RPC。"""
@@ -532,6 +525,7 @@ def yearly_range(natal_chart: dict, start: int, end: int,
         except (RPCError, ConnectionError, TimeoutError, OSError) as e:
             years[str(year)] = {"error": f"{type(e).__name__}: {e}"}
 
-    return {"current_year": cur_year, "current_year_source": cur_source,
-            "year_basis": dict(load_constants()["流年年界"]),
-            "years": years}
+    return {
+        "year_basis": dict(load_constants()["流年年界"]),
+        "years": years,
+    }

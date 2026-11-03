@@ -1,0 +1,32 @@
+{
+  "expose": {
+    "engine": [
+      "time_now",
+      "subject_candidates",
+      "city_info",
+      "huangli_days",
+      "bazi_chart",
+      "ziwei_chart",
+      "bazi_liupan",
+      "ziwei_liupan",
+      "bazi_bond",
+      "ziwei_bond",
+      "bazhai_chart",
+      "bazhai_layout",
+      "xuankong_chart",
+      "xuankong_liunian"
+    ],
+    "counsel": [
+      "bazi_yongshen",
+      "natal_query",
+      "natal_liunian_query",
+      "naming_surname",
+      "naming_pick",
+      "naming_character",
+      "naming_compose",
+      "naming_check",
+      "liuyao_ask",
+      "qimen_ask"
+    ]
+  }
+}

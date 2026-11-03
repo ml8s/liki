@@ -109,15 +109,17 @@ def main() -> int:
     listed = post(endpoint, "tools/list").get("tools", [])
     names = {tool["name"]: tool for tool in listed}
     required = {
-        "bazi_chart", "ziwei_chart", "huangli_days", "bazhai_chart",
-        "liuyao_qigua", "liuyao_chart", "qimen_chart", "time_now",
-        "tianwen_resolve", "city_coords",
+        "bazhai_chart", "bazhai_layout", "bazi_bond", "bazi_chart",
+        "bazi_liupan", "city_info", "huangli_days", "liuyao_chart",
+        "liuyao_qigua", "qimen_chart", "subject_candidates",
+        "time_now", "xuankong_chart", "xuankong_liunian", "ziwei_bond",
+        "ziwei_chart", "ziwei_liupan",
     }
     missing = required - names.keys()
     if missing:
         raise RuntimeError(f"aggregate endpoint missing tools: {sorted(missing)}")
-    if len(names) != 27:
-        raise RuntimeError(f"aggregate endpoint exposed {len(names)} tools, want 27")
+    if len(names) != 17:
+        raise RuntimeError(f"aggregate endpoint exposed {len(names)} tools, want 17")
 
     qigua = names["liuyao_qigua"].get("annotations") or {}
     if qigua.get("idempotentHint") is not False:
@@ -137,7 +139,7 @@ def main() -> int:
 
     result = call(endpoint, "time_now", {"timezone": "Asia/Shanghai"})
     payload = result.get("structuredContent")
-    if not payload or not payload.get("standard_time"):
+    if not payload or not payload.get("local_standard_time"):
         raise RuntimeError("time_now returned no canonical standard_time")
     print(f"✓ /mcp: {len(names)} tools, aggregate-only, event hints valid")
     return 0

@@ -11,8 +11,8 @@
 - 方法：`POST`；请求体空即可。
 - 必需请求头：浏览器风格 `User-Agent`（缺省客户端 UA 可能命中 Cloudflare 反爬，返回 `403` + error code `1010`）。示例：`User-Agent: Mozilla/5.0 ... Safari/537.36`。
 - 默认端点：`https://liki.hk/api/aipay`。
-- 未带 `Payment-Proof`：后端建单，返回 HTTP `402 Payment-Needed`、`Payment-Needed` 响应头与 JSON `{code, out_trade_no, amount, currency, goods_name}`。
-- 带 `Payment-Proof`：后端核销并返回 HTTP `200` 收据 JSON（位于 `content` 内），`content.schema_version=liki-aipay-v1`。
+- 未带 `Payment-Proof`：后端建单，返回 HTTP `402 Payment-Needed`、`Payment-Needed` 响应头与 JSON `{code, 商户订单号, amount, currency, 商品名称}`。
+- 带 `Payment-Proof`：后端核销并返回 HTTP `200` 收据 JSON（位于 `content` 内），`content.契约版本=liki-aipay-v1`。
 
 ## 收据保存
 

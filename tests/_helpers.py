@@ -116,13 +116,15 @@ def mock_yongshen_fields() -> dict:
 
 
 def mock_ziwei() -> dict:
-    """构造 factor 层需要的最小紫微原子事实盘。"""
+    """构造 factor 层需要的最小紫微原子事实盘（contract-compliant）。"""
     palaces = (
         "命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄",
         "迁移", "仆役", "官禄", "田宅", "福德", "父母",
     )
     return {
-        "gong_wei": [{"name": palace} for palace in palaces],
+        "shi_er_gong": [
+            {"ming": palace, "xing_yao": []} for palace in palaces
+        ],
         "palace_facts": [
             {"palace": "命宫", "kind": "special", "target": "无主星"}
         ],
@@ -130,15 +132,14 @@ def mock_ziwei() -> dict:
 
 
 def valid_daxian(birth_year: int = 1990):
-    """构造引擎 ziwei.daxian 形状的最小 12 段大限。"""
+    """构造引擎 ziwei.daxian 形状的最小 12 段大限（contract-compliant）。"""
     palaces = (
         "命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄",
         "迁移", "仆役", "官禄", "田宅", "福德", "父母",
     )
     return [
         {
-            "gong": palace,
-            "name": f"限{i + 1}",
+            "ming_gong": palace,
             "start_year": birth_year + i * 10,
             "end_year": birth_year + i * 10 + 9,
             "qi_sui": i * 10 + 1,

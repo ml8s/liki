@@ -67,7 +67,7 @@ skills/liki/feedback.schema.json
   "problem": {
     "type": "clarity",
     "severity": "medium",
-    "tool": "ziwei.liuyue",
+    "tool": "ziwei_liupan",
     "summary": "resolved_period 的解释入口不够直观",
     "expected": "结果契约或文档直接说明应解释哪个字段",
     "observed": "需要跨文档推断"

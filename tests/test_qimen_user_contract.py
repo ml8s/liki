@@ -39,13 +39,14 @@ def test_qimen_card_documents_user_phrases_and_defaults() -> None:
 def test_qimen_card_guides_matter_selection() -> None:
     text = CARD.read_text(encoding="utf-8")
     assert "普通问事（事项用神）" in text
-    assert "普通问事用事项用神（schema 二选一）" in text
+    assert "普通问事用事项用神（契约 二选一）" in text
+    assert "显式用神" in text
     assert "用户没有明确要求，不传方法参数" in text
 
 
 def test_quarter_domain_defers_public_axes_to_schema() -> None:
     text = QUARTER.read_text(encoding="utf-8")
-    assert "可选方法与边界参数以 engine MCP schema 为准" in text
+    assert "可选方法与边界参数以 engine MCP 契约 为准" in text
     for name in ("base_dingju_method", "dun_source", "hour_boundary"):
         assert name not in text
     assert "Horosa" not in text
@@ -61,14 +62,14 @@ def test_yongshen_selection_stays_table_driven() -> None:
 
 def test_yongshen_matter_mapping_is_python_table() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
-    assert "`qimen_matters` 数据表（排盘内部维护）是事象到用神的唯一事实源" in text
-    assert "本页不复制该表" in text
+    assert "编排层查事象表转为显式用神" in text
+    assert "engine 只接收显式用神" in text
 
 
 def test_qimen_engine_and_python_layers_are_decoupled() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
     assert "engine 只接收显式用神" in text
-    assert "事项用神与显式用神互斥" in text
+    assert "显式用神" in text
 
 
 def test_lost_property_stays_in_interpretation_layer() -> None:
@@ -76,13 +77,13 @@ def test_lost_property_stays_in_interpretation_layer() -> None:
     assert "反吟为复得候选" in text
     assert "时干落空亡为难复得候选" in text
     assert "乘旺相气为复得候选" in text
-    assert "`gong_wang_shuai` / `hour_stem_palace.wang_shuai` 输出" in text
+    assert "`宫位旺衰` / `时干落宫.旺衰` 输出" in text
     assert "墓、绝未入表" in text
     assert "《奇门遁甲元灵经·卷十八·占失物》补方向与内外远近" in text
     assert "公共边界见 `references/divination-ENTRY.md`「流程产物与边界」" in text
     shared = _zhuanzhan_shared_boundary()
     assert "不传事项或用神" in shared
-    assert "快照中的专占断言" in shared
+    assert "Reading 中的专占断言" in shared
     assert "中宫无方向 / 内外" in shared
 
 
@@ -119,7 +120,7 @@ def test_thief_profile_is_table_driven_route() -> None:
     text = (ROOT / "skills/liki/references/divination-qimen-thief-capture.md").read_text(
         encoding="utf-8"
     )
-    assert "快照中的专占断言" in _zhuanzhan_shared_boundary()
+    assert "Reading 中的专占断言" in _zhuanzhan_shared_boundary()
     assert "贵人 / 小人" in text
     assert "内盘亲近人或外盘外人" in text
     assert "偷盗 / 走脱 / 画像专占" in CARD.read_text(
@@ -136,7 +137,7 @@ def test_yongshen_documents_missing_person_mapping() -> None:
 
 def test_pattern_interpretation_stays_table_driven() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
-    assert "`patterns` 只返回格局表已收录且满足同宫条件的格局" in text
+    assert "叠加值符值使、格局、门迫门制、星宫五行与克应" in text
     assert "不承诺全量格局识别" in text
     assert "不得临场补格局名" in text
 

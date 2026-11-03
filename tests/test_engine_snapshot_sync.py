@@ -20,7 +20,7 @@ def test_projection_contract_has_no_stale_or_duplicate_labels():
     assert "空宫" not in ziwei_labels  # 旧标签已改为“空宫借星”
     assert "fu_yi" in bazi_labels and "tiao_hou" in bazi_labels and "ge_ju" in bazi_labels
     assert "命局关系集合" in bazi_labels
-    assert "命理原子事实" in bazi_labels
+    assert "nian柱纳音" in bazi_labels  # canonical chart labels
 
 
 def test_projection_labels_are_unique_and_generated_from_mappings():

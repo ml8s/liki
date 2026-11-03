@@ -17,6 +17,7 @@ from app.natal.tools.chart_integrity import with_natal_chart_digest
 def _valid_query_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return with_natal_chart_digest({
+        "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
         "standard_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
@@ -24,7 +25,7 @@ def _valid_query_pan() -> dict:
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             "da_yun": {"steps": [], "current_step_index": -1},
         },
-        "full": {
+        "bazi": {
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             **mock_engine_facts(),
             **mock_yongshen_fields(),
@@ -84,9 +85,11 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def _chart(self, ri_gan="甲", yue_zhi="卯", state="帝旺"):
         return {
+            "natal_chart_digest": "a" * 64,
+            "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
             "gender": "male",
             "chart": {"yue": {"zhi": yue_zhi}, "ri": {"gan": ri_gan, "zhi": "辰"}},
-            "full": {
+            "bazi": {
                 "chang_sheng": [{"name": state, "index": yue_zhi}],
                 "atomic_facts": {"month_longevity": state},
             },
@@ -101,7 +104,7 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def test_性别是排盘上下文而非因子(self):
         base = self._fac()
-        natal_chart = {"base": base, "gender": "female", "full": {}, "chart": {"chart_digest": "a" * 64}, "ziwei": {}}
+        natal_chart = {"natal_chart_digest": "a" * 64, "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "female"}, "base": base, "gender": "female", "bazi": {}, "chart": {"chart_digest": "a" * 64}, "ziwei": {}}
         result = factors.evaluate_snap_from_natal_chart(natal_chart)
         self.assertEqual(result["context"], {"性别": "female"})
         self.assertNotIn("性别", result["八字"])
@@ -200,11 +203,11 @@ class TestYongShenQueryContext(unittest.TestCase):
             result = duanyu.query("用神", natal_chart)
             other = duanyu.query("旺衰", natal_chart)
 
-        self.assertEqual(result["fu_yi"], natal_chart["full"]["fu_yi"])
-        self.assertEqual(result["tiao_hou"], natal_chart["full"]["tiao_hou"])
-        self.assertEqual(result["ge_ju"], natal_chart["full"]["ge_ju"])
-        self.assertEqual(result["element_states"], natal_chart["full"]["element_states"])
-        self.assertEqual(result["ten_god_states"], natal_chart["full"]["ten_god_states"])
+        self.assertEqual(result["fu_yi"], natal_chart["bazi"]["fu_yi"])
+        self.assertEqual(result["tiao_hou"], natal_chart["bazi"]["tiao_hou"])
+        self.assertEqual(result["ge_ju"], natal_chart["bazi"]["ge_ju"])
+        self.assertEqual(result["element_states"], natal_chart["bazi"]["element_states"])
+        self.assertEqual(result["ten_god_states"], natal_chart["bazi"]["ten_god_states"])
         self.assertNotIn("yong_shen_context", result)
         self.assertNotIn("fu_yi", other)
 
@@ -307,6 +310,6 @@ def test_normalize_row_marks_gender_specific_factor_scope():
         "结论": "x",
         "trace": [{"condition_group": 1, "factors": {"女命官星得地格": {"expected": "没命中", "actual": "没命中"}}}],
     }
-    out = _normalize_row(row, side="bazi", topics=["career"], method="m", time_scope="natal")
+    out = _normalize_row(row, life_topics=["career"], rule_id="m")
     assert out["evidence"][0]["factor"] == "女命官星得地格"
     assert out["evidence"][0]["gender_scope"] == "女"

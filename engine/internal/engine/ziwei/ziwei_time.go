@@ -28,14 +28,13 @@ type LiuYueTime struct {
 }
 
 // LiuRiTime is the resolved lunar day for 流日. Date is the selector date for
-// the chosen basis; LocalDate and BeijingDate are echoed projections.
+// the chosen basis; LocalDate is echoed projection.
 type LiuRiTime struct {
-	Standard    time.Time         `json:"-"`
-	Location    *time.Location    `json:"-"`
-	Date        tianwen.CivilDate `json:"date"`
-	LocalDate   tianwen.CivilDate `json:"local_date"`
-	BeijingDate tianwen.CivilDate `json:"beijing_date"`
-	Lunar       tianwen.LunarDate `json:"lunar"`
+	Standard  time.Time         `json:"-"`
+	Location  *time.Location    `json:"-"`
+	Date      tianwen.CivilDate `json:"date"`
+	LocalDate tianwen.CivilDate `json:"local_date"`
+	Lunar     tianwen.LunarDate `json:"lunar"`
 }
 
 // ResolveLiuNianTime resolves the lunar year containing date. The 正月初一
@@ -141,10 +140,9 @@ func ResolveLiuRiTimeWith(p tianwen.LunarProjector, date tianwen.CivilDate) (Liu
 		return LiuRiTime{}, err
 	}
 	return LiuRiTime{
-		Date:        date,
-		LocalDate:   date,
-		BeijingDate: date,
-		Lunar:       p.SolarDateToLunar(date),
+		Date:      date,
+		LocalDate: date,
+		Lunar:     p.SolarDateToLunar(date),
 	}, nil
 }
 
@@ -156,14 +154,12 @@ func ResolveLiuRiTimeAtWith(p tianwen.LunarProjector, standard time.Time, loc *t
 	}
 	localDate := tianwen.StandardDateAt(standard, loc)
 	selectorDate := p.SelectorDate(standard)
-	beijingDate := tianwen.BeijingDateAt(standard.UTC())
 	return LiuRiTime{
-		Standard:    standard,
-		Location:    loc,
-		Date:        selectorDate,
-		LocalDate:   localDate,
-		BeijingDate: beijingDate,
-		Lunar:       p.SolarDateToLunar(selectorDate),
+		Standard:  standard,
+		Location:  loc,
+		Date:      selectorDate,
+		LocalDate: localDate,
+		Lunar:     p.SolarDateToLunar(selectorDate),
 	}, nil
 }
 

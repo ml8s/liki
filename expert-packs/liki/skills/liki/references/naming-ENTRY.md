@@ -4,7 +4,7 @@
 
 ## 工具契约
 
-agent 经 `counsel` MCP 使用姓氏候选、取字、单字校验、组名与起名校验能力；工具与参数由 MCP 自省和 schema 提供。
+agent 经 `counsel` MCP 使用姓氏候选、取字、单字校验、组名与起名校验能力；工具与参数由 MCP 自省和 契约 提供。
 
 ## 路由
 
@@ -24,7 +24,7 @@ agent 经 `counsel` MCP 使用姓氏候选、取字、单字校验、组名与�
 - 组名能力只接收字；校验能力只接收不含姓的名。
 - 无出生信息或用户选择“不限”时跳过目标五行匹配，并明确输出未评估目标五行。
 - 出处分为直接典故、字义联想、现代审美、未确认；直接典故必须给可核书名、篇名与原文。
-- 起名的五行依据直接使用八字 `selected_yongshen.selected` 中的 `yong / xi / ji` 计划（见 `references/naming-bazi-yongshen.md`）。
+- 起名的五行依据直接使用八字 `选定用神.选定用神` 中的 `yong / xi / ji` 计划（见 `references/naming-bazi-yongshen.md`）。
 
 ## 输出契约
 

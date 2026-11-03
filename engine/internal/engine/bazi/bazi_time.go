@@ -11,14 +11,13 @@ import (
 // LiuRiTime is the resolved day-level time for 流日: a civil date and its
 // day pillar. Computation consumes this value; it must not re-derive the date.
 type LiuRiTime struct {
-	Standard    time.Time         `json:"-"`
-	Location    *time.Location    `json:"-"`
-	Longitude   float64           `json:"longitude"`
-	Date        tianwen.CivilDate `json:"date"`
-	LocalDate   tianwen.CivilDate `json:"local_date"`
-	BeijingDate tianwen.CivilDate `json:"beijing_date"`
-	RiGan       ganzhi.Gan        `json:"ri_gan"`
-	RiZhi       ganzhi.Zhi        `json:"ri_zhi"`
+	Standard  time.Time         `json:"-"`
+	Location  *time.Location    `json:"-"`
+	Longitude float64           `json:"longitude"`
+	Date      tianwen.CivilDate `json:"date"`
+	LocalDate tianwen.CivilDate `json:"local_date"`
+	RiGan     ganzhi.Gan        `json:"ri_gan"`
+	RiZhi     ganzhi.Zhi        `json:"ri_zhi"`
 }
 
 // ResolveLiuRiTime resolves the day pillar of a civil date. The day pillar is
@@ -30,16 +29,15 @@ func ResolveLiuRiTime(date tianwen.CivilDate) (LiuRiTime, error) {
 	}
 	zhu := tianwen.RiZhu(date.Time())
 	return LiuRiTime{
-		Date:        date,
-		LocalDate:   date,
-		BeijingDate: date,
-		RiGan:       zhu.Gan,
-		RiZhi:       zhu.Zhi,
+		Date:      date,
+		LocalDate: date,
+		RiGan:     zhu.Gan,
+		RiZhi:     zhu.Zhi,
 	}, nil
 }
 
 // ResolveLiuRiTimeAt resolves the day pillar for a standard time. The day
-// pillar uses the local LAST date; LocalDate and BeijingDate are echoed for
+// pillar uses the local LAST date; LocalDate is echoed for
 // audit. The observer's local date is not substituted for the LAST date.
 func ResolveLiuRiTimeAt(standard time.Time, loc *time.Location, longitude float64) (LiuRiTime, error) {
 	if longitude < -180 || longitude > 180 {
@@ -48,19 +46,17 @@ func ResolveLiuRiTimeAt(standard time.Time, loc *time.Location, longitude float6
 	if loc == nil {
 		loc = time.UTC
 	}
-	beijing := standard.UTC().In(time.FixedZone("CST", 8*3600))
 	last := tianwen.ApparentSolarFromStandard(standard, longitude)
 	lastDate := tianwen.CivilDateOf(last)
 	pillar := tianwen.RiZhu(lastDate.Time())
 	return LiuRiTime{
-		Standard:    standard,
-		Location:    loc,
-		Longitude:   longitude,
-		Date:        lastDate,
-		LocalDate:   tianwen.StandardDateAt(standard, loc),
-		BeijingDate: tianwen.CivilDateOf(beijing),
-		RiGan:       pillar.Gan,
-		RiZhi:       pillar.Zhi,
+		Standard:  standard,
+		Location:  loc,
+		Longitude: longitude,
+		Date:      lastDate,
+		LocalDate: tianwen.StandardDateAt(standard, loc),
+		RiGan:     pillar.Gan,
+		RiZhi:     pillar.Zhi,
 	}, nil
 }
 

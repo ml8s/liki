@@ -95,7 +95,7 @@ Ordinary QiMen questions do not require method parameters. The default is hour s
 | Twelve-minute ten-division | `Use the twelve-minute ten-division method.` |
 | Jinhan Yujing | `Use Jinhan Yujing for today.` |
 
-Each casting keeps an immutable snapshot and evidence references; follow-up questions reuse the same snapshot instead of recasting.
+A Liuyao/Qimen ask returns a Reading with evidence references; follow-up questions explain that Reading instead of recasting.
 
 ## Feng shui
 

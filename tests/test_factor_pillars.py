@@ -12,7 +12,7 @@ def _chart(pillars: dict) -> dict:
             name: {"gan": value.get("gan", ""), "zhi": value.get("zhi", "")}
             for name, value in pillars.items()
         },
-        "full": pillars,
+        "bazi": pillars,
     }
 
 
@@ -37,7 +37,7 @@ def test_wealth_in_tomb_requires_wealth_star_on_tomb_pillar() -> None:
             ],
         },
     })
-    unrelated_tomb["full"]["atomic_facts"] = {"wealth_star_in_tomb": False}
+    unrelated_tomb["bazi"]["atomic_facts"] = {"wealth_star_in_tomb": False}
     assert _op("财星入墓", [], "male", {**base, **unrelated_tomb}) == 0
 
     # 月支辰中土气为甲之财，财星与墓库同柱，才构成财星入墓。
@@ -50,7 +50,7 @@ def test_wealth_in_tomb_requires_wealth_star_on_tomb_pillar() -> None:
             ],
         },
     })
-    in_tomb["full"]["atomic_facts"] = {"wealth_star_in_tomb": True}
+    in_tomb["bazi"]["atomic_facts"] = {"wealth_star_in_tomb": True}
     assert _op("财星入墓", [], "male", {**base, **in_tomb}) == 1
 
 
@@ -68,10 +68,10 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
         },
         "ri": {"gan": "甲", "zhi": "子", "shi_shens": []},
     })
-    one_guan_only["full"]["zhi_liu_he"] = [
+    one_guan_only["bazi"]["zhi_liu_he"] = [
         {"pillar_a": 0, "pillar_b": 2, "zhi_a": "申", "zhi_b": "巳"}
     ]
-    one_guan_only["full"]["atomic_facts"] = {"officer_killing_cleaned": False}
+    one_guan_only["bazi"]["atomic_facts"] = {"officer_killing_cleaned": False}
     assert _op("官杀取清", [], "male", {**base, **one_guan_only}) == 0
 
     mixed_guansha = _chart({
@@ -91,10 +91,10 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
         },
         "ri": {"gan": "甲", "zhi": "子", "shi_shens": []},
     })
-    mixed_guansha["full"]["zhi_liu_he"] = [
+    mixed_guansha["bazi"]["zhi_liu_he"] = [
         {"pillar_a": 0, "pillar_b": 2, "zhi_a": "申", "zhi_b": "巳"}
     ]
-    mixed_guansha["full"]["atomic_facts"] = {"officer_killing_cleaned": True}
+    mixed_guansha["bazi"]["atomic_facts"] = {"officer_killing_cleaned": True}
     assert _op("官杀取清", [], "male", {**base, **mixed_guansha}) == 1
 
     # 官杀混杂后，取清方向是合杀/冲杀留官；仅合正官不构成「合杀留官」。
@@ -116,10 +116,10 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
         "ri": {"gan": "甲", "zhi": "子", "shi_shens": []},
         "shi": {"gan": "丙", "zhi": "巳", "shi_shens": []},
     })
-    combining_correct_officer["full"]["zhi_liu_he"] = [
+    combining_correct_officer["bazi"]["zhi_liu_he"] = [
         {"pillar_a": 1, "pillar_b": 3, "zhi_a": "酉", "zhi_b": "辰"}
     ]
-    combining_correct_officer["full"]["atomic_facts"] = {"officer_killing_cleaned": False}
+    combining_correct_officer["bazi"]["atomic_facts"] = {"officer_killing_cleaned": False}
     assert _op("官杀取清", [], "male", {**base, **combining_correct_officer}) == 0
 
 

@@ -158,97 +158,55 @@ def test_bazi_yongshen_over_mcp(subject):
     srv = create_counsel_root_mcp()
     r = asyncio.run(srv.call_tool("bazi_yongshen", {"subject": subject}))
     out = r.structured_content
-    assert out["selected"]["yong"]
+    assert out["selected_yongshen"]["yong"]
     assert out["status"] in ("resolved", "partial", "needs_review", "unresolved")
     assert len(out["yongshen_digest"]) == 64
     assert "factors" not in out
     assert "alternatives" not in out
-    assert out["ge_ju_context"]["ge_ju"]
+    assert out["ge_ju_context"]["pattern"]
     assert {item["source"] for item in out["evidence"]} == {
         "facts", "fu_yi", "tiao_hou", "ge_ju", "cong_ge",
     }
     assert r.structured_content == out
 
 
-def test_natal_compute_factors_over_mcp(subject):
-    srv = create_counsel_root_mcp()
-    r = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "technique": "bazi"}))
-    out = r.structured_content
-    assert set(out) == {"factors", "factors_digest"}
-    assert "selected_yongshen" in out["factors"]
-    assert out["factors"]["_provenance"]["context"]["性别"] == "male"
-    assert len(out["factors_digest"]) == 64  # sha256 hex
-
-
-def test_natal_compute_factors_has_one_yongshen_source(subject):
-    srv = create_counsel_root_mcp()
-    out = asyncio.run(srv.call_tool(
-        "natal_compute_factors", {"subject": subject, "technique": "bazi"}
-    )).structured_content
-    selected = out["factors"]["selected_yongshen"]
-    provenance = out["factors"]["_provenance"]
-    direct = asyncio.run(srv.call_tool(
-        "bazi_yongshen", {"subject": subject}
-    )).structured_content
-    assert selected == direct
-    assert selected["policy_id"] == "liki.bazi.yongshen"
-    assert selected["yongshen_digest"]
-    assert "yongshen" not in provenance
-    assert provenance["yongshen_digest"] == selected["yongshen_digest"]
-    assert provenance["policy_id"] == selected["policy_id"]
-
-
 def test_natal_query_over_mcp(subject):
     srv = create_counsel_root_mcp()
-    r = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "technique": "bazi"}))
-    snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
         "natal_query",
         {
-            "factors": snapshot["factors"],
-            "factors_digest": snapshot["factors_digest"],
+            "subject": subject,
             "life_topics": ["chart_structure"],
         },
     ))
     out = r.structured_content
-    assert out["assertions"] and all(a.get("technique") == "bazi" for a in out["assertions"])
+    assert out["bazi"]["assertions"]
+    assert "ziwei" in out and isinstance(out["ziwei"]["assertions"], list)
+    assert all("technique" not in a for a in out["bazi"]["assertions"])
+    assert out["natal_chart_digest"]
 
 
-def test_natal_period_query_over_mcp(subject):
+def test_natal_liunian_query_over_mcp(subject):
     srv = create_counsel_root_mcp()
-    r = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "technique": "bazi"}))
-    snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
-        "natal_period_query",
+        "natal_liunian_query",
         {
-            "factors": snapshot["factors"],
-            "factors_digest": snapshot["factors_digest"],
-            "time_scope": {"type": "year_range", "start_year": 2020, "end_year": 2040, "timezone": "Asia/Shanghai"},
-            "life_topics": ["marriage"],
             "subject": subject,
+            "start_year": 2020,
+            "year_count": 21,
+            "life_topics": ["marriage"],
         },
     ))
     out = r.structured_content
-    assert out["calibration_facts"]["hour_pillar"]["gan"]
-    assert out["calibration_facts"]["hour_pillar"]["zhi"]
-    assert out["calibration_facts"]["hour_stem_ten_god"]
-    periods = out["periods"]
-    assert len(periods) == 21  # 2020-2040 每年一段
-    assertions = [a for p in periods for a in p["assertions"]]
-    # marriage 的年度断言固定走 ymar_ 前缀。
-    assert any(a["assertion_id"].startswith("ymar_") for a in assertions)
-    assert sum(len(p["assertions"]) for p in periods) == 7
-    assert all(a.get("technique") == "bazi" for a in assertions)
-
-
-def test_natal_compute_factors_rejects_partial_subject():
-    result = _call_tool_over_mcp(
-        create_counsel_root_mcp(),
-        "natal_compute_factors",
-        {"subject": {"birth_time": "1990-05-20T11:49:00+08:00"}, "technique": "bazi"},
-    )
-    assert result.is_error is True
-    assert "birth_longitude" in result.content[0].text
+    assert "hour_calibration" not in out
+    years = out["years"]
+    assert len(years) == 21  # 2020-2040 每年一段
+    bazi_assertions = [a for p in years for a in p["bazi"]["assertions"]]
+    ziwei_assertions = [a for p in years for a in p["ziwei"]["assertions"]]
+    assert any(a["assertion_id"].startswith("ymar_") for a in bazi_assertions)
+    assert bazi_assertions
+    assert isinstance(ziwei_assertions, list)
+    assert all("technique" not in a for a in bazi_assertions + ziwei_assertions)
 
 
 def test_bazi_yongshen_rejects_partial_subject():
@@ -283,9 +241,8 @@ def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(subject):
     srv = create_counsel_root_mcp()
     names = {tool.name for tool in asyncio.run(srv.list_tools())}
     assert {
-        "bazi_yongshen", "natal_compute_factors", "natal_query", "natal_period_query",
-        "naming_pick", "naming_compose", "liuyao_snapshot",
-        "liuyao_query", "qimen_snapshot", "qimen_query",
+        "bazi_yongshen", "natal_query", "natal_liunian_query",
+        "naming_pick", "naming_compose", "liuyao_ask", "qimen_ask",
     } <= names
 
 
@@ -310,9 +267,6 @@ def test_counsel_root_aggregate_exposes_every_contract_schema():
 
 
 def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(subject):
-    snapshot = asyncio.run(create_counsel_root_mcp().call_tool(
-        "natal_compute_factors", {"subject": subject, "technique": "bazi"}
-    )).structured_content
     all_topics = [
         "marriage", "family", "children", "career", "wealth", "health",
         "mental", "study", "personality", "appearance", "origin",
@@ -321,68 +275,61 @@ def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(subject
     result = asyncio.run(create_counsel_root_mcp().call_tool(
         "natal_query",
         {
-            "factors": snapshot["factors"],
-            "factors_digest": snapshot["factors_digest"],
+            "subject": subject,
             "life_topics": all_topics,
         },
     ))
     out = result.structured_content
-    assert out["assertions"]
-    for assertion in out["assertions"]:
+    assertions = out["bazi"]["assertions"] + out["ziwei"]["assertions"]
+    assert assertions
+    for assertion in assertions:
         assert isinstance(assertion.get("life_topics"), list)
         assert assertion["life_topics"]
         assert set(assertion["life_topics"]) <= set(all_topics)
-    ids = [assertion["assertion_id"] for assertion in out["assertions"]]
+    ids = [(side, a["assertion_id"]) for side in ("bazi", "ziwei") for a in out[side]["assertions"]]
     assert len(ids) == len(set(ids))
 
 
-def test_natal_period_query_accepts_natal_compute_factors_context(subject):
+def test_natal_liunian_query_accepts_subject_only(subject):
     srv = create_counsel_root_mcp()
-    snapshot = asyncio.run(srv.call_tool(
-        "natal_compute_factors", {"subject": subject, "technique": "bazi"}
-    )).structured_content
     result = asyncio.run(srv.call_tool(
-        "natal_period_query",
+        "natal_liunian_query",
         {
-            "factors": snapshot["factors"],
-            "factors_digest": snapshot["factors_digest"],
-            "time_scope": {"type": "current_year", "timezone": "Asia/Shanghai"},
-            "life_topics": ["career"],
             "subject": subject,
+            "start_year": 2026,
+            "year_count": 1,
+            "life_topics": ["career"],
         },
     ))
     out = result.structured_content
-    assert "periods" in out
+    assert "years" in out
 
 
-def test_natal_period_query_contract_allows_full_topic_set():
-    contract = next(c for c in NATAL_TOOLS if c.name == "natal_period_query")
+def test_natal_liunian_query_contract_allows_full_topic_set():
+    contract = next(c for c in NATAL_TOOLS if c.name == "natal_liunian_query")
     assert contract.input_schema["properties"]["life_topics"]["maxItems"] == 16
 
 
 def test_counsel_root_aggregate_infers_natal_domain(subject):
     srv = create_counsel_root_mcp()
-    result = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "technique": "bazi"}))
-    snapshot = result.structured_content
-    assert snapshot["factors"]["_provenance"]["technique"] == "bazi"
     result = asyncio.run(srv.call_tool(
         "natal_query",
         {
-            "factors": snapshot["factors"],
-            "factors_digest": snapshot["factors_digest"],
+            "subject": subject,
             "life_topics": ["chart_structure"],
         },
     ))
     out = result.structured_content
-    assert out["assertions"] and all(a.get("technique") == "bazi" for a in out["assertions"])
+    assert out["bazi"]["assertions"]
+    assert "ziwei" in out and isinstance(out["ziwei"]["assertions"], list)
     assert result.structured_content == out
 
 
 def test_counsel_tool_rejects_argument_outside_manifest_schema():
     result = _call_tool_over_mcp(
         create_counsel_root_mcp(),
-        "natal_compute_factors",
-        {"subject": {}, "technique": "bazi", "unexpected": True},
+        "natal_query",
+        {"subject": {}, "life_topics": [], "unexpected": True},
     )
     assert result.is_error is True
     text = result.content[0].text

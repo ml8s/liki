@@ -14,30 +14,30 @@ Digest 不是通用输出装饰。只有当一个 MCP artifact 会离开当前�
 6. 不做 HTML escape；U+2028/U+2029 统一编码为 `\u2028/\u2029`；
 7. 数字保留源 JSON 标量形式，SHA-256 输出为 64 位小写十六进制。
 
-`snapshot_digest`、`factors_digest`、`yongshen_digest`、`casting_digest` 等自身字段不参与自己的摘要。engine 保留 canonical JSON 规则实现；counsel 的唯一 Python digest 实现在 `counsel/app/integrity/digest.py`。业务代码只调用 artifact helper，不重复手写 canonical JSON。Go/Python 使用固定参考向量做兼容测试。
+`reading_digest`、`yongshen_digest`、`casting_digest` 等自身字段不参与自己的摘要。engine 保留 canonical JSON 规则实现；counsel 的唯一 Python digest 实现在 `counsel/app/integrity/digest.py`。业务代码只调用 artifact helper，不重复手写 canonical JSON。Go/Python 使用固定参考向量做兼容测试。
 
 ## 当前边界
 
 | Artifact | Digest / identity | 决策 | 原因 |
 | --- | --- | --- | --- |
-| `liuyao_snapshot` / `qimen_snapshot` | `snapshot_digest` | 保留 | 一次占卜事件的不可变快照，query 必须校验。 |
+| `liuyao_ask` / `qimen_ask` | `reading_digest` | 保留 | 一次问测 Reading 的完整性摘要；case 本体不对外。 |
 | `liuyao.qigua` output `casting` | `casting_digest` | 保留 | casting 会原样进入 `liuyao.chart`，必须拒绝篡改。 |
 | `bazi_chart` / `ziwei_chart` / `qimen_chart` / `xuankong_chart` / `liuyao_chart` | 无 artifact digest | 不加 | 它们是当前调用的计算结果；后续方法重用领域身份重算，不把 chart 原样传回。 |
 | `xuankong_liunian` | 无 artifact digest | 不加 | 输入是 `zhai` 领域事实；输出是本次流年计算结果。 |
-| `bazi_yongshen` | `chart_digest`, `yongshen_digest` | 保留 | 用神裁决被起名、因子和应期消费，需要绑定源盘和结论。 |
-| `natal_compute_factors` | `factors_digest`, `_provenance.chart_digest` | 保留 | 因子快照会进入后续 query，必须防裁剪、拼接和换盘。 |
+| `bazi_yongshen` | `bazi_chart_digest`, `yongshen_digest` | 保留 | 用神裁决被起名、因子和应期消费，需要绑定源盘和结论。 |
+| natal internal factors | `natal_chart_digest` | 内部保留 | 因子只参与服务端断语计算，不作为公共 artifact 输出。 |
 | series / bond | 无 source digest | 不加 | 服务端同一编排内派生；请求-响应关联由编排层负责，不是防 LLM 伪造边界。 |
 | naming 工具 | 无 artifact digest | 不加 | 字池、组名、逐字五行角色是确定性事实，不构成可复用事件。 |
 | 普通查询/投影 | 无 | 不加 | 只展示或只在同一请求内消费的输出不需要身份。 |
-| 用户提问 | `message_digest` | 已删除 | 提问不是原样回传的 artifact；answer 已绑定 snapshot。 |
+| 用户提问 | `message_digest` | 已删除 | 提问不是原样回传的 artifact；reading 已绑定问题与证据。 |
 
 ## 决策规则
 
 新增或修改 artifact 时按顺序判断：
 
 1. 它会由 LLM 原样传回后续 MCP input 吗？不是就不加。
-2. 它是服务端创建的不可变事件吗？是则加 snapshot/casting identity。
-3. 它是规则裁决、因子快照或可复用源盘吗？是则加自身 digest，并绑定来源 digest。
+2. 它是服务端创建的不可变事件吗？是则加 case/casting identity。
+3. 它是规则裁决、内部因子集或可复用源盘吗？是则加自身 digest，并绑定来源 digest。
 4. 它只是服务端编排内的派生结果吗？请求-响应关联由编排层负责，不加 source digest。
 5. 消费端必须校验 digest，失败时返回 tool error，不静默重算或降级。
 

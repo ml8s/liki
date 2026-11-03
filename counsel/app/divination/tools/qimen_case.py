@@ -1,15 +1,17 @@
-"""奇门 snapshot 创建：时间、地点、排盘与因子投影一次完成。"""
+"""奇门 case 创建：时间、地点、排盘与因子投影一次完成。"""
 
+from app.divination.tools.divination_case import build_case
 from app.divination.tools.divination_contracts import validate_document
 from app.divination.tools.divination_safety import assess
-from app.divination.tools.divination_snapshot import build_snapshot
 from app.divination.tools.qimen_charts import city_coords, qimen_chart
 from app.divination.tools.qimen_duanyu import query
 from app.divination.tools.qimen_interpretations import assert_rule_compatibility, load_rule_table
 from app.divination.tools.qimen_jinhan_factors import project as project_jinhan_factors
 from app.divination.tools.qimen_projection import project as project_standard_factors
 from app.divination.tools.qimen_projection import validate as validate_standard_factors
+from app.divination.tools.qimen_projection_common import public_palace_keys
 from app.guards import require_question
+from app.integrity.digest import short_object_id
 
 #
 # 专占规则是否接受 matter / yong_shen 由 qimen_rules.csv 的 focus_policy 声明。
@@ -39,20 +41,13 @@ def _resolve_location(location: dict) -> tuple[str | None, float]:
 
 
 def _resolve_focus(focus: dict | None) -> tuple[str | None, list[str] | None]:
+    """Extract the already contract-validated focus facts."""
     if focus is None:
         return None, None
-    kind = focus.get("kind")
-    if kind == "matter":
-        matter = focus.get("matter")
-        if not isinstance(matter, str):
-            raise ValueError("focus.matter must be a string")
-        return matter, None
-    if kind == "yong_shen":
-        yong_shen = focus.get("yong_shen")
-        if not isinstance(yong_shen, list) or not yong_shen:
-            raise ValueError("focus.yong_shen must be a non-empty array")
-        return None, yong_shen
-    raise ValueError("focus must use kind=matter or kind=yong_shen")
+    if focus["kind"] == "matter":
+        return focus["matter"], None
+    return None, focus["yong_shen"]
+
 
 
 def create(
@@ -65,27 +60,13 @@ def create(
     method: dict[str, str],
     subject: dict | None = None,
 ) -> dict:
-    """创建 immutable qimen snapshot；LLM 后续只依赖该对象。"""
+    """创建 immutable qimen case；LLM 后续只依赖该对象。"""
     question = require_question(question)
     safety = assess(question)
-    if not isinstance(method, dict):
-        raise ValueError("method must be an explicit qimen method object")
-    effective_scope = method.get("scope", "")
-    effective_school = method.get("school", "")
-    if effective_school == "jinhan_yujing":
-        forbidden = (focus, rule, subject)
-        if any(value is not None for value in forbidden):
-            raise ValueError("school jinhan_yujing does not support focus or advanced method fields")
+    effective_scope = method["scope"]
+    effective_school = method["school"]
 
-    is_jinhan = effective_school == "jinhan_yujing"
     matter, yong_shen = _resolve_focus(focus)
-    has_focus = focus is not None
-    quarter_allows_no_focus = effective_scope == "quarter"
-    if is_jinhan:
-        pass
-    elif not rule and not has_focus and not quarter_allows_no_focus:
-        raise ValueError("ordinary qimen requires exactly one of matter or yong_shen; specialized rule may omit both")
-
     if rule is not None:
         assert_rule_compatibility(rule, effective_scope, effective_school)
         focus_policy = load_rule_table()[rule]["focus_policy"]
@@ -129,27 +110,82 @@ def create(
     ):
         raise ValueError("qimen method context does not match factors")
 
-    snapshot = build_snapshot(
-        method="qimen",
+    resolved_focus = None
+    if chart_result.get("matter"):
+        resolved_focus = {"kind": "matter", **chart_result["matter"]}
+    elif focus is not None:
+        resolved_focus = focus
+
+    timing_candidates = [
+        {
+            "id": short_object_id("timing", candidate),
+            "ying_qi_kind": candidate.get("ying_qi_kind") or None,
+            "palace": candidate.get("palace") or candidate.get("gong"),
+            "branch": candidate.get("branch"),
+            "related_to": candidate.get("related_to"),
+        }
+        for candidate in factors.get("ying_qi", [])
+    ]
+    case_factors = {
+        key: value
+        for key, value in factors.items()
+        if key not in {"scope", "school", "ying_qi"}
+    }
+    published_factors = public_palace_keys(case_factors)
+    evidence_specs = (
+        ("context-pillars", "factors.pillars", "context"),
+        ("structure-geju", "factors.ge_ju", "structure"),
+        ("relation-ri-shi", "factors.ri_shi_relation", "relation"),
+        ("relation-gan", "factors.gan_interactions", "relation"),
+        ("relation-men", "factors.men_interactions", "relation"),
+        ("relation-xing", "factors.xing_interactions", "relation"),
+        ("structure-stars", "factors.stars", "structure"),
+        ("structure-doors", "factors.doors", "structure"),
+        ("structure-spirits", "factors.spirits", "structure"),
+        ("relation-star-spirit", "factors.spirit_star_relations", "relation"),
+        ("relation-spirit-spirit", "factors.spirit_spirit_relations", "relation"),
+        ("relation-spirit-door", "factors.spirit_door_relations", "relation"),
+        ("structure-kong-wang", "factors.kong_wang", "structure"),
+        ("structure-ma-xing", "factors.ma_xing", "structure"),
+        ("structure-palace-strength", "factors.palace_wang_shuai", "structure"),
+        ("focus-yongshen", "factors.yong_shen", "focus"),
+        ("focus-year-gan", "factors.nian_gan_palace", "focus"),
+        ("focus-year-gan-facts", "factors.nian_gan_palace_facts", "focus"),
+        ("focus-yongshen-gong", "factors.yong_shen_palace", "focus"),
+    )
+    evidence = [
+        {
+            "id": f"case:{evidence_id}",
+            "fact_ref": fact_ref,
+            "layer": layer,
+        }
+        for evidence_id, fact_ref, layer in evidence_specs
+        if published_factors.get(fact_ref.removeprefix("factors.")) not in (None, [], {}, "")
+    ]
+    case = build_case(
+        technique="qimen",
         payload={
             "question": question,
-            "input": {
+            "qi_ju": {
                 "city": resolved_city,
-                "qi_ju_longitude": resolved_longitude,
+                "longitude": resolved_longitude,
                 "qi_ju_time": qi_ju_time,
             },
-            "matter": chart_result.get("matter"),
-            "method_context": method_context,
-            "factors": factors,
+            "focus": resolved_focus,
+            "method": method,
+            "evidence": evidence,
+            "timing_candidates": timing_candidates,
+            "factors": case_factors,
             "special": special,
-            "judgments": judgments,
-            "snapshot_kind": "jinhan" if effective_school == "jinhan_yujing" else "standard",
+            "judgments": {"results": judgments["results"]},
             "safety_advisory": safety,
             "policy": {
                 "immutable": True,
                 "no_rechart_without_new_event": True,
+                "candidate_not_absolute_verdict": True,
+                "forbid_downscaling_obvious_big_failure": True,
             },
         },
     )
-    validate_document("qimen_snapshot", snapshot)
-    return snapshot
+    validate_document("qimen_case", case)
+    return case

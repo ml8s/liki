@@ -108,10 +108,4 @@ def evaluate(factors: dict) -> dict:
             "forbidden": rule.get("forbidden", []),
             "conclusion_scope": load_rules().get("conclusion_scope", ""),
         })
-    return {
-        "results": results,
-        "policy": {
-            "candidate_not_absolute_verdict": True,
-            "forbid_downscaling_obvious_big_failure": True,
-        },
-    }
+    return {"results": results}

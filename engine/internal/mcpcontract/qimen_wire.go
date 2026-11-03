@@ -28,7 +28,7 @@ type QimenMethodInput struct {
 // QimenQiJuInput is the Qimen event identity: one standard-time moment and the
 // location used for solar-time corrections.
 type QimenQiJuInput struct {
-	Time      StandardTime `json:"time" jsonschema:"起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。"`
+	QiJuTime  StandardTime `json:"qi_ju_time" jsonschema:"起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。"`
 	Longitude float64      `json:"longitude" jsonschema:"起局地经度（-180..180）；真太阳时校正用于时柱与分钟分法。"`
 }
 

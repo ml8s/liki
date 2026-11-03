@@ -4,7 +4,7 @@ The resolver owns the only yongshen decision. Downstream tools consume this
 result verbatim, so the shape is published once here and reused by every MCP
 contract that carries it. ``SelectedYongShen`` is the complete, auditable
 decision. Cross-domain consumers project only the field they need; for example,
-naming uses ``selected.yong`` as its target five element.
+naming uses ``selected_yongshen.yong`` as its target five element.
 """
 
 
@@ -28,15 +28,15 @@ Sha256Digest = Annotated[str, Field(pattern="^[a-f0-9]{64}$")]
 class YongShenChoice(BaseModel):
     """The selected yong/xi/ji five-element plan."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     yong: YongWuxing = Field(
-        description="Selected yongshen element; 无候选 means the policy did not form a usable choice.",
+        description="用神五行；无候选表示未形成可用选择。",
     )
     xi: unique_list[Wuxing] = Field(
         description="Elements that support the selected yongshen.",
     )
     ji: unique_list[Wuxing] = Field(
-        description="Elements that work against the selected yongshen.",
+        description="忌神五行。",
     )
     @model_validator(mode="after")
     def _enforce_disjoint_roles(self) -> "YongShenChoice":
@@ -55,7 +55,7 @@ class YongShenChoice(BaseModel):
 class YongShenConflict(BaseModel):
     """A conflict found while resolving the yongshen."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     code: str = Field(description="Stable conflict code.")
     message: str = Field(description="Human-readable conflict explanation.")
 
@@ -63,19 +63,19 @@ class YongShenConflict(BaseModel):
 class YongShenGeJuContext(BaseModel):
     """The 格局 context attached to the decision."""
 
-    model_config = ConfigDict(extra="allow")
-    ge_ju: str = Field(description="格局名称。")
+    model_config = ConfigDict(extra="forbid")
+    pattern: str = Field(description="格局名称。")
     pattern_god_ten_god: TenGodNoGod = Field(description="格神十神；无格神为 无格神。")
     pattern_god_source: str = Field(description="格神取用来源。")
     yong_fa: str = Field(description="格局顺逆用法。")
-    clear: bool = Field(description="格局是否清纯。")
+    is_clear: bool = Field(description="格局是否清纯。")
     theme: str = Field(description="格局主题。")
 
 
 class YongShenFactsEvidence(BaseModel):
     """Engine facts evidence record."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     source: Literal["facts"] = Field(description="证据来源。")
     month_zhi: Zhi = Field(description="月支。")
     day_master_stem: Gan = Field(description="日主天干。")
@@ -86,7 +86,7 @@ class YongShenFactsEvidence(BaseModel):
 class YongShenFuYiEvidence(BaseModel):
     """扶抑 evidence record."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     source: Literal["fu_yi"] = Field(description="证据来源。")
     qiang_ruo: str = Field(description="身强弱。")
     pattern: str = Field(description="扶抑结构模式。")
@@ -101,7 +101,7 @@ class YongShenFuYiEvidence(BaseModel):
 class YongShenTiaoHouEvidence(BaseModel):
     """调候 evidence record."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     source: Literal["tiao_hou"] = Field(description="证据来源。")
     primary_wuxing: YongWuxing = Field(description="主调候五行。")
     secondary_wuxing: SecondaryWuxing = Field(description="辅调候五行；缺失时为 无辅调候。")
@@ -122,22 +122,22 @@ class YongShenTiaoHouEvidence(BaseModel):
 class YongShenGeJuEvidence(BaseModel):
     """格局 evidence record."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     source: Literal["ge_ju"] = Field(description="证据来源。")
     pattern: str = Field(description="格局名称。")
     pattern_god_ten_god: TenGodNoGod = Field(description="格神十神；无格神为 无格神。")
     pattern_god_source: str = Field(description="格神取用来源。")
-    clear: bool = Field(description="格局是否清纯。")
+    is_clear: bool = Field(description="格局是否清纯。")
 
 
 class YongShenCongGeEvidence(BaseModel):
     """从格复核 evidence record."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     source: Literal["cong_ge"] = Field(description="证据来源。")
     pattern: str = Field(description="从格候选标签。")
-    verified: bool = Field(description="从格双证是否通过。")
-    fake: bool = Field(description="是否为假从格候选。")
+    is_verified: bool = Field(description="从格双证是否通过。")
+    is_fake_candidate: bool = Field(description="是否为假从格候选。")
     guan_sha_effective_count: int = Field(description="有效官杀数量：透干，或通根且力量强。")
     cai_effective_count: int = Field(description="有效财星数量：透干，或通根且力量强。")
     shi_shang_effective_count: int = Field(description="有效食伤数量：透干，或通根且力量强。")
@@ -157,21 +157,21 @@ YongShenEvidence = (
 class SelectedYongShenCore(BaseModel):
     """The stable decision fields shared by every consumer."""
 
-    model_config = ConfigDict(extra="allow")
-    selected: YongShenChoice = Field(description="The only selected yong/xi/ji result.")
+    model_config = ConfigDict(extra="forbid")
+    selected_yongshen: YongShenChoice = Field(description="The only selected yong/xi/ji result.")
     status: YongShenStatus = Field(
-        description="Resolution status; downstream tools consume resolved and partial only.",
+        description="裁决状态；下游仅消费 resolved 或 partial。",
     )
     conflicts: list[YongShenConflict] = Field(
-        description="Conflicts found while resolving the yongshen; empty when none.",
+        description="用神裁决冲突；无冲突为空。",
     )
     rule_id: str = Field(description="Matched rule identifier.")
     policy_id: str = Field(description="Yongshen policy identifier.")
-    chart_digest: Sha256Digest = Field(
+    bazi_chart_digest: Sha256Digest = Field(
         description="SHA-256 digest of the source bazi full chart.",
     )
     yongshen_digest: Sha256Digest = Field(
-        description="SHA-256 digest of this resolved yongshen result.",
+        description="用神裁决摘要。",
     )
 
 
@@ -179,10 +179,10 @@ class SelectedYongShen(SelectedYongShenCore):
     """The complete, auditable yongshen decision published over MCP."""
 
     ge_ju_context: YongShenGeJuContext = Field(
-        description="Pattern context attached to the decision.",
+        description="用神裁决关联的格局上下文。",
     )
     evidence: list[YongShenEvidence] = Field(
-        description="Rule evidence used by the decision, tagged by source.",
+        description="按来源标记的裁决证据。",
     )
 
 

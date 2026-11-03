@@ -46,12 +46,8 @@ def _subject(instant: str, timezone: str, gender: str, longitude: float) -> dict
 
 
 def _full_pan(instant, timezone, gender, longitude):
-    from tests.time_helpers import civil_time_from_instant
-    from app.natal.tools.charts import build_natal_chart
-    return build_natal_chart(
-        civil_time_from_instant(instant, timezone), timezone, gender,
-        longitude=longitude,
-    )
+    from app.natal.tools.counsel import _build_natal_chart
+    return _build_natal_chart(_subject(instant, timezone, gender, longitude))
 
 
 def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
@@ -59,8 +55,8 @@ def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
 
 
 @pytest.mark.parametrize("sample", SAMPLES)
-def test_natal_compute_factors_matches_direct_evaluation(sample):
-    from app.natal.tools.counsel import natal_compute_factors
+def test_internal_factor_snapshot_matches_direct_evaluation(sample):
+    from app.natal.tools.counsel import _factor_snapshot
     from app.natal.tools.factors import evaluate_factors
 
     instant, timezone, gender, longitude = sample
@@ -68,9 +64,7 @@ def test_natal_compute_factors_matches_direct_evaluation(sample):
     natal_chart = _full_pan(instant, timezone, gender, longitude)
     for technique, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
         direct = evaluate_factors(gender, natal_chart, shushi=shushi)
-        remote = natal_compute_factors(subject, technique)["factors"]
-        if technique == "bazi":
-            remote.pop("selected_yongshen", None)
+        remote = _factor_snapshot(subject, technique)["facts"]
         diff, missing = _diff_fields(direct, remote)
         assert not diff and not missing, (
             f"{technique} factors differ: diff={diff[:5]} missing={missing[:5]}"
@@ -78,8 +72,8 @@ def test_natal_compute_factors_matches_direct_evaluation(sample):
 
 
 @pytest.mark.parametrize("sample", SAMPLES)
-def test_liunian_snapshot_uses_subject_only(sample):
-    from app.natal.tools.charts import _bazi_liunian, _ziwei_liunian
+def test_liunian_range_is_deterministic(sample):
+    from app.natal.tools.charts import _bazi_liunian_range, _ziwei_liunian_range
     from app.natal.tools.factors import evaluate_liunian_snap_from_natal_chart
 
     instant, timezone, gender, longitude = sample
@@ -87,12 +81,18 @@ def test_liunian_snapshot_uses_subject_only(sample):
     natal_chart = _full_pan(instant, timezone, gender, longitude)
     first = evaluate_liunian_snap_from_natal_chart(
         natal_chart,
-        {"bazi": _bazi_liunian(subject, 2030), "ziwei": _ziwei_liunian(subject, 2030)},
+        {
+            "bazi": _bazi_liunian_range(subject, 2030, 1)[0],
+            "ziwei": _ziwei_liunian_range(subject, 2030, 1)[0],
+        },
         year=2030,
     )
     second = evaluate_liunian_snap_from_natal_chart(
         natal_chart,
-        {"bazi": _bazi_liunian(subject, 2030), "ziwei": _ziwei_liunian(subject, 2030)},
+        {
+            "bazi": _bazi_liunian_range(subject, 2030, 1)[0],
+            "ziwei": _ziwei_liunian_range(subject, 2030, 1)[0],
+        },
         year=2030,
     )
     assert first == second

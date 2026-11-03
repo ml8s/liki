@@ -480,17 +480,17 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
             "control_wuxing": _candidate(derived.get("tiaohou_control_wuxing")),
         },
         "ge_ju": {
-            "ge_ju": ge_ju.get("ge_ju", ""),
+            "pattern": ge_ju.get("ge_ju", ""),
             "pattern_god_ten_god": raw_ten_god or "无格神",
             "pattern_god_source": ge_ju.get("pattern_god_source", ""),
             "yong_fa": ge_ju.get("yong_fa", ""),
-            "clear": derived.get("ge_ju_clear", False),
+            "is_clear": derived.get("ge_ju_clear", False),
             "theme": themes.get(ten_god, themes.get("杂格", "")),
         },
         "cong_ge": {
             "pattern": fu_yi.get("pattern", ""),
-            "verified": derived.get("congge_verified", False),
-            "fake": derived.get("congge_fake", False),
+            "is_verified": derived.get("congge_verified", False),
+            "is_fake_candidate": derived.get("congge_fake", False),
             "guan_sha_effective_count": derived.get("guan_sha_effective_count", 0),
             "cai_effective_count": derived.get("cai_effective_count", 0),
             "shi_shang_effective_count": derived.get("shi_shang_effective_count", 0),
@@ -548,13 +548,13 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
             "pattern": (facts.get("ge_ju") or {}).get("ge_ju", ""),
             "pattern_god_ten_god": (facts.get("ge_ju") or {}).get("pattern_god_ten_god") or "无格神",
             "pattern_god_source": (facts.get("ge_ju") or {}).get("pattern_god_source", ""),
-            "clear": derived.get("ge_ju_clear", False),
+            "is_clear": derived.get("ge_ju_clear", False),
         },
         {
             "source": "cong_ge",
             "pattern": (facts.get("fu_yi") or {}).get("pattern", ""),
-            "verified": derived.get("congge_verified", False),
-            "fake": derived.get("congge_fake", False),
+            "is_verified": derived.get("congge_verified", False),
+            "is_fake_candidate": derived.get("congge_fake", False),
             "guan_sha_effective_count": derived.get("guan_sha_effective_count", 0),
             "cai_effective_count": derived.get("cai_effective_count", 0),
             "shi_shang_effective_count": derived.get("shi_shang_effective_count", 0),
@@ -583,7 +583,7 @@ PUBLISHED_FIELDS = (
     "ge_ju_context",
     "evidence",
     "policy_id",
-    "chart_digest",
+    "bazi_chart_digest",
 )
 
 
@@ -594,12 +594,13 @@ def published_yongshen(result: dict) -> dict:
     Internal pre-factor snapshots and alternatives remain outside this wire object.
     """
     published = {field: result[field] for field in PUBLISHED_FIELDS}
+    published["selected_yongshen"] = published.pop("selected")
     if "yongshen_digest" in result:
         published["yongshen_digest"] = result["yongshen_digest"]
     return published
 
 
-def resolve_yongshen(bazi_chart: dict, source_chart_digest: str) -> dict:
+def resolve_yongshen(bazi_chart: dict, source_bazi_chart_digest: str) -> dict:
     """从 canonical bazi.chart 事实裁决唯一 selected_yongshen。"""
     policy = load_policy()
     facts = _enrich_facts(bazi_chart or {}, policy)
@@ -612,7 +613,7 @@ def resolve_yongshen(bazi_chart: dict, source_chart_digest: str) -> dict:
     result["ge_ju_context"] = result["alternatives"]["ge_ju"]
     result["evidence"] = _evidence(facts, derived, policy)
     result["policy_id"] = policy["policy_id"]
-    result["chart_digest"] = require_sha256(source_chart_digest, "source_chart_digest")
+    result["bazi_chart_digest"] = require_sha256(source_bazi_chart_digest, "source_bazi_chart_digest")
     result["yongshen_digest"] = sha256_json(published_yongshen(result))
     return result
 

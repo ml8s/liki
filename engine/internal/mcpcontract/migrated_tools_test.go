@@ -150,7 +150,7 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 			method["scope"], method["school"], method["dingju_method"])
 	}
 	assertToolError(t, registry, "qimen_chart", map[string]any{
-		"qi_ju": map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
+		"qi_ju": map[string]any{"qi_ju_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 	}, "method")
 
 	method = callQimenChart(t, registry, map[string]any{
@@ -462,10 +462,10 @@ func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 	registry := testEngine()
 	resolved, err := TianwenSubjectCandidates(context.Background(), civilResolveInput(t, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137))
 	if err != nil {
-		t.Fatalf("tianwen_subject_candidates: %v", err)
+		t.Fatalf("subject_candidates: %v", err)
 	}
 	if len(resolved.Candidates) == 0 {
-		t.Fatal("tianwen_subject_candidates returned no candidates")
+		t.Fatal("subject_candidates returned no candidates")
 	}
 	candidate := resolved.Candidates[0]
 	if len(candidate.Reasons) != 1 || candidate.Reasons[0].ReasonKind != "input" {

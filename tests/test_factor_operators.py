@@ -433,9 +433,9 @@ class TestLiuNianOps(unittest.TestCase):
         self.assertEqual(_liu_op("流年透", ["配偶星"], "male", None, ctx2), 0)
 
     def test_流年神煞_命中与不命中(self):
-        ctx = {"liunian": {"shensha": [{"name": "红鸾"}, {"name": "天喜"}]}}
+        ctx = {"liunian": {"shen_sha": [{"name": "红鸾"}, {"name": "天喜"}]}}
         self.assertEqual(_liu_op("流年神煞", ["红鸾"], "male", None, ctx), 1)
-        ctx2 = {"liunian": {"shensha": [{"name": "桃花"}]}}
+        ctx2 = {"liunian": {"shen_sha": [{"name": "桃花"}]}}
         self.assertEqual(_liu_op("流年神煞", ["红鸾"], "male", None, ctx2), 0)
 
     def test_年柱干伏吟_相同与不同(self):
@@ -473,14 +473,17 @@ class TestZiweiPalaceAtomicFacts(unittest.TestCase):
     """紫微宫含算子只 exact-match engine palace facts。"""
 
     def _chart(self):
-        return {"ziwei": {"palace_facts": [
-            {"palace": "命宫", "kind": "star", "target": "紫微", "star": "紫微"},
-            {"palace": "命宫", "kind": "star", "target": "紫微主星", "star": "紫微"},
-            {"palace": "命宫", "kind": "brightness", "target": "庙旺", "star": "文昌", "value": "庙"},
-            {"palace": "命宫", "kind": "si_hua", "target": "忌", "star": "贪狼"},
-            {"palace": "子女", "kind": "special", "target": "无主星"},
-            {"palace": "夫妻", "kind": "special", "target": "唯一主星", "star": "七杀"},
-            {"palace": "夫妻", "kind": "star", "target": "煞星", "star": "擎羊"},
+        return {"ziwei": {"shi_er_gong": [
+            {"ming": "命宫", "xing_yao": [
+                {"ming": "紫微", "lei": ["zhu_xing"], "liang_du": "庙"},
+                {"ming": "文昌", "lei": ["wen_xing"], "liang_du": "庙"},
+                {"ming": "贪狼", "lei": ["zhu_xing"], "si_hua": "忌"},
+            ], "za_yao": ["红鸾"]},
+            {"ming": "子女", "xing_yao": []},
+            {"ming": "夫妻", "xing_yao": [
+                {"ming": "七杀", "lei": ["zhu_xing"]},
+                {"ming": "擎羊", "lei": ["sha_xing"], "liang_du": "庙"},
+            ]},
         ]}}
 
     def test_star_group_brightness_sihua_and_special(self):
@@ -508,13 +511,10 @@ class TestZiweiPalaceAtomicFacts(unittest.TestCase):
             _op("宫含", ["本命", "贪狼", "忌"], "male", chart)
 
     def test_za_yao_from_chart_gong_wei(self):
-        chart = {"ziwei": {
-            "gong_wei": [
-                {"name": "命宫", "za_yao": ["红鸾", "天姚"]},
-                {"name": "夫妻", "za_yao": ["天刑"]},
-            ],
-            "palace_facts": [],
-        }}
+        chart = {"ziwei": {"shi_er_gong": [
+            {"ming": "命宫", "xing_yao": [], "za_yao": ["红鸾", "天姚"]},
+            {"ming": "夫妻", "xing_yao": [], "za_yao": ["天刑"]},
+        ]}}
         self.assertEqual(_op("宫含", ["命宫", "红鸾"], "male", chart), 1)
         self.assertEqual(_op("宫含", ["命宫", "天姚"], "male", chart), 1)
         self.assertEqual(_op("宫含", ["夫妻", "天刑"], "male", chart), 1)
@@ -524,19 +524,26 @@ class TestZiweiPalaceAtomicFacts(unittest.TestCase):
     def test_za_yao_index_from_factor_context(self):
         from app.natal.tools.factor_context import FactorContext
         ctx = FactorContext(
-            {"ziwei": {"gong_wei": [{"name": "命宫", "za_yao": ["红鸾"]}]}},
+            {"ziwei": {"shi_er_gong": [
+                {"ming": "命宫", "xing_yao": [], "za_yao": ["红鸾"]},
+                {"ming": "夫妻", "xing_yao": []},
+            ]}},
             {},
         )
         self.assertTrue(ctx.palace_index.hit("命宫", "star", "红鸾"))
         self.assertFalse(ctx.palace_index.hit("夫妻", "star", "红鸾"))
 
     def test_brightness_condition_filters_requested_star(self):
-        chart = {"ziwei": {"palace_facts": [
-            {"palace": "命宫", "kind": "brightness", "target": "庙旺", "star": "擎羊", "value": "庙"},
-            {"palace": "官禄", "kind": "brightness", "target": "庙旺", "star": "紫微", "value": "庙"},
-            {"palace": "官禄", "kind": "brightness", "target": "紫微主星", "star": "紫微", "value": "庙"},
+        chart = {"ziwei": {"shi_er_gong": [
+            {"ming": "命宫", "xing_yao": []},
+            {"ming": "夫妻", "xing_yao": [
+                {"ming": "擎羊", "lei": ["sha_xing"], "liang_du": "庙"},
+            ]},
+            {"ming": "官禄", "xing_yao": [
+                {"ming": "紫微", "lei": ["zhu_xing"], "liang_du": "庙"},
+            ]},
         ]}}
         self.assertEqual(_op("宫含", ["命宫", "文昌", "庙旺"], "male", chart), 0)
-        self.assertEqual(_op("宫含", ["命宫", "擎羊", "庙旺"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["夫妻", "擎羊", "庙旺"], "male", chart), 1)
         self.assertEqual(_op("宫含", ["官禄", "紫微主星", "庙旺"], "male", chart), 1)
         self.assertEqual(_op("宫含", ["命宫", "紫微主星", "庙旺"], "male", chart), 0)

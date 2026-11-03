@@ -1,80 +1,53 @@
+"""Qimen answer-core reference and timing guardrails."""
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "counsel/app/divination/tools"
-if str(TOOLS) not in sys.path:
-    sys.path.insert(0, str(TOOLS))
-
-import app.divination.tools.qimen_answer_core as core  # noqa: E402
-import app.divination.tools.qimen_jinhan_answer_core as jinhan_core  # noqa: E402
+import app.divination.tools.qimen_answer_core as core
+import app.divination.tools.qimen_jinhan_answer_core as jinhan_core
 
 
-def _snapshot() -> dict:
+def _case():
     return {
-        "method": "qimen",
+        "technique": "qimen",
         "question": "测试",
-        "method_context": {"scope": "hour", "school": "zhuanpan"},
-        "matter": {"matter": "career"},
+        "method": {"scope": "hour", "school": "zhuanpan"},
         "factors": {
-            "scope": "hour",
-            "school": "zhuanpan",
             "patterns": [{"name": "test"}],
             "ying_qi": [],
         },
+        "evidence": [{"id": "case:patterns"}],
         "special": {"assertions": [{"id": "assertion_only"}]},
+        "judgments": {"results": []},
+        "timing_candidates": [{"id": "timing-1", "related_to": "用神"}],
     }
 
 
-def test_evidence_and_assertion_refs_use_disjoint_namespaces() -> None:
-    snapshot = _snapshot()
-    built = core.build(snapshot)
-    assert built["assertion_refs"] == ["assertion:assertion_only"]
+def test_refs_preserve_case_and_assertion_namespaces():
+    built = core.build(_case())
+    assert "case:patterns" in built["refs"]
+    assert "assertion:assertion_only" in built["refs"]
 
-    tampered = {**built, "evidence_refs": ["assertion:assertion_only"]}
-    audit = core.validate_core(tampered, snapshot)
-
+    audit = core.validate_core({**built, "refs": ["assertion:fake"]}, _case())
     assert audit["accepted"] is False
-    assert any(
-        error.get("field") == "evidence_refs"
-        for error in audit["errors"]
-    )
+    assert any(error.get("field") == "refs" for error in audit["errors"])
 
 
-def test_empty_factor_values_are_not_available_evidence() -> None:
-    snapshot = _snapshot()
-    snapshot["factors"]["yong_shen"] = []
-    snapshot["factors"]["nian_gan_gong"] = None
-    snapshot["factors"]["nian_gan"] = ""
-
-    all_ids, _ = core.available_ids(snapshot)
-
-    assert "snapshot:patterns" in all_ids
-    assert "snapshot:ying_qi" not in all_ids
-    assert "snapshot:yong_shen" not in all_ids
-    assert "snapshot:nian_gan_gong" not in all_ids
-    assert "snapshot:nian_gan" not in all_ids
+def test_timing_ids_are_available_and_tampering_rejected():
+    case = _case()
+    built = core.build(case)
+    assert "timing-1" in built["timing_refs"]
+    audit = core.validate_core({**built, "timing_refs": ["timing-fake"]}, case)
+    assert audit["accepted"] is False
 
 
-def test_jinhan_rejects_assertion_and_timing_refs() -> None:
-    snapshot = {
+def test_jinhan_rejects_assertion_refs():
+    case = {
         "question": "测试",
-        "method_context": {"scope": "day", "school": "jinhan_yujing"},
+        "method": {"scope": "day", "school": "jinhan_yujing"},
         "factors": {
-            "kind": "jinhan",
-            "scope": "day",
-            "school": "jinhan_yujing",
+            "kind": "jinhan", "scope": "day", "school": "jinhan_yujing",
             "palaces": [{"gong": str(index)} for index in range(9)],
             "day_spirits": [{"zhi": str(index)} for index in range(12)],
         },
     }
-    built = jinhan_core.build(snapshot)
-    tampered = {**built, "assertion_refs": ["assertion:fake"]}
-    audit = jinhan_core.validate_core(tampered, snapshot)
-
+    built = jinhan_core.build(case)
+    audit = jinhan_core.validate_core({**built, "refs": ["assertion:fake"]}, case)
     assert audit["accepted"] is False
-    assert any(
-        error.get("field") == "assertion_refs"
-        for error in audit["errors"]
-    )

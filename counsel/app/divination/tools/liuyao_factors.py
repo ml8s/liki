@@ -1,10 +1,14 @@
-"""六爻 snapshot 投影；搬运 engine 事实并做解释层级组织，不新增命理判断。"""
+"""六爻 case 因子投影；搬运 engine 事实并做解释层级组织，不新增命理判断。"""
 
 from pydantic import TypeAdapter, ValidationError
 
 from app.contracts.divination import DivinationConflict
 
 CONCLUSION_SCOPE = "conditional_candidate_not_outcome"
+
+
+def _with_id(item: dict, fact_id: str) -> dict:
+    return {"id": fact_id, **item}
 
 
 def project_factors(casting: dict, chart: dict, question: dict) -> dict:
@@ -23,7 +27,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     def project_line(line: dict) -> dict:
         return {
             "position": line.get("position"),
-            "type": line.get("yao_value"),
+            "yao_value": line.get("yao_value"),
             "gan_zhi": f"{line.get('gan', '')}{line.get('zhi', '')}",
             "wuxing": line.get("wuxing"),
             "liu_qin": line.get("liu_qin"),
@@ -75,11 +79,12 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     primary = []
     secondary = []
     reference = []
-    ignored_scope = []
+    reference_only_facts = []
 
     if yong_line:
         primary.append({
             "id": "yong-shen-state",
+            "source_ref": f"liuyao_chart.lines[{yong_line.get('position') - 1}]",
             "fact": {
                 "position": yong_line.get("position"),
                 "liu_qin": yong_line.get("liu_qin"),
@@ -94,97 +99,145 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     elif yong_shen.get("is_hidden") and isinstance(yong_shen.get("fu_shen"), dict):
         primary.append({
             "id": "yong-shen-hidden-state",
-            "fact": {
-                "is_hidden": True,
-                "position": 0,
-                "fu_shen": yong_shen.get("fu_shen"),
-                "wang_shuai": yong_shen.get("wang_shuai"),
-                "yue_po": yong_shen.get("yue_po", False),
-                "xun_kong": yong_shen.get("xun_kong", False),
-                "mu_ku": yong_shen.get("mu_ku", False),
-                "chang_sheng": yong_shen.get("chang_sheng"),
-            },
+            "source_ref": "selected_yongshen_context.selected_yongshen.fu_shen",
+            "fact": yong_shen.get("fu_shen"),
             "conclusion_scope": CONCLUSION_SCOPE,
         })
 
+    patterns = [
+        {
+            **_with_id(item, f"pattern-{index + 1}"),
+            "kind": item.get("pattern_kind", ""),
+        }
+        for index, item in enumerate(chart.get("ge_ju", []))
+    ]
+    moving_relations = [
+        _with_id(item, f"moving-relation-{item.get('position')}")
+        for item in chart.get("dong_yao_relations", [])
+    ]
+    hidden_lines = [
+        _with_id(item, f"hidden-line-{index + 1}")
+        for index, item in enumerate(chart.get("hidden_lines", []))
+    ]
+    branch_relation_facts = [
+        _with_id(
+            item,
+            f"branch-relation-{item.get('left_position')}-{item.get('right_position')}",
+        )
+        for item in chart.get("branch_relation_facts", [])
+    ]
+    day_clash_facts = [
+        _with_id(item, f"day-clash-{item.get('position')}")
+        for item in chart.get("day_clash_facts", [])
+    ]
+    moving_transformations = [
+        _with_id(item, f"moving-transformation-{item.get('position')}")
+        for item in chart.get("moving_transformations", [])
+    ]
+    san_he_candidates = [
+        _with_id(
+            item,
+            f"san-he-{item.get('wuxing')}-{index + 1}",
+        )
+        for index, item in enumerate(chart.get("san_he_candidates", []))
+    ]
     yong_shen_force_chain = chart.get("yong_shen_force_chain")
+    if isinstance(yong_shen_force_chain, dict):
+        yong_shen_force_chain = _with_id(yong_shen_force_chain, "force-chain")
     if yong_shen_force_chain:
         primary.append({
             "id": "force-chain",
+            "source_ref": "chart_facts.yong_shen_force_chain",
             "fact": yong_shen_force_chain,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
 
-    for relation in chart.get("dong_yao_relations", []):
+    for relation in moving_relations:
         primary.append({
             "id": f"moving-relation-{relation.get('position')}",
+            "source_ref": f"chart_facts.moving_relations[{relation.get('position')}]",
             "fact": relation,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
-    for pattern in chart.get("ge_ju", []):
+    for pattern in patterns:
         secondary.append({
-            "id": f"pattern-{len(secondary) + 1}",
+            "id": pattern["id"],
+            "source_ref": f"liuyao_chart.patterns[{pattern['id']}]",
             "fact": pattern,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
-    for fact in chart.get("day_clash_facts", []):
+    for fact in day_clash_facts:
         secondary.append({
             "id": f"day-clash-{fact.get('position')}",
+            "source_ref": f"chart_facts.day_clash_facts[{fact.get('position')}]",
             "fact": fact,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
-    for fact in chart.get("moving_transformations", []):
+    for fact in moving_transformations:
         primary.append({
             "id": f"moving-transformation-{fact.get('position')}",
+            "source_ref": f"chart_facts.moving_transformations[{fact.get('position')}]",
             "fact": fact,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
 
-    for fact in chart.get("hidden_lines", []):
+    for fact in hidden_lines:
         secondary.append({
-            "id": f"hidden-line-{fact.get('position')}-{fact.get('liu_qin')}",
+            "id": fact["id"],
+            "source_ref": f"chart_facts.hidden_lines[{fact['id']}]",
             "fact": fact,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
-    for fact in chart.get("branch_relation_facts", []):
+    for fact in branch_relation_facts:
+        branch_reference = {
+            "id": fact["id"],
+            "source_ref": f"chart_facts.branch_relation_facts[{fact['id']}]",
+            "fact": fact,
+            "conclusion_scope": CONCLUSION_SCOPE,
+        }
         if "yong_shen" in fact.get("targets", []) or "world" in fact.get("targets", []):
-            secondary.append({
-                "id": f"branch-relation-{fact.get('left_position')}-{fact.get('right_position')}",
-                "fact": fact,
-                "conclusion_scope": CONCLUSION_SCOPE,
-            })
+            secondary.append(branch_reference)
         else:
-            ignored_scope.append({
-                "id": f"branch-relation-{fact.get('left_position')}-{fact.get('right_position')}",
+            reference_only_facts.append({
+                **fact,
                 "reason": "未直接作用用神或世爻；仅作参考",
-                "fact": fact,
             })
-    for fact in chart.get("san_he_candidates", []):
-        target = secondary if fact.get("targets") else ignored_scope
-        target.append({
-            "id": f"san-he-{fact.get('element')}-{len(target) + 1}",
+    for fact in san_he_candidates:
+        target = secondary if fact.get("targets") else None
+        san_he_reference = {
+            "id": fact["id"],
+            "source_ref": f"chart_facts.san_he_candidates[{fact['id']}]",
             "fact": fact,
             "conclusion_scope": "structure_candidate_only_not_outcome",
-        })
+        }
+        if target is not None:
+            target.append(san_he_reference)
+        else:
+            reference_only_facts.append({**fact, "reason": "无目标关联；仅作结构参考"})
 
     reference.append({
         "id": "hexagram-name",
+        "source_ref": "liuyao_chart.gua_name",
         "fact": {"gua_name": chart.get("gua_name")},
         "conclusion_scope": "reference_not_primary_judgment",
     })
     for line in lines:
         reference.append({
             "id": f"liu-shou-{line.get('position')}",
-            "fact": {
-                "position": line.get("position"),
-                "liu_shou": line.get("liu_shou"),
-            },
+            "source_ref": f"liuyao_chart.lines[{line.get('position') - 1}].liu_shou",
+            "fact": {"position": line.get("position"), "liu_shou": line.get("liu_shou")},
             "conclusion_scope": "reference_not_primary_judgment",
         })
     gua_ci = chart.get("gua_ci")
     if gua_ci:
+        gua_ci = {
+            "name": gua_ci.get("name", ""),
+            "text": gua_ci.get("gua_ci", ""),
+            "yao_ci": gua_ci.get("yao_ci", []),
+        }
         reference.append({
             "id": "gua-ci",
+            "source_ref": "liuyao_chart.gua_ci",
             "fact": gua_ci,
             "conclusion_scope": "reference_not_primary_judgment",
         })
@@ -202,7 +255,6 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
         "secondary": secondary,
         "reference": reference,
         "conflicts": conflicts,
-        "ignored_scope": ignored_scope,
     }
 
     timing_candidates = chart.get("timing_candidates")
@@ -212,7 +264,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     return {
         "question": question,
         "casting": casting_projection(casting),
-        "pan": {
+        "liuyao_chart": {
             "gua_name": chart.get("gua_name"),
             "bian_gua": chart.get("bian_gua"),
             "palace": chart.get("gong"),
@@ -224,22 +276,34 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "yue_gan": chart.get("yue_jian_gan"),
             "yue_zhi": chart.get("yue_jian_zhi"),
             "xun_kong": chart.get("xun_kong", []),
+            "patterns": patterns,
+            "gua_ci": {
+                "name": gua_ci.get("name", ""),
+                "text": gua_ci.get("gua_ci", ""),
+                "yao_ci": gua_ci.get("yao_ci", []),
+            } if gua_ci else None,
         },
-        "focus": {
-            "yong_shen": yong_shen,
+        "selected_yongshen_context": {
+            "selected_yongshen": yong_shen,
             "yong_line": yong_line,
-            "world": world,
-            "other": other,
+            "world_line": world,
+            "other_line": other,
         },
         "evidence": evidence,
-        "facts": {
-            "hidden_lines": chart.get("hidden_lines", []),
-            "branch_relation_facts": chart.get("branch_relation_facts", []),
-            "day_clash_facts": chart.get("day_clash_facts", []),
-            "moving_transformations": chart.get("moving_transformations", []),
-            "san_he_candidates": chart.get("san_he_candidates", []),
-            "yong_shen_force_chain": chart.get("yong_shen_force_chain"),
-            "yong_shen_candidates": chart.get("yong_shen_candidates", []),
+        "chart_facts": {
+            "moving_relations": moving_relations,
+            "patterns": patterns,
+            "hidden_lines": hidden_lines,
+            "branch_relation_facts": branch_relation_facts,
+            "day_clash_facts": day_clash_facts,
+            "moving_transformations": moving_transformations,
+            "san_he_candidates": san_he_candidates,
+            "yong_shen_force_chain": yong_shen_force_chain,
+            "yong_shen_candidates": [
+                _with_id(item, f"yongshen-candidate-{item.get('position')}")
+                for item in chart.get("yong_shen_candidates", [])
+            ],
+            "reference_only_facts": reference_only_facts,
         },
         "timing_candidates": timing_candidates,
         "policy": {

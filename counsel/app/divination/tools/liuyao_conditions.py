@@ -59,21 +59,21 @@ def _path_has_any(source: dict, path: str, expected) -> bool:
     return expected in flattened
 
 
-def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, str, list[str]]:
+def _rule_state(rule: dict, factors: dict, topic: str | None) -> tuple[bool, str, list[str]]:
     applies = rule.get("applies_if", {})
     for path, expected in applies.items():
         if path == "topic":
             if topic != expected:
                 return False, "not_applicable", []
         elif "[]" in path:
-            if not _path_has_any(snapshot, path, expected):
+            if not _path_has_any(factors, path, expected):
                 return False, "not_applicable", []
         else:
-            if _get_path(snapshot, path) != expected:
+            if _get_path(factors, path) != expected:
                 return False, "not_applicable", []
     state_rules = load_rules()["state_classes"]
-    strong = _matches_state_class(snapshot, state_rules["strong"])
-    weak = _matches_state_class(snapshot, state_rules["weak"])
+    strong = _matches_state_class(factors, state_rules["strong"])
+    weak = _matches_state_class(factors, state_rules["weak"])
     missing = []
     if strong:
         branch = rule.get("strong_branch", {})
@@ -84,16 +84,16 @@ def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, st
     return True, "conditional", list(missing)
 
 
-def _matches_state_class(snapshot: dict, rule: dict) -> bool:
-    return _get_path(snapshot, rule["path"]) in set(rule["values"])
+def _matches_state_class(factors: dict, rule: dict) -> bool:
+    return _get_path(factors, rule["path"]) in set(rule["values"])
 
 
-def evaluate(snapshot: dict, topic: str | None = None) -> dict:
-    if not isinstance(snapshot, dict):
-        raise ValueError("snapshot must be an object")
+def evaluate(factors: dict, topic: str | None = None) -> dict:
+    if not isinstance(factors, dict):
+        raise ValueError("factors must be an object")
     results = []
     for rule in load_rules().get("rules", []):
-        applies, state, requires = _rule_state(rule, snapshot, topic)
+        applies, state, requires = _rule_state(rule, factors, topic)
         branch = {}
         if state == "strong":
             branch = rule.get("strong_branch", {})
@@ -112,12 +112,4 @@ def evaluate(snapshot: dict, topic: str | None = None) -> dict:
             "forbidden": rule.get("forbidden", []),
             "conclusion_scope": "conditional_rule_restoration_not_absolute_verdict",
         })
-    return {
-        "topic": topic,
-        "results": results,
-        "policy": {
-            "must_restore_hidden_conditions": True,
-            "forbid_absolute_old_phrases": True,
-            "reference_may_not_override_primary": True,
-        },
-    }
+    return {"results": results}

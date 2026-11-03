@@ -105,7 +105,7 @@ def load_interpretation_index() -> dict[str, list[dict]]:
             row_by_id[assertion_id] = item
 
     groups: dict[tuple[str, int], list[dict]] = defaultdict(list)
-    snapshot_fields = load_factors_contract()["fields"]
+    factor_fields = load_factors_contract()["fields"]
     with INTERPRETATION_CONDITIONS_PATH.open(encoding="utf-8-sig", newline="") as stream:
         for source in csv.DictReader(stream):
             assertion_id = (source.get("assertion_id") or "").strip()
@@ -120,7 +120,7 @@ def load_interpretation_index() -> dict[str, list[dict]]:
                 raise TableError(f"奇门解释条件归属无效: {source}")
             if not group_id.isdigit() or int(group_id) <= 0:
                 raise TableError(f"奇门解释 condition_group_id 必须为正整数: {group_id}")
-            field = snapshot_fields.get(condition["field"])
+            field = factor_fields.get(condition["field"])
             if field is None:
                 raise TableError(f"奇门解释字段不在快照契约中: {condition['field']}")
             kind = field["kind"]

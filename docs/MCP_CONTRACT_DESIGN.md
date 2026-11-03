@@ -29,28 +29,29 @@ LLM 通过标准 MCP 自举，不引入第二套契约源、自定义版本协�
 MCP 公开工具名使用小写 snake_case：
 
 ```text
-<domain>_<verb>_<object>
+<domain>_<domain_product>
 ```
 
 例子：
 
 ```text
 time_now
-city_coords
-tianwen_resolve
+city_info
+subject_candidates
 huangli_days
 bazi_chart
 bazi_bond
 ziwei_chart
-ziwei_daxian
+bazi_liupan
+ziwei_liupan
+bazhai_layout
 liuyao_qigua
 liuyao_chart
-liuyao_query
+liuyao_ask
 qimen_chart
-qimen_query
-natal_compute_factors
+qimen_ask
 natal_query
-natal_period_query
+natal_liunian_query
 naming_pick
 naming_check
 ```
@@ -61,11 +62,11 @@ naming_check
 2. 既有工具名不为了格式批量重命名；
 3. 只有当名字已经造成语义混淆或工具职责重划时才改名；
 4. registry 注册名即公开 MCP 工具名（2026.10.22.0 起 legacy dotted name 已删除，无转换层）；
-5. skill 文档不硬编码工具名，LLM 通过 `tools/list` 自举。
+5. skill 文档不硬编码工具名，LLM 通过 能力发现 自举。
 
 ## 3. 时间与位置参数
 
-时间参数分两层，只有 `tianwen.resolve` 接收民用时间：
+时间参数分两层，只有 `subject_candidates` 接收民用时间：
 
 ```json
 {
@@ -89,10 +90,10 @@ naming_check
 
 1. `standard_time` 必须是 RFC3339，带 known offset；`Z` 合法，`-00:00` 按 unknown offset 拒绝；
 2. `standard_time` 是当地标准时间，不含 DST；
-3. DST 只在 `tianwen.resolve` 的 civil→instant 转换中出现一次；
+3. DST 只在 `subject_candidates` 的 civil→instant 转换中出现一次；
 4. fold 返回两个候选，gap 直接报错，禁止静默平移；
 5. 排盘工具拒绝 `instant`、`civil_time`、`timezone`、`fold`；
-6. `timezone` 只属于 `tianwen.resolve`，必须是显式 IANA identifier；
+6. `timezone` 只属于 `subject_candidates`，必须是显式 IANA identifier；
 7. 禁止 `Local`、`UTC+8`、`CST` 等别名；
 8. 不从 `standard_time` 的 offset 推断 timezone；
 9. offset 参与 standard date / lunar date / almanac date 的本地表示选择；同一 instant 在不同 offset 下可以有不同本地日期；
@@ -101,19 +102,22 @@ naming_check
 
 ## 4. 参数正交化
 
-### 4.1 直接参数优先
+### 4.1 领域主体优先
 
-八字排盘是正交参数的基准：
+本命排盘使用已校准的 `NatalSubject`：
 
 ```json
 {
-  "standard_time": "1990-05-20T12:00:00+08:00",
-  "longitude": 116.407526,
-  "gender": "male"
+  "subject": {
+    "birth_time": "1990-05-20T12:00:00+08:00",
+    "birth_longitude": 116.407526,
+    "gender": "male"
+  }
 }
 ```
 
-不要为了减少字段数量把它们包成通用 context。
+`subject` 是已经完成时间与真太阳时校准的本命事实，不是通用 context。
+事件盘、宅体、卦象等没有本命主体的能力仍使用显式领域参数。
 
 ### 4.2 子对象必须有完整领域身份
 
@@ -174,17 +178,17 @@ Schema 由 typed DTO / Pydantic model 生成，并满足：
 7. array 必须有 `items`；
 8. object 输出尽量封闭；
 9. 互斥和条件依赖优先用 JSON Schema `oneOf` / `anyOf` 判别分支表达
-    （liuyao casting / natal_period_query time_scope 均是判别联合）；
+    （liuyao casting 是判别联合；natal_liunian_query 使用 engine 同款 start/count）；
     发布 schema 禁止出现 `if` / `then` 条件子句；
 10. 输出 schema 根必须是 `type: "object"`（2026-10-29 修订：协议 2025-11-25
     及更早的 wire 模型拒绝非 object 根——顶层 union/array 会让标准 SDK 客户端
-    （expert runtime）的整个 `tools/list` 失败。列表/可空语义放进字段：
+    （expert runtime）的整个 能力发现 失败。列表/可空语义放进字段：
     series 工具恒返回 `{items: [...]}`，单项即长度 1 数组；可空单值用
-    字段级 `anyOf`（如 naming_char 的 `character`））。
+    字段级 `anyOf`（如 naming_character 的 `character`））。
 11. MCP wire 输出不携带 `schema_version` / `contract_version`；契约形状由
-    `tools/list` 的当前 schema 自描述。
+    能力发现 的当前 schema 自描述。
 12. 全部工具标注 `readOnlyHint` + `idempotentHint`。事件创建类工具
-    （`liuyao_qigua` / `liuyao_snapshot`）必须 `idempotentHint=false`：
+    （`liuyao_qigua` / `liuyao_ask`）必须 `idempotentHint=false`：
     auto 起卦每次调用都是新事件；其余确定性纯计算工具保持 true。
 13. 约束必须编译进 schema（enum / minimum / required / 分支）——只写在
     validator 或 description 里的约束对 LLM 消费者不存在。
@@ -198,11 +202,10 @@ tool description 与字段 description 只描述**当前领域语义与用法**�
 3. 不复述 schema 已表达的机制（"全部变体必填 X"→ X 在分支 required 里，
    description 讲它为何需要）；
 
-当前刻意约定（非差距）：counsel `factors` / qimen `factors` 输出保持 opaque
-object + SHA-256 digest —— 因子快照是链式防篡改载体，形状由 provenance 与
-digest 绑定表达。bazi 候选五行缺省时两侧统一发布 `null`：engine wire 使用
+当前刻意约定（非差距）：counsel natal factors 不对外；divination 内部 case
+也不对外。`*_ask` 返回受控 Reading，只携带解释所需的自包含 evidence 和显式
+scope。bazi 候选五行缺省时两侧统一发布 `null`：engine wire 使用
 nullable element enum，counsel `YongWuxing` 允许 `None` 但不接受空串。
-divination `board.lines` 同理按 engine 强类型 + counsel opaque 事实处理；
 engine `conflicts` 形状由 `DivinationConflict` 在 counsel 边界 fail-closed 校验。
 
 ## 6. 输出设计
@@ -246,23 +249,24 @@ Common
 
 `Result` 只用于公开 wire DTO 的兼容命名，不作为内部领域模型。
 
-## 7. Snapshot 与 query
+## 7. One-shot ask 与内部 case
 
-snapshot 与 query 是两种职责：
+问测能力采用 one-shot ask：
 
 ```text
-snapshot = immutable facts + digest
-query    = consume snapshot, answer follow-up
+ask input    = question + event source facts
+internal case= immutable projected facts consumed only in this call
+Reading      = controlled evidence + interpretation + followup policy
 ```
 
 规则：
 
-1. snapshot 一旦返回不可变；
-2. query 不重排；
-3. query 输入携带完整 snapshot；
-4. digest 必须与 snapshot canonical JSON 绑定；
-5. 不做隐藏的服务端 snapshot store；
-6. snapshot/answer 不返回 `schema_version`；身份由 method/name 与 digest 表达。
+1. 内部 case 只在服务端一次调用内创建和消费；
+2. Reading 不暴露 raw case 或 raw factors；
+3. 追问由 LLM 基于已返回 Reading 解释；超出 scope 时要求新的 ask；
+4. `reading_digest` 必须与 Reading canonical JSON 绑定；
+5. 不做隐藏的服务端 case store；
+6. Reading 不返回 `schema_version`；身份由 technique 与 digest 表达。
 
 ## 8. Digest policy
 
@@ -277,7 +281,7 @@ Digest 只用于不可变事件、可审计裁决和需要防篡改的可复用 
 
 1. 说明哪个字段或规则失败；
 2. 能指导下一步修正；
-3. 对时间错误提示 `time.resolve` 或要求 IANA timezone；
+3. 对时间错误提示 `subject_candidates` 或要求 IANA timezone；
 4. 对互斥参数说明应保留哪一组；
 5. 不吞掉领域规则失败。
 
@@ -288,7 +292,7 @@ invalid timezone "CST": use an explicit IANA identifier such as Asia/Shanghai
 ```
 
 ```text
-standard_time must be RFC3339 with a known offset; -00:00 means unknown local offset; use tianwen.resolve for local wall time
+standard_time must be RFC3339 with a known offset; -00:00 means unknown local offset; use subject_candidates for local wall time
 ```
 
 ## 10. LLM 自举
@@ -301,12 +305,12 @@ tools/list -> name / description / inputSchema / outputSchema -> tools/call
 
 要求：
 
-1. 所有工具都能从 `tools/list` 发现；
+1. 所有工具都能从 能力发现 发现；
 2. 参数名、类型、required、enum、边界可见；
 3. 输出结构可见；
 4. 互斥关系可见；
 5. 错误能指导下一次调用；
-6. snapshot 可以原样传给 query；
+6. Reading 是追问的解释上下文；超出 followup policy 时必须新建 ask；
 7. 不需要读源码才知道调用方式；
 8. `annotations.readOnlyHint` / `idempotentHint` 可见，客户端据此决定是否
    需要用户确认；

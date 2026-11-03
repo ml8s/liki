@@ -3,7 +3,6 @@
 import re
 
 import pytest
-
 from app.integrity.digest import require_sha256, sha256_excluding, sha256_json
 
 

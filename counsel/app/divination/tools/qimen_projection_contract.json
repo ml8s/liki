@@ -102,13 +102,13 @@
           "path": "facts",
           "required": true,
           "fields": {
-            "gong": {
-              "path": "gong",
+            "layer": {
+              "path": "layer",
               "type": "string",
               "required": true
             },
-            "layer": {
-              "path": "layer",
+            "palace": {
+              "path": "gong",
               "type": "string",
               "required": true
             }
@@ -119,11 +119,6 @@
           "path": "wang_shuai",
           "required": true,
           "fields": {
-            "gong": {
-              "path": "gong",
-              "type": "string",
-              "required": true
-            },
             "wuxing": {
               "path": "wuxing",
               "type": "string",
@@ -131,6 +126,11 @@
             },
             "wang_shuai": {
               "path": "wang_shuai",
+              "type": "string",
+              "required": true
+            },
+            "palace": {
+              "path": "gong",
               "type": "string",
               "required": true
             }
@@ -153,13 +153,13 @@
           "path": "facts",
           "required": true,
           "fields": {
-            "gong": {
-              "path": "gong",
+            "layer": {
+              "path": "layer",
               "type": "string",
               "required": true
             },
-            "layer": {
-              "path": "layer",
+            "palace": {
+              "path": "gong",
               "type": "string",
               "required": true
             }
@@ -170,11 +170,6 @@
           "path": "wang_shuai",
           "required": true,
           "fields": {
-            "gong": {
-              "path": "gong",
-              "type": "string",
-              "required": true
-            },
             "wuxing": {
               "path": "wuxing",
               "type": "string",
@@ -182,6 +177,11 @@
             },
             "wang_shuai": {
               "path": "wang_shuai",
+              "type": "string",
+              "required": true
+            },
+            "palace": {
+              "path": "gong",
               "type": "string",
               "required": true
             }

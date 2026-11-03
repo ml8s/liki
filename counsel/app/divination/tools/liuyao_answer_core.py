@@ -1,4 +1,4 @@
-"""六爻 answer core：从 snapshot 投影证据并校验引用与禁语。"""
+"""六爻 answer core：从 case 投影证据并校验引用与禁语。"""
 
 from app.divination.tools.divination_answer import validate_common_core
 
@@ -15,8 +15,8 @@ ALLOWED_FIELDS = {
 }
 
 
-def _evidence_ids(snapshot: dict, layer: str) -> set[str]:
-    items = snapshot.get("evidence", {}).get(layer, [])
+def _evidence_ids(case: dict, layer: str) -> set[str]:
+    items = case.get("evidence", {}).get(layer, [])
     return {
         item["id"]
         for item in items
@@ -24,33 +24,33 @@ def _evidence_ids(snapshot: dict, layer: str) -> set[str]:
     }
 
 
-def _timing_ids(snapshot: dict) -> set[str]:
+def _timing_ids(case: dict) -> set[str]:
     return {
         item["id"]
-        for item in snapshot.get("timing_plan", {}).get("candidates", [])
+        for item in case.get("timing_plan", {}).get("candidates", [])
         if isinstance(item, dict) and isinstance(item.get("id"), str)
     }
 
 
-def build(snapshot: dict) -> dict:
+def build(case: dict) -> dict:
     """生成 answer 的确定性证据骨架；语义判断由 LLM 在边界内完成。"""
     primary_ids = sorted(
         item.get("id")
-        for item in snapshot.get("evidence", {}).get("primary", [])
+        for item in case.get("evidence", {}).get("primary", [])
         if isinstance(item, dict) and item.get("id")
     )
     secondary_ids = sorted(
         item.get("id")
-        for item in snapshot.get("evidence", {}).get("secondary", [])
+        for item in case.get("evidence", {}).get("secondary", [])
         if isinstance(item, dict) and item.get("id")
     )
-    timing_ids = sorted(_timing_ids(snapshot))
+    timing_ids = sorted(_timing_ids(case))
     return {
         "headline": "",
         "verdict": "",
         "primary_evidence_refs": primary_ids,
         "secondary_evidence_refs": secondary_ids,
-        "conflicts": snapshot.get("evidence", {}).get("conflicts", []),
+        "conflicts": case.get("evidence", {}).get("conflicts", []),
         "timing_refs": timing_ids,
         "action": "",
         "boundary": "传统六爻视角；不构成医疗、法律、财务或其他专业建议。",
@@ -58,7 +58,7 @@ def build(snapshot: dict) -> dict:
     }
 
 
-def validate_core(core: dict, snapshot: dict) -> dict:
+def validate_core(core: dict, case: dict) -> dict:
     errors = validate_common_core(
         core,
         allowed_fields=ALLOWED_FIELDS,
@@ -69,7 +69,7 @@ def validate_core(core: dict, snapshot: dict) -> dict:
         ("primary_evidence_refs", "primary"),
         ("secondary_evidence_refs", "secondary"),
     ):
-        evidence_ids = _evidence_ids(snapshot, layer)
+        evidence_ids = _evidence_ids(case, layer)
         refs = core.get(field, [])
         if not isinstance(refs, list):
             errors.append({"field": field, "reason": "must be array"})
@@ -82,15 +82,15 @@ def validate_core(core: dict, snapshot: dict) -> dict:
     if isinstance(primary_refs, list) and not primary_refs:
         errors.append({"field": "primary_evidence_refs", "reason": "at least one primary fact is required"})
 
-    timing_ids = _timing_ids(snapshot)
+    timing_ids = _timing_ids(case)
     for ref in core.get("timing_refs", []):
         if ref not in timing_ids:
             errors.append({"field": "timing_refs", "reason": "unknown timing candidate id", "ref": ref})
 
 
-    conflicts = snapshot.get("evidence", {}).get("conflicts", [])
+    conflicts = case.get("evidence", {}).get("conflicts", [])
     if conflicts and not core.get("conflicts"):
-        errors.append({"field": "conflicts", "reason": "snapshot has conflicts that must be covered"})
+        errors.append({"field": "conflicts", "reason": "case has conflicts that must be covered"})
 
     return {
         "accepted": not errors,

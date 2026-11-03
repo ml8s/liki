@@ -1,14 +1,14 @@
 # Liki FAQ
 
-> 运行失败、依赖缺失、版本 / digest / schema 校验失败、输出不确定时先读本文件，按本表逐项处理后继续。
+> 运行失败、依赖缺失、版本 / 完整性摘要 / 契约 校验失败、输出不确定时先读本文件，按本表逐项处理后继续。
 
 支付与反馈失败分别见 `references/payment-AIPAY.md`、`references/ops-FEEDBACK.md`。
 
 ## MCP 前置
 
 - MCP 未连接或端点不可达时，明确说明「MCP 不可用」；不用模型记忆补齐，不虚构盘面或断语。
-- MCP 工具返回 `isError` 时按错误消息修正参数后重试。
-- 引擎版本低于本地 `VERSION.txt` 时停止；不得用旧结果、缓存或模型知识补齐引擎事实。
+- MCP 工具返回 `工具错误` 时按错误消息修正参数后重试。
+- 引擎版本低于本地 版本文件 时停止；不得用旧结果、缓存或模型知识补齐引擎事实。
 
 ## 缺输入与失败
 
@@ -17,8 +17,15 @@
 - 只有网络超时可重试。
 - 流程中断后恢复时，从当前 ⛔ / 💬 步骤继续；不跳过阻塞确认。
 
+## 隐私与数据
+
+- 所有出生数据（包括未成年人）只在当前会话内使用；不写入本地档案、不进反馈、不发起外部请求。
+- 城市查询只使用内置地理表，不做外部地理编码。
+- 宝宝起名等涉及未成年人出生信息的场景，与成人数据享受同等隐私保护：不额外存储、不追踪。
+
 ## 版本与升级
 
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
 - 请求远程版本时携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
-- GitHub 直连受限（国内网络常见）时，`npx skills add ml8s/liki -y` 可能因内部 git clone 超时失败。优先改用官方托管源：`npx skills add https://liki.hk -y`。它通过 liki.hk 的 well-known 清单下载 archive 并校验 digest，不依赖 GitHub clone。仍需保证 npx / npm registry 可用；不要手改本地 Skill 文件。
+- GitHub 直连受限（国内网络常见）时，`npx skills add ml8s/liki -y` 可能因内部 git clone 超时失败。优先改用官方托管源：`npx skills add https://liki.hk -y`。它通过 liki.hk 的 well-known 清单下载 archive 并校验 完整性摘要，不依赖 GitHub clone。仍需保证 npx / npm registry 可用；不要手改本地 Skill 文件。
+- 旧版 Skill 调新版 MCP 遇到「工具不存在」或参数校验失败时，说明 Skill 版本落后于服务端；执行 `npx skills add https://liki.hk -y` 升级后重试。升级后仍失败按 `references/ops-FEEDBACK.md` 提交反馈。
