@@ -109,7 +109,7 @@ type ZiweiLiuYueResolvedPeriodCalendarPeriod struct {
 	Year     int                    `json:"year" jsonschema:"年。"`
 	Month    int                    `json:"month" jsonschema:"月。"`
 	Leap     bool                   `json:"leap" jsonschema:"是否闰月。"`
-	Half     CalendarPeriodHalfName `json:"half" jsonschema:"枚举值：first、second、whole。"`
+	Half     CalendarPeriodHalfName `json:"half" jsonschema:"农历半月；whole 为整月，闰月按 first / second 拆分。"`
 	DayStart int                    `json:"day_start" jsonschema:"流月日段起始农历日序。"`
 	DayEnd   int                    `json:"day_end" jsonschema:"流月日段结束农历日序。"`
 }
@@ -143,7 +143,7 @@ type ZiweiLiuShiChen struct {
 	LiuShiStartTime StandardTime   `json:"start_time" jsonschema:"流时选择器时区标准时间（无 DST）。"`
 	LiuShiLocalDate DateString     `json:"local_date" jsonschema:"流时当地标准日。"`
 	Lunar           ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
-	Shichen         string         `json:"shichen" jsonschema:"真太阳时时辰。"`
+	Shichen         ZhiName        `json:"shichen" jsonschema:"真太阳时时辰。"`
 }
 
 type ZiweiLiuShiOutput struct {

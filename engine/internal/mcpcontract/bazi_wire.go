@@ -175,9 +175,9 @@ type BaziChartShenShaSchool struct {
 }
 
 type BaziChartLuRootsItem struct {
-	ShiShen string `json:"shi_shen" jsonschema:"十神。"`
-	Gan     string `json:"gan" jsonschema:"天干。"`
-	Zhi     string `json:"zhi" jsonschema:"地支。"`
+	ShiShen string  `json:"shi_shen" jsonschema:"十神。"`
+	Gan     GanName `json:"gan" jsonschema:"天干。"`
+	Zhi     ZhiName `json:"zhi" jsonschema:"地支。"`
 }
 
 type BaziChartGuanXiMember struct {
@@ -340,7 +340,7 @@ type BaziBondDayMaster struct {
 }
 
 type BaziBondSideIdentity struct {
-	Gan    string      `json:"gan" jsonschema:"天干。"`
+	Gan    GanName     `json:"gan" jsonschema:"天干。"`
 	Wuxing ElementName `json:"wuxing" jsonschema:"五行。"`
 	Gender GenderName  `json:"gender" jsonschema:"性别。"`
 }
@@ -463,14 +463,14 @@ type BaziBondSpouseStarSide struct {
 
 type BaziBondSpouseStarOccurrence struct {
 	Pillar PillarName `json:"pillar" jsonschema:"柱位。"`
-	Branch string     `json:"branch" jsonschema:"地支。"`
-	Stem   string     `json:"stem" jsonschema:"天干。"`
+	Branch ZhiName    `json:"branch" jsonschema:"地支。"`
+	Stem   GanName    `json:"stem" jsonschema:"天干。"`
 	Source string     `json:"source" jsonschema:"来源。"`
 	IsVoid bool       `json:"is_void" jsonschema:"是否旬空。"`
 }
 
 type BaziBondSpouseStarCandidate struct {
-	TenGod      string                         `json:"ten_god" jsonschema:"配偶星十神。"`
+	TenGod      TenGodName                     `json:"ten_god" jsonschema:"配偶星十神。"`
 	Occurrences []BaziBondSpouseStarOccurrence `json:"occurrences" jsonschema:"出现位置。"`
 }
 
@@ -523,10 +523,10 @@ func newBaziBondOutput(value bazi.Bond) BaziBondOutput {
 	return BaziBondOutput{
 		DayMaster: BaziBondDayMaster{
 			A: BaziBondSideIdentity{
-				Gan: value.DayMaster.A.Gan, Wuxing: ElementName(value.DayMaster.A.Wuxing), Gender: GenderName(value.DayMaster.A.Gender),
+				Gan: GanName(value.DayMaster.A.Gan), Wuxing: ElementName(value.DayMaster.A.Wuxing), Gender: GenderName(value.DayMaster.A.Gender),
 			},
 			B: BaziBondSideIdentity{
-				Gan: value.DayMaster.B.Gan, Wuxing: ElementName(value.DayMaster.B.Wuxing), Gender: GenderName(value.DayMaster.B.Gender),
+				Gan: GanName(value.DayMaster.B.Gan), Wuxing: ElementName(value.DayMaster.B.Wuxing), Gender: GenderName(value.DayMaster.B.Gender),
 			},
 			Relation: BaziBondRelation{
 				Kind:     value.DayMaster.GanRel.Kind,
@@ -612,11 +612,11 @@ func newBaziBondSpouseStarCandidate(value bazi.SpouseStarGroup) BaziBondSpouseSt
 	occurrences := make([]BaziBondSpouseStarOccurrence, 0, len(value.Occurrences))
 	for _, occurrence := range value.Occurrences {
 		occurrences = append(occurrences, BaziBondSpouseStarOccurrence{
-			Pillar: PillarName(occurrence.Pillar), Branch: occurrence.Branch, Stem: occurrence.Stem,
+			Pillar: PillarName(occurrence.Pillar), Branch: ZhiName(occurrence.Branch), Stem: GanName(occurrence.Stem),
 			Source: occurrence.Source, IsVoid: occurrence.IsVoid,
 		})
 	}
-	return BaziBondSpouseStarCandidate{TenGod: value.TenGod, Occurrences: occurrences}
+	return BaziBondSpouseStarCandidate{TenGod: TenGodName(value.TenGod), Occurrences: occurrences}
 }
 
 // ── bazi.liupan input ──
@@ -647,8 +647,8 @@ type BaziLiuNianResolved struct {
 type BaziLiuNianOutput struct {
 	Year              int                                 `json:"year" jsonschema:"年。"`
 	ShiShen           TenGodName                          `json:"shi_shen" jsonschema:"十神。"`
-	NianGan           *string                             `json:"gan,omitempty" jsonschema:"流年天干"`
-	NianZhi           *string                             `json:"zhi,omitempty" jsonschema:"流年地支"`
+	NianGan           *GanName                            `json:"gan,omitempty" jsonschema:"流年天干"`
+	NianZhi           *ZhiName                            `json:"zhi,omitempty" jsonschema:"流年地支"`
 	NianGanWuxing     *string                             `json:"gan_wuxing,omitempty" jsonschema:"流年天干五行。"`
 	LiuNianNaYin      *string                             `json:"na_yin,omitempty" jsonschema:"流年干支纳音。"`
 	ShengRi           *int                                `json:"sheng_ri,omitempty" jsonschema:"流年是否生扶日主：0/1。"`
@@ -724,8 +724,8 @@ type BaziLiuYueJieQi struct {
 
 type BaziLiuYueOutput struct {
 	ShiShen      TenGodName                   `json:"shi_shen" jsonschema:"十神。"`
-	YueGan       *string                      `json:"gan,omitempty" jsonschema:"流月天干"`
-	YueZhi       *string                      `json:"zhi,omitempty" jsonschema:"流月地支"`
+	YueGan       *GanName                     `json:"gan,omitempty" jsonschema:"流月天干"`
+	YueZhi       *ZhiName                     `json:"zhi,omitempty" jsonschema:"流月地支"`
 	YueGanWuxing *string                      `json:"gan_wuxing,omitempty" jsonschema:"流月天干五行。"`
 	ShengRi      *int                         `json:"sheng_ri,omitempty" jsonschema:"流月是否生扶日主：0/1。"`
 	KeRi         *int                         `json:"ke_ri,omitempty" jsonschema:"流月是否克制日主：0/1。"`
@@ -747,8 +747,8 @@ type BaziLiuRiJie struct {
 type BaziLiuRiOutput struct {
 	Date        string                       `json:"date" jsonschema:"流日日期 YYYY-MM-DD。"`
 	ShiShen     TenGodName                   `json:"shi_shen" jsonschema:"十神。"`
-	RiGan       *string                      `json:"gan,omitempty" jsonschema:"流日天干"`
-	RiZhi       *string                      `json:"zhi,omitempty" jsonschema:"流日地支"`
+	RiGan       *GanName                     `json:"gan,omitempty" jsonschema:"流日天干"`
+	RiZhi       *ZhiName                     `json:"zhi,omitempty" jsonschema:"流日地支"`
 	DayNayin    *string                      `json:"na_yin,omitempty" jsonschema:"流日干支纳音。"`
 	Shensha     *[]BaziSeriesShenshaItem     `json:"shen_sha,omitempty" jsonschema:"流日神煞（动态：天乙贵人/文昌/驿马/桃花/华盖——按流日干支查表）"`
 	GanRels     *[]BaziSeriesGanRelationItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
@@ -770,14 +770,14 @@ type BaziLiuRiLiunianRelsItem struct {
 type BaziLiuShiChen struct {
 	LiuShiStartTime StandardTime `json:"start_time" jsonschema:"流时选择器时区标准时间（无 DST）。"`
 	LiuShiLocalDate DateString   `json:"local_date" jsonschema:"流时当地标准日。"`
-	Shichen         string       `json:"shichen" jsonschema:"真太阳时时辰。"`
+	Shichen         ZhiName      `json:"shichen" jsonschema:"真太阳时时辰。"`
 }
 
 type BaziLiuShiOutput struct {
 	LiuShiTime string                       `json:"hour_range" jsonschema:"流时时辰区间。"`
 	ShiShen    TenGodName                   `json:"shi_shen" jsonschema:"十神。"`
-	ShiGan     *string                      `json:"gan,omitempty" jsonschema:"流时天干"`
-	ShiZhi     *string                      `json:"zhi,omitempty" jsonschema:"流时地支"`
+	ShiGan     *GanName                     `json:"gan,omitempty" jsonschema:"流时天干"`
+	ShiZhi     *ZhiName                     `json:"zhi,omitempty" jsonschema:"流时地支"`
 	GanRels    *[]BaziSeriesGanRelationItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
 	ZhiRels    *[]BaziSeriesZhiRelationItem `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
 	ShiChen    BaziLiuShiChen               `json:"shi_chen" jsonschema:"流时时辰定位。"`

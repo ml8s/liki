@@ -160,10 +160,10 @@ func TestLiuyaoQiguaSchemaUsesMutuallyExclusiveForms(t *testing.T) {
 	}
 	decode(t, mustDefinition(t, registry, "liuyao_qigua").InputSchema, &input)
 	if input.AdditionalProperties != nil && *input.AdditionalProperties {
-		t.Fatalf("liuyao.qigua composition root must let closed branches own properties: %#v", input.AdditionalProperties)
+		t.Fatalf("liuyao_qigua composition root must let closed branches own properties: %#v", input.AdditionalProperties)
 	}
 	if len(input.OneOf) != 3 {
-		t.Fatalf("liuyao.qigua forms = %d, want 3", len(input.OneOf))
+		t.Fatalf("liuyao_qigua forms = %d, want 3", len(input.OneOf))
 	}
 
 	wantRequired := map[string][]string{
@@ -175,7 +175,7 @@ func TestLiuyaoQiguaSchemaUsesMutuallyExclusiveForms(t *testing.T) {
 	for _, form := range input.OneOf {
 		rawCasting, ok := form.Properties["casting"]
 		if !ok {
-			t.Fatalf("liuyao.qigua form lacks casting: %#v", form.Properties)
+			t.Fatalf("liuyao_qigua form lacks casting: %#v", form.Properties)
 		}
 		var casting struct {
 			Required   []string `json:"required"`
@@ -187,10 +187,10 @@ func TestLiuyaoQiguaSchemaUsesMutuallyExclusiveForms(t *testing.T) {
 		decode(t, rawCasting, &casting)
 		mode := casting.Properties["mode"].Const
 		if mode == "" || casting.Properties["mode"].Enum != nil {
-			t.Fatalf("liuyao.qigua casting.mode must be a branch constant: %#v", casting.Properties["mode"])
+			t.Fatalf("liuyao_qigua casting.mode must be a branch constant: %#v", casting.Properties["mode"])
 		}
 		if seen[mode] {
-			t.Fatalf("duplicate liuyao.qigua form: %s", mode)
+			t.Fatalf("duplicate liuyao_qigua form: %s", mode)
 		}
 		seen[mode] = true
 		want := wantRequired[mode]
@@ -566,10 +566,10 @@ func TestEngineContractCalls(t *testing.T) {
 		},
 	}))
 	if err != nil {
-		t.Fatalf("liuyao.qigua: %v", err)
+		t.Fatalf("liuyao_qigua: %v", err)
 	}
 	if err := registry.ValidateOutput("liuyao_qigua", qiguaRaw); err != nil {
-		t.Fatalf("liuyao.qigua output contract: %v", err)
+		t.Fatalf("liuyao_qigua output contract: %v", err)
 	}
 	var qigua LiuyaoQiguaOutput
 	if err := json.Unmarshal(qiguaRaw, &qigua); err != nil {

@@ -321,7 +321,7 @@ func NewEngine() *Registry {
 	})
 	qiguaSchema, err := liuyaoQiguaFormsSchema(options)
 	if err != nil {
-		panic("liuyao.qigua input schema: " + err.Error())
+		panic("liuyao_qigua input schema: " + err.Error())
 	}
 	mustRegister(registry, Tool[LiuyaoQiguaInput, LiuyaoQiguaOutput]{
 		Name:        "liuyao_qigua",

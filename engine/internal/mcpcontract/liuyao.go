@@ -372,15 +372,15 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 	switch request.Mode {
 	case "", "auto":
 		if request.Rounds != nil || request.Yaos != nil {
-			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: auto mode does not accept rounds or yaos")
+			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: auto mode does not accept rounds or yaos")
 		}
 		casting, err = liuyao.SecureQigua()
 	case "coins":
 		if request.Yaos != nil {
-			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: coins mode accepts rounds only")
+			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: coins mode accepts rounds only")
 		}
 		if len(request.Rounds) != 6 {
-			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: casting.coins requires exactly 6 rounds, got %d", len(request.Rounds))
+			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: casting.coins requires exactly 6 rounds, got %d", len(request.Rounds))
 		}
 		rounds := make([][]string, 0, 6)
 		for _, round := range request.Rounds {
@@ -393,10 +393,10 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 		casting, err = liuyao.NewCoinsCasting(rounds)
 	case "yaos":
 		if request.Rounds != nil {
-			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: yaos mode accepts yaos only")
+			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: yaos mode accepts yaos only")
 		}
 		if len(request.Yaos) != 6 {
-			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: casting.yaos requires exactly 6 values, got %d", len(request.Yaos))
+			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: casting.yaos requires exactly 6 values, got %d", len(request.Yaos))
 		}
 		var values [6]int
 		for i, value := range request.Yaos {
@@ -404,10 +404,10 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 		}
 		casting, err = liuyao.NewValuesCasting(values)
 	default:
-		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: casting.mode unsupported %q", string(request.Mode))
+		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: casting.mode unsupported %q", string(request.Mode))
 	}
 	if err != nil {
-		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao.qigua: %w", err)
+		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: %w", err)
 	}
 	return LiuyaoQiguaOutput{Casting: liuyaoCastingWire(casting)}, nil
 }
@@ -417,7 +417,7 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 type LiuyaoQiGuaInput struct {
 	Time      StandardTime         `json:"time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude float64              `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
-	Casting   *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao.qigua 返回的完整可审计起卦收据。"`
+	Casting   *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao_qigua 返回的完整可审计起卦收据。"`
 }
 
 // LiuyaoChartInput consumes the divination event and the requested focus.

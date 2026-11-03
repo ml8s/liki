@@ -325,7 +325,7 @@ func computeZiweiLiuShi(input ZiweiLiupanInput, chart ziwei.Chart) (ZiweiLiuShiO
 		LiuShiStartTime: standardTimeValue(resolved.Standard.In(loc)),
 		LiuShiLocalDate: civilDateString(resolved.LocalDate),
 		Lunar:           ziweiLunarDate(resolved.Lunar),
-		Shichen:         resolved.Shichen.String(),
+		Shichen:         ZhiName(resolved.Shichen.String()),
 	}
 	return output, nil
 }

@@ -387,7 +387,7 @@ func computeBaziLiuShi(input BaziLiupanInput, core bazi.Core) (BaziLiuShiOutput,
 	output.ShiChen = BaziLiuShiChen{
 		LiuShiStartTime: standardTimeValue(resolved.Standard.In(loc)),
 		LiuShiLocalDate: civilDateString(resolved.LocalDate),
-		Shichen:         resolved.Shichen.String(),
+		Shichen:         ZhiName(resolved.Shichen.String()),
 	}
 	return output, nil
 }
