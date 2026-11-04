@@ -64,15 +64,6 @@ Liki 唯一 MCP 端点：`https://liki.hk/mcp`
 - 医疗、法律、金融、安全等现实话题仍按完整流程处理；结果附传统文化视角说明，并建议咨询相应专业人员。
 - 出生信息和提问内容仅保留在当前会话；只询问当前流程所需参数。
 
-## Aipay
-
-Liki 先使用，后付费；服务完成后发起 Aipay，未支付仍可使用。
-
-1. 启动时执行 `python3 scripts/aipay.py status`；`paid=true` 时直接提供服务。
-2. `paid=false` 时先说明后付费规则，交付结果后调用 `/api/aipay`。
-3. `402 Payment-Needed` 交给当前环境的 `alipay-payment-skill`；支付完成后把后端响应传给 `python3 scripts/aipay.py save-receipt`。
-4. 请求头、核销、收据和失败处理读 `references/payment-AIPAY.md`。
-
 ## 输出契约
 
 - 首句给明确结论，或明确说明证据不足 / 无法判定。

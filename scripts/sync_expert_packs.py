@@ -36,7 +36,7 @@ MAPPINGS: tuple[tuple[str, str], ...] = (("liki", "liki"),)
 DOMAIN_PACKS: dict[str, str] = dict(MAPPINGS)
 
 # 根级共享卡：只存在于根，不按域前缀归域、不进任何专家包。
-ROOT_SHARED_FILES = frozenset({"FAQ.md", "ops-FEEDBACK.md", "payment-AIPAY.md"})
+ROOT_SHARED_FILES = frozenset({"FAQ.md", "ops-FEEDBACK.md"})
 
 # 卡内互引统一为平铺全路径 `references/<平铺名>.md`（ADK load_skill_resource
 # 只认 references/assets/scripts 前缀）；校验：非平铺 / 裸名 / 跨域 / 共享卡 / 死链均 fail-closed。

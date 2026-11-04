@@ -95,6 +95,43 @@ class UpstreamConfig:
 
 
 @dataclass(frozen=True)
+class AipayConfig:
+    """SkillPay A2M 按量付费配置（领域值对象）。"""
+
+    enabled: bool
+    app_id: str
+    private_key: str
+    alipay_public_key: str
+    gateway: str
+    seller_id: str
+    service_id: str
+    amount: str
+    goods_name: str
+    seller_name: str
+    paid_tools: frozenset[str]
+
+
+def _load_aipay_config() -> AipayConfig:
+    """从环境变量读取 SkillPay 配置；enabled=false 时其余字段可为空。"""
+    enabled = _env("LIKI_PAYWALL_ENABLED", "false").lower() == "true"
+    paid_tools_raw = _env("ALIPAY_PAID_TOOLS", "subject_candidates")
+    paid_tools = frozenset(t.strip() for t in paid_tools_raw.split(",") if t.strip())
+    return AipayConfig(
+        enabled=enabled,
+        app_id=_env("ALIPAY_APP_ID", ""),
+        private_key=_env("ALIPAY_PRIVATE_KEY", ""),
+        alipay_public_key=_env("ALIPAY_PUBLIC_KEY", ""),
+        gateway=_env("ALIPAY_GATEWAY", "https://openapi-sandbox.dl.alipaydev.com/gateway.do"),
+        seller_id=_env("ALIPAY_SELLER_ID", ""),
+        service_id=_env("ALIPAY_SERVICE_ID", ""),
+        amount=_env("ALIPAY_AIPAY_AMOUNT", "9.90"),
+        goods_name=_env("ALIPAY_AIPAY_GOODS_NAME", "Liki 命理服务"),
+        seller_name=_env("ALIPAY_SELLER_NAME", "Liki"),
+        paid_tools=paid_tools,
+    )
+
+
+@dataclass(frozen=True)
 class GatewayConfig:
     server_name: str
     server_title: str
@@ -103,6 +140,7 @@ class GatewayConfig:
     counsel: UpstreamConfig
     exposed_tools: dict[str, str]
     forbidden_tools: frozenset[str]
+    aipay: AipayConfig
 
 
 def load_config() -> GatewayConfig:
@@ -150,4 +188,5 @@ def load_config() -> GatewayConfig:
         ),
         exposed_tools=exposed,
         forbidden_tools=frozenset(FORBIDDEN_TOOLS),
+        aipay=_load_aipay_config(),
     )

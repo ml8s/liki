@@ -6,7 +6,7 @@ Liki currently ships one deterministic Go engine with an MCP runtime:
 | --- | --- | --- | --- |
 | `engine-mcp` | Streamable MCP | Internal chart / fact API; also used by WEB chart profile | Current architecture |
 | `counsel-mcp` | Streamable MCP | Internal factor, assertion, divination, and naming judgment API | Current architecture |
-| `liki-mcp` | Streamable MCP | Product-facing SKILL / EXPERT gateway over selected ENGINE + COUNSEL tools | Current architecture |
+| `liki-mcp` | Streamable MCP | Product-facing SKILL gateway with SkillPay paywall over selected ENGINE + COUNSEL tools; EXPERT uses ENGINE + COUNSEL directly | Current architecture |
 
 `engine-rpc` and its public JSON-RPC endpoint are retired.
 
@@ -21,7 +21,7 @@ https://<host>/counsel/mcp      → counsel-mcp /mcp, technical/internal only
 Services must not depend on the public prefix. The gateway strips `/engine` or
 `/counsel` before proxying.
 
-`liki-mcp` is a separate stateless image and process. Its container exposes
+`liki-mcp` is a separate image and process. Its container exposes
 `/mcp`, reads `LIKI_EXPOSE_CONFIG`, and routes only its configured product
 allowlist to internal ENGINE / COUNSEL endpoints. Keep ENGINE / COUNSEL
 endpoints off the public SKILL discovery declaration.
@@ -99,6 +99,16 @@ not rate-limit.
 | `LIKI_VERSION` | `0.1.0` | Runtime version reported by LIKI gateway |
 | `LIKI_MCP_SERVER_NAME` | `liki-mcp` | Server name in MCP `initialize` response |
 | `LIKI_MCP_SERVER_TITLE` | `LIKI product MCP` | Server title in MCP `initialize` response |
+| `LIKI_PAYWALL_ENABLED` | `false` | Enable SkillPay paywall for paid tools |
+| `ALIPAY_APP_ID` | — | Alipay application ID (required when paywall enabled) |
+| `ALIPAY_PRIVATE_KEY` | — | Alipay application private key (PKCS#1) |
+| `ALIPAY_PUBLIC_KEY` | — | Alipay public key |
+| `ALIPAY_GATEWAY` | sandbox | Alipay gateway URL |
+| `ALIPAY_SELLER_ID` | — | Alipay seller ID (2088 format) |
+| `ALIPAY_SERVICE_ID` | — | Alipay service marketplace ID |
+| `ALIPAY_AIPAY_AMOUNT` | `9.90` | Per-consultation fee in CNY |
+| `ALIPAY_PAID_TOOLS` | `subject_candidates` | Comma-separated paid tool names |
+| `LIKI_AIPAY_DB_PATH` | `/data/aipay.db` | SQLite order store path (mount volume in production) |
 
 `GET /healthz` is gateway liveness. `GET /readyz` pings both upstream sessions
 (engine and counsel); if either is unreachable, it returns 503. `GET /metrics`
@@ -106,7 +116,9 @@ is always enabled inside the service network and must be blocked by the public
 edge. Rate limiting is owned by the edge (cloud LB / WAF / Caddy); the gateway
 itself does not rate-limit.
 
-LIKI-MCP is the public SKILL / EXPERT MCP surface. It exposes the selected
+LIKI-MCP is the public SKILL MCP surface with SkillPay paywall.
+EXPERT (agent-runtime) connects directly to ENGINE and COUNSEL,
+bypassing the gateway and its paywall. It exposes the selected
 ENGINE chart / fact tools, COUNSEL judgment tools, naming tools, and
 `liuyao_ask` / `qimen_ask`. Raw `qimen_chart`, `liuyao_chart`, and
 `liuyao_qigua` are not exposed. ENGINE / COUNSEL endpoints remain technical

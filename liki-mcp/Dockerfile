@@ -18,5 +18,8 @@ COPY app/expose.json /app/expose.json
 RUN useradd --uid 10001 --no-create-home liki
 USER 10001
 
+# SQLite order store volume (paywall enabled deployments)
+VOLUME ["/data"]
+
 EXPOSE 8087
 CMD ["python", "-m", "app.main"]

@@ -7,10 +7,15 @@ exposed. It does not rewrite schemas, arguments, results, errors, or names.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import logging
 from typing import Any
 
+import os
+
 from app.config import GatewayConfig, load_config
+# alipay-sdk-python 和 order_store 在 _get_payment_service 中懒加载：
+# paywall disabled 时不需要 SDK。
 from app.upstream import UpstreamError, upstream_session
 
 logger = logging.getLogger(__name__)
@@ -196,6 +201,33 @@ async def _handle_request(
     raise ProtocolError(-32601, f"method not found: {method}")
 
 
+
+def _extract_tool_name(payload: dict) -> str | None:
+    """从 MCP JSON-RPC tools/call 请求中提取工具名。"""
+    params = payload.get("params")
+    if isinstance(params, dict):
+        name = params.get("name")
+        return str(name) if name else None
+    return None
+
+
+_payment_service: PaymentService | None = None
+_order_store: OrderStore | None = None
+
+
+def _get_payment_service(config: GatewayConfig) -> PaymentService:
+    """懒初始化支付基础设施。"""
+    global _payment_service, _order_store
+    if _payment_service is None:
+        from app.order_store import OrderStore
+        from app.payment import PaymentService
+
+        db_path = os.environ.get("LIKI_AIPAY_DB_PATH", "/data/aipay.db")
+        _order_store = OrderStore(db_path)
+        _payment_service = PaymentService(config.aipay, _order_store)
+    return _payment_service
+
+
 async def mcp_endpoint(request: Request) -> Response:
     config = load_config()
 
@@ -210,6 +242,20 @@ async def mcp_endpoint(request: Request) -> Response:
             "id": None,
             "error": {"code": -32700, "message": "Parse error"},
         }, status_code=400)
+
+    # SkillPay 付费工具检查（application layer）
+    if config.aipay.enabled:
+        tool_name = _extract_tool_name(payload)
+        if tool_name:
+            proof = request.headers.get("Payment-Proof")
+            payment_service = _get_payment_service(config)
+            payment_result = payment_service.check_and_process(tool_name, proof)
+            if payment_result is not None:
+                return JSONResponse(
+                    payment_result.body,
+                    status_code=payment_result.status_code,
+                    headers=payment_result.headers,
+                )
 
     messages = payload if isinstance(payload, list) else [payload]
     responses: list[dict[str, Any]] = []

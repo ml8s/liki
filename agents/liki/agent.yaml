@@ -10,7 +10,7 @@ tools:
       - list_skills
       - load_skill
       - load_skill_resource
-    liki:
+    engine:
       - time_now
       - subject_candidates
       - city_info
@@ -25,6 +25,7 @@ tools:
       - bazhai_layout
       - xuankong_chart
       - xuankong_liunian
+    counsel:
       - bazi_yongshen
       - natal_query
       - natal_liunian_query

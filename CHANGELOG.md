@@ -9,6 +9,7 @@
 - **MCP 统一网关**：Skill `.mcp.json` 从双连接器（counsel-mcp + engine-mcp）合并为单网关 liki-mcp；暴露面由 `expose.json` 白名单控制。底层 engine/counsel 端点保留为内部服务，skill 不感知。
 - **RPC 命名统一**：counsel→engine 内部调用从 dotted name（`bazi.chart`）迁移为 MCP snake_case 工具名（`bazi_chart`）；删除 `method.replace(".", "_")` 映射层。
 - **错误层级统一**：`qimen_errors.TableError` 从 `Exception` 改为继承 `LikiToolError(ValueError)`；naming.py / liuyao_matters.py 数据加载错误统一到 `LikiToolError` / `TableError` 层级。
+- **SkillPay 付费墙**：liki-mcp 新增 SkillPay A2M 按量付费（`alipay-sdk-python`）。`subject_candidates` 为收费工具（`ALIPAY_PAID_TOOLS` 配置），无 Payment-Proof 时返回 HTTP 402 + Payment-Needed。Expert 改为直连 engine + counsel（`LIKI_ENGINE_URL` + `LIKI_COUNSEL_URL`），不再经过 liki-mcp。Skill 删除 `scripts/aipay.py`、`references/payment-AIPAY.md` 和 SKILL.md Aipay 节。liki-web `internal/aipay/` 可退役。
 
 ### Improvements
 

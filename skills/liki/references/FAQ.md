@@ -2,7 +2,7 @@
 
 > 运行失败、依赖缺失、版本 / 完整性摘要 / 契约 校验失败、输出不确定时先读本文件，按本表逐项处理后继续。
 
-支付与反馈失败分别见 `references/payment-AIPAY.md`、`references/ops-FEEDBACK.md`。
+反馈失败见 `references/ops-FEEDBACK.md`。
 
 ## MCP 前置
 

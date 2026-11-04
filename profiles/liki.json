@@ -5,8 +5,12 @@
   },
   "mcpServers": [
     {
-      "name": "liki",
-      "endpointEnv": "LIKI_MCP_URL"
+      "name": "engine",
+      "endpointEnv": "LIKI_ENGINE_URL"
+    },
+    {
+      "name": "counsel",
+      "endpointEnv": "LIKI_COUNSEL_URL"
     }
   ],
   "agents": [
