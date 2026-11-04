@@ -2,8 +2,6 @@
 # Package every WorkBuddy submission source into a zip under dist/workbuddy/.
 #
 # 官网只收 zip，且 zip 顶层必须是提交单元目录本身：
-#   连接器  workbuddy/<source>-connector/  → <source>-connector.zip
-#           （内含 connector-meta.json、mcp.json 或 cli.json、icon.*）
 #   技能    skills/liki/                   → liki.zip
 #           （内含 SKILL.md + references/、scripts/ 等子资源）
 #   专家    expert-packs/liki/             → liki-expert.zip
@@ -30,15 +28,6 @@ fi
 mkdir -p "$OUT_DIR"
 found=0
 
-for dir in "$SRC_DIR"/*-connector; do
-    [ -d "$dir" ] || continue
-    found=$((found + 1))
-    name="$(basename "$dir")"
-    out="$OUT_DIR/$name.zip"
-    rm -f "$out"
-    (cd "$SRC_DIR" && zip -q -X -r "$out" "$name" "${EXCLUDES[@]}")
-    echo "  ✓ ${out#"$ROOT/"} ($(du -h "$out" | cut -f1))"
-done
 
 if [ -f "$SKILL_DIR/SKILL.md" ]; then
     found=$((found + 1))

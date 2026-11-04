@@ -165,7 +165,7 @@ check: lint-md lint-python fmt-check go-version-check runtime-version-check chec
 
 CONTENT_PATHS := skills/liki expert-packs workbuddy agents tools/mcp-tool-catalog.json \
 	scripts/sync_expert_packs.py scripts/check_expert_docs.py \
-	scripts/check_workbuddy_connectors.py scripts/check_workbuddy_zips.py
+	scripts/check_workbuddy_zips.py
 CONTENT_FILES := $(shell find $(CONTENT_PATHS) -type f 2>/dev/null | LC_ALL=C sort)
 CONTENT_FINGERPRINT := $(shell printf '%s\n' $(CONTENT_FILES) | xargs sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1)
 CONTENT_STAMP := .cache/content-check.$(CONTENT_FINGERPRINT)
@@ -175,7 +175,6 @@ $(CONTENT_STAMP):
 	@echo "[check-content] content fingerprint $(CONTENT_FINGERPRINT); running skill and package checks"
 	@python3 scripts/check_expert_docs.py
 	python3 scripts/sync_expert_packs.py --check
-	python3 scripts/check_workbuddy_connectors.py
 	python3 scripts/check_workbuddy_zips.py
 	@touch $@
 

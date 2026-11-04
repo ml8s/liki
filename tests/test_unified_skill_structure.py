@@ -133,14 +133,14 @@ def test_natal_card_actions_name_the_side():
 
 def test_root_mcp_uses_liki_product_surface():
     text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
-    assert "LIKI-MCP" in text
     # 路由按领域（natal/divination/naming/fengshui），不按专家包 id
     for domain in DOMAINS:
         assert domain in text
     # 路由按领域（natal/divination/fengshui/naming），不按专家包 id
     assert not re.search(r"liki-(?:natal|divination|fengshui|naming)", text)
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
-    assert any("liki" in name for name in mcp["mcpServers"])
+    assert "engine" in mcp["mcpServers"]
+    assert "counsel" in mcp["mcpServers"]
 
 
 def test_root_skill_references_no_expert_pack_ids():
@@ -159,17 +159,20 @@ def test_root_skill_references_no_expert_pack_ids():
 
 
 def test_root_mcp_declares_manual_install_surface():
-    """Embedded and manual clients get the single LIKI product MCP surface.
+    """Embedded and manual clients connect to the free ENGINE + COUNSEL endpoints.
 
-    Expert packs do not ship their own MCP manifest: they depend on the published
-    LIKI connector. Internal ENGINE / COUNSEL endpoints are intentionally absent
-    from every artifact.
+    The free version bypasses the liki-mcp paywall gateway and talks directly
+    to ENGINE and COUNSEL. Expert packs do not ship their own MCP manifest.
     """
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert mcp["mcpServers"] == {
-        "liki-mcp": {
+        "engine": {
             "type": "streamableHttp",
-            "url": "https://liki.hk/mcp",
+            "url": "https://liki.hk/engine/mcp",
+        },
+        "counsel": {
+            "type": "streamableHttp",
+            "url": "https://liki.hk/counsel/mcp",
         },
     }
 
@@ -188,8 +191,6 @@ def test_natal_cards_reference_packaged_expert_methodology():
 
 
 def test_expert_packs_follow_workbuddy_standard():
-    connector_ids, id_errors = gen.connector_ids()
-    assert not id_errors, id_errors
     for pack in EXPERT_PACKS:
         root = ROOT / "expert-packs" / pack
         assert (root / "SKILL.md").is_file(), pack
@@ -215,11 +216,9 @@ def test_expert_packs_follow_workbuddy_standard():
         assert d["quickPrompts"][0]["zh"] == d["defaultInitPrompt"]["zh"], pack
         n = len([c for c in d["displayDescription"]["zh"] if not c.isspace()])
         assert 40 <= n <= 50, (pack, n)
-        # 运行时依赖：只依赖已上架连接器（ID 单一源 workbuddy/connector-ids.json），
-        # 专家不自带 MCP —— 自带会让同一次召唤出现两套工具面与两组引导卡片。
-        deps = d.get("dependencies", {})
-        assert "mcpServers" not in deps, (pack, deps)
-        assert deps.get("connectors") == connector_ids, (pack, deps)
+        # 付费专家包不声明 connector 依赖；MCP 端点由包内 .mcp.json 声明（liki-mcp）。
+        deps = d.get("dependencies")
+        assert not deps, (pack, deps)
         # agent md（平台入口）frontmatter：平台字段名 + 与文件名一致的 name
         agent_meta = yaml.safe_load(agent_docs[0].read_text(encoding="utf-8").split("---\n", 2)[1])
         assert agent_meta["name"] == pack, (pack, agent_meta)
@@ -236,8 +235,8 @@ def test_expert_packs_follow_workbuddy_standard():
         # 身份文件是单一源：plugin.json 的 keywords/skills 由它投影而来
         assert d["keywords"] == identity_meta["keywords"], pack
         assert d["skills"] == [f"./skills/{name}" for name in identity_meta["skills"]], pack
-        # 依赖连接器时包内不得有 .mcp.json（平台会作为兜底自动加载，形成双重工具面）
-        assert not (root / ".mcp.json").exists(), pack
+        # 付费专家包必须带 .mcp.json（指向 liki-mcp 付费网关）
+        assert (root / ".mcp.json").exists(), pack
 
 
 def test_expert_pack_methodology_matches_index():

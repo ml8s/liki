@@ -20,7 +20,8 @@ Liki 只有一个 WorkBuddy 专家：`liki`（Liki 命理师）。它覆盖八�
 | `expert-packs/liki/agents/liki.md` | `make sync-expert-packs` 从身份源投影 |
 | `skills/liki/SKILL.md` | 从身份源投影的 ADK skill 入口 |
 | `skills/liki/references/*.md` | 根技能 `skills/liki/references/*.md` 的全量镜像 |
-| `.codebuddy-plugin/plugin.json` | 身份源与 `workbuddy/connector-ids.json` 投影 |
+| `.mcp.json` | 指向 liki-mcp 付费网关（`https://liki.hk/mcp`） |
+| `.codebuddy-plugin/plugin.json` | 身份源投影 |
 | `avatars/expert.svg` / `expert.png` | 品牌资源 |
 
 `plugin.json` 依赖两个 WorkBuddy 连接器，包内没有 `.mcp.json`。

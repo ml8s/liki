@@ -40,7 +40,6 @@ Liki 只有一个生产专家：`liki`。`natal`、`divination`、`naming`、`fe
 | 生产 agent 身份 | `agents/liki/liki.md` |
 | WorkBuddy 专家身份 | `expert-packs/liki/SKILL.md` |
 | 部署 profile | `profiles/liki.json` |
-| 连接器 ID | `workbuddy/connector-ids.json` |
 
 `make sync-expert-packs` 把根技能方法论卡镜像到 WorkBuddy 包，并从 WorkBuddy 身份源投影包内入口和 plugin 元数据。`make check` 对漂移 fail-closed。
 

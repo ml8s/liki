@@ -1,8 +1,12 @@
 {
   "mcpServers": {
-    "liki-mcp": {
+    "engine": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp"
+      "url": "https://liki.hk/engine/mcp"
+    },
+    "counsel": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp"
     }
   }
 }

@@ -5,7 +5,6 @@
 每个包都与源码目录（按同一套排除规则）逐文件比对 sha256，任何缺失、多余、内容漂移、
 顶层目录名不符、绝对路径或 `..` 条目都判失败。同时检查平台侧的目录约定：
 
-* 连接器 `<source>-connector/`：`connector-meta.json` + `mcp.json`/`cli.json` + `icon.*`；
 * 技能 `liki/`：`SKILL.md` + 子资源；
 * 专家 `liki-<domain>/`：`.codebuddy-plugin/plugin.json`、`agents/<pack>.md`、`avatars/expert.png`、
   `README.md`，且不含包根身份手写源 `SKILL.md`（platform 侧入口是 agents/<pack>.md）。
@@ -79,18 +78,6 @@ def compare(label: str, expected: dict[str, bytes], actual: dict[str, bytes], er
             errors.append(f"{label}: 内容漂移 `{name}`")
 
 
-def check_connector(zip_path: Path, name: str, errors: list[str]) -> None:
-    files = zip_files(zip_path, name, errors)
-    source = ROOT / "workbuddy" / name
-    compare(f"{zip_path.name}", source_files(source), files, errors)
-    if "connector-meta.json" not in files:
-        errors.append(f"{zip_path.name}: 缺 connector-meta.json")
-    if not any(config in files for config in CONFIG_NAMES):
-        errors.append(f"{zip_path.name}: 缺 mcp.json / cli.json")
-    if not any(icon in files for icon in ICON_NAMES):
-        errors.append(f"{zip_path.name}: 缺图标（{'/'.join(ICON_NAMES)}）")
-
-
 def check_skill(zip_path: Path, errors: list[str]) -> None:
     files = zip_files(zip_path, "liki", errors)
     compare(f"{zip_path.name}", source_files(ROOT / "skills" / "liki"), files, errors)
@@ -115,13 +102,10 @@ def check_expert(zip_path: Path, top: str, source: str, errors: list[str]) -> No
     for required in (f"agents/{source}.md", "avatars/expert.png", "README.md"):
         if required not in files:
             errors.append(f"{zip_path.name}: 缺 {required}")
-    if ".mcp.json" in files:
+    if ".mcp.json" not in files:
         errors.append(
-            f"{zip_path.name}: 专家依赖连接器（plugin.json.dependencies.connectors），不带 .mcp.json"
+            f"{zip_path.name}: 付费专家包必须带 .mcp.json（指向 liki-mcp 付费网关）"
         )
-    deps = plugin.get("dependencies", {})
-    if not deps.get("connectors"):
-        errors.append(f"{zip_path.name}: plugin.json.dependencies.connectors 缺连接器 ID")
 
 
 def main() -> int:
@@ -140,8 +124,6 @@ def main() -> int:
         name = zip_path.stem
         if name == "liki":
             check_skill(zip_path, errors)
-        elif (ROOT / "workbuddy" / name).is_dir():
-            check_connector(zip_path, name, errors)
         elif name == "liki-expert" and (ROOT / "expert-packs" / "liki").is_dir():
             check_expert(zip_path, "liki", "liki", errors)
             saw_expert = True

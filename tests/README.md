@@ -95,7 +95,6 @@ invokes only when the content fingerprint under `skills/liki`, `expert-packs`,
 | --- | --- |
 | `scripts/check_expert_docs.py` | Expert-pack methodology cards against the root skill |
 | `scripts/sync_expert_packs.py` | Expert methodology cards are in sync with the root skill |
-| `scripts/check_workbuddy_connectors.py` | WorkBuddy connector packages: metadata, single MCP server, HTTPS, version gate, credentials, path-only icon glyphs |
 | `scripts/check_workbuddy_zips.py` | WorkBuddy submission zips in `dist/workbuddy/`: byte-parity with sources, top-level dir, expert-pack layout |
 
 The public paths are `/engine/mcp` and `/counsel/mcp`. Caddy strips `/engine` or `/counsel`; the services themselves see `/mcp`. Tests must not document or assert service-level public prefixes.

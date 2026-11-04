@@ -20,9 +20,13 @@ metadata:
 
 ## MCP 前置
 
-Liki 通过标准 MCP 提供能力，唯一产品入口是 LIKI-MCP：
+Liki 通过标准 MCP 提供能力，两个免费端点：
 
-Liki 唯一 MCP 端点：`https://liki.hk/mcp`
+| MCP | 端点 |
+| --- | --- |
+| ENGINE | `https://liki.hk/engine/mcp` |
+| COUNSEL | `https://liki.hk/counsel/mcp` |
+
 > 启动确认连接、比较本地 / 远程版本文件；远程 10 秒不可达时标注“版本未校验”后继续，托管模式跳过。工具、版本、digest或契约校验失败读 `references/FAQ.md`。
 
 ## MCP 自省规则

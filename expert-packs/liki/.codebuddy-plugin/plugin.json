@@ -31,12 +31,6 @@
   "skills": [
     "./skills/liki"
   ],
-  "dependencies": {
-    "connectors": [
-      "oc_9af58cd723529afc",
-      "oc_f31cd1614c314762"
-    ]
-  },
   "displayDescription": {
     "en": "Professional fate reading with traceable evidence",
     "zh": "覆盖八字、紫微、六爻、奇门、黄历择日、风水与起名的命理师，结论有确定性引擎依据可回溯"

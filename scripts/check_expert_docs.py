@@ -177,27 +177,18 @@ def _check_agent_doc(pack: str, pack_dir: Path, plugin: dict, errors: list[str])
 
 
 def _check_dependencies(pack: str, pack_dir: Path, plugin_doc: dict, errors: list[str]) -> None:
-    """专家依赖已上架连接器：`dependencies.connectors` 是投影值，且包内不得自带 MCP。
+    """付费专家包通过 `.mcp.json` 声明 MCP 端点（liki-mcp paywall）。
 
-    平台在 `plugin.json` 未声明 `dependencies.mcpServers` 时会自动读取插件根 `.mcp.json`
-    作为兜底；两个来源同时存在会让同一次召唤出现两套工具面与两组引导卡片，故 `.mcp.json`
-    必须缺席。
+    不再使用连接器依赖；平台在 `plugin.json` 未声明 `dependencies.mcpServers` 时
+    会自动读取插件根 `.mcp.json` 作为 MCP 声明。包必须自带 `.mcp.json` 指向 liki-mcp。
     """
     rel = (pack_dir / ".codebuddy-plugin" / "plugin.json").relative_to(ROOT)
-    ids, id_errors = packs.connector_ids()
-    errors.extend(id_errors)
     dependencies = plugin_doc.get("dependencies")
-    if not isinstance(dependencies, dict):
-        errors.append(f'{rel}: 缺 `dependencies`（须为 {{"connectors": [...]}}）')
-    else:
-        if "mcpServers" in dependencies:
-            errors.append(f"{rel}: `dependencies.mcpServers` 与连接器依赖互斥，专家不自带 MCP")
-        if dependencies.get("connectors") != ids:
-            errors.append(
-                f"{rel}: `dependencies.connectors` 须等于 {ids}（单一源 workbuddy/connector-ids.json）"
-            )
-    if (pack_dir / ".mcp.json").is_file():
-        errors.append(f"{pack}: 专家依赖连接器时不得带 `.mcp.json`（平台会作为兜底自动加载）")
+    if dependencies is not None:
+        if "connectors" in dependencies:
+            errors.append(f"{rel}: `dependencies.connectors` 已废弃（连接器不再支持个人注册）")
+    if not (pack_dir / ".mcp.json").is_file():
+        errors.append(f"{pack}: 付费专家包必须带 `.mcp.json`（指向 liki-mcp 付费网关）")
 
 
 def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
