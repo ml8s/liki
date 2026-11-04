@@ -5,6 +5,7 @@ aggregate surface. Bazi/ziwei/liuyao/qimen/naming are internal technique
 groups, not separate products or experts.
 """
 
+import logging
 import os
 from contextlib import asynccontextmanager
 
@@ -25,9 +26,50 @@ from app.http_middleware import (
 )
 from app.metrics import render_metrics  # noqa: E402
 
+logger = logging.getLogger(__name__)
+
 
 def _bind_host() -> str:
     return os.environ.get("LIKI_BIND_HOST", "127.0.0.1")
+
+
+def _prewarm_caches() -> None:
+    """Eagerly load read-only data tables so the first request skips lazy init.
+
+    Best-effort: a data table with a validation error logs a warning at startup
+    instead of crashing the server for all domains. The lazy loader still
+    raises at request time for the affected tool.
+    """
+    try:
+        from app.divination.tools.divination_safety import _load_rules  # noqa: SLF001
+        from app.divination.tools.liuyao_conditions import load_rules
+        from app.divination.tools.liuyao_matters import load_matter_table
+        from app.divination.tools.qimen_interpretations import (
+            load_interpretation_index,
+            load_rule_table,
+        )
+        from app.divination.tools.qimen_matters import load_matter_table as _load_qimen_matters
+        from app.natal.tools.factor_constants import load_constants
+        from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
+        from app.natal.tools.natal_projection import load_contract
+        from app.natal.tools.yongshen import load_policy
+
+        load_constants()
+        load_factor_rows()
+        load_liunian_rows()
+        load_policy()
+        load_contract()
+        load_rules()
+        load_matter_table()
+        _load_qimen_matters()
+        load_rule_table()
+        load_interpretation_index()
+        _load_rules()
+    except Exception:
+        logger.warning(
+            "cache prewarm failed; affected tools will lazy-load on first request",
+            exc_info=True,
+        )
 
 
 def _make_app():
@@ -82,6 +124,7 @@ def _make_app():
                 "LIKI_ENGINE_MCP_URL is required "
                 "(engine-mcp endpoint, e.g. http://engine-mcp:8081/mcp)"
             )
+        await anyio.to_thread.run_sync(_prewarm_caches)
         async with root_app.router.lifespan_context(root_app):
             yield
 

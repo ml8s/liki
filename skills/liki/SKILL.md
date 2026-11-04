@@ -1,14 +1,14 @@
 ---
 name: liki
 license: MIT
-description: 懂命理，用 Liki。专业命理 Skill：八字算命与四柱排盘、紫微斗数命盘、大运流年运势、六爻占卜算卦、奇门遁甲、黄历择日选日子、家居风水布局；支持起名取名，覆盖婚姻、事业、财运、健康、学业、六亲、合盘与择时分析。Also covers BaZi, Zi Wei Dou Shu, I Ching divination, Qi Men Dun Jia, Chinese almanac, Feng Shui and naming。规则引擎判断，依据可回溯；传统文化视角，不构成专业建议。
+description: 懂命理，用 Liki。专业命理 Skill：八字排盘、紫微斗数、大运流年、六爻占卜、奇门遁甲、黄历择日、家居风水、起名；覆盖婚姻、事业、财运、健康、学业、六亲、合盘与择时。规则引擎判断，依据可回溯；传统文化视角，不构成专业建议。
 metadata:
   slug: liki
   display_name: Liki 专业命理 Skill
   display_name_en: Liki Professional Chinese Metaphysics Skill
   description_zh: 专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。
   description_en: Chinese metaphysics skill covering BaZi (Four Pillars), Zi Wei Dou Shu, I Ching divination, Qi Men Dun Jia, almanac and Feng Shui charts, plus naming — every chart is computed by deterministic engines and every reading comes from rule-based judgments with traceable evidence.
-  version: 2026.1101.3
+  version: 2026.1104.0
   author: Liki
   agent_created: 'true'
   keywords: 八字合婚,婚姻分析,感情走向,事业分析,职业方向,财运分析,投资时机,学业分析,考试运,健康分析,五行体质,怀孕生育时机,新生儿起名,成人改名,八字起名,结婚吉日,开业吉日,搬家吉日,八宅风水,玄空飞星
@@ -22,17 +22,14 @@ metadata:
 
 Liki 通过标准 MCP 提供能力，唯一产品入口是 LIKI-MCP：
 
-| MCP | 端点 | 用途 |
-| --- | --- | --- |
-| LIKI-MCP | `https://liki.hk/mcp` | SKILL / EXPERT 产品面：命理断语、排盘事实、考时、起名、六爻、奇门、风水与黄历 |
+Liki 唯一 MCP 端点：`https://liki.hk/mcp`
+> 启动确认连接、比较本地 / 远程版本文件；远程 10 秒不可达时标注“版本未校验”后继续，托管模式跳过。工具、版本、digest或契约校验失败读 `references/FAQ.md`。
 
-> 本 skill 只声明 LIKI-MCP。启动确认连接、比较本地 / 远程版本文件；远程 10 秒不可达时标注“版本未校验”后继续，托管模式跳过。工具、版本、完整性摘要或契约校验失败读 `references/FAQ.md`。底层 ENGINE / COUNSEL 是内部服务，Skill 不直接依赖它们的端点。
+## MCP 自省规则
 
-## 工具自省规则
-
-1. 先通过 MCP 能力发现当前连接暴露的领域功能。
-2. 只调用自省返回的工具；参数以 `input契约` 为准，返回事实以 `output契约` 和实际结果为准。
-3. 工具说明 说明业务用途；契约 与文档冲突时，以 MCP 契约 和实际工具返回为准。
+1. 先通过 MCP 自省发现当前连接暴露的领域功能。
+2. 只调用自省返回的工具；参数以工具 schema 为准，返回事实以实际结果为准。
+3. 工具描述描述业务用途；schema 与文档冲突时，以 MCP 自省返回和实际工具结果为准。
 
 ## 领域路由
 
@@ -54,14 +51,14 @@ Liki 通过标准 MCP 提供能力，唯一产品入口是 LIKI-MCP：
 ## 执行循环
 
 1. 按上表进入领域 ENTRY，缺参时按 ⛔ / 💬 规则确认。
-2. 通过 MCP 获取排盘、判断或事实：成功读 结构化结果 并把命盘、快照和 完整性摘要 原样传给下游工具；失败读 工具错误 与错误文本；幂等工具修正参数后重试，起卦等事件创建工具不自动重试。
+2. 通过 MCP 获取排盘、判断或事实：成功读 结构化结果 并把命盘、快照和 digest 原样传给下游工具；失败读 工具错误 与错误文本；幂等工具修正参数后重试，起卦等事件创建工具不自动重试。
 3. 读取对应 app / domains 方法论卡解释工具结果。
 4. 按“输出契约”给出结论、依据和边界。
 
 ## 统一硬边界
 
 - 所有命理事实一律来自 MCP 工具返回；缺失必要事实输出「不可用」。
-- 带 完整性摘要 的引擎产物原样传递；二次使用前通过工具校验 完整性摘要。
+- 带 digest 的引擎产物原样传递；二次使用前通过工具校验 digest。
 - 输入不足时列出缺失参数并询问，补齐后再继续。
 - 时间接近时辰交界时先提示校准；结果标注为条件性时辰。
 - 医疗、法律、金融、安全等现实话题仍按完整流程处理；结果附传统文化视角说明，并建议咨询相应专业人员。

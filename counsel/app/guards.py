@@ -23,8 +23,6 @@ def require_question(text: str) -> str:
     return stripped
 
 
-
-
 def require_exactly_one(**alternatives: object) -> None:
     """命名字段恰好一个非 None；0 或 ≥2 都拒绝。"""
     provided = [name for name, value in alternatives.items() if value is not None]
@@ -42,3 +40,4 @@ def require_object(value: object, name: str) -> None:
     """要求值为 object（dict）。"""
     if not isinstance(value, dict):
         raise ValueError(f"{name} must be an object")
+

@@ -49,14 +49,14 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 - 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。
 - 领域 `ENTRY.md` 只做域内路由、工具契约与硬边界；`app` 卡平铺为 `references/<域>-app-<目标>.md`（`natal-app-outcome.md`…）并承载流程、交互闸口与输出模板，方法论卡平铺为 `references/<域>-<体系>-<卡>.md`（`natal-bazi-*.md`、`divination-qimen-*.md`…）；一份信息只在一处定义（`tests/test_unified_skill_structure.py` 钉住路由可达与引用形态）。
-- **专家 = 顶层领域（1:1）**：`expert-packs/liki-<domain>` 与根 `skills/liki/references/<domain>/` 同名（`<domain>` = `natal` / `divination` / `fengshui` / `naming`）；包内 `skills/<domain>/references/` 是按域前缀过滤的逐字节视图（保留平铺名、引用不改写；非平铺/跨域引用在生成器 fail-closed），领域卡只写本体系知识、`app/` 承载场景与跨体系合参。`agents/<domain>/agent.yaml` 与 `profiles/<domain>.json`（四份，各 profile 单根树）必须同步为同一套领域；natal 的 `sub_agents: [bazi, ziwei]`（task 模式）与 `agents/bazi|ziwei/` 一并同步。
+- **单一聚合专家**：`expert-packs/liki/` 与 `skills/liki/references/` 全量镜像（单包，不分域子包）；`agents/liki/agent.yaml` 与 `profiles/liki.json` 是唯一部署配置。领域路由由 `references/<域>-ENTRY.md` 承载，不需要子代理。
 - **卡写作约定（`scripts/check_docs.py` + `tests/test_unified_skill_structure.py` 钉住）**：
   方法论卡（`references/*-app-*.md`、`references/<域>-<体系>-*.md`）不带 frontmatter——卡的身份由平铺命名（域 / app / 体系段）与 `<域>-ENTRY.md` 路由表表达，元数据写在卡内没有消费方；
   `## 输出模板` 必须给模板体（代码块 / 列表 / 表），示例放 `### 示例` 之下；
   一条规则只在一处定义——域级公共口径进该域 `ENTRY.md` / `TOOLS.md`，跨体系合参进 `app/`，被专家包自包含逼出的同源双份（如 natal / naming 的用神优先序）用测试钉成同字；
   卡内只引工具字段名与工具名，不写实现内部数据文件名（`data/*.json`）；
   卡间互引统一平铺全路径 `references/<平铺名>.md`——裸名 / 旧嵌套 / 跨域 / 根级共享卡 / `scripts/` 依赖在生成器 fail-closed。
-- 专家身份的唯一手写源是包根 `expert-packs/liki-<domain>/SKILL.md`（元数据 + 角色正文，内部部署与市场包共用；`plugin.json` 的 `agents`/`agentName` 指向它本身）；域 `skills/<domain>/SKILL.md`（含方法论卡索引）与 `plugin.json` 元数据由 `scripts/sync_expert_packs.py` 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本；部署内子代理（bazi/ziwei）的身份文件是 `agents/<name>/<name>.md`，不进市场包。
+- 专家身份的唯一手写源是包根 `expert-packs/liki/SKILL.md`（元数据 + 角色正文，内部部署与市场包共用；`plugin.json` 的 `agents`/`agentName` 指向它本身）；域 `skills/liki/SKILL.md`（含方法论卡索引）与 `plugin.json` 元数据由 `scripts/sync_expert_packs.py` 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本。
 - `engine-mcp` 只做确定性排盘/历法/风水计算；`counsel-mcp` 只做因子、断语、起名和问卦判断。
 - 公开 `/engine` 与 `/counsel` 前缀由网关负责；两个服务内部只实现 `/mcp`。
 - 不恢复旧 Python CLI 或 JSON-RPC 发现/调用路径；历史评测资产已归档，迁移前不得进入 gate。
@@ -79,7 +79,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 | 重复 | 为什么保留 |
 | --- | --- |
-| `engine/**/zz_load_test.go`（13 个，除 `package` 行外逐字节相同） | Go 不能跨包共享 `TestMain`；抽成公共包会把 `testing` 带进非测试构建依赖。每个测试包各自 `Load()` 一次数据表。 |
+| `engine/**/zz_load_test.go`（12 个） | Go 不能跨包共享 `TestMain`；抽成公共包会把 `testing` 带进非测试构建依赖。9 个调自身 `Load()`，3 个调依赖包的 `Load()`（fengshui→luoshu、tianwen→ganzhi、http→tables）。 |
 | 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
 | 版本面 `skills/liki/VERSION.txt` | 唯一手写源；engine 与 counsel 在构建时注入，不再保留副本。 |
 | 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |

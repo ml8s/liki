@@ -6,11 +6,11 @@ RPCError = MCPError
 MAX_LIUNIAN_BATCH = 50
 
 def _bazi_chart(subject: dict) -> dict:
-    return call("bazi.chart", {"subject": subject})["data"]
+    return call("bazi_chart", {"subject": subject})["data"]
 
 
 def _ziwei_chart(subject: dict) -> dict:
-    return call("ziwei.chart", {"subject": subject})["data"]
+    return call("ziwei_chart", {"subject": subject})["data"]
 
 
 _SERIES_ROOTS = {
@@ -34,7 +34,7 @@ def time_now(timezone: str) -> dict:
     """引擎当前时间；timezone 必填。"""
     if not timezone:
         raise ValueError("timezone is required")
-    return call("time.now", {"timezone": timezone})["data"]
+    return call("time_now", {"timezone": timezone})["data"]
 
 
 def current_years(timezone: str) -> tuple[int, int]:

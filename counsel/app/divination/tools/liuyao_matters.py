@@ -4,6 +4,8 @@ import csv
 from functools import lru_cache
 from pathlib import Path
 
+from app.divination.tools.qimen_errors import TableError
+
 MATTERS_PATH = Path(__file__).with_name("data") / "liuyao_matters.csv"
 _MATTER_TABLE: dict[str, dict] | None = None
 
@@ -25,13 +27,13 @@ def load_matter_table() -> dict[str, dict]:
             male = (row.get("male_yong_shen") or "").strip()
             female = (row.get("female_yong_shen") or "").strip()
             if not matter or not name or not notes:
-                raise ValueError(f"liuyao matter row lacks required fields: {row}")
+                raise TableError(f"liuyao matter row lacks required fields: {row}")
             if requires and (not male or not female):
-                raise ValueError(f"liuyao matter {matter} lacks gender-specific yong_shen")
+                raise TableError(f"liuyao matter {matter} lacks gender-specific yong_shen")
             if not requires and (male or female):
-                raise ValueError(f"liuyao matter {matter} cannot declare gender-specific yong_shen")
+                raise TableError(f"liuyao matter {matter} cannot declare gender-specific yong_shen")
             if matter in result:
-                raise ValueError(f"duplicate liuyao matter: {matter}")
+                raise TableError(f"duplicate liuyao matter: {matter}")
             result[matter] = {
                 "name": name,
                 "yong_shen": default,
@@ -41,7 +43,7 @@ def load_matter_table() -> dict[str, dict]:
                 "notes": notes,
             }
     if not result:
-        raise ValueError("liuyao matter table is empty")
+        raise TableError("liuyao matter table is empty")
     _MATTER_TABLE = result
     return result
 

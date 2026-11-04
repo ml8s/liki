@@ -172,8 +172,7 @@ def _effective_retries(method: str, params: dict, retries: int) -> int:
     cannot tell whether the engine already cast a hexagram, so counsel must not
     silently cast another one. Explicit coins/yaos inputs remain retryable.
     """
-    tool = method.replace(".", "_")
-    if tool == "liuyao_qigua" and params.get("mode") == "auto":
+    if method == "liuyao_qigua" and params.get("mode") == "auto":
         return 0
     return retries
 
@@ -274,7 +273,7 @@ def _post(
 
 def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     """调用 engine MCP 工具；返回 {"data": <工具结果>}。"""
-    tool = method.replace(".", "_")
+    tool = method
     retries = _effective_retries(method, params, retries)
     result = _post("tools/call", tool, {"name": tool, "arguments": params}, retries)
     content = result.get("content") or []

@@ -13,9 +13,6 @@
 #   make image  本地镜像（tag 由 IMAGE_TAG 指定）
 #   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
 
-RELEASE_VERSION ?=
-export RELEASE_VERSION
-
 .DEFAULT_GOAL := help
 
 export GOCACHE ?= /tmp/gocache

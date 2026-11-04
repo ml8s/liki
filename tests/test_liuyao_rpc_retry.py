@@ -51,7 +51,7 @@ def test_auto_qigua_is_not_retried(monkeypatch):
     monkeypatch.setattr(client, "_HTTP_TRANSPORT", transport)
 
     with pytest.raises(MCPError, match="503"):
-        client.call("liuyao.qigua", {"mode": "auto"}, retries=2)
+        client.call("liuyao_qigua", {"mode": "auto"}, retries=2)
 
     assert len(requests) == 1
 
@@ -71,7 +71,7 @@ def test_explicit_coin_qigua_can_retry(monkeypatch):
     monkeypatch.setattr(client, "_HTTP_TRANSPORT", transport)
 
     result = client.call(
-        "liuyao.qigua",
+        "liuyao_qigua",
         {"mode": "coins", "rounds": [["正", "反", "反"]] * 6},
         retries=1,
     )

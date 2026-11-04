@@ -13,6 +13,8 @@ import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from app.natal.tools.errors import LikiToolError
+
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
 # -- 数据结构 ---------------------------------------------------------------
@@ -67,32 +69,32 @@ def _load_naming() -> None:
     with (DATA_DIR / "naming_characters.csv").open(encoding="utf-8", newline="") as fh:
         reader = csv.DictReader(fh)
         if reader.fieldnames is None or set(reader.fieldnames) != set(columns):
-            raise ValueError(
+            raise LikiToolError(
                 "naming_characters.csv columns mismatch; "
                 f"expected {sorted(columns)}, got {reader.fieldnames}"
             )
         for i, row in enumerate(reader, start=2):
             word = row["char"]
             if len(word) != 1:
-                raise ValueError(f"naming_characters.csv row {i}: invalid character {word!r}")
+                raise LikiToolError(f"naming_characters.csv row {i}: invalid character {word!r}")
             radical = row["radical"] if row["radical"] != "NULL" else ""
             stroke = int(row["stroke"])
             if stroke <= 0:
-                raise ValueError(f"naming_characters.csv row {i}: invalid stroke for {word!r}")
+                raise LikiToolError(f"naming_characters.csv row {i}: invalid stroke for {word!r}")
             tone = int(row["tone"])
             if not 1 <= tone <= 5:
-                raise ValueError(f"naming_characters.csv row {i}: invalid tone for {word!r}")
+                raise LikiToolError(f"naming_characters.csv row {i}: invalid tone for {word!r}")
             pinyin = row["pinyin"].strip()
             if not pinyin:
-                raise ValueError(f"naming_characters.csv row {i}: missing pinyin for {word!r}")
+                raise LikiToolError(f"naming_characters.csv row {i}: missing pinyin for {word!r}")
             frequency = row["frequency"]
             if frequency not in ("common", "standard", "rare"):
-                raise ValueError(f"naming_characters.csv row {i}: invalid frequency {frequency!r}")
+                raise LikiToolError(f"naming_characters.csv row {i}: invalid frequency {frequency!r}")
             element = wuxing_from_chinese(row["wuxing"])
             if not element:
-                raise ValueError(f"naming_characters.csv row {i}: missing naming element for {word!r}")
+                raise LikiToolError(f"naming_characters.csv row {i}: missing naming element for {word!r}")
             if word in _char_by_char:
-                raise ValueError(f"naming_characters.csv row {i}: duplicate character {word!r}")
+                raise LikiToolError(f"naming_characters.csv row {i}: duplicate character {word!r}")
             _char_by_char[word] = Character(
                 char=word, frequency=frequency, element=element,
                 stroke=stroke, radical=radical, pinyin=pinyin, tone=tone,
@@ -105,9 +107,9 @@ def _load_naming() -> None:
         if not excluded:
             continue
         if len(excluded) != 1 or excluded not in _char_by_char:
-            raise ValueError(f"negative_chars.txt line {line_no}: unknown character {excluded!r}")
+            raise LikiToolError(f"negative_chars.txt line {line_no}: unknown character {excluded!r}")
         if excluded in _negative_chars:
-            raise ValueError(f"negative_chars.txt line {line_no}: duplicate character {excluded!r}")
+            raise LikiToolError(f"negative_chars.txt line {line_no}: duplicate character {excluded!r}")
         _negative_chars.add(excluded)
 
     naming_chars = [c for c in _char_by_char.values() if c.char not in _negative_chars]
@@ -126,18 +128,18 @@ def _load_surnames() -> None:
             pinyin = row["pinyin"].strip()
             plain = fold_latin(row["plain_pinyin"])
             if not surname or not pinyin or not plain:
-                raise ValueError(f"surnames.csv row {line_no}: empty surname or pinyin")
+                raise LikiToolError(f"surnames.csv row {line_no}: empty surname or pinyin")
             if not 1 <= len(surname) <= 2:
-                raise ValueError(f"surnames.csv row {line_no}: invalid surname {surname!r}")
+                raise LikiToolError(f"surnames.csv row {line_no}: invalid surname {surname!r}")
             if " " in plain or not is_latin_lower(plain):
-                raise ValueError(f"surnames.csv row {line_no}: invalid plain pinyin {plain!r}")
+                raise LikiToolError(f"surnames.csv row {line_no}: invalid plain pinyin {plain!r}")
             if tone_from_pinyin(pinyin) == 5:
-                raise ValueError(f"surnames.csv row {line_no}: pinyin {pinyin!r} must contain a tone mark")
+                raise LikiToolError(f"surnames.csv row {line_no}: pinyin {pinyin!r} must contain a tone mark")
             idx = int(row["baijiaxing_index"])
             if idx != line_no - 1 or idx > 504:
-                raise ValueError(f"surnames.csv row {line_no}: invalid baijiaxing index")
+                raise LikiToolError(f"surnames.csv row {line_no}: invalid baijiaxing index")
             if idx in seen_indexes:
-                raise ValueError(f"surnames.csv row {line_no}: duplicate baijiaxing index {idx}")
+                raise LikiToolError(f"surnames.csv row {line_no}: duplicate baijiaxing index {idx}")
             seen_indexes.add(idx)
             aliases: list[str] = []
             for alias in row["aliases"].split(","):
@@ -145,7 +147,7 @@ def _load_surnames() -> None:
                 if not alias:
                     continue
                 if not is_latin_lower(alias) or " " in alias or alias == plain or alias in aliases:
-                    raise ValueError(f"surnames.csv row {line_no}: invalid alias {alias!r}")
+                    raise LikiToolError(f"surnames.csv row {line_no}: invalid alias {alias!r}")
                 aliases.append(alias)
             if surname in seen_surnames:
                 continue
@@ -181,7 +183,7 @@ def _normalize_selected_yongshen(selected_yongshen: object) -> dict:
         try:
             raw_selected_yongshen = selected_yongshen.model_dump()
         except AttributeError as error:
-            raise ValueError("selected_yongshen must be an object") from error
+            raise LikiToolError("selected_yongshen must be an object") from error
     if not isinstance(raw_selected_yongshen, dict):
         raise ValueError("selected_yongshen must be an object")
 
@@ -200,15 +202,15 @@ def _normalize_selected_yongshen(selected_yongshen: object) -> dict:
     for role in ("xi", "ji"):
         elements = raw.get(role) or []
         if not isinstance(elements, list):
-            raise ValueError(f"selected_yongshen.selected.{role} must be an array")
+            raise LikiToolError(f"selected_yongshen.selected.{role} must be an array")
         for element in elements:
             normalized_element = wuxing_from_chinese(element)
             if not normalized_element:
-                raise ValueError(
+                raise LikiToolError(
                     f"invalid selected_yongshen.selected.{role} {element!r}"
                 )
             if normalized_element in assigned:
-                raise ValueError(
+                raise LikiToolError(
                     f"五行 {normalized_element} 同时属于 "
                     f"{assigned[normalized_element]} 和 {role} 角色"
                 )
@@ -239,7 +241,7 @@ def pick_chars_by_selected_yongshen(
         raise ValueError("naming_pick 只支持 yong/xi 角色")
     if second_role is None:
         if first_role != "yong":
-            raise ValueError("单名 first_role 只能是 yong")
+            raise LikiToolError("单名 first_role 只能是 yong")
     elif "yong" not in (first_role, second_role):
         raise ValueError("双名至少一个字位必须是 yong")
 
@@ -247,7 +249,7 @@ def pick_chars_by_selected_yongshen(
         for element in _pick_role_elements(normalized_plan, role):
             chars = _char_by_element.get(element, [])
             if not chars:
-                raise ValueError(f"no characters available for wuxing {element!r}")
+                raise LikiToolError(f"no characters available for wuxing {element!r}")
             result["pools"].append({
                 "char_position": char_position,
                 "role": role,
@@ -334,7 +336,7 @@ def _reject_duplicates(char_position: str, chars: list) -> None:
     seen: set[str] = set()
     for char in chars:
         if char in seen:
-            raise ValueError(f"{char_position} contains duplicate character {char!r}")
+            raise LikiToolError(f"{char_position} contains duplicate character {char!r}")
         seen.add(char)
 
 
@@ -372,18 +374,18 @@ def _normalize_constraints(constraints: object) -> dict:
         try:
             raw = constraints.model_dump()
         except AttributeError as error:
-            raise ValueError("constraints must be an object") from error
+            raise LikiToolError("constraints must be an object") from error
     if not isinstance(raw, dict):
         raise ValueError("constraints must be an object")
 
     def normalize_list(field: str) -> set[str]:
         values = raw.get(field) or []
         if not isinstance(values, list):
-            raise ValueError(f"constraints.{field} must be an array")
+            raise LikiToolError(f"constraints.{field} must be an array")
         result: set[str] = set()
         for value in values:
             if not isinstance(value, str) or len(value) != 1:
-                raise ValueError(f"invalid constraints.{field} {value!r}")
+                raise LikiToolError(f"invalid constraints.{field} {value!r}")
             result.add(value)
         return result
 

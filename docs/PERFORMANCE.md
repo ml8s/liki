@@ -19,8 +19,8 @@ make bench-engine-1cpu
   paths produce the same accept/reject result.
 - Large-domain JSON that is already locked by wire-fidelity fixtures can use a
   typed raw projection instead of a domain→DTO→JSON round trip.
-- Successful tool results default to structured-only output. `compat` mode is
-  retained for legacy clients that still read duplicate `TextContent`.
+- Successful tool results are structured-only output (`structuredContent`).
+  The duplicated text payload was removed as a size optimization.
 - Published output schemas are checked against actual JSON by contract tests.
 - Production calls do not perform a reflective output-schema validation pass.
 - Tool registration is lazy, and all schemas are materialized concurrently

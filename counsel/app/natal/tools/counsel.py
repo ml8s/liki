@@ -52,17 +52,17 @@ def bazi_yongshen(subject: dict) -> dict:
     return published_yongshen(resolve_yongshen(bazi, source_digest))
 
 
-def _selected_yongshen(natal_chart: dict) -> dict:
-    return published_yongshen(resolve_yongshen(
-        natal_chart["bazi"], sha256_json(natal_chart["bazi"]),
-    ))
+def _selected_yongshen(natal_chart: dict, bazi_digest: str | None = None) -> dict:
+    digest = bazi_digest if bazi_digest is not None else sha256_json(natal_chart["bazi"])
+    return published_yongshen(resolve_yongshen(natal_chart["bazi"], digest))
 
 
 def _factor_snapshots(subject: dict) -> dict[str, dict]:
     """Internal subject -> canonical charts -> both technique factor snapshots."""
     natal_chart = _build_natal_chart(subject)
     gender = natal_chart["subject"]["gender"]
-    selected_yongshen = _selected_yongshen(natal_chart)
+    bazi_digest = sha256_json(natal_chart["bazi"])
+    selected_yongshen = _selected_yongshen(natal_chart, bazi_digest)
     snapshots: dict[str, dict] = {}
     for technique, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
         factor_snapshot = {

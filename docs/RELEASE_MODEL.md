@@ -61,7 +61,6 @@ Surfaces carrying the projection: `skills/liki/SKILL.md`, `expert-packs/*/SKILL.
 | Skill package metadata | `skills/liki/SKILL.md` frontmatter `version`（平台必填字段，顶层；写投影值） |
 | Expert package metadata | `expert-packs/*/SKILL.md`, nested domain `SKILL.md`, and `.codebuddy-plugin/plugin.json`（写投影值） |
 | WorkBuddy connector metadata | `workbuddy/*-connector/connector-meta.json`（写投影值） |
-| Counsel projection contracts | `counsel/app/*/tools/*_projection_contract.json` |
 | Deployment profiles | `profiles/*.json` |
 | Root and counsel package metadata | `pyproject.toml`, `counsel/pyproject.toml` |
 

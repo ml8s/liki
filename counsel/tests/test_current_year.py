@@ -24,17 +24,17 @@ def _date(gt):
 
 def _fake_call(cst):
     def call(name, params):
-        if name == "time.now":
+        if name == "time_now":
             return {"data": {
                 "local_standard_time": cst + "T12:00:00+08:00",
                 "offset": 28800,
             }}
         gt = params["start_time"]
-        if name == "bazi.chart":
+        if name == "bazi_chart":
             year = BAZI[_date(gt)]
             gan, zhi = GZ[year]
             return {"data": {"nian": {"gan": gan, "zhi": zhi}, "birth_year": int(gt[:4])}}
-        if name == "ziwei.chart":
+        if name == "ziwei_chart":
             return {"data": {"birth_year": LUNAR[_date(gt)]}}
         if name == "bazi_liupan":
             year = BAZI[_date(gt)]

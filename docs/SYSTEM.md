@@ -7,7 +7,9 @@
 ```text
 浏览器 → Caddy → liki-web (BFF)
                    └─AG-UI→ liki-agent-runtime（装配镜像）
-                              └─MCP→ engine-mcp / counsel-mcp
+                              └─MCP→ liki-mcp（网关）
+                                       ├─→ engine-mcp
+                                       └─→ counsel-mcp
 ```
 
 Liki 只有一个生产专家：`liki`。`natal`、`divination`、`naming`、`fengshui` 是专家内部的领域路由和方法论组织，不是独立 Agent 或产品域。

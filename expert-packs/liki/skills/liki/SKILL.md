@@ -4,7 +4,7 @@ description: Liki 专业命理师覆盖八字、紫微、六爻、奇门、黄�
 metadata:
   display_name: Liki 命理师
   display_name_en: Liki Fortune Master
-  version: 2026.1101.3
+  version: 2026.1104.0
   author: Liki
 ---
 
@@ -34,7 +34,7 @@ metadata:
 ## 执行循环
 
 1. 按上表进入领域 ENTRY，缺参时按 ⛔ / 💬 规则确认。
-2. 通过 MCP 获取排盘、判断或事实：成功读 `structuredContent` 并把命盘、快照和 digest 原样传给下游工具；失败读 `isError` 与错误文本，按 FAQ 修正参数后重试。
+2. 通过 MCP 获取排盘、判断或事实：成功读取工具返回的结构化数据，把命盘、快照和 digest 原样传给下游工具；失败读错误文本，按 FAQ 修正参数后重试。
 3. 读取对应方法论卡解释工具结果。
 4. 按「输出契约」给出结论、依据和边界。
 

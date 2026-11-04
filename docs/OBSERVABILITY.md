@@ -58,6 +58,16 @@ Never use raw paths, query strings, IDs, or user input as labels.
 
 ## Service tool metrics
 
+### liki-mcp
+
+```text
+liki_upstream_requests_total
+```
+
+The gateway exposes a Prometheus-compatible `/metrics` endpoint. Upstream
+request counters follow the `liki_upstream_requests` naming convention. The
+gateway is a thin passthrough and does not instrument per-tool outcomes.
+
 ### engine
 
 ```text

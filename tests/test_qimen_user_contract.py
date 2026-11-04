@@ -46,7 +46,7 @@ def test_qimen_card_guides_matter_selection() -> None:
 
 def test_quarter_domain_defers_public_axes_to_schema() -> None:
     text = QUARTER.read_text(encoding="utf-8")
-    assert "可选方法与边界参数以 engine MCP 契约 为准" in text
+    assert "可选方法与边界参数以 MCP 契约 为准" in text
     for name in ("base_dingju_method", "dun_source", "hour_boundary"):
         assert name not in text
     assert "Horosa" not in text

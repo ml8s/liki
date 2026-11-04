@@ -120,7 +120,7 @@ Babies and teenagers skip calibration; the provided hour is used as given.
 
 ### Does it need internet?
 
-By default, yes — the two aggregate MCP servers (`counsel-mcp` and `engine-mcp`) declared in `.mcp.json` perform judgment and chart casting. Clients with embedded MCP declaration support connect automatically. The single aggregate expert does not mount its own endpoints; it declares a dependency on those two aggregate connectors, so connecting once on summon covers all domains.
+By default, yes — `.mcp.json` declares one aggregate gateway `liki-mcp`, which routes whitelisted tools to the internal chart and judgment engines. Clients with embedded MCP declaration support connect automatically. The single aggregate expert does not mount its own endpoints; connecting once covers all domains.
 
 ### Is my birth data stored?
 

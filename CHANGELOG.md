@@ -1,8 +1,32 @@
 # Changelog
 
+## [2026.11.04.0] — 2026-11-04
+
+### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
+- **MCP 统一网关**：Skill `.mcp.json` 从双连接器（counsel-mcp + engine-mcp）合并为单网关 liki-mcp；暴露面由 `expose.json` 白名单控制。底层 engine/counsel 端点保留为内部服务，skill 不感知。
+- **RPC 命名统一**：counsel→engine 内部调用从 dotted name（`bazi.chart`）迁移为 MCP snake_case 工具名（`bazi_chart`）；删除 `method.replace(".", "_")` 映射层。
+- **错误层级统一**：`qimen_errors.TableError` 从 `Exception` 改为继承 `LikiToolError(ValueError)`；naming.py / liuyao_matters.py 数据加载错误统一到 `LikiToolError` / `TableError` 层级。
+
+### Improvements
+
+- **chart_schema Pydantic 化**：`natal/tools/chart_schema.py` 从 107 行手写结构检查重写为 Pydantic `NatalChartModel`（含宫位顺布 + 大限唯一性 model_validator），保留 `validate_natal_chart_digest` 不变。
+- **Counsel digest 缓存**：`_factor_snapshots` 中 bazi SHA-256 只计算一次并通过参数传递给 `_selected_yongshen`，消除重复哈希（~68µs/次）。
+- **Counsel 启动预热**：lifespan 新增 `_prewarm_caches()` best-effort 加载 11 张只读数据表（~7.6ms），首次请求不再触发懒加载。
+- **Skill 语言精减**：SKILL.md description 删除英文重复和同义词堆叠（-30% 字符）；统一"自省"为"MCP 自省"、"digest/完整性摘要"为"digest"、"契约"为"工具 schema"；修复错别字。
+- **Skill MCP 解耦**：75 张方法论卡零 MCP 协议概念泄漏；`structuredContent`/`isError`/内部服务名/工具字段名从 skill 全部移除。
+- **Skill 负面约束精减**：删除 schema 冗余类负面指令（不做日期换算 / 不得混用异侧因子 / 不在本侧代裁 / 不替代八字用神裁决），正面化改写吉凶列证和交互步骤描述。
+- **Skill 输出示例补齐**：`divination-app-question.md` 和 `natal-app-calibration.md` 补充 `### 示例` 段。
+- **Makefile 清理**：删除死变量 `RELEASE_VERSION`。
+- **文档同步**：RUNTIME.md 补齐 liki-mcp env 表（`LIKI_MCP_SERVER_NAME/TITLE/BIND_PORT`）和 healthz/readyz 描述；SYSTEM.md 架构图加入 liki-mcp 网关层；OBSERVABILITY.md 补充 gateway metrics；RELEASE_MODEL.md 移除不存在的 projection contract 版本面；USER_GUIDE 修正 `.mcp.json` 描述（单网关）；DOMAIN_NAMING.md 补充 liki-mcp；CONTRIBUTING.md 修正 zz_load_test.go 计数（13→12）和多域架构描述→单聚合专家；PERFORMANCE.md 修正 compat mode→structured-only。
+
 ## [2026.11.01.3] — 2026-11-01
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - **Digest 边界减法**：删除 `*_fullchart`、series、bond 输出上的 `source_chart_digest` / `a_chart_digest` / `b_chart_digest`。服务端编排内派生结果的请求关联由编排层负责；只有会由 LLM 原样传回 MCP input 的 artifact 保留防伪造 digest。
 - **Counsel 编排同步减法**：删除对 engine fullchart/series 派生输出的来源 digest 复核；入参 chart 的 `chart_digest` 校验保留。
@@ -11,6 +35,8 @@
 ## [2026.11.01.2] — 2026-11-01
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - **可复用 chart 身份统一**：`bazi_chart`、`ziwei_chart`、`xuankong_chart` 返回 canonical `chart_digest`；fullchart、series、bond 输出携带来源 chart digest。消费端对缺失或被篡改的 chart fail closed。
 - **series count 语义标准化**：省略 `count` 表示 1；有效范围收敛为 `1..50`，显式 `0` 不再等价于单项。
@@ -28,6 +54,8 @@
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - **naming_check 支持用户字面约束**：新增可选 `forbidden_chars` 与 `required_chars`；候选名命中禁止字或缺失必含字时 `valid=false`，错误码分别为 `forbidden_character` 和 `required_character_missing`。
 - **六爻快照焦点 schema 化**：`liuyao_snapshot` 的 `matter / yong_shen / perspective` 收敛为 `focus` discriminated union；`matter` 焦点内表达 relationship 的 `perspective`，显式用神使用 `yong_shen` 焦点。
 - **奇门快照地点与焦点 schema 化**：`qimen_snapshot` 的 `city / longitude` 收敛为 `location` union，`matter / yong_shen` 收敛为 `focus` union；普通盘缺少焦点、金函携带焦点等组合继续 fail closed。
@@ -42,6 +70,8 @@
 ## [2026.11.01.0] — 2026-11-01
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - **MCP 收敛为两个 aggregate 端点**：engine 与 counsel 仅保留 `/mcp`，删除 `/mcp/{domain}` 分域端点；counsel 内部 engine client 不再按工具前缀改写 URL。单专家通过 skill 文档渐进读取方法论，工具面保持全量自省。
 - **起名契约直接复用八字用神计划**：`naming_pick` 与 `naming_check` 接收可选/必选的 `selected_yongshen` 八字裁决对象；工具只消费 `selected.yong / xi / ji` 与 `status`，`selected.source` 从八字输出中移除。`naming_pick` 改用 `first_role / second_role` 表达用+用、用+喜、喜+用；`naming_check` 对每个字返回 `wuxing_role=yong/xi/ji/neutral`。`naming_compose` 输入改为 `first_chars/second_chars`；姓氏候选输出将 `match_level` 改为 closed enum `match_kind`，并显式发布 `tone` 与 `baijiaxing_index`。
@@ -63,6 +93,8 @@
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - **八字 `selected_yongshen` 移除 `selected.confidence / selected.known_fields`**：policy 不再生成置信度标签；消费方改用 `status` 判断可消费性，用 `conflicts` 说明复核原因，用 `evidence` 承载裁决依据。MCP output schema、evaluator、policy、skill 文档与测试同步移除这些字段。
 - **六爻 / 奇门移除伪置信度与伪排序输出**：`engine.liuyao_chart.timing_candidates[].confidence`、`counsel.liuyao_snapshot.timing_plan.candidates[].priority / rank_score / rank`、`counsel.liuyao_query.output.confidence`、`counsel.qimen_query.output.confidence` 全部移除。数组保留 policy 顺序；消费方使用 `basis / window / horizon / required_check / conflicts / evidence` 判断候选。
 - **safety_advisory 移除 `blocking / severity`**：安全提示使用 `status / category / support_first / message / guidance`；`support_first` 已表达是否优先提供现实支持。
@@ -83,6 +115,8 @@
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - **natal 部署拓扑收敛为单 agent**：原「chat 编排根 + bazi/ziwei 两个 task 子代理」合并为一个 chat agent，部署工件不再含子代理；子代理身份文件（agents/bazi、agents/ziwei）退役。
 - **域边界机制变更**：委派义务不再由「根无排盘工具」强制，改为工具白名单显式排除表 + 精确集合测试。
 
@@ -97,6 +131,8 @@
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - **MCP 出参根统一为 object**：≤2025-11-25 协议的 wire 模型拒绝非 object 根的 `outputSchema`，顶层 union/array 会让标准 SDK 客户端（experts runtime）的整个 `tools/list` 失败。series 工具（流年 / 流月 / 流日 / 流时 / 小运 / 玄空流年）恒返回 `{items: [...]}`，单项即长度 1 数组；`ziwei_daxian`、`huangli_days` 列表收入 `items`；`naming_char` 可空语义移入字段级 `character`；`naming_check` 列表收入 `evaluations`。输入契约不变：排盘与历法工具继续只消费 `standard_time`（RFC3339 known-offset）与 `longitude`，civil wall time 经 `tianwen.resolve` 解析，`time_now` 输出 `standard_time`，六爻 / 奇门快照的 `birth_standard_time` 语义保持。
 - **工具调用成功响应统一为 structured-only**：engine 删除 `LIKI_ENGINE_MCP_RESULT_CONTENT` 的 compat 模式，成功结果只在 `structuredContent`，`content` 恒为空数组；工具失败仍以 `isError` + 文本内容返回。counsel adapter 同步 structured-only，engine client 严格要求 `structuredContent`，浏览器前端只读 `structuredContent`。
 
@@ -109,6 +145,8 @@
 ## [2026.10.27.0] — 2026-10-27
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - **公共时间模型迁移为 `standard_time + longitude`**：`tianwen.resolve` 成为 civil wall time、IANA timezone、DST fold/gap 与历史时制的唯一解析边界；排盘与流年 / 流月 / 流日 / 流时工具不再接受 `instant`、`civil_time`、`timezone`、`fold` 或裸日期，只消费 `standard_time`（以及需要真太阳时的 `longitude`）。`standard_time` 使用 RFC3339 known-offset 语义：`Z` 与 `+00:00`、`+08:00`、`-05:00` 均合法，`-00:00` 因表示 unknown local offset 而拒绝。offset 不是 IANA timezone identity，但会选择 standard / lunar / almanac 日期事实的本地标准表示；同一 instant 在不同 offset 下可以有不同本地日期。
 - **`time_now` 输出改为 `standard_time`**：删除旧 `instant` / `timezone` 输出。调用方需要 civil wall time 时先通过 `tianwen.resolve` 解析，再把候选中的 `standard_time` 传给排盘工具。
@@ -759,6 +797,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - Skill 包不再携带 `.cmd` 启动器；Windows 统一执行 `py -3 -X utf8 <domain>/tools/agent_cli.py`，fallback `python -X utf8 ...`。
 
 ### Changes
@@ -771,6 +811,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 ## [2026.09.17.2] — README entry docs and package-safe VERSION.txt
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - Skill 分发版本文件从 `VERSION` 改为 `VERSION.txt`；本地启动检查、远程版本 URL、打包器和部署同步全部切换到新文件名。
 - 无后缀 `VERSION` 不再进入 Skill 包；打包器检测到旧文件时 fail closed。
@@ -832,6 +874,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - 四个旧 skill 已合并为唯一 `liki` skill；安装与更新统一为 `npx skills add ml8s/liki -y`。
 - `divination` 高风险主题不再返回 blocked payload；snapshot / answer / 择日结果继续生成，并附带 `safety_advisory`。
 - 六爻、奇门、黄历契约加入 `safety_advisory` 并升级 schema 版本，旧 blocked 契约移除。
@@ -848,6 +892,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 ## [2026.09.15.6] — unify four skills into one Liki skill
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - `liki-bazi`、`liki-divination`、`liki-fengshui`、`liki-naming` 合并为唯一可安装 skill `liki`。
 - 分发产物改为 `dist/liki.tar.gz`；`dist/index.json` 只包含 `liki`。
@@ -883,6 +929,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - `ziwei.chart` 对不存在的农历日期、不存在闰月和超出月末日期 fail closed，不再返回非法命盘。
 - `ziwei.liuri` / `ziwei.liushi` 改用完整 `target_lunar{year,month,day,leap}`，可正确表达闰月。
 - `feedback-v1` 删除客户端 `problem.dedup_hash`；去重指纹由后端基于 `meta.session_hash` 和问题内容计算。
@@ -909,6 +957,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 ## [2026.09.14.1] — 紫微亮度校准与流月周期契约
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - Skill 运行要求 engine >= `2026.09.12.2`；低版本会 fail closed。
 - 问卦 skill 显式声明 `jsonschema>=4,<5`；缺失时 fail closed，不再静默跳过契约校验。
@@ -1083,6 +1133,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 
 ### Breaking changes
 
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 - 新增 `qiming.surname`；外国人起名中的中国姓只能来自 engine 受控《百家姓》候选，LLM 不得自行音译。
 - 姓氏候选输出结构化匹配依据和传统《百家姓》序号；解释由 LLM 基于结构化事实生成，无音近时显式使用 `baijiaxing_fallback`。
 - `qiming.surname` 候选只输出确定性事实；fallback 只由 `strategy` / `match_level` 表达。
@@ -1099,6 +1151,8 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 ## [2026.09.10.1] — 命理原子事实与流年策略下沉
 
 ### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
 
 - Skill 运行要求 engine >= `2026.09.10.1`；低版本会 fail closed。
 - `liuyao.qigua` 只返回 `{ casting }`，不再返回顶层 `yaos` / `dong_yao`。

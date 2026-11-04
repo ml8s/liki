@@ -47,7 +47,7 @@ def _reset_year_cache() -> None:
 
 def _year_call(cst: str):
     def fake(name, params):
-        if name == "time.now":
+        if name == "time_now":
             return {"data": {
                 "local_standard_time": cst + "T12:00:00+08:00", "offset_seconds": 28800,
             }}
@@ -60,7 +60,7 @@ def _year_call(cst: str):
 
 
 def _time_now_calls(call_mock) -> int:
-    return sum(1 for c in call_mock.call_args_list if c.args and c.args[0] == "time.now")
+    return sum(1 for c in call_mock.call_args_list if c.args and c.args[0] == "time_now")
 
 
 def test_current_year_caches_success_within_ttl() -> None:
