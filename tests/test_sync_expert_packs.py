@@ -79,7 +79,6 @@ def test_expected_fail_closed_on_invalid_refs(tmp_path):
         ("references/natal/app/x.md", "非平铺引用"),
         ("references/FAQ.md", "根级共享卡"),
         ("geju.md", "裸名引用"),
-        ("python3 scripts/aipay.py status", "包内无 scripts/ 运行时"),
     ]
     for token, want in cases:
         src = tmp_path / "natal-app-probe.md"

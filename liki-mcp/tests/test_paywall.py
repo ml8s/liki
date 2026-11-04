@@ -83,10 +83,10 @@ class TestOrderStore:
         store.create_pending("ORDER_2", "subject_candidates")
         store.mark_paid("ORDER_2", "TRADE_1")
         result = store.prepare_fulfillment("ORDER_2")
-        assert result["state"] in ("PENDING_CONFIRM", "FULFILLED")
+        assert result.state in ("PENDING_CONFIRM", "FULFILLED")
         store.mark_fulfilled("ORDER_2", "TRADE_1")
         result2 = store.prepare_fulfillment("ORDER_2")
-        assert result2["state"] == "FULFILLED"
+        assert result2.state == "FULFILLED"
 
     def test_unique_constraint(self, tmp_path):
         store = OrderStore(str(tmp_path / "test.db"))
@@ -137,7 +137,8 @@ class TestPaymentService:
 
         with patch.object(service, "_store") as mock_store, \
              patch.object(service, "confirm_fulfillment", return_value=True):
-            mock_store.prepare_fulfillment.return_value = {"state": "PENDING_CONFIRM"}
+            from app.order_store import FulfillmentResult
+            mock_store.prepare_fulfillment.return_value = FulfillmentResult(state="PENDING_CONFIRM")
             mock_store.mark_fulfilled.return_value = None
 
             result = service.check_and_process("subject_candidates", "proof-token")

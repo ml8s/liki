@@ -26,6 +26,12 @@ class Order:
     tool_name: str
 
 
+@dataclass(frozen=True)
+class FulfillmentResult:
+    state: str
+    order: Order | None = None
+
+
 class OrderStore:
     """订单聚合根仓库。A2M demo 要求的四个端口方法。"""
 
@@ -81,19 +87,19 @@ class OrderStore:
                 (trade_no, OrderState.PAID, out_trade_no),
             )
 
-    def prepare_fulfillment(self, out_trade_no: str) -> dict:
+    def prepare_fulfillment(self, out_trade_no: str) -> FulfillmentResult:
         """原子校验订单并标记 PENDING_CONFIRM；返回履约上下文。"""
         order = self.find_by_out_trade_no(out_trade_no)
         if order is None:
-            return {"state": "NOT_FOUND"}
+            return FulfillmentResult(state="NOT_FOUND")
         if order.state == OrderState.FULFILLED:
-            return {"state": "FULFILLED", "order": order}
+            return FulfillmentResult(state="FULFILLED", order=order)
         with self._connect() as conn:
             conn.execute(
                 "UPDATE aipay_orders SET state = ?, updated_at = datetime('now') WHERE out_trade_no = ? AND state = ?",
                 (OrderState.PAID, out_trade_no, OrderState.PENDING_PAYMENT),
             )
-        return {"state": "PENDING_CONFIRM", "order": order}
+        return FulfillmentResult(state="PENDING_CONFIRM", order=order)
 
     def mark_fulfilled(self, out_trade_no: str, trade_no: str) -> None:
         with self._connect() as conn:

@@ -13,7 +13,7 @@
 文件）：先用 `inkscape -T` 把字转成正体轮廓路径，再按目标字高归一化居中，于是矢量源
 里不出现 `<text>`、字体或 `dominant-baseline`——市场宿主的渲染字体不可控，取字必须
 落在路径上（栅格化门见 `scripts/build-workbuddy-avatars.sh`，`make check` 侧见
-`scripts/check_expert_docs.py` 与 `scripts/check_workbuddy_connectors.py`）。
+`scripts/check_expert_docs.py`）。
 
     python3 scripts/gen_brand_marks.py    # 重写六份矢量源（幂等）
     make brand-marks                      # 再栅格化头像 PNG（图标按规范直接交 SVG）

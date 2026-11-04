@@ -195,7 +195,7 @@ class PaymentService:
 
         fulfillment = self._store.prepare_fulfillment(verify.out_trade_no or "")
 
-        if fulfillment.get("state") == "FULFILLED":
+        if fulfillment.state == "FULFILLED":
             return None  # 幂等：已履约，直接透传
 
         if not self.confirm_fulfillment(verify.trade_no or ""):
