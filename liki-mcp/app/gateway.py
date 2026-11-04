@@ -62,7 +62,6 @@ def _jsonrpc_error(request_id: Any, code: int, message: str) -> JSONResponse:
 async def _upstream_tools_list(
     config: GatewayConfig,
     upstream_name: str,
-    request_id: int,
 ) -> list[dict[str, Any]]:
     """Return every paginated tool descriptor exposed by one upstream."""
     upstream_config = getattr(config, upstream_name)
@@ -89,8 +88,8 @@ async def _upstream_tools_list(
 
 
 async def _load_visible_tools(config: GatewayConfig) -> list[dict[str, Any]]:
-    engine_tools = await _upstream_tools_list(config, "engine", 1)
-    counsel_tools = await _upstream_tools_list(config, "counsel", 1000)
+    engine_tools = await _upstream_tools_list(config, "engine")
+    counsel_tools = await _upstream_tools_list(config, "counsel")
     tools_by_name: dict[str, dict[str, Any]] = {}
 
     for upstream_name, tools in (

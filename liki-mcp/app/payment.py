@@ -43,7 +43,7 @@ class PaywallResponse:
 
     @classmethod
     def payment_required(cls, body: dict[str, Any]) -> "PaywallResponse":
-        return cls(status_code=402, headers={"Content-Type": "application/json", "Payment-Needed": "true"}, body=body)
+        return cls(status_code=402, headers={"Content-Type": "application/json"}, body=body)
 
     @classmethod
     def processing_error(cls, code: str, message: str) -> "PaywallResponse":
