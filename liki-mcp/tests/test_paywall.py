@@ -81,7 +81,7 @@ class TestOrderStore:
     def test_fulfillment_idempotent(self, tmp_path):
         store = OrderStore(str(tmp_path / "test.db"))
         store.create_pending("ORDER_2", "subject_candidates")
-        store.mark_paid("ORDER_2", "TRADE_1")
+        store.prepare_fulfillment("ORDER_2")  # transitions PENDING_PAYMENT → PAID
         result = store.prepare_fulfillment("ORDER_2")
         assert result.state in ("PENDING_CONFIRM", "FULFILLED")
         store.mark_fulfilled("ORDER_2", "TRADE_1")
@@ -110,15 +110,15 @@ class TestPaymentService:
         return PaymentService(config, store)
 
     def test_free_tool_returns_none(self, service):
-        result = service.check_and_process("time_now", None)
+        result = service.enforce_paywall("time_now", None)
         assert result is None
 
     def test_disabled_paywall_returns_none(self, disabled_service):
-        result = disabled_service.check_and_process("subject_candidates", None)
+        result = disabled_service.enforce_paywall("subject_candidates", None)
         assert result is None
 
     def test_paid_tool_no_proof_returns_402(self, service):
-        result = service.check_and_process("subject_candidates", None)
+        result = service.enforce_paywall("subject_candidates", None)
         assert result is not None
         assert result.status_code == 402
         assert "Payment-Needed" in result.headers
@@ -141,7 +141,7 @@ class TestPaymentService:
             mock_store.prepare_fulfillment.return_value = FulfillmentResult(state="PENDING_CONFIRM")
             mock_store.mark_fulfilled.return_value = None
 
-            result = service.check_and_process("subject_candidates", "proof-token")
+            result = service.enforce_paywall("subject_candidates", "proof-token")
             assert result is None  # Payment passed, should continue to upstream
 
     def test_402_body_structure(self, service):

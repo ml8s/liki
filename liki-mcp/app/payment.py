@@ -1,6 +1,9 @@
 """SkillPay A2M 按量付费领域服务。
 
-严格按官方 A2MPaymentDemo.md 协议：
+公共 API：PaymentService, PaywallResponse, VerifyResult。
+支付宝 SDK 类在方法内懒加载；未安装时 import 不报错。
+
+协议严格按官方 A2MPaymentDemo.md：
 1. 无 Payment-Proof → 建单返回 402 + Payment-Needed
 2. 有 Payment-Proof → SDK 验付 → 履约确认 → 返回结果
 签名/验签由 alipay-sdk-python DefaultAlipayClient 自动处理。
@@ -32,10 +35,19 @@ class VerifyResult:
 
 
 @dataclass(frozen=True)
-class PaymentRequiredResponse:
+class PaywallResponse:
+    """HTTP 响应（402 或 502），gateway 直接返回给调用方。"""
     status_code: int
     headers: dict[str, str]
     body: dict[str, Any]
+
+    @classmethod
+    def payment_required(cls, body: dict[str, Any]) -> "PaywallResponse":
+        return cls(status_code=402, headers={"Content-Type": "application/json", "Payment-Needed": "true"}, body=body)
+
+    @classmethod
+    def processing_error(cls, code: str, message: str) -> "PaywallResponse":
+        return cls(status_code=502, headers={"Content-Type": "application/json"}, body={"code": code, "message": message})
 
 
 class PaymentService:
@@ -63,7 +75,7 @@ class PaymentService:
         client_config.sign_type = "RSA2"
         return DefaultAlipayClient(client_config)
 
-    def build_402_response(self, tool_name: str) -> PaymentRequiredResponse:
+    def build_402_response(self, tool_name: str) -> PaywallResponse:
         """无凭证时：建单并返回 402 + Payment-Needed 响应。"""
         out_trade_no = (
             f"LIKI_{int(time.time() * 1000)}_{uuid.uuid4().hex[:12]}"
@@ -96,13 +108,11 @@ class PaymentService:
             "goods_name": goods_name,
         }
 
-        return PaymentRequiredResponse(
-            status_code=402,
-            headers={
-                "Payment-Needed": payment_needed,
-                "Content-Type": "application/json",
-            },
-            body=body,
+        response = PaywallResponse.payment_required(body)
+        return PaywallResponse(
+            status_code=response.status_code,
+            headers={**response.headers, "Payment-Needed": payment_needed},
+            body=response.body,
         )
 
     def verify_proof(self, proof: str) -> VerifyResult:
@@ -169,12 +179,12 @@ class PaymentService:
         except Exception:
             return False
 
-    def check_and_process(
+    def enforce_paywall(
         self, tool_name: str, proof: str | None
-    ) -> PaymentRequiredResponse | None:
+    ) -> PaywallResponse | None:
         """入口：检查付费工具的支付状态。
 
-        返回 PaymentRequiredResponse 表示需要支付（调用方应返回 402）。
+        返回 PaywallResponse 表示需要支付（调用方应返回 402）。
         返回 None 表示支付通过（或工具免费），可继续透传 upstream。
         """
         if not self._config.enabled:
@@ -187,11 +197,7 @@ class PaymentService:
 
         verify = self.verify_proof(proof)
         if not verify.ok:
-            return PaymentRequiredResponse(
-                status_code=502,
-                headers={"Content-Type": "application/json"},
-                body={"code": "VERIFY_FAILED", "message": verify.error},
-            )
+            return PaywallResponse.processing_error("VERIFY_FAILED", verify.error or "unknown")
 
         fulfillment = self._store.prepare_fulfillment(verify.out_trade_no or "")
 
@@ -199,11 +205,7 @@ class PaymentService:
             return None  # 幂等：已履约，直接透传
 
         if not self.confirm_fulfillment(verify.trade_no or ""):
-            return PaymentRequiredResponse(
-                status_code=502,
-                headers={"Content-Type": "application/json"},
-                body={"code": "CONFIRM_FAILED", "message": "履约确认失败，请重试"},
-            )
+            return PaywallResponse.processing_error("CONFIRM_FAILED", "履约确认失败，请重试")
 
         self._store.mark_fulfilled(
             verify.out_trade_no or "", verify.trade_no or ""

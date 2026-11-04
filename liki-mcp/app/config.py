@@ -112,10 +112,26 @@ class AipayConfig:
 
 
 def _load_aipay_config() -> AipayConfig:
-    """从环境变量读取 SkillPay 配置；enabled=false 时其余字段可为空。"""
+    """从环境变量读取 SkillPay 配置；enabled=true 时必填字段缺失即 fail-fast。"""
     enabled = _env("LIKI_PAYWALL_ENABLED", "false").lower() == "true"
     paid_tools_raw = _env("ALIPAY_PAID_TOOLS", "subject_candidates")
     paid_tools = frozenset(t.strip() for t in paid_tools_raw.split(",") if t.strip())
+
+    if enabled:
+        missing = [
+            var for var, val in (
+                ("ALIPAY_APP_ID", _env("ALIPAY_APP_ID", "")),
+                ("ALIPAY_PRIVATE_KEY", _env("ALIPAY_PRIVATE_KEY", "")),
+                ("ALIPAY_PUBLIC_KEY", _env("ALIPAY_PUBLIC_KEY", "")),
+                ("ALIPAY_SELLER_ID", _env("ALIPAY_SELLER_ID", "")),
+                ("ALIPAY_SERVICE_ID", _env("ALIPAY_SERVICE_ID", "")),
+            ) if not val.strip()
+        ]
+        if missing:
+            raise ValueError(
+                f"LIKI_PAYWALL_ENABLED=true 但缺少必需配置: {', '.join(missing)}"
+            )
+
     return AipayConfig(
         enabled=enabled,
         app_id=_env("ALIPAY_APP_ID", ""),

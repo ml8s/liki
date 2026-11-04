@@ -249,7 +249,7 @@ async def mcp_endpoint(request: Request) -> Response:
         if tool_name:
             proof = request.headers.get("Payment-Proof")
             payment_service = _get_payment_service(config)
-            payment_result = payment_service.check_and_process(tool_name, proof)
+            payment_result = payment_service.enforce_paywall(tool_name, proof)
             if payment_result is not None:
                 return JSONResponse(
                     payment_result.body,
