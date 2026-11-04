@@ -63,5 +63,6 @@
       "prompt": "帮我起名",
       "zh": "起名"
     }
-  ]
+  ],
+  "dependencies": {}
 }
