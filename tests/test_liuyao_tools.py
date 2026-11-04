@@ -31,7 +31,7 @@ def test_qigua_sends_original_coins_to_engine(monkeypatch):
     monkeypatch.setattr("app.divination.tools.liuyao_casting.engine_data", engine)
     rounds = [["正", "反", "反"]] * 6
     assert qigua(mode="coins", rounds=rounds)["mode"] == "coins"
-    assert calls == [("liuyao.qigua", {"casting": {"mode": "coins", "rounds": rounds}})]
+    assert calls == [("liuyao_qigua", {"casting": {"mode": "coins", "rounds": rounds}})]
 
 
 def test_qigua_rejects_coin_conversion_inputs():
@@ -62,7 +62,7 @@ def test_board_sends_casting_and_resolved_yongshen_only(monkeypatch):
         matter="career",
         question="这次面试能不能通过",
     )
-    assert calls == [("liuyao.chart", {
+    assert calls == [("liuyao_chart", {
         "yong_shen": "官鬼",
         "qi_gua": {
             "qi_gua_time": "2026-10-01T10:00:00+08:00",

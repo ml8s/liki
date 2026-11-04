@@ -10,25 +10,25 @@ __all__ = [
 ]
 
 
-class LikiToolError(Exception):
+class LikiToolError(ValueError):
     """liki 工具层错误的公共基类。"""
 
 
-class ChartSchemaError(LikiToolError, ValueError):
+class ChartSchemaError(LikiToolError):
     """natal_chart 不是 build_natal_chart 返回的完整结构。"""
 
 
-class AssertionRuleError(LikiToolError, ValueError):
+class AssertionRuleError(LikiToolError):
     """断语域、规则别名或断语快照契约错误。"""
 
 
-class YearRangeError(LikiToolError, ValueError):
+class YearRangeError(LikiToolError):
     """流年范围、跨度或规则展开错误。"""
 
 
-class FactorEvaluateError(LikiToolError, ValueError):
+class FactorEvaluateError(LikiToolError):
     """因子表达式、算子或求值契约错误。"""
 
 
-class FactorTableError(LikiToolError, ValueError):
+class FactorTableError(LikiToolError):
     """因子长表结构、分组或引用错误。"""

@@ -327,7 +327,7 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
     requests = []
 
     def fake_engine_data(method: str, params: dict) -> dict:
-        assert method == "qimen.chart"
+        assert method == "qimen_chart"
         requests.append(params)
         return {}
 
@@ -363,7 +363,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 
     assert len(calls) == 1
     method, params = calls[0]
-    assert method == "qimen.chart"
+    assert method == "qimen_chart"
     assert "matter" not in params
     assert params["yong_shen"] == ["生门", "戊"]
     assert params["subject"]["birth_time"] == "1984-02-15T00:00:00+08:00"
@@ -490,7 +490,7 @@ def test_mcp_call_reports_malformed_engine_payload(monkeypatch) -> None:
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT",
                         lambda *_, **__: _FakeResp(b"not-json"))
     with pytest.raises(MCPError, match="无法解析 MCP 响应"):
-        engine_mcp_client.call("qimen.chart", {})
+        engine_mcp_client.call("qimen_chart", {})
 
 
 def test_mcp_call_reports_missing_structured_content(monkeypatch) -> None:
@@ -507,7 +507,7 @@ def test_mcp_call_reports_missing_structured_content(monkeypatch) -> None:
         lambda *_, **__: _FakeResp(_mcp_response(json.dumps(payload))),
     )
     with pytest.raises(MCPError, match="missing structuredContent"):
-        engine_mcp_client.call("qimen.chart", {})
+        engine_mcp_client.call("qimen_chart", {})
 
 
 def test_mcp_call_reports_missing_result(monkeypatch) -> None:
@@ -518,7 +518,7 @@ def test_mcp_call_reports_missing_result(monkeypatch) -> None:
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT",
                         lambda *_, **__: _FakeResp(_mcp_response('{"jsonrpc":"2.0","id":1,"result":{"content":[]}}')))
     with pytest.raises(MCPError):
-        engine_mcp_client.call("qimen.chart", {})
+        engine_mcp_client.call("qimen_chart", {})
 
 
 def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
@@ -535,7 +535,7 @@ def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
 
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
-    result = engine_mcp_client.call("qimen.chart", {})
+    result = engine_mcp_client.call("qimen_chart", {})
     assert result == {"data": {"ok": True}}
     assert calls == ["server-error", "ok"]
 
@@ -543,7 +543,7 @@ def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT",
                         lambda *_, **__: (_ for _ in ()).throw(client_error))
     with pytest.raises(MCPError, match="HTTP 403"):
-        engine_mcp_client.call("qimen.chart", {})
+        engine_mcp_client.call("qimen_chart", {})
 
 
 def test_mcp_call_prefers_structured_content(monkeypatch) -> None:
@@ -559,7 +559,7 @@ def test_mcp_call_prefers_structured_content(monkeypatch) -> None:
         engine_mcp_client, "_HTTP_TRANSPORT",
         lambda *_, **__: _FakeResp(_mcp_response(json.dumps(payload)))
     )
-    assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"structured": True}}
+    assert engine_mcp_client.call("qimen_chart", {}) == {"data": {"structured": True}}
 
 
 def test_mcp_keepalive_client_reuses_connection(monkeypatch) -> None:
@@ -596,7 +596,7 @@ def test_mcp_keepalive_client_reuses_connection(monkeypatch) -> None:
     monkeypatch.setattr(engine_mcp_client, "_new_connection", lambda _: connection)
     monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine.test/mcp")
     for _ in range(2):
-        assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"ok": True}}
+        assert engine_mcp_client.call("qimen_chart", {}) == {"data": {"ok": True}}
     assert calls == [connection, connection]
     assert not connection.closed
 
@@ -648,7 +648,7 @@ def test_mcp_keepalive_client_discards_broken_connection(monkeypatch) -> None:
     monkeypatch.setattr(engine_mcp_client.time, "sleep", lambda *_: None)
     monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine.test/mcp")
 
-    assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"ok": True}}
+    assert engine_mcp_client.call("qimen_chart", {}) == {"data": {"ok": True}}
 
     assert created[0].closed
     assert not created[1].closed
@@ -693,7 +693,7 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
 
     monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "https://dynamic.example/mcp")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
-    assert engine_mcp_client.call("qimen.chart", {"standard_time": "2026-01-01T08:00:00+08:00", "longitude": 116.4}) == {"data": {"ok": True}}
+    assert engine_mcp_client.call("qimen_chart", {"standard_time": "2026-01-01T08:00:00+08:00", "longitude": 116.4}) == {"data": {"ok": True}}
     assert seen == ["https://dynamic.example/mcp"]
 
 def test_engine_mcp_client_preserves_aggregate_endpoint(monkeypatch):

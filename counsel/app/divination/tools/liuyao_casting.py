@@ -38,7 +38,7 @@ def qigua(
             raise ValueError("yaos must contain exactly 6 values")
         params["casting"]["yaos"] = yaos
 
-    result = engine_data("liuyao.qigua", params)
+    result = engine_data("liuyao_qigua", params)
     casting = result.get("casting")
     if not isinstance(casting, dict):
         raise ValueError("engine returned liuyao.qigua without casting receipt")

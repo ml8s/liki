@@ -71,5 +71,5 @@ def qimen_chart(
     if symbols:
         params["yong_shen"] = symbols
 
-    chart = engine_data("qimen.chart", params)
+    chart = engine_data("qimen_chart", params)
     return {"matter": matter_fact, "chart": chart}
