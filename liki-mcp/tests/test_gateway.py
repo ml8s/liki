@@ -85,7 +85,6 @@ def test_tools_list_filters_raw_divination(monkeypatch):
     monkeypatch.setattr("app.gateway.upstream_session", fake_upstream_session)
     response = _call({"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}})
 
-    print(response.json())
     assert response.status_code == 200
     names = [tool["name"] for tool in response.json()["result"]["tools"]]
     assert names == [
@@ -125,7 +124,6 @@ def test_tools_call_routes_without_retry_or_schema_change(monkeypatch):
             return _call_tool_result({"assertions": []})
 
     async def fake_upstream_session(config, **kwargs):
-        print("entered fake", flush=True)
         yield FakeSession()
 
     fake_upstream_session = asynccontextmanager(fake_upstream_session)
@@ -139,7 +137,6 @@ def test_tools_call_routes_without_retry_or_schema_change(monkeypatch):
         "params": {"name": "natal_query", "arguments": arguments},
     })
 
-    print(response.json())
     assert response.status_code == 200
     assert calls == [("counsel", "natal_query", arguments)]
     assert response.json()["result"]["structuredContent"] == {"assertions": []}

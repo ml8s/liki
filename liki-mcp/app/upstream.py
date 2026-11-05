@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
 from typing import AsyncIterator
 
 from httpx2 import AsyncClient
@@ -11,16 +10,11 @@ from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 from mcp.types import Implementation
 
+from app.config import UpstreamConfig
+
 
 class UpstreamError(RuntimeError):
     """An internal MCP upstream request failed."""
-
-
-@dataclass(frozen=True)
-class UpstreamConfig:
-    name: str
-    url: str
-    timeout_seconds: float
 
 
 @asynccontextmanager
@@ -48,18 +42,3 @@ async def upstream_session(
             ) as session:
                 await session.initialize()
                 yield session
-
-
-@asynccontextmanager
-async def request(
-    *,
-    config: UpstreamConfig,
-    gateway_name: str,
-    gateway_version: str,
-) -> AsyncIterator[ClientSession]:
-    async with upstream_session(
-        config,
-        client_name=gateway_name,
-        client_version=gateway_version,
-    ) as session:
-        yield session

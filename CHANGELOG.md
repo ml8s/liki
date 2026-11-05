@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026.11.05.0] — 2026-11-05
+
+### Breaking changes
+
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+- **AI A2M 密钥边界**：LIKI-MCP 只接受 `ALIPAY_PRIVATE_KEY_PKCS1`，不再回退读取 Go web 使用的 `ALIPAY_PRIVATE_KEY`（PKCS#8）。启用付费墙时在配置加载阶段用官方 SDK 做本地签名探测，格式错误直接 fail-fast。
+- **沙箱资料显式化**：LIKI-MCP 不再隐式读取默认 `.alipay-sandbox.json`；只有显式设置 `LIKI_ALIPAY_SANDBOX_CONFIG` 时才加载沙箱资料。
+- **MCP 付费响应契约**：付费成功不再改写标准 `result.content` 或添加非标准 `mcpContent`；官方 A2M 证据只放在 HTTP body 顶层，`Payment-Validation` 继续放在响应头。
+- **暴露契约单一化**：LIKI-MCP 只读取随镜像打包的 `app/expose.json`，删除 `LIKI_EXPOSE_CONFIG` 覆写入口；订单校验改为只接受支付/履约状态的合法组合。
+
+### Improvements
+
+- **旧 Go A2M endpoint 退役**：删除 `liki-web/internal/aipay/`、`POST /api/aipay`、旧 A2M handler/store/client 及其部署密钥透传；AI 按量付费统一由 LIKI-MCP 402 + Payment-Proof + Payment-Validation 链路承载。
+- **支付代码减法**：`Payment-Proof` 单次解码；`Authorization` 移除重复凭证；免费/禁用路径返回 `None`，不再使用假 HTTP 响应哨兵；金额归一化收敛到 config 层；配置只加载一次；订单创建移除 `INSERT OR IGNORE` 回读；支付 SDK import 移入失败边界。
+- **密码学实现统一**：A2M seller bill 签名改用 `alipay-sdk-python` 的 `sign_with_rsa2`，移除业务代码对 `pycryptodome` 的直接依赖。
+- **部署密钥注释**：部署配置明确 PKCS#8 只给旧 Go web A2M、PKCS#1 只给 LIKI-MCP；服务价格同步为 9.9 元，KOL/Scout 分成默认值同步为 45%/15%。
+
 ## [2026.11.04.0] — 2026-11-04
 
 ### Breaking changes

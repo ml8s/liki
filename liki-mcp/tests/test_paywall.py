@@ -1,40 +1,21 @@
-"""SkillPay paywall integration tests.
-
-Tests the gateway paywall logic with mocked Alipay SDK.
-The alipay-sdk-python is not required to run these tests.
-"""
+"""AI 按量付费 A2M paywall tests with mocked Alipay SDK calls."""
 
 from __future__ import annotations
 
+import asyncio
+import base64
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from contextlib import asynccontextmanager
+from unittest.mock import MagicMock, patch
 
 import pytest
+from httpx2 import ASGITransport, AsyncClient
+from mcp.types import CallToolResult
 
 from app.config import AipayConfig, GatewayConfig, UpstreamConfig
-
-# Mock alipay SDK modules so tests run without the SDK installed.
-# The SDK is only needed in production when paywall is enabled.
-import sys
-from unittest.mock import MagicMock as _MM
-
-_alipay_modules = [
-    "alipay", "alipay.aop", "alipay.aop.api",
-    "alipay.aop.api.AlipayClientConfig",
-    "alipay.aop.api.DefaultAlipayClient",
-    "alipay.aop.api.domain",
-    "alipay.aop.api.domain.AlipayAipayAgentPaymentVerifyModel",
-    "alipay.aop.api.domain.AlipayAipayAgentFulfillmentConfirmModel",
-    "alipay.aop.api.request",
-    "alipay.aop.api.request.AlipayAipayAgentPaymentVerifyRequest",
-    "alipay.aop.api.request.AlipayAipayAgentFulfillmentConfirmRequest",
-]
-for _mod in _alipay_modules:
-    if _mod not in sys.modules:
-        sys.modules[_mod] = _MM()
-from app.order_store import OrderStore
+from app.gateway import create_app
+from app.order_store import OrderStore, PendingOrder
 from app.payment import PaymentService
-
 
 def _aipay_config(enabled: bool = True) -> AipayConfig:
     return AipayConfig(
@@ -44,11 +25,12 @@ def _aipay_config(enabled: bool = True) -> AipayConfig:
         alipay_public_key="test-pub-key",
         gateway="https://openapi-sandbox.dl.alipaydev.com/gateway.do",
         seller_id="2088test",
-        service_id="test-service",
-        amount="9.90",
+        service_id="api_mock_service_id",
+        amount="0.01",
         goods_name="Liki 命理服务",
         seller_name="Liki",
         paid_tools=frozenset({"subject_candidates"}),
+        db_path="/data/aipay.db",
     )
 
 
@@ -57,98 +39,289 @@ def _gateway_config(aipay: AipayConfig) -> GatewayConfig:
         server_name="liki-mcp",
         server_title="LIKI product MCP",
         server_version="0.1.0",
-        engine=UpstreamConfig(name="engine", url="http://engine:8081/mcp", timeout_seconds=35),
-        counsel=UpstreamConfig(name="counsel", url="http://counsel:8086/mcp", timeout_seconds=35),
-        exposed_tools={},
+        engine=UpstreamConfig(
+            name="engine",
+            url="http://engine:8081/mcp",
+            timeout_seconds=35,
+        ),
+        counsel=UpstreamConfig(
+            name="counsel",
+            url="http://counsel:8086/mcp",
+            timeout_seconds=35,
+        ),
+        exposed_tools={
+            "time_now": "engine",
+            "subject_candidates": "engine",
+        },
         forbidden_tools=frozenset(),
         aipay=aipay,
     )
 
 
+def _pending(service: PaymentService) -> str:
+    with patch("app.payment._seller_signature", return_value="seller-signature"):
+        response = service.build_402_response("subject_candidates")
+    assert response.status_code == 402
+    encoded = response.headers["Payment-Needed"]
+    bill = json.loads(base64.urlsafe_b64decode(encoded + "=="))
+    assert set(bill) == {"protocol", "method"}
+    assert bill["protocol"]["resource_id"] == "subject_candidates"
+    assert bill["method"]["service_id"] == "api_mock_service_id"
+    assert response.body["code"] == "Payment-Needed"
+    return encoded
+
+
+def _proof(out_trade_no: str, trade_no: str = "T123") -> str:
+    value = {
+        "protocol": {
+            "payment_proof": "inner-proof",
+            "trade_no": trade_no,
+        },
+        "method": {
+            "client_session": "session",
+        },
+    }
+    raw = base64.urlsafe_b64encode(json.dumps(value).encode()).rstrip(b"=")
+    return raw.decode()
+
+
+def _verify_response(
+    *,
+    out_trade_no: str,
+    trade_no: str = "T123",
+    amount: str = "0.01",
+    resource_id: str = "subject_candidates",
+    active: bool = True,
+) -> str:
+    return json.dumps({
+        "alipay_aipay_agent_payment_verify_response": {
+            "code": "10000",
+            "active": active,
+            "trade_no": trade_no,
+            "out_trade_no": out_trade_no,
+            "amount": amount,
+            "resource_id": resource_id,
+        }
+    })
+
+
 class TestOrderStore:
-    def test_create_and_find(self, tmp_path):
-        store = OrderStore(str(tmp_path / "test.db"))
-        store.create_pending("ORDER_1", "subject_candidates")
-        order = store.find_by_out_trade_no("ORDER_1")
+    def test_create_and_find_full_order_snapshot(self, tmp_path):
+        service = PaymentService(
+            _aipay_config(),
+            OrderStore(str(tmp_path / "aipay.db")),
+        )
+        _pending(service)
+        store = service._store
+        row = store._get_conn().execute(
+            "SELECT out_trade_no FROM aipay_orders"
+        ).fetchone()
+        order = store.find_by_out_trade_no(row[0])
         assert order is not None
-        assert order.out_trade_no == "ORDER_1"
-        assert order.tool_name == "subject_candidates"
+        assert order.amount == "0.01"
+        assert order.currency == "CNY"
+        assert order.fulfillment_state == "UNFULFILLED"
 
-    def test_find_nonexistent(self, tmp_path):
+    def test_fulfillment_is_atomic_and_idempotent(self, tmp_path):
         store = OrderStore(str(tmp_path / "test.db"))
-        assert store.find_by_out_trade_no("NOPE") is None
-
-    def test_fulfillment_idempotent(self, tmp_path):
-        store = OrderStore(str(tmp_path / "test.db"))
-        store.create_pending("ORDER_2", "subject_candidates")
-        store.prepare_fulfillment("ORDER_2")  # transitions PENDING_PAYMENT → PAID
-        result = store.prepare_fulfillment("ORDER_2")
-        assert result.state in ("PENDING_CONFIRM", "FULFILLED")
-        store.mark_fulfilled("ORDER_2", "TRADE_1")
-        result2 = store.prepare_fulfillment("ORDER_2")
-        assert result2.state == "FULFILLED"
-
-    def test_unique_constraint(self, tmp_path):
-        store = OrderStore(str(tmp_path / "test.db"))
-        store.create_pending("DUP", "subject_candidates")
-        store.create_pending("DUP", "subject_candidates")  # INSERT OR IGNORE
-        order = store.find_by_out_trade_no("DUP")
-        assert order is not None
+        store.create_pending(PendingOrder(
+            out_trade_no="ORDER_1",
+            tool_name="subject_candidates",
+            amount="0.01",
+            currency="CNY",
+            goods_name="Liki",
+            pay_before="2999-01-01T00:00:00+00:00",
+        ))
+        first = store.reserve_fulfillment("ORDER_1")
+        assert first.state == "PENDING_CONFIRM"
+        assert first.order is not None
+        assert first.order.state == "PAID"
+        assert first.order.fulfillment_state == "PENDING_CONFIRM"
+        again = store.reserve_fulfillment("ORDER_1")
+        assert again.state == "PENDING_CONFIRM"
+        store.mark_fulfilled("ORDER_1", "T123")
+        final = store.reserve_fulfillment("ORDER_1")
+        assert final.state == "FULFILLED"
 
 
 class TestPaymentService:
     @pytest.fixture
     def service(self, tmp_path):
-        config = _aipay_config()
-        store = OrderStore(str(tmp_path / "test.db"))
-        return PaymentService(config, store)
+        return PaymentService(
+            _aipay_config(),
+            OrderStore(str(tmp_path / "test.db")),
+        )
 
-    @pytest.fixture
-    def disabled_service(self, tmp_path):
-        config = _aipay_config(enabled=False)
-        store = OrderStore(str(tmp_path / "test.db"))
-        return PaymentService(config, store)
+    def test_disabled_paywall_allows_paid_tool(self, tmp_path):
+        service = PaymentService(
+            _aipay_config(enabled=False),
+            OrderStore(str(tmp_path / "test.db")),
+        )
+        assert service.authorize_paid_call("subject_candidates", None) is None
 
-    def test_free_tool_returns_none(self, service):
-        result = service.enforce_paywall("time_now", None)
-        assert result is None
+    def test_paid_tool_no_proof_returns_official_402(self, service):
+        with patch("app.payment._seller_signature", return_value="seller-signature"):
+            response = service.authorize_paid_call("subject_candidates", None)
+        assert response is not None
+        assert response.status_code == 402
+        encoded = response.headers["Payment-Needed"]
+        bill = json.loads(base64.urlsafe_b64decode(encoded + "=="))
+        required_protocol = {
+            "out_trade_no",
+            "amount",
+            "currency",
+            "resource_id",
+            "pay_before",
+            "seller_signature",
+            "seller_sign_type",
+            "seller_unique_id",
+        }
+        required_method = {
+            "seller_name",
+            "seller_id",
+            "seller_app_id",
+            "goods_name",
+            "seller_unique_id_key",
+            "service_id",
+        }
+        assert set(bill["protocol"]) == required_protocol
+        assert set(bill["method"]) == required_method
+        assert bill["method"]["service_id"] == "api_mock_service_id"
 
-    def test_disabled_paywall_returns_none(self, disabled_service):
-        result = disabled_service.enforce_paywall("subject_candidates", None)
-        assert result is None
+    def test_verify_and_fulfillment_strictly_bind_local_order(self, service):
+        _pending(service)
+        order = service._store._get_conn().execute(
+            "SELECT out_trade_no FROM aipay_orders"
+        ).fetchone()[0]
+        service._client = MagicMock()
+        service._client.execute.return_value = _verify_response(
+            out_trade_no=order,
+        )
+        proof = _proof(order)
 
-    def test_paid_tool_no_proof_returns_402(self, service):
-        result = service.enforce_paywall("subject_candidates", None)
-        assert result is not None
-        assert result.status_code == 402
-        assert "Payment-Needed" in result.headers
-        assert result.body["code"] == "PAYMENT_REQUIRED"
+        authorization = service.authorize_paid_call("subject_candidates", proof)
+        assert authorization.out_trade_no == order
+        assert authorization.resource_id == "subject_candidates"
 
-    def test_paid_tool_with_proof_verifies(self, service):
-        mock_client = MagicMock()
-        mock_client.execute.return_value = json.dumps({
-            "alipay_aipay_agent_payment_verify_response": {
-                "code": "10000",
-                "trade_no": "T123",
-                "out_trade_no": "ORDER_1",
-            }
-        })
-        service._client = mock_client
+        assert service.reserve_fulfillment(authorization) is None
+        with patch.object(service, "confirm_fulfillment", return_value=True):
+            validation = service.complete_fulfillment(authorization)
+        assert validation.header()
+        final = service._store.find_by_out_trade_no(order)
+        assert final is not None
+        assert final.fulfillment_state == "FULFILLED"
 
-        with patch.object(service, "_store") as mock_store, \
-             patch.object(service, "confirm_fulfillment", return_value=True):
-            from app.order_store import FulfillmentResult
-            mock_store.prepare_fulfillment.return_value = FulfillmentResult(state="PENDING_CONFIRM")
-            mock_store.mark_fulfilled.return_value = None
+    def test_mismatched_amount_is_rejected_with_402(self, service):
+        bill = _pending(service)
+        decoded = json.loads(base64.urlsafe_b64decode(bill + "=="))
+        order = decoded["protocol"]["out_trade_no"]
+        service._client = MagicMock()
+        service._client.execute.return_value = _verify_response(
+            out_trade_no=order,
+            amount="9.90",
+        )
+        with patch("app.payment._seller_signature", return_value="seller-signature"):
+            response = service.authorize_paid_call(
+                "subject_candidates",
+                _proof(order),
+            )
+        assert response is not None
+        assert response.status_code == 402
 
-            result = service.enforce_paywall("subject_candidates", "proof-token")
-            assert result is None  # Payment passed, should continue to upstream
 
-    def test_402_body_structure(self, service):
-        result = service.build_402_response("subject_candidates")
-        assert result.status_code == 402
-        assert "Payment-Needed" in result.headers
-        body = result.body
-        assert body["code"] == "PAYMENT_REQUIRED"
-        assert "out_trade_no" in body
-        assert body["amount"] == "9.90"
+class TestGatewayPaywall:
+    def test_paid_call_retries_with_proof_and_payment_validation(
+        self,
+        tmp_path,
+        monkeypatch,
+    ):
+        config = _gateway_config(_aipay_config())
+        service = PaymentService(
+            config.aipay,
+            OrderStore(str(tmp_path / "gateway.db")),
+        )
+        _pending(service)
+        order = service._store._get_conn().execute(
+            "SELECT out_trade_no FROM aipay_orders"
+        ).fetchone()[0]
+        service._client = MagicMock()
+        service._client.execute.return_value = _verify_response(
+            out_trade_no=order,
+        )
+        proof = _proof(order)
+
+        import app.gateway as gateway_module
+        monkeypatch.setattr(gateway_module, "load_config", lambda: config)
+        monkeypatch.setattr(gateway_module, "_payment_service", service)
+        monkeypatch.setattr(gateway_module, "_payment_config", config.aipay)
+
+        class FakeSession:
+            async def call_tool(self, name, arguments=None):
+                return CallToolResult(
+                    content=[],
+                    structuredContent={"candidates": []},
+                )
+
+        @asynccontextmanager
+        async def fake_upstream_session(upstream_config, **kwargs):
+            yield FakeSession()
+
+        monkeypatch.setattr(gateway_module, "upstream_session", fake_upstream_session)
+        with patch.object(service, "confirm_fulfillment", return_value=True):
+            async def run():
+                app = create_app()
+                async with AsyncClient(
+                    transport=ASGITransport(app=app),
+                    base_url="http://test",
+                ) as client:
+                    return await client.post(
+                        "/mcp",
+                        json={
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "tools/call",
+                            "params": {
+                                "name": "subject_candidates",
+                                "arguments": {},
+                            },
+                        },
+                        headers={"Payment-Proof": proof},
+                    )
+
+            response = asyncio.run(run())
+
+        assert response.status_code == 200
+        assert "Payment-Validation" in response.headers
+        assert response.json()["result"]["structuredContent"] == {"candidates": []}
+        assert response.json()["result"]["content"] == []
+        assert "mcpContent" not in response.json()["result"]
+        assert response.json()["resource_id"] == "subject_candidates"
+        evidence = response.json()["content"]
+        assert evidence["resource_id"] == "subject_candidates"
+        assert evidence["content"] == {"candidates": []}
+        final = service._store.find_by_out_trade_no(order)
+        assert final is not None
+        assert final.fulfillment_state == "FULFILLED"
+
+    def test_batch_with_paid_tool_is_fail_closed(self, monkeypatch):
+        config = _gateway_config(_aipay_config())
+        import app.gateway as gateway_module
+        monkeypatch.setattr(gateway_module, "load_config", lambda: config)
+        monkeypatch.setattr(gateway_module, "_payment_service", None)
+        monkeypatch.setattr(gateway_module, "_payment_config", config.aipay)
+
+        async def run():
+            app = create_app()
+            async with AsyncClient(
+                transport=ASGITransport(app=app),
+                base_url="http://test",
+            ) as client:
+                return await client.post("/mcp", json=[{
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "tools/call",
+                    "params": {"name": "subject_candidates", "arguments": {}},
+                }])
+
+        response = asyncio.run(run())
+        assert response.status_code == 400

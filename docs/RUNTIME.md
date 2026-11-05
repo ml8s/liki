@@ -22,7 +22,7 @@ Services must not depend on the public prefix. The gateway strips `/engine` or
 `/counsel` before proxying.
 
 `liki-mcp` is a separate image and process. Its container exposes
-`/mcp`, reads `LIKI_EXPOSE_CONFIG`, and routes only its configured product
+`/mcp`, reads its bundled `app/expose.json`, and routes only the configured product
 allowlist to internal ENGINE / COUNSEL endpoints. Keep ENGINE / COUNSEL
 endpoints off the public SKILL discovery declaration.
 
@@ -95,13 +95,12 @@ not rate-limit.
 | `LIKI_UPSTREAM_COUNSEL_URL` | `http://counsel-mcp:8086/mcp` | Internal COUNSEL MCP endpoint |
 | `LIKI_UPSTREAM_ENGINE_TIMEOUT_SECONDS` | `35` | ENGINE tools/call timeout |
 | `LIKI_UPSTREAM_COUNSEL_TIMEOUT_SECONDS` | `35` | COUNSEL tools/call timeout |
-| `LIKI_EXPOSE_CONFIG` | built-in `expose.json` | LIKI product allowlist |
 | `LIKI_VERSION` | `0.1.0` | Runtime version reported by LIKI gateway |
 | `LIKI_MCP_SERVER_NAME` | `liki-mcp` | Server name in MCP `initialize` response |
 | `LIKI_MCP_SERVER_TITLE` | `LIKI product MCP` | Server title in MCP `initialize` response |
-| `LIKI_PAYWALL_ENABLED` | `false` | Enable SkillPay paywall for paid tools |
+| `LIKI_PAYWALL_ENABLED` | `false` | Enable AI A2M paywall for paid tools |
 | `ALIPAY_APP_ID` | — | Alipay application ID (required when paywall enabled) |
-| `ALIPAY_PRIVATE_KEY` | — | Alipay application private key (PKCS#1) |
+| `ALIPAY_PRIVATE_KEY_PKCS1` | — | Alipay application private key for the Python SDK (PKCS#1) |
 | `ALIPAY_PUBLIC_KEY` | — | Alipay public key |
 | `ALIPAY_GATEWAY` | sandbox | Alipay gateway URL |
 | `ALIPAY_SELLER_ID` | — | Alipay seller ID (2088 format) |
@@ -109,6 +108,7 @@ not rate-limit.
 | `ALIPAY_AIPAY_AMOUNT` | `9.90` | Per-consultation fee in CNY |
 | `ALIPAY_PAID_TOOLS` | `subject_candidates` | Comma-separated paid tool names |
 | `LIKI_AIPAY_DB_PATH` | `/data/aipay.db` | SQLite order store path (mount volume in production) |
+| `LIKI_ALIPAY_SANDBOX_CONFIG` | unset | Optional absolute path to a local sandbox profile; never loaded implicitly |
 
 `GET /healthz` is gateway liveness. `GET /readyz` pings both upstream sessions
 (engine and counsel); if either is unreachable, it returns 503. `GET /metrics`

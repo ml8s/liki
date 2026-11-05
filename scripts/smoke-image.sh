@@ -108,7 +108,6 @@ smoke_liki_mcp() {
   local url="http://127.0.0.1:$LIKI_MCP_PORT/mcp"
   start_container "$name" \
     -e LIKI_BIND_HOST=0.0.0.0 \
-    -e LIKI_EXPOSE_CONFIG=/app/expose.json \
     -e LIKI_UPSTREAM_ENGINE_URL=http://127.0.0.1:9/mcp \
     -e LIKI_UPSTREAM_COUNSEL_URL=http://127.0.0.1:9/mcp \
     -p "$LIKI_MCP_PORT:8087" \

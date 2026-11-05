@@ -11,14 +11,14 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-__all__ = ["Order", "OrderState", "FulfillmentResult", "OrderStore"]
-
-
-_TRANSITIONS: dict[str, set[str]] = {
-    "PENDING_PAYMENT": {"PAID", "FULFILLED"},
-    "PAID": {"FULFILLED"},
-    "FULFILLED": set(),
-}
+__all__ = [
+    "Order",
+    "OrderState",
+    "FulfillmentState",
+    "FulfillmentResult",
+    "OrderStore",
+    "PendingOrder",
+]
 
 
 class OrderState(StrEnum):
@@ -26,8 +26,11 @@ class OrderState(StrEnum):
     PAID = "PAID"
     FULFILLED = "FULFILLED"
 
-    def can_transition_to(self, target: "OrderState") -> bool:
-        return target.value in _TRANSITIONS.get(self.value, set())
+
+class FulfillmentState(StrEnum):
+    UNFULFILLED = "UNFULFILLED"
+    PENDING_CONFIRM = "PENDING_CONFIRM"
+    FULFILLED = "FULFILLED"
 
 
 @dataclass(frozen=True)
@@ -36,6 +39,21 @@ class Order:
     trade_no: str | None
     state: OrderState
     tool_name: str
+    amount: str
+    currency: str
+    goods_name: str
+    pay_before: str
+    fulfillment_state: FulfillmentState
+
+
+@dataclass(frozen=True)
+class PendingOrder:
+    out_trade_no: str
+    tool_name: str
+    amount: str
+    currency: str
+    goods_name: str
+    pay_before: str
 
 
 @dataclass(frozen=True)
@@ -69,51 +87,135 @@ class OrderStore:
                 trade_no TEXT UNIQUE,
                 state TEXT NOT NULL,
                 tool_name TEXT NOT NULL,
+                amount TEXT NOT NULL DEFAULT '',
+                currency TEXT NOT NULL DEFAULT '',
+                goods_name TEXT NOT NULL DEFAULT '',
+                pay_before TEXT NOT NULL DEFAULT '',
+                fulfillment_state TEXT NOT NULL DEFAULT 'UNFULFILLED',
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 updated_at TEXT NOT NULL DEFAULT (datetime('now'))
             )
         """)
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(aipay_orders)")}
+        migrations = {
+            "amount": "ALTER TABLE aipay_orders ADD COLUMN amount TEXT NOT NULL DEFAULT ''",
+            "currency": "ALTER TABLE aipay_orders ADD COLUMN currency TEXT NOT NULL DEFAULT ''",
+            "goods_name": "ALTER TABLE aipay_orders ADD COLUMN goods_name TEXT NOT NULL DEFAULT ''",
+            "pay_before": "ALTER TABLE aipay_orders ADD COLUMN pay_before TEXT NOT NULL DEFAULT ''",
+            "fulfillment_state": (
+                "ALTER TABLE aipay_orders ADD COLUMN fulfillment_state "
+                "TEXT NOT NULL DEFAULT 'UNFULFILLED'"
+            ),
+        }
+        for name, statement in migrations.items():
+            if name not in columns:
+                conn.execute(statement)
         conn.commit()
 
-    def create_pending(self, out_trade_no: str, tool_name: str) -> Order:
+    def create_pending(self, order: PendingOrder) -> Order:
         conn = self._get_conn()
         conn.execute(
-            "INSERT OR IGNORE INTO aipay_orders (out_trade_no, state, tool_name) VALUES (?, ?, ?)",
-            (out_trade_no, OrderState.PENDING_PAYMENT, tool_name),
+            """
+            INSERT INTO aipay_orders
+                (out_trade_no, state, tool_name, amount, currency, goods_name,
+                 pay_before, fulfillment_state)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                order.out_trade_no,
+                OrderState.PENDING_PAYMENT,
+                order.tool_name,
+                order.amount,
+                order.currency,
+                order.goods_name,
+                order.pay_before,
+                FulfillmentState.UNFULFILLED,
+            ),
         )
         conn.commit()
-        return Order(out_trade_no=out_trade_no, trade_no=None,
-                     state=OrderState.PENDING_PAYMENT, tool_name=tool_name)
+        return self.find_by_out_trade_no(order.out_trade_no)
 
     def find_by_out_trade_no(self, out_trade_no: str) -> Order | None:
         row = self._get_conn().execute(
-            "SELECT out_trade_no, trade_no, state, tool_name FROM aipay_orders WHERE out_trade_no = ?",
+            """
+            SELECT out_trade_no, trade_no, state, tool_name, amount, currency,
+                   goods_name, pay_before, fulfillment_state
+            FROM aipay_orders
+            WHERE out_trade_no = ?
+            """,
             (out_trade_no,),
         ).fetchone()
         if row is None:
             return None
-        return Order(out_trade_no=row[0], trade_no=row[1],
-                     state=OrderState(row[2]), tool_name=row[3])
+        return Order(
+            out_trade_no=row[0],
+            trade_no=row[1],
+            state=OrderState(row[2]),
+            tool_name=row[3],
+            amount=row[4],
+            currency=row[5],
+            goods_name=row[6],
+            pay_before=row[7],
+            fulfillment_state=FulfillmentState(row[8]),
+        )
 
-    def prepare_fulfillment(self, out_trade_no: str) -> FulfillmentResult:
+    def reserve_fulfillment(self, out_trade_no: str) -> FulfillmentResult:
         order = self.find_by_out_trade_no(out_trade_no)
         if order is None:
             return FulfillmentResult(state="NOT_FOUND")
-        if order.state == OrderState.FULFILLED:
-            return FulfillmentResult(state="FULFILLED", order=order)
+
         conn = self._get_conn()
-        conn.execute(
-            "UPDATE aipay_orders SET state = ?, updated_at = datetime('now') WHERE out_trade_no = ? AND state = ?",
-            (OrderState.PAID, out_trade_no, OrderState.PENDING_PAYMENT),
+        cursor = conn.execute(
+            """
+            UPDATE aipay_orders
+               SET state = ?, fulfillment_state = ?, updated_at = datetime('now')
+             WHERE out_trade_no = ?
+               AND state IN (?, ?)
+               AND fulfillment_state = ?
+            """,
+            (
+                OrderState.PAID,
+                FulfillmentState.PENDING_CONFIRM,
+                out_trade_no,
+                OrderState.PENDING_PAYMENT,
+                OrderState.PAID,
+                FulfillmentState.UNFULFILLED,
+            ),
         )
         conn.commit()
-        return FulfillmentResult(state="PENDING_CONFIRM", order=order)
+        if cursor.rowcount == 1:
+            reserved = self.find_by_out_trade_no(out_trade_no)
+            return FulfillmentResult(
+                state="PENDING_CONFIRM",
+                order=reserved,
+            )
+
+        reread = self.find_by_out_trade_no(out_trade_no)
+        if reread is None:
+            return FulfillmentResult(state="NOT_FOUND")
+        if reread.fulfillment_state == FulfillmentState.PENDING_CONFIRM:
+            return FulfillmentResult(state="PENDING_CONFIRM", order=reread)
+        if reread.fulfillment_state == FulfillmentState.FULFILLED:
+            return FulfillmentResult(state="FULFILLED", order=reread)
+        return FulfillmentResult(state="INVALID_STATE", order=reread)
 
     def mark_fulfilled(self, out_trade_no: str, trade_no: str) -> None:
         conn = self._get_conn()
         conn.execute(
-            "UPDATE aipay_orders SET trade_no = ?, state = ?, updated_at = datetime('now') WHERE out_trade_no = ?",
-            (trade_no, OrderState.FULFILLED, out_trade_no),
+            """
+            UPDATE aipay_orders
+               SET trade_no = ?, state = ?, fulfillment_state = ?,
+                   updated_at = datetime('now')
+             WHERE out_trade_no = ?
+               AND fulfillment_state = ?
+            """,
+            (
+                trade_no,
+                OrderState.FULFILLED,
+                FulfillmentState.FULFILLED,
+                out_trade_no,
+                FulfillmentState.PENDING_CONFIRM,
+            ),
         )
         conn.commit()
 
