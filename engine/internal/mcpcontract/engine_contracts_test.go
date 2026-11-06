@@ -118,6 +118,9 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		if !slices.Contains(form.Required, "place_longitude") {
 			t.Fatalf("subject_candidates form must require longitude: %#v", form.Required)
 		}
+		if !slices.Contains(form.Required, "calendar_kind") {
+			t.Fatalf("subject_candidates form must require calendar kind: %#v", form.Required)
+		}
 		if form.AdditionalProperties == nil || *form.AdditionalProperties {
 			t.Fatalf("subject_candidates form must be closed: %#v", form.Required)
 		}

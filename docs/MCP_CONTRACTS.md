@@ -23,6 +23,7 @@ Birth/event wall-clock input is resolved once by `subject_candidates`:
 
 ```json
 {
+  "calendar_kind": "solar",
   "recorded_date": "1990-05-20",
   "recorded_time": "12:00",
   "record_timezone": "Asia/Shanghai",
@@ -44,8 +45,8 @@ a known offset. `Z` is valid UTC standard time; `-00:00` is rejected because
 RFC3339 defines it as an unknown local offset. The offset is not an IANA
 timezone identity, but it selects the local standard representation used by
 date facts. `timezone` is accepted only by `subject_candidates`; chart tools fail
-closed if it is present. Missing `longitude` fails closed when the tool needs
-LAST.
+closed if it is present. Wall-clock and lunar forms require `calendar_kind`
+(`solar` or `lunar`); missing longitude fails closed when the tool needs LAST.
 
 The per-domain projection matrix (solar-term event, standard date, local LAST)
 is defined in [TIME_MODEL.md](./TIME_MODEL.md).

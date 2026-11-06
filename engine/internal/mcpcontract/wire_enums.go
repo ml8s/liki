@@ -37,6 +37,7 @@ func registerWireNullableEnum[T ~string](options *jsonschema.ForOptions, values 
 
 func registerWireEnums(options *jsonschema.ForOptions) {
 	registerWireEnum[CalendarPeriodHalfName](options, "first", "second", "whole")
+	registerWireEnum[CalendarKindName](options, "solar", "lunar")
 	registerWireEnum[BaziLiupanScopeName](options, "liu_nian", "liu_yue", "liu_ri", "liu_shi", "xiao_yun")
 	registerWireEnum[CandidatesTypeName](options, "duty_door", "duty_star", "kong_wang", "ma_xing")
 	registerWireEnum[ChangShengStageName](options, "", "临官", "养", "冠带", "墓", "帝旺", "死", "沐浴", "病", "绝", "胎", "衰", "长生")

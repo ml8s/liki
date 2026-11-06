@@ -36,7 +36,7 @@ type TianwenSubjectCandidatesLongitudeRangeInput struct {
 // TianwenSubjectCandidatesInput is a time-fact normalization request. Exactly one of
 // recorded_time / recorded_shichen / recorded_time_range must be provided; recorded_date or recorded_lunar supplies the day.
 type TianwenSubjectCandidatesInput struct {
-	CalendarKind   string                              `json:"calendar_kind,omitempty" jsonschema:"壁钟形态必填：solar 或 lunar。"`
+	CalendarKind   CalendarKindName                    `json:"calendar_kind,omitempty" jsonschema:"壁钟形态必填：solar 或 lunar。"`
 	RecordedDate   string                              `json:"recorded_date,omitempty" jsonschema:"公历日期 YYYY-MM-DD（calendar 为 solar 时必填）。"`
 	RecordedLunar  *TianwenSubjectCandidatesLunarInput `json:"recorded_lunar,omitempty" jsonschema:"农历日期（calendar 为 lunar 时必填，含闰月标记 leap）。"`
 	RecordTimezone string                              `json:"record_timezone,omitempty" jsonschema:"记录时间所在时区（IANA）；壁钟/农历形态必填。"`
@@ -53,6 +53,7 @@ type TianwenSubjectCandidatesInput struct {
 // ── subject_candidates input variants (public oneOf) ──
 
 type TianwenDateTimeForm struct {
+	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
 	RecordedDate        string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
 	RecordedTime        string                                       `json:"recorded_time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）。"`
 	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
@@ -62,6 +63,7 @@ type TianwenDateTimeForm struct {
 }
 
 type TianwenLunarForm struct {
+	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
 	RecordedLunar       *TianwenSubjectCandidatesLunarInput          `json:"recorded_lunar" jsonschema:"农历日期（含闰月标记 leap）。"`
 	RecordedTime        string                                       `json:"recorded_time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS。"`
 	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
@@ -71,6 +73,7 @@ type TianwenLunarForm struct {
 }
 
 type TianwenShichenForm struct {
+	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
 	RecordedDate        string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
 	RecordedShichen     string                                       `json:"recorded_shichen" jsonschema:"已知时辰（真太阳时基，2 小时）。"`
 	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
@@ -80,6 +83,7 @@ type TianwenShichenForm struct {
 }
 
 type TianwenRangeForm struct {
+	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
 	RecordedDate        string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
 	RecordedTimeRange   *TianwenSubjectCandidatesRangeInput          `json:"recorded_time_range" jsonschema:"同日民用时间区间。"`
 	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
@@ -143,7 +147,7 @@ type TianwenSubjectCandidatesOutput struct {
 // TianwenResolve normalizes a time fact into candidates.
 func TianwenSubjectCandidates(_ context.Context, input TianwenSubjectCandidatesInput) (TianwenSubjectCandidatesOutput, error) {
 	in := tianwen.ResolveInput{
-		Calendar:  input.CalendarKind,
+		Calendar:  string(input.CalendarKind),
 		Date:      input.RecordedDate,
 		Timezone:  input.RecordTimezone,
 		Longitude: input.PlaceLongitude,

@@ -14,6 +14,7 @@ Birth/event resolution:
 
 ```json
 {
+  "calendar_kind": "solar",
   "recorded_date": "1990-05-20",
   "recorded_time": "12:00",
   "record_timezone": "Asia/Shanghai",
