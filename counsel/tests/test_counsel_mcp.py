@@ -73,7 +73,10 @@ async def _asgi_request(
                 (b"mcp-method", b"server/discover"),
             ]
         )
-    headers.extend(extra_headers or [])
+    extra_by_name = {name.lower(): value for name, value in extra_headers or []}
+    headers = [
+        (name, value) for name, value in headers if name not in extra_by_name
+    ] + list(extra_headers or [])
 
     messages = []
 
@@ -606,9 +609,14 @@ def test_counsel_mcp_is_public_without_locking_health():
     status, _raw = _http_request("/healthz", asgi_app=public_app)
     assert status == 200
 
-    async def authorized_request():
+
+def test_counsel_mcp_does_not_advertise_change_streams():
+    """A static tool image must not invite clients to open listen streams."""
+    public_app = _make_app()
+
+    async def request_all():
         async with public_app.router.lifespan_context(public_app):
-            return await _asgi_request(
+            discover = await _asgi_request(
                 "/mcp",
                 method="POST",
                 payload={
@@ -618,15 +626,47 @@ def test_counsel_mcp_is_public_without_locking_health():
                     "params": {
                         "_meta": {
                             "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                            "io.modelcontextprotocol/clientInfo": {"name": "test", "version": "1.0"},
                             "io.modelcontextprotocol/clientCapabilities": {},
                         }
                     },
                 },
                 asgi_app=public_app,
             )
+            listen_payload = {
+                "jsonrpc": "2.0",
+                "id": 2,
+                "method": "subscriptions/listen",
+                "params": {
+                    "notifications": {},
+                    "_meta": {
+                        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                        "io.modelcontextprotocol/clientInfo": {"name": "test", "version": "1.0"},
+                        "io.modelcontextprotocol/clientCapabilities": {},
+                    },
+                },
+            }
+            listen = await _asgi_request(
+                "/mcp",
+                method="POST",
+                payload=listen_payload,
+                asgi_app=public_app,
+                extra_headers=[(b"mcp-method", b"subscriptions/listen")],
+            )
+            get = await _asgi_request("/mcp", method="GET", asgi_app=public_app)
+            return discover, listen, get
 
-    status, _raw = asyncio.run(authorized_request())
-    assert status == 200
+    discover, listen, get = asyncio.run(request_all())
+    assert discover[0] == 200
+    capabilities = json.loads(discover[1])["result"]["capabilities"]
+    assert not capabilities.get("tools", {}).get("listChanged", False)
+    assert not capabilities.get("prompts", {}).get("listChanged", False)
+    assert not capabilities.get("resources", {}).get("listChanged", False)
+    assert not capabilities.get("resources", {}).get("subscribe", False)
+
+    assert listen[0] == 404
+    assert json.loads(listen[1])["error"]["code"] == -32601
+    assert get[0] == 405
 
 
 def test_engine_endpoint_requires_explicit_url(monkeypatch):

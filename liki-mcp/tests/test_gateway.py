@@ -168,3 +168,19 @@ def test_initialize_passthrough_identity(monkeypatch):
     result = response.json()["result"]
     assert result["protocolVersion"] == "2025-06-18"
     assert result["serverInfo"]["name"] == "liki-mcp"
+
+
+def test_unsupported_modern_method_is_transport_not_found():
+    response = _call({
+        "jsonrpc": "2.0",
+        "id": 9,
+        "method": "subscriptions/listen",
+        "params": {"notifications": {}},
+    })
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "error": {"code": -32601, "message": "method not found: subscriptions/listen"},
+    }

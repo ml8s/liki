@@ -12,6 +12,8 @@ import (
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+
+	apphttp "liki-engine/internal/http"
 )
 
 const testVersion = "test-version"
@@ -31,9 +33,9 @@ func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 		t.Fatalf("build MCP server: %v", err)
 	}
 
-	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+	ts := httptest.NewServer(apphttp.UnsupportedMethods(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
-	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}), "subscriptions/listen"))
 	t.Cleanup(ts.Close)
 
 	client := mcp.NewClient(&mcp.Implementation{Name: "engine-mcp-test", Version: "0.0.1"}, &mcp.ClientOptions{Logger: newTestLogger()})
@@ -299,9 +301,9 @@ func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
 	if err != nil {
 		t.Fatalf("build MCP server: %v", err)
 	}
-	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+	ts := httptest.NewServer(apphttp.UnsupportedMethods(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
-	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}), "subscriptions/listen"))
 	defer ts.Close()
 
 	initialize := `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}`
@@ -398,4 +400,86 @@ func TestAggregateServerExposesAllToolsAndEventHints(t *testing.T) {
 	if got := tools["time_now"].Annotations; got == nil || !got.IdempotentHint {
 		t.Fatal("time_now must be idempotent")
 	}
+}
+
+// Modern clients open subscriptions/listen only when the server advertises a
+// change stream. The engine tool set is immutable per image, so it must not
+// advertise one; if a client asks anyway, the transport rejects it with the
+// protocol-mandated 404 JSON-RPC method error.
+func TestStreamableHTTP_DoesNotAdvertiseChangeStreams(t *testing.T) {
+	srv, err := newMCPServer(testVersion, newTestLogger())
+	if err != nil {
+		t.Fatalf("build MCP server: %v", err)
+	}
+	ts := httptest.NewServer(apphttp.UnsupportedMethods(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+		return srv
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}), "subscriptions/listen"))
+	defer ts.Close()
+
+	meta := `"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28",` +
+		`"io.modelcontextprotocol/clientInfo":{"name":"test","version":"1.0"},` +
+		`"io.modelcontextprotocol/clientCapabilities":{}}`
+	discover := `{"jsonrpc":"2.0","id":1,"method":"server/discover","params":{` + meta + `}}`
+	body, status := postMCPJSON(t, ts, discover, "server/discover", "")
+	if status != http.StatusOK {
+		t.Fatalf("discover status=%d body=%s", status, body)
+	}
+	var document struct {
+		Result struct {
+			Capabilities struct {
+				Tools struct {
+					ListChanged bool `json:"listChanged"`
+				} `json:"tools"`
+			} `json:"capabilities"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal([]byte(body), &document); err != nil {
+		t.Fatalf("decode discover response %q: %v", body, err)
+	}
+	if document.Result.Capabilities.Tools.ListChanged {
+		t.Fatalf("discover advertised tool list changes: %s", body)
+	}
+
+	listen := `{"jsonrpc":"2.0","id":2,"method":"subscriptions/listen","params":{"notifications":{},` + meta + `}}`
+	body, status = postMCPJSON(t, ts, listen, "subscriptions/listen", "")
+	if status != http.StatusNotFound {
+		t.Fatalf("subscriptions/listen status=%d body=%s", status, body)
+	}
+	var errorDocument struct {
+		Error struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	if err := json.Unmarshal([]byte(body), &errorDocument); err != nil {
+		t.Fatalf("decode listen response %q: %v", body, err)
+	}
+	if errorDocument.Error.Code != -32601 {
+		t.Fatalf("subscriptions/listen error code=%d body=%s", errorDocument.Error.Code, body)
+	}
+}
+
+func postMCPJSON(t *testing.T, ts *httptest.Server, payload string, method string, name string) (string, int) {
+	t.Helper()
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/mcp", strings.NewReader(payload))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	req.Header.Set("MCP-Protocol-Version", "2026-07-28")
+	req.Header.Set("Mcp-Method", method)
+	if name != "" {
+		req.Header.Set("Mcp-Name", name)
+	}
+	res, err := ts.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = res.Body.Close() }()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(body), res.StatusCode
 }

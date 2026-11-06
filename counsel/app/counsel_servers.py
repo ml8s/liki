@@ -51,6 +51,10 @@ def create_counsel_root_mcp() -> MCPServer:
         title="Liki Reading Engine",
         description="断语引擎：八字/紫微本命、起名、六爻与奇门能力聚合。",
         version=RUNTIME_VERSION,
+        # Counsel tools are immutable per image and this stateless process does
+        # not publish change events. A false-valued subscription bus keeps the
+        # SDK from advertising listChanged or accepting listen streams.
+        subscriptions=False,
     )
     _add_natal_tools(server)
     _add_naming_tools(server)

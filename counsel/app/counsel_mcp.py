@@ -117,6 +117,35 @@ def _make_app():
             media_type="text/plain; version=0.0.4; charset=utf-8",
         )
 
+    class MCPRoute:
+        """ASGI route that rejects unneeded listener streams at the boundary."""
+
+        async def __call__(self, scope, receive, send):
+            method = next(
+                (
+                    value.decode("latin-1")
+                    for name, value in scope.get("headers") or []
+                    if name == b"mcp-method"
+                ),
+                "",
+            )
+            if method == "subscriptions/listen":
+                await JSONResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "error": {
+                            "code": -32601,
+                            "message": "method not found: subscriptions/listen",
+                        },
+                    },
+                    status_code=404,
+                )(scope, receive, send)
+                return
+            await root_app(scope, receive, send)
+
+    mcp_endpoint = MCPRoute()
+
     @asynccontextmanager
     async def lifespan(_app):
         if not os.environ.get("LIKI_ENGINE_MCP_URL", "").strip():
@@ -133,7 +162,10 @@ def _make_app():
             Route("/healthz", healthz, methods=["GET"]),
             Route("/readyz", readyz, methods=["GET"]),
             Route("/metrics", metrics, methods=["GET"]),
-            Route("/mcp", root_app),
+            # MCP 2026 has no standalone GET stream. Keep the SDK's POST
+            # endpoint from accepting legacy GET probes that would open an
+            # unusable stateless SSE response.
+            Route("/mcp", mcp_endpoint, methods=["POST"]),
         ],
         lifespan=lifespan,
         middleware=[

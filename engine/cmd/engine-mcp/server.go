@@ -41,6 +41,13 @@ func newMCPServer(version string, logger *slog.Logger) (*mcp.Server, error) {
 		// era is 2025-11-25; advertising only 2026 made the SDK return that
 		// handshake fallback and then reject its required header on the next call.
 		SupportedProtocolVersions: []string{"2025-11-25", "2026-07-28"},
+		// The deterministic tool set is immutable for the life of an image.
+		// Advertising listChanged makes modern clients open a long-lived
+		// subscriptions/listen stream, which this stateless surface does not
+		// need and cannot keep alive behind its request timeout.
+		Capabilities: &mcp.ServerCapabilities{
+			Tools: &mcp.ToolCapabilities{},
+		},
 	}
 	s := mcp.NewServer(impl, opts)
 

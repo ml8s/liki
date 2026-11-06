@@ -1,6 +1,9 @@
 package http
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -108,6 +111,51 @@ func Recover(next http.Handler) http.Handler {
 func BodyLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+		next.ServeHTTP(w, r)
+	})
+}
+
+// UnsupportedMethods rejects protocol methods that this stateless server does
+// not implement. MCP 2026 requires the JSON-RPC method error to ride on HTTP
+// 404, rather than letting the SDK turn a listener into an idle SSE stream.
+func UnsupportedMethods(next http.Handler, methods ...string) http.Handler {
+	rejected := make(map[string]bool, len(methods))
+	for _, method := range methods {
+		rejected[method] = true
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "unable to read request", http.StatusBadRequest)
+			return
+		}
+		_ = r.Body.Close()
+		r.Body = io.NopCloser(bytes.NewReader(body))
+
+		var envelope struct {
+			ID     any    `json:"id"`
+			Method string `json:"method"`
+		}
+		_ = json.Unmarshal(body, &envelope)
+		if rejected[envelope.Method] {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			response, _ := json.Marshal(map[string]any{
+				"jsonrpc": "2.0",
+				"id":      envelope.ID,
+				"error": map[string]any{
+					"code":    -32601,
+					"message": "method not found: " + envelope.Method,
+				},
+			})
+			_, _ = w.Write(response)
+			return
+		}
 		next.ServeHTTP(w, r)
 	})
 }

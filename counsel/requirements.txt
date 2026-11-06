@@ -1,4 +1,4 @@
-mcp==2.2.0
+mcp==2.3.0
 anyio==4.15.1
 starlette==1.6.0
 pydantic==2.13.5

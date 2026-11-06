@@ -62,6 +62,13 @@ def _jsonrpc_error(request_id: Any, code: int, message: str) -> JSONResponse:
     })
 
 
+def _method_not_found(request_id: Any, method: str) -> JSONResponse:
+    """Answer an unsupported 2026 RPC with the transport's required status."""
+    response = _jsonrpc_error(request_id, -32601, f"method not found: {method}")
+    response.status_code = 404
+    return response
+
+
 async def _upstream_tools_list(
     config: GatewayConfig,
     upstream_name: str,
@@ -199,7 +206,7 @@ async def _handle_request(
     if method == "tools/call":
         return await _handle_tools_call(config, request_id, params)
 
-    raise ProtocolError(-32601, f"method not found: {method}")
+    return _method_not_found(request_id, method)
 
 
 

@@ -73,7 +73,7 @@ func main() {
 	mux := http.NewServeMux()
 	// The aggregate endpoint is the canonical engine surface for the expert,
 	// counsel, local tests, and deployment.
-	mux.Handle("/mcp", apphttp.MetricsMiddleware("/mcp", mcpHandler))
+	mux.Handle("/mcp", apphttp.MetricsMiddleware("/mcp", apphttp.UnsupportedMethods(mcpHandler, "subscriptions/listen")))
 
 	mux.Handle("GET /health", apphttp.MetricsMiddleware("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

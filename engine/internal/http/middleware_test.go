@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -22,6 +23,60 @@ func TestRecover_Panic(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("status = %d, want 500", w.Code)
+	}
+}
+
+func TestUnsupportedMethods_ReturnsTransportNotFound(t *testing.T) {
+	var forwarded bool
+	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		forwarded = true
+	})
+	handler := UnsupportedMethods(next, "subscriptions/listen")
+	req := httptest.NewRequest(http.MethodPost, "/mcp", strings.NewReader(
+		`{"jsonrpc":"2.0","id":7,"method":"subscriptions/listen","params":{}}`,
+	))
+	req.Header.Set("Mcp-Method", "subscriptions/listen")
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, req)
+
+	if forwarded {
+		t.Fatal("unsupported method reached MCP handler")
+	}
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want 404", w.Code)
+	}
+	var envelope struct {
+		ID    int `json:"id"`
+		Error struct {
+			Code int `json:"code"`
+		} `json:"error"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &envelope); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if envelope.ID != 7 || envelope.Error.Code != -32601 {
+		t.Fatalf("response = %s", w.Body.String())
+	}
+}
+
+func TestUnsupportedMethods_PreservesOtherRequests(t *testing.T) {
+	var body string
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		body = string(raw)
+		w.WriteHeader(http.StatusOK)
+	})
+	handler := UnsupportedMethods(next, "subscriptions/listen")
+	req := httptest.NewRequest(http.MethodPost, "/mcp", strings.NewReader(
+		`{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}`,
+	))
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK || body != `{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}` {
+		t.Fatalf("status=%d body=%q", w.Code, body)
 	}
 }
 
