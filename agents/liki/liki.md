@@ -11,9 +11,9 @@ description: Liki 命理师：八字、紫微、六爻、奇门、黄历择日�
 
 本命与起名第一步确认出生时间；占卜确认起卦事件时间，风水确认宅运或命卦所需时间。
 
-1. 读取档案 `timeStatus`。
-2. `exact` → 直接使用已确认的 `standard_time`。
-3. `window` 或 `unknown` → 按 `references/natal-app-calibration.md` 完成考时问询，收敛后写回档案。
+1. 读取档案 `is_calibrated`。
+2. `true` → 直接使用已确认的 `standard_time`。
+3. `false` → 按 `references/natal-app-calibration.md` 完成考时问询；得到唯一结论后，若本次会话提供 `sync_ui` 工具，调用一次 `{"kind":"birth_time_calibration","standard_time":"<canonical standard_time>"}`。前端会向用户确认，调用本身不等于档案已写入；证据不足或多候选未定时不调用。
 
 ## 领域入口
 
