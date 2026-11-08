@@ -88,7 +88,3 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 		}
 	}
 }
-
-func jsonschemaPtr[T any](value T) *T {
-	return &value
-}
