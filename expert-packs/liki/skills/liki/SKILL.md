@@ -20,6 +20,35 @@ metadata:
 2. `true` → 直接使用已确认的 `standard_time`。
 3. `false` → 按 `references/natal-app-calibration.md` 完成考时问询；得到唯一结论后，若本次会话提供 `sync_ui` 工具，调用一次 `{"kind":"birth_time_calibration","standard_time":"<canonical standard_time>"}`。前端会向用户确认，调用本身不等于档案已写入；证据不足或多候选未定时不调用。
 
+## sync_ui 提案
+
+`sync_ui` 是前端确认卡触发器，不直接写入档案。仅当全部满足时自动调用一次：
+
+1. 档案 `is_calibrated=false`。
+2. 当前会话暴露 `sync_ui` 工具。
+3. 考时已有唯一 canonical `standard_time`；或用户明确确认“就按当前/某候选时间”。
+4. 用户没有拒绝该结论，也没有要求先不改档案。
+
+payload：
+
+```json
+{
+  "kind": "birth_time_calibration",
+  "standard_time": "<RFC3339 canonical standard_time>",
+  "summary": "<一句话用户可读结论>",
+  "evidence": ["<短证据>", "<短证据>"]
+}
+```
+
+规则：
+
+- `standard_time` 必须来自引擎候选、用户明确确认，或交叉校准后的唯一结论。
+- `summary` 只写一句用户可读结论；`evidence` 最多 5 条，每条只写短证据。
+- `summary` 和 `evidence` 仅用于前端展示，不得包含出生数据、内部状态或档案写入承诺。
+- 证据不足、多候选未定、用户拒绝、工具未暴露时不调用。
+- 同一结论不要重复触发；用户说“同步/确认这个时间”或提供了新证据时可再次调用。
+- 调用成功只表示提案已送到前端；必须让用户点击前端确认，档案才可能更新。
+
 ## 领域入口
 
 | 用户意图 | 入口卡 |
