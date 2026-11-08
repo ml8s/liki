@@ -19,7 +19,7 @@ from app.natal.tools.yongshen import published_yongshen, resolve_yongshen
 def _validate_subject(subject: object, action: str = "subject") -> dict:
     if not isinstance(subject, dict):
         raise ValueError(f"{action} must be an object")
-    for key in ("birth_time", "birth_longitude", "gender"):
+    for key in ("standard_time", "longitude", "gender"):
         if key not in subject:
             raise ValueError(f"{action}.{key} is required")
     return subject

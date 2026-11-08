@@ -113,7 +113,7 @@ class NamingPickInput(BaseModel):
         if self.selected_yongshen.status not in ("resolved", "partial"):
             raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
         if self.selected_yongshen.selected_yongshen.yong == "无候选":
-            raise ValueError("selected_yongshen.selected.yong 必须是具体五行")
+            raise ValueError("selected_yongshen.selected_yongshen.yong 必须是具体五行")
         if self.second_role is None and self.first_role != "yong":
             raise ValueError("单名 first_role 只能是 yong")
         if self.first_role != "yong" and self.second_role != "yong":
@@ -291,7 +291,7 @@ class NamingCheckInput(BaseModel):
         if self.selected_yongshen.status not in ("resolved", "partial"):
             raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
         if self.selected_yongshen.selected_yongshen.yong == "无候选":
-            raise ValueError("selected_yongshen.selected.yong 必须是具体五行")
+            raise ValueError("selected_yongshen.selected_yongshen.yong 必须是具体五行")
         if set(self.forbidden_chars) & set(self.required_chars):
             raise ValueError("同一字不能同时属于 forbidden_chars 和 required_chars")
         return self

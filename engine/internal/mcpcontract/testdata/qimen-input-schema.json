@@ -3,6 +3,12 @@
     {
       "additionalProperties": false,
       "properties": {
+        "longitude": {
+          "description": "起局地经度。",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
         "method": {
           "oneOf": [
             {
@@ -271,40 +277,15 @@
           ],
           "type": "object"
         },
-        "qi_ju": {
-          "additionalProperties": false,
-          "properties": {
-            "longitude": {
-              "description": "起局地经度（-180..180）；真太阳时校正用于时柱与分钟分法。",
-              "maximum": 180,
-              "minimum": -180,
-              "type": "number"
-            },
-            "qi_ju_time": {
-              "description": "起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。",
-              "format": "date-time",
-              "type": "string"
-            }
-          },
-          "required": [
-            "qi_ju_time",
-            "longitude"
-          ],
-          "type": "object"
+        "standard_time": {
+          "description": "起局地标准时间。",
+          "format": "date-time",
+          "type": "string"
         },
         "subject": {
           "additionalProperties": false,
           "description": "可选命主；提供时用于年命。",
           "properties": {
-            "birth_longitude": {
-              "description": "出生地经度（-180..180）。",
-              "type": "number"
-            },
-            "birth_time": {
-              "description": "出生地标准时间（local standard time，无 DST），RFC3339 带 offset。",
-              "format": "date-time",
-              "type": "string"
-            },
             "gender": {
               "description": "性别。",
               "enum": [
@@ -312,11 +293,22 @@
                 "female"
               ],
               "type": "string"
+            },
+            "longitude": {
+              "description": "经度（-180..180）。",
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            },
+            "standard_time": {
+              "description": "标准时间（fixed offset，无 DST），RFC3339 带 offset。",
+              "format": "date-time",
+              "type": "string"
             }
           },
           "required": [
-            "birth_time",
-            "birth_longitude",
+            "standard_time",
+            "longitude",
             "gender"
           ],
           "type": [
@@ -335,7 +327,8 @@
         }
       },
       "required": [
-        "qi_ju",
+        "standard_time",
+        "longitude",
         "method"
       ],
       "type": "object"
@@ -343,6 +336,12 @@
     {
       "additionalProperties": false,
       "properties": {
+        "longitude": {
+          "description": "起局地经度。",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
         "method": {
           "additionalProperties": false,
           "properties": {
@@ -363,30 +362,15 @@
           ],
           "type": "object"
         },
-        "qi_ju": {
-          "additionalProperties": false,
-          "properties": {
-            "longitude": {
-              "description": "起局地经度（-180..180）；真太阳时校正用于时柱与分钟分法。",
-              "maximum": 180,
-              "minimum": -180,
-              "type": "number"
-            },
-            "qi_ju_time": {
-              "description": "起局地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。",
-              "format": "date-time",
-              "type": "string"
-            }
-          },
-          "required": [
-            "qi_ju_time",
-            "longitude"
-          ],
-          "type": "object"
+        "standard_time": {
+          "description": "起局地标准时间。",
+          "format": "date-time",
+          "type": "string"
         }
       },
       "required": [
-        "qi_ju",
+        "standard_time",
+        "longitude",
         "method"
       ],
       "type": "object"

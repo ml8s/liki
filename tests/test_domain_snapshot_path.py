@@ -9,7 +9,7 @@ import app.natal.tools.factors as factors
 def _cmp_bazi_pan() -> dict:
     return {
         "natal_chart_digest": "a" * 64,
-        "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
+        "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "male"},
         "chart": {
             "chart_digest": "a" * 64,
             "nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},

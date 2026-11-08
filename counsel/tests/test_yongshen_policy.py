@@ -27,7 +27,7 @@ def _bazi_chart_fixture(name: str) -> dict:
 
 def _pan(full: dict, gender: str = "male") -> dict:
     return {
-        "subject": {"birth_time": "", "birth_longitude": 0, "gender": gender},
+        "subject": {"standard_time": "", "longitude": 0, "gender": gender},
         "bazi": full,
         "ziwei": {"shi_er_gong": []},
         "ziwei_daxian": [],
@@ -377,8 +377,8 @@ def test_yongshen_digest_binds_published_decision_to_source_chart():
 
 def test_natal_liunian_query_computes_selected_yongshen_internally():
     subject = {
-        "birth_time": "1990-05-20T11:49:00+08:00",
-        "birth_longitude": 116.4,
+        "standard_time": "1990-05-20T11:49:00+08:00",
+        "longitude": 116.4,
         "gender": "male",
     }
     result = natal_liunian_query(

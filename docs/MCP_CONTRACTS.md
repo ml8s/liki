@@ -27,11 +27,11 @@ Birth/event wall-clock input is resolved once by `subject_candidates`:
   "recorded_date": "1990-05-20",
   "recorded_time": "12:00",
   "record_timezone": "Asia/Shanghai",
-  "place_longitude": 116.4
+  "longitude": 116.4
 }
 ```
 
-Chart and flow tools then use only `standard_time` plus longitude:
+Chart and flow tools use `standard_time`; tools needing LAST also require `longitude`:
 
 ```json
 {
@@ -46,7 +46,8 @@ RFC3339 defines it as an unknown local offset. The offset is not an IANA
 timezone identity, but it selects the local standard representation used by
 date facts. `timezone` is accepted only by `subject_candidates`; chart tools fail
 closed if it is present. Wall-clock and lunar forms require `calendar_kind`
-(`solar` or `lunar`); missing longitude fails closed when the tool needs LAST.
+(`solar` or `lunar`); missing longitude fails closed only when the tool needs
+LAST. Huangli and Xuankong do not accept longitude.
 
 The per-domain projection matrix (solar-term event, standard date, local LAST)
 is defined in [TIME_MODEL.md](./TIME_MODEL.md).

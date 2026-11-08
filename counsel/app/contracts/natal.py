@@ -15,14 +15,21 @@ from app.contracts.yongshen import BaziYongshenOutput
 
 class NatalSubjectInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    birth_time: Annotated[str, Field(min_length=1, description="出生地标准时间，RFC3339 fixed offset。")]
-    birth_longitude: Annotated[float, Field(ge=-180, le=180, description="出生地经度。")]
+    standard_time: Annotated[
+        str,
+        Field(
+            min_length=1,
+            json_schema_extra={"format": "date-time"},
+            description="出生地标准时间，RFC3339 fixed offset。",
+        ),
+    ]
+    longitude: Annotated[float, Field(ge=-180, le=180, description="出生地经度。")]
     gender: Literal["male", "female"] = Field(description="性别。")
 
 
 
 # ── bazi_yongshen ──
-TOOL_BAZI_YONGSHEN_DESCRIPTION = "考时后的 subject → 八字排盘与唯一用神裁决。返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要；起名只消费 selected.yong 投影出的目标五行。"
+TOOL_BAZI_YONGSHEN_DESCRIPTION = "考时后的 subject → 八字排盘与唯一用神裁决。返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要；起名只消费 selected_yongshen.yong 投影出的目标五行。"
 
 class BaziYongshenInput(BaseModel):
     """八字用神裁决输入。"""

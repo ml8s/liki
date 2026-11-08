@@ -9,16 +9,10 @@ import (
 	"liki-engine/internal/engine/xuankong"
 )
 
-// XuankongZhaiInput is the property identity required to recompute a Xuankong
-// chart: the period-start moment and opposite sitting/facing mountains.
-type XuankongZhaiInput struct {
-	YunStartTime StandardTime  `json:"yun_start_time" jsonschema:"宅运起盘地标准日期时间（无 DST），RFC3339 带 offset。"`
-	ZuoShan      MountainIndex `json:"zuo_shan" jsonschema:"坐山，二十四山 index：0=子,1=癸,2=丑,3=艮,4=寅,5=甲,6=卯,7=乙,8=辰,9=巽,10=巳,11=丙,12=午,13=丁,14=未,15=坤,16=申,17=庚,18=酉,19=辛,20=戌,21=乾,22=亥,23=壬。"`
-	XiangShan    MountainIndex `json:"xiang_shan" jsonschema:"朝向；必须等于坐山后 12 山（180°相对）。"`
-}
-
 type XuankongChartInput struct {
-	Zhai XuankongZhaiInput `json:"zhai" jsonschema:"玄空宅的事实。"`
+	StandardTime StandardTime  `json:"standard_time" jsonschema:"宅运起盘地标准日期时间（无 DST），RFC3339 带 offset。"`
+	ZuoShan      MountainIndex `json:"zuo_shan" jsonschema:"坐山，二十四山 index。"`
+	XiangShan    MountainIndex `json:"xiang_shan" jsonschema:"朝向；必须与坐山相对。"`
 }
 
 type XuankongYunOutput struct {
@@ -69,7 +63,7 @@ type XuankongShouShanOutput struct {
 }
 
 // XuankongChart is the chart tool's public output. It is not a reusable method
-// input; callers pass zhai again when another Xuankong fact is needed.
+// input; callers pass standard_time and zuo/xiang again for another fact.
 type XuankongChart struct {
 	Yun            XuankongYunOutput           `json:"yun" jsonschema:"三元九运。"`
 	GongWei        [9]XuankongPalaceOutput     `json:"gong_wei" jsonschema:"九宫运星/山星/向星。"`
@@ -85,17 +79,18 @@ type XuankongChart struct {
 }
 
 type XuankongLiunianInput struct {
-	Zhai             XuankongZhaiInput `json:"zhai" jsonschema:"玄空宅的事实；流年与其宅盘叠加。"`
-	LiuNianStartTime StandardTime      `json:"start_time" jsonschema:"流年选择地标准时间（无 DST），RFC3339 带 offset。"`
-	LiuNianCount     *SeriesCount      `json:"count,omitempty" jsonschema:"连续查询年数。"`
+	StandardTime StandardTime  `json:"standard_time" jsonschema:"流年选择地标准时间（无 DST），RFC3339 带 offset。"`
+	ZuoShan      MountainIndex `json:"zuo_shan" jsonschema:"坐山，二十四山 index。"`
+	XiangShan    MountainIndex `json:"xiang_shan" jsonschema:"朝向；必须与坐山相对。"`
+	LiuNianCount *SeriesCount  `json:"count,omitempty" jsonschema:"连续查询年数。"`
 }
 
 type XuankongLiuNianJie struct {
-	LiuNianStartTime StandardTime `json:"start_time" jsonschema:"流年选择器时区标准时间（无 DST）。"`
-	LichunYear       int          `json:"lichun_year" jsonschema:"该瞬间所在的立春年。"`
-	LichunStart      DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
-	LichunEnd        DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
-	BoundaryDay      bool         `json:"boundary_day" jsonschema:"输入瞬间的当地日期是否为立春边界日。"`
+	StandardTime StandardTime `json:"standard_time" jsonschema:"流年选择器时区标准时间（无 DST）。"`
+	LichunYear   int          `json:"lichun_year" jsonschema:"该瞬间所在的立春年。"`
+	LichunStart  DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
+	LichunEnd    DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
+	BoundaryDay  bool         `json:"boundary_day" jsonschema:"输入瞬间的当地日期是否为立春边界日。"`
 }
 
 type XuankongAnnualStarOutput struct {
@@ -121,7 +116,7 @@ type XuankongLiunianOutput struct {
 }
 
 func XuankongChartCompute(_ context.Context, input XuankongChartInput) (XuankongChart, error) {
-	chart, err := xuankongComputeChart(input.Zhai)
+	chart, err := xuankongComputeChart(input.StandardTime, input.ZuoShan, input.XiangShan)
 	if err != nil {
 		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
 	}
@@ -135,7 +130,7 @@ func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (XuankongLiu
 			return computeXuankongLiunian(in)
 		},
 		func(in XuankongLiunianInput) (XuankongLiunianInput, error) {
-			at, loc, err := parseStandardTime(in.LiuNianStartTime)
+			at, loc, err := parseStandardTime(in.StandardTime)
 			if err != nil {
 				return in, fmt.Errorf("xuankong.liunian: %w", err)
 			}
@@ -143,7 +138,7 @@ func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (XuankongLiu
 			if err != nil {
 				return in, fmt.Errorf("xuankong.liunian: %w", err)
 			}
-			in.LiuNianStartTime = standardTimeValue(ly.End.In(loc))
+			in.StandardTime = standardTimeValue(ly.End.In(loc))
 			return in, nil
 		},
 	)
@@ -154,7 +149,7 @@ func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (XuankongLiu
 }
 
 func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, error) {
-	at, loc, err := parseStandardTime(input.LiuNianStartTime)
+	at, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return XuankongLiunianOutput{}, fmt.Errorf("xuankong.liunian: %w", err)
 	}
@@ -162,7 +157,7 @@ func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, 
 	if err != nil {
 		return XuankongLiunianOutput{}, fmt.Errorf("xuankong.liunian: %w", err)
 	}
-	chart, err := xuankongComputeChart(input.Zhai)
+	chart, err := xuankongComputeChart(input.StandardTime, input.ZuoShan, input.XiangShan)
 	if err != nil {
 		return XuankongLiunianOutput{}, fmt.Errorf("xuankong.liunian: %w", err)
 	}
@@ -170,30 +165,30 @@ func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, 
 	output := xuankongLiunianWire(result)
 	startDate := tianwen.StandardDateAt(ly.Start, loc)
 	output.NianJie = XuankongLiuNianJie{
-		LiuNianStartTime: standardTimeValue(at),
-		LichunYear:       ly.Year,
-		LichunStart:      civilDateString(startDate),
-		LichunEnd:        civilDateString(tianwen.StandardDateAt(ly.End, loc)),
-		BoundaryDay:      tianwen.StandardDateAt(at, loc) == startDate,
+		StandardTime: standardTimeValue(at),
+		LichunYear:   ly.Year,
+		LichunStart:  civilDateString(startDate),
+		LichunEnd:    civilDateString(tianwen.StandardDateAt(ly.End, loc)),
+		BoundaryDay:  tianwen.StandardDateAt(at, loc) == startDate,
 	}
 	return output, nil
 }
 
-func xuankongComputeChart(input XuankongZhaiInput) (xuankong.Chart, error) {
-	at, _, err := parseStandardTime(input.YunStartTime)
+func xuankongComputeChart(standardTime StandardTime, zuoShan MountainIndex, xiangShan MountainIndex) (xuankong.Chart, error) {
+	at, _, err := parseStandardTime(standardTime)
 	if err != nil {
 		return xuankong.Chart{}, err
 	}
 	if at.UTC().Year() < 1864 || at.UTC().Year() > 2200 {
 		return xuankong.Chart{}, fmt.Errorf("year %d out of range (1864-2200)", at.UTC().Year())
 	}
-	if (int(input.ZuoShan)+12)%24 != int(input.XiangShan) {
+	if (int(zuoShan)+12)%24 != int(xiangShan) {
 		return xuankong.Chart{}, fmt.Errorf(
 			"xiang_shan must be opposite zuo_shan by 12 mountains, got %d/%d",
-			input.ZuoShan, input.XiangShan,
+			zuoShan, xiangShan,
 		)
 	}
-	return xuankong.ComputeChartAtStandard(at, int(input.ZuoShan), int(input.XiangShan))
+	return xuankong.ComputeChartAtStandard(at, int(zuoShan), int(xiangShan))
 }
 
 func xuankongStarWire(star fengshui.FlyingStar) XuankongStarOutput {

@@ -3,7 +3,7 @@
 from app.divination.tools.divination_case import build_case
 from app.divination.tools.divination_contracts import validate_document
 from app.divination.tools.divination_safety import assess
-from app.divination.tools.qimen_charts import city_coords, qimen_chart
+from app.divination.tools.qimen_charts import qimen_chart
 from app.divination.tools.qimen_duanyu import query
 from app.divination.tools.qimen_interpretations import assert_rule_compatibility, load_rule_table
 from app.divination.tools.qimen_jinhan_factors import project as project_jinhan_factors
@@ -15,29 +15,6 @@ from app.integrity.digest import short_object_id
 
 #
 # 专占规则是否接受 matter / yong_shen 由 qimen_rules.csv 的 focus_policy 声明。
-
-
-
-
-def _resolve_location(location: dict) -> tuple[str | None, float]:
-    kind = location.get("kind")
-    if kind == "city":
-        city = location.get("city")
-        if not isinstance(city, str) or not city.strip():
-            raise ValueError("location.city must be non-empty")
-        coords = city_coords(city)
-        value = coords.get("longitude")
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
-            raise ValueError("city.coords returned no longitude")
-        return city.strip(), float(value)
-    if kind == "longitude":
-        longitude = location.get("longitude")
-        if isinstance(longitude, bool) or not isinstance(longitude, (int, float)):
-            raise ValueError("location.longitude must be a number")
-        if not -180 <= float(longitude) <= 180:
-            raise ValueError("longitude must be between -180 and 180")
-        return None, float(longitude)
-    raise ValueError("location must use kind=city or kind=longitude")
 
 
 def _resolve_focus(focus: dict | None) -> tuple[str | None, list[str] | None]:
@@ -53,8 +30,8 @@ def _resolve_focus(focus: dict | None) -> tuple[str | None, list[str] | None]:
 def create(
     *,
     question: str,
-    location: dict,
-    qi_ju_time: str = "",
+    longitude: float,
+    standard_time: str = "",
     focus: dict | None = None,
     rule: str | None = None,
     method: dict[str, str],
@@ -76,13 +53,14 @@ def create(
             required_matter = focus_policy.split(":", 1)[1]
             if matter != required_matter:
                 raise ValueError(f"qimen rule {rule} requires matter={required_matter}")
-    resolved_city, resolved_longitude = _resolve_location(location)
-    if not qi_ju_time:
-        raise ValueError("qi_ju_time is required")
+    if not -180 <= float(longitude) <= 180:
+        raise ValueError("longitude must be between -180 and 180")
+    if not standard_time:
+        raise ValueError("standard_time is required")
 
     chart_result = qimen_chart(
-        qi_ju_time,
-        resolved_longitude,
+        standard_time,
+        longitude,
         matter=matter,
         yong_shen=yong_shen,
         subject=subject,
@@ -167,9 +145,8 @@ def create(
         payload={
             "question": question,
             "qi_ju": {
-                "city": resolved_city,
-                "longitude": resolved_longitude,
-                "qi_ju_time": qi_ju_time,
+                "longitude": longitude,
+                "standard_time": standard_time,
             },
             "focus": resolved_focus,
             "method": method,

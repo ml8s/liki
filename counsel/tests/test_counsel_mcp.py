@@ -37,8 +37,8 @@ from starlette.routing import Mount, Route  # noqa: E402
 
 def _natal_subject():
     return {
-        "birth_time": "1990-05-20T11:49:00+08:00",
-        "birth_longitude": 116.4,
+        "standard_time": "1990-05-20T11:49:00+08:00",
+        "longitude": 116.4,
         "gender": "male",
     }
 
@@ -216,10 +216,10 @@ def test_bazi_yongshen_rejects_partial_subject():
     result = _call_tool_over_mcp(
         create_counsel_root_mcp(),
         "bazi_yongshen",
-        {"subject": {"birth_time": "1990-05-20T11:49:00+08:00"}},
+        {"subject": {"standard_time": "1990-05-20T11:49:00+08:00"}},
     )
     assert result.is_error is True
-    assert "birth_longitude" in result.content[0].text
+    assert "longitude" in result.content[0].text
 
 
 def test_counsel_tools_publish_the_contract_schemas_without_downgrading():

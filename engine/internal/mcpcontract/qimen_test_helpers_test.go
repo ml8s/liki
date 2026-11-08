@@ -29,10 +29,6 @@ func qimenChartParams(params map[string]any) map[string]any {
 		method["quarter_rule"] = "ten_minute_sanyuan"
 	}
 	params["method"] = method
-	qiJu := map[string]any{"qi_ju_time": params["qi_ju_time"], "longitude": params["qi_ju_longitude"]}
-	delete(params, "qi_ju_time")
-	delete(params, "qi_ju_longitude")
-	params["qi_ju"] = qiJu
 	return params
 }
 

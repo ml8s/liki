@@ -23,7 +23,7 @@ func civilResolveInput(t *testing.T, instant, timezone string, longitude float64
 		RecordedDate:   civil.Format("2006-01-02"),
 		RecordedTime:   civil.Format("15:04:05"),
 		RecordTimezone: timezone,
-		PlaceLongitude: longitude,
+		Longitude:      Longitude(longitude),
 		SubjectGender:  "male",
 	}
 }
@@ -43,5 +43,5 @@ func standardInputFromInstant(t testing.TB, instant, timezone string) StandardTi
 
 func testNatalSubject(t testing.TB, birthTime StandardTime, gender string) NatalSubject {
 	t.Helper()
-	return NatalSubject{BirthTime: birthTime, BirthLongitude: 116.4, Gender: GenderName(gender)}
+	return NatalSubject{StandardTime: birthTime, Longitude: 116.4, Gender: GenderName(gender)}
 }

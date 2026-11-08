@@ -26,6 +26,7 @@ func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
 		reflect.TypeFor[json.RawMessage](): {},
 		reflect.TypeFor[StandardTime]():    {Type: "string", Format: "date-time"},
 		reflect.TypeFor[DateString]():      {Type: "string", Format: "date"},
+		reflect.TypeFor[Longitude]():       {Type: "number", Minimum: jsonschema.Ptr(float64(-180)), Maximum: jsonschema.Ptr(float64(180))},
 		reflect.TypeFor[GenderName]():      {Type: "string", Enum: []any{"male", "female"}},
 		reflect.TypeFor[CityName]():        {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
 		reflect.TypeFor[CityLevelName]():   {Type: "string", Enum: []any{"city", "county", "world"}},
@@ -349,7 +350,7 @@ func NewEngine() *Registry {
 	}
 	mustRegisterRaw(registry, RawTool[BaziLiupanInput, BaziLiupanOutput]{
 		Name:         "bazi_liupan",
-		Description:  "八字流盘。scope 显式选择流年、流月、流日、流时或小运；start_time 为当地标准时间，liu_ri/liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
+		Description:  "八字流盘。scope 显式选择流年、流月、流日、流时或小运；standard_time 为当地标准时间，liu_ri/liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
 		InputSchema:  baziLiupanInput,
 		OutputSchema: baziLiupanOutput,
 		Handler:      BaziLiupan,
@@ -369,7 +370,7 @@ func NewEngine() *Registry {
 	}
 	mustRegisterRaw(registry, RawTool[ZiweiLiupanInput, ZiweiLiupanOutput]{
 		Name:         "ziwei_liupan",
-		Description:  "紫微流盘。scope 显式选择流年、流月、流日或流时；start_time 为当地标准时间，liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
+		Description:  "紫微流盘。scope 显式选择流年、流月、流日或流时；standard_time 为当地标准时间，liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
 		InputSchema:  ziweiLiupanInput,
 		OutputSchema: ziweiLiupanOutput,
 		Handler:      ZiweiLiupan,

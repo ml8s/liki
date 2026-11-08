@@ -11,8 +11,8 @@ from app.natal.tools.yearly_eval import query_year_rules
 def _valid_mock_pan() -> dict:
     return with_natal_chart_digest({
         "subject": {
-            "birth_time": "1990-05-20T12:00:00+08:00",
-            "birth_longitude": 116.4,
+            "standard_time": "1990-05-20T12:00:00+08:00",
+            "longitude": 116.4,
             "gender": "male",
         },
         "bazi": {
@@ -219,7 +219,7 @@ def test_eval_hybrid_builds_one_flow_snapshot_per_pan() -> None:
          ) as make_flow, \
          mock.patch.object(eval_hybrid, "query_yearly", return_value={"八字": [], "紫微": []}):
         eval_hybrid.query_all({
-            "subject": {"birth_time": "x", "birth_longitude": 116.4, "gender": "male"},
+            "subject": {"standard_time": "x", "longitude": 116.4, "gender": "male"},
             "base": {}, "gender": "male",
         })
 

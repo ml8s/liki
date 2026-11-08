@@ -55,17 +55,17 @@ func benchmarkCall(b *testing.B, registry *Registry, name string, arguments stri
 
 func BenchmarkMCPBaziChart(b *testing.B) {
 	benchmarkCall(b, testEngine(), "bazi_chart",
-		`{"subject":{"birth_time":"1990-05-20T12:49:00+08:00","birth_longitude":116.4,"gender":"male"}}`)
+		`{"subject":{"standard_time":"1990-05-20T12:49:00+08:00","longitude":116.4,"gender":"male"}}`)
 }
 
 func BenchmarkMCPZiweiChart(b *testing.B) {
 	benchmarkCall(b, testEngine(), "ziwei_chart",
-		`{"subject":{"birth_time":"1984-02-16T12:00:00+08:00","birth_longitude":116.4,"gender":"male"}}`)
+		`{"subject":{"standard_time":"1984-02-16T12:00:00+08:00","longitude":116.4,"gender":"male"}}`)
 }
 
 func BenchmarkMCPQimenChart(b *testing.B) {
 	benchmarkCall(b, testEngine(), "qimen_chart",
-		`{"qi_ju":{"time":"2000-06-15T12:00:00+08:00","longitude":116.4},"method":{"scope":"hour","school":"zhuanpan","dingju_method":"chaibu"}}`)
+		`{"standard_time":"2000-06-15T12:00:00+08:00","longitude":116.4,"method":{"scope":"hour","school":"zhuanpan","dingju_method":"chaibu"}}`)
 }
 
 func BenchmarkMCPBaziBond(b *testing.B) {
@@ -81,7 +81,7 @@ func BenchmarkMCPBaziBond(b *testing.B) {
 
 func BenchmarkMCPOutputValidationZiweiChart(b *testing.B) {
 	registry := testEngine()
-	arguments := json.RawMessage(`{"subject":{"birth_time":"1984-02-16T12:00:00+08:00","birth_longitude":116.4,"gender":"male"}}`)
+	arguments := json.RawMessage(`{"subject":{"standard_time":"1984-02-16T12:00:00+08:00","longitude":116.4,"gender":"male"}}`)
 	output, err := registry.Call(context.Background(), "ziwei_chart", arguments)
 	if err != nil {
 		b.Fatal(err)
@@ -99,7 +99,7 @@ func benchmarkBaziSubject(b *testing.B, standardTime, gender string) NatalSubjec
 	b.Helper()
 	var subject NatalSubject
 	if err := json.Unmarshal([]byte(
-		`{"birth_time":"`+standardTime+`","birth_longitude":116.4,"gender":"`+gender+`"}`,
+		`{"standard_time":"`+standardTime+`","longitude":116.4,"gender":"`+gender+`"}`,
 	), &subject); err != nil {
 		b.Fatal(err)
 	}

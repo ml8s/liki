@@ -17,6 +17,19 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = {contract.name: contract for contract in COUNSEL_TOOLS}
 NATAL_FUNCTIONS = {c.name: c.input_schema for c in NATAL_TOOLS}
 OPAQUE_CONDITIONALS = ("if", "then", "else", "not")
+LEGACY_INPUT_FIELDS = {
+    "birth_time": "subject.standard_time",
+    "birth_longitude": "subject.longitude",
+    "qi_gua": "flat standard_time/longitude",
+    "qi_gua_time": "standard_time",
+    "qi_gua_longitude": "longitude",
+    "qi_ju": "flat standard_time/longitude",
+    "qi_ju_time": "standard_time",
+    "qi_ju_longitude": "longitude",
+    "location": "longitude",
+    "place_longitude": "longitude",
+    "start_time": "standard_time",
+}
 
 
 # ── published schema fidelity ────────────────────────────────────────────────
@@ -48,6 +61,24 @@ def test_published_input_schemas_are_mcp_objects(name):
 
 
 @pytest.mark.parametrize("name", sorted(CONTRACTS))
+def test_published_input_schemas_have_no_legacy_fields(name):
+    """Schema bootstrapping itself must reject reintroduced wrappers/aliases."""
+    violations: list[str] = []
+
+    def walk(path: str, value: object) -> None:
+        if not isinstance(value, dict):
+            return
+        for key, child in value.items():
+            if key in LEGACY_INPUT_FIELDS:
+                canonical = LEGACY_INPUT_FIELDS[key]
+                violations.append(f"{path}.{key}: use {canonical}")
+            walk(f"{path}.{key}", child)
+
+    walk("$", CONTRACTS[name].input_schema)
+    assert violations == []
+
+
+@pytest.mark.parametrize("name", sorted(CONTRACTS))
 def test_published_schemas_do_not_ship_conditional_clauses(name):
     """Composition is exposed through anyOf branches, not opaque conditionals."""
     document = json.dumps(CONTRACTS[name].input_schema)
@@ -74,7 +105,7 @@ def test_unique_items_is_projected_and_enforced():
         CONTRACTS["qimen_ask"].input.model_validate(
             {
                 "question": "该往哪里推进？",
-                "location": {"kind": "longitude", "longitude": 121.47},
+                "longitude": 121.47,
                 "focus": {"kind": "yong_shen", "yong_shen": ["生门", "生门"]},
             }
         )
@@ -160,11 +191,11 @@ def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
 
 def test_bazi_yongshen_input_uses_resolved_subject():
     subject = CONTRACTS["bazi_yongshen"].input_schema["properties"]["subject"]
-    assert set(subject["required"]) == {"birth_time", "birth_longitude", "gender"}
-    assert set(subject["properties"]) == {"birth_time", "birth_longitude", "gender"}
+    assert set(subject["required"]) == {"standard_time", "longitude", "gender"}
+    assert set(subject["properties"]) == {"standard_time", "longitude", "gender"}
     assert subject["properties"]["gender"]["enum"] == ["male", "female"]
-    assert subject["properties"]["birth_longitude"]["minimum"] == -180
-    assert subject["properties"]["birth_longitude"]["maximum"] == 180
+    assert subject["properties"]["longitude"]["minimum"] == -180
+    assert subject["properties"]["longitude"]["maximum"] == 180
 
 
 def _resolved_yongshen():

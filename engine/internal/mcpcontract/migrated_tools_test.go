@@ -56,9 +56,9 @@ func assertToolError(t *testing.T, registry *Registry, name string, input any, c
 func testBaziChart(t *testing.T, utc, timezone string, longitude float64, gender string) map[string]any {
 	t.Helper()
 	return map[string]any{
-		"birth_time":      standardInputFromInstant(t, utc, timezone),
-		"birth_longitude": longitude,
-		"gender":          gender,
+		"standard_time": standardInputFromInstant(t, utc, timezone),
+		"longitude":     longitude,
+		"gender":        gender,
 	}
 }
 
@@ -70,24 +70,24 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	// arguments are the caller's mistake and must surface as a tool error, not
 	// silently pass. LLM consumers learn the contract from inputSchema.
 	if _, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, map[string]any{
-		"subject": map[string]any{"birth_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "birth_longitude": 116.4, "gender": "male", "legacy_extra": true},
+		"subject": map[string]any{"standard_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "longitude": 116.4, "gender": "male", "legacy_extra": true},
 	})); err == nil {
 		t.Fatalf("bazi.chart: unknown arguments must be rejected")
 	}
 
 	// Flow tools consume the resolved natal subject.
 	ziweiSubject := map[string]any{
-		"birth_time": "1984-02-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
+		"standard_time": "1984-02-16T12:00:00+08:00", "longitude": 116.4, "gender": "male",
 	}
 	if _, err := registry.Call(context.Background(), "ziwei_liupan", mustJSON(t, map[string]any{
-		"subject": ziweiSubject, "scope": "liu_nian", "start_time": "2030-06-15T12:00:00+08:00",
+		"subject": ziweiSubject, "scope": "liu_nian", "standard_time": "2030-06-15T12:00:00+08:00",
 	})); err != nil {
 		t.Fatalf("ziwei.liupan liu_nian: %v", err)
 	}
 	// qimen.chart's legacy schema did close the root object, so unknown root
 	// arguments stay rejected there.
 	assertQimenChartError(t, registry, map[string]any{
-		"qi_ju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qi_ju_longitude": 116.4, "kind": "hour",
+		"standard_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "longitude": 116.4, "kind": "hour",
 	}, "")
 }
 
@@ -143,18 +143,18 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	registry := testEngine()
 
 	method := callQimenChart(t, registry, map[string]any{
-		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
+		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
 	})["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "zhuanpan" || method["dingju_method"] != "chaibu" {
 		t.Fatalf("canonical method = %v/%v/%v, want hour/zhuanpan/chaibu",
 			method["scope"], method["school"], method["dingju_method"])
 	}
 	assertToolError(t, registry, "qimen_chart", map[string]any{
-		"qi_ju": map[string]any{"qi_ju_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
+		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
 	}, "method")
 
 	method = callQimenChart(t, registry, map[string]any{
-		"qi_ju_time": "2026-01-05T13:00:00+08:00", "qi_ju_longitude": 116.4, "dingju_method": "zhirun",
+		"standard_time": "2026-01-05T13:00:00+08:00", "longitude": 116.4, "dingju_method": "zhirun",
 	})["method"].(map[string]any)
 	if method["dingju_method"] != "zhirun" {
 		t.Fatalf("dingju method = %v, want zhirun", method["dingju_method"])
@@ -164,7 +164,7 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	}
 
 	assertQimenChartError(t, registry, map[string]any{
-		"qi_ju_time": "2026-01-05T13:00:00+08:00", "qi_ju_longitude": 116.4, "dingju_method": "luoshu_feipan",
+		"standard_time": "2026-01-05T13:00:00+08:00", "longitude": 116.4, "dingju_method": "luoshu_feipan",
 	}, "")
 }
 
@@ -173,7 +173,7 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 	const solarTime = "2026-01-13T17:03:00Z"
 
 	document := callQimenChart(t, registry, map[string]any{
-		"qi_ju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qi_ju_longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
+		"standard_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
 	})
 	method := document["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "luoshu_feipan" || method["dingju_method"] != "zhirun" {
@@ -198,8 +198,8 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 		{"birth_year": 1984},
 	}
 	for _, params := range invalid {
-		params["qi_ju_time"] = "2024-06-15T12:00:00"
-		params["qi_ju_longitude"] = 116.4
+		params["standard_time"] = "2024-06-15T12:00:00"
+		params["longitude"] = 116.4
 		assertQimenChartError(t, registry, params, "")
 	}
 }
@@ -207,9 +207,9 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
-		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
+		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
 		"yong_shen": []string{"生门", "戊"},
-		"subject":   map[string]any{"birth_time": "1984-02-15T00:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
+		"subject":   map[string]any{"standard_time": "1984-02-15T00:00:00+08:00", "longitude": 116.4, "gender": "male"},
 	})
 	if document["yong_shen"] == nil {
 		t.Fatal("explicit yong_shen was not resolved")
@@ -217,7 +217,7 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	assertJiaStaysHidden(t, document)
 
 	assertQimenChartError(t, registry, map[string]any{
-		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4, "yong_shen": []string{"不存在的符号"},
+		"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "yong_shen": []string{"不存在的符号"},
 	}, "")
 }
 
@@ -279,13 +279,13 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 	}
 	calls := []call{}
 	for _, year := range []int{2025, 2026, 2027} {
-		calls = append(calls, call{"bazi_liupan", "liu_nian", map[string]any{"subject": chart, "scope": "liu_nian", "start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
+		calls = append(calls, call{"bazi_liupan", "liu_nian", map[string]any{"subject": chart, "scope": "liu_nian", "standard_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
 	}
 	for month := 1; month <= 12; month++ {
-		calls = append(calls, call{"bazi_liupan", "liu_yue", map[string]any{"subject": chart, "scope": "liu_yue", "start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
+		calls = append(calls, call{"bazi_liupan", "liu_yue", map[string]any{"subject": chart, "scope": "liu_yue", "standard_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
 	}
 	for day := 1; day <= 30; day++ {
-		calls = append(calls, call{"bazi_liupan", "liu_ri", map[string]any{"subject": chart, "scope": "liu_ri", "start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "longitude": 116.4}})
+		calls = append(calls, call{"bazi_liupan", "liu_ri", map[string]any{"subject": chart, "scope": "liu_ri", "standard_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "longitude": 116.4}})
 	}
 
 	for _, item := range calls {
@@ -356,13 +356,13 @@ func TestMigratedQimenPatternEnumMatchesTable(t *testing.T) {
 func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 	registry := testEngine()
 	chart := map[string]any{
-		"birth_time":      "2000-09-20T08:00:00+08:00",
-		"birth_longitude": 116.4,
-		"gender":          "male",
+		"standard_time": "2000-09-20T08:00:00+08:00",
+		"longitude":     116.4,
+		"gender":        "male",
 	}
 
 	document := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
-		"subject": chart, "scope": "liu_yue", "start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
+		"subject": chart, "scope": "liu_yue", "standard_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
 	})
 	item := firstSeriesItem(t, document)
 	yueJie, ok := item["yue_jie"].(map[string]any)
@@ -423,25 +423,25 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 	for _, tool := range []string{"bazi_chart", "ziwei_chart"} {
 		assertToolError(t, registry, tool, map[string]any{
 			"subject": map[string]any{
-				"birth_time":      "2024-06-15T12:00:00+08:00",
-				"birth_longitude": 500,
-				"gender":          "male",
+				"standard_time": "2024-06-15T12:00:00+08:00",
+				"longitude":     500,
+				"gender":        "male",
 			},
-		}, "birth_longitude")
+		}, "longitude")
 	}
 	assertQimenChartError(t, registry, map[string]any{
-		"qi_ju_time":      "2024-06-15T12:00:00+08:00",
-		"qi_ju_longitude": 500,
-	}, "qi_ju.longitude")
+		"standard_time": "2024-06-15T12:00:00+08:00",
+		"longitude":     500,
+	}, "longitude")
 }
 
 func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {
 	registry := testEngine()
 	utc := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"subject": map[string]any{"birth_time": "1981-08-25T16:20:00Z", "birth_longitude": 132.044137, "gender": "male"},
+		"subject": map[string]any{"standard_time": "1981-08-25T16:20:00Z", "longitude": 132.044137, "gender": "male"},
 	})
 	plus8 := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"subject": map[string]any{"birth_time": "1981-08-26T00:20:00+08:00", "birth_longitude": 132.044137, "gender": "male"},
+		"subject": map[string]any{"standard_time": "1981-08-26T00:20:00+08:00", "longitude": 132.044137, "gender": "male"},
 	})
 
 	// These wire forms identify the same instant in different local standard
@@ -473,7 +473,7 @@ func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 	}
 
 	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"subject": map[string]any{"birth_time": standardInputFromInstant(t, "1981-08-25T16:20:00Z", "Asia/Shanghai"), "birth_longitude": 132.044137, "gender": "male"},
+		"subject": map[string]any{"standard_time": standardInputFromInstant(t, "1981-08-25T16:20:00Z", "Asia/Shanghai"), "longitude": 132.044137, "gender": "male"},
 	})
 	want := []string{"辛酉", "丙申", "丙子", "己丑"}
 	for index, pillar := range []string{"nian", "yue", "ri", "shi"} {

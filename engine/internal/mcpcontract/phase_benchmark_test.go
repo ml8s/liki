@@ -61,7 +61,7 @@ func BenchmarkMCPBaziChartPhaseTypedDecode(b *testing.B) {
 		if err := json.Unmarshal(arguments, &decoded); err != nil {
 			b.Fatal(err)
 		}
-		benchmarkPhaseInputValid = decoded.Subject.BirthTime != ""
+		benchmarkPhaseInputValid = decoded.Subject.StandardTime != ""
 	}
 }
 

@@ -162,7 +162,7 @@ func TestCallTool_BaziChart(t *testing.T) {
 	sess, _ := startMCPServer(t)
 	text, isErr := callToolStructured(t, sess, "bazi_chart", map[string]any{
 		"subject": map[string]any{
-			"birth_time": "1984-02-04T06:00:00+08:00", "birth_longitude": 116.4,
+			"standard_time": "1984-02-04T06:00:00+08:00", "longitude": 116.4,
 			"gender": "male",
 		},
 	})
@@ -186,7 +186,7 @@ func TestCallTool_BaziChart(t *testing.T) {
 
 func TestCallTool_InvalidParamsIsError(t *testing.T) {
 	sess, _ := startMCPServer(t)
-	// bazi_chart requires subject.birth_time, birth_longitude, and gender; missing args must surface as
+	// bazi_chart requires subject.standard_time, longitude, and gender; missing args must surface as
 	// an IsError result (visible to the LLM), not a protocol-level error.
 	res, err := sess.CallTool(context.Background(), &mcp.CallToolParams{
 		Name:      "bazi_chart",

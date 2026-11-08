@@ -23,7 +23,7 @@ Digest 不是通用输出装饰。只有当一个 MCP artifact 会离开当前�
 | `liuyao_ask` / `qimen_ask` | `reading_digest` | 保留 | 一次问测 Reading 的完整性摘要；case 本体不对外。 |
 | `liuyao.qigua` output `casting` | `casting_digest` | 保留 | casting 会原样进入 `liuyao.chart`，必须拒绝篡改。 |
 | `bazi_chart` / `ziwei_chart` / `qimen_chart` / `xuankong_chart` / `liuyao_chart` | 无 artifact digest | 不加 | 它们是当前调用的计算结果；后续方法重用领域身份重算，不把 chart 原样传回。 |
-| `xuankong_liunian` | 无 artifact digest | 不加 | 输入是 `zhai` 领域事实；输出是本次流年计算结果。 |
+| `xuankong_liunian` | 无 artifact digest | 不加 | 输入是 `standard_time + longitude + 坐向` 领域事实；输出是本次流年计算结果。 |
 | `bazi_yongshen` | `bazi_chart_digest`, `yongshen_digest` | 保留 | 用神裁决被起名、因子和应期消费，需要绑定源盘和结论。 |
 | natal internal factors | `natal_chart_digest` | 内部保留 | 因子只参与服务端断语计算，不作为公共 artifact 输出。 |
 | series / bond | 无 source digest | 不加 | 服务端同一编排内派生；请求-响应关联由编排层负责，不是防 LLM 伪造边界。 |

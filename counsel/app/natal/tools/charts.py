@@ -44,11 +44,11 @@ def current_years(timezone: str) -> tuple[int, int]:
     if not standard:
         raise ValueError("time.now 返回缺少 local_standard_time")
     subject = {
-        "birth_time": standard,
-        "birth_longitude": _CURRENT_YEAR_LONGITUDE,
+        "standard_time": standard,
+        "longitude": _CURRENT_YEAR_LONGITUDE,
         "gender": _CURRENT_YEAR_GENDER,
     }
-    params = {"scope": "liu_nian", "subject": subject, "start_time": standard, "count": 1}
+    params = {"scope": "liu_nian", "subject": subject, "standard_time": standard, "count": 1}
 
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=2) as executor:
@@ -75,7 +75,7 @@ def _bazi_liunian_range(subject: dict, start_year: int, count: int) -> list[dict
     result = call("bazi_liupan", {
         "scope": "liu_nian",
         "subject": subject,
-        "start_time": f"{start_year:04d}-06-15T12:00:00+08:00",
+        "standard_time": f"{start_year:04d}-06-15T12:00:00+08:00",
         "count": count,
     })
     return _liunian_range_items("bazi_liupan", result, count)
@@ -87,7 +87,7 @@ def _ziwei_liunian_range(subject: dict, start_lunar_year: int, count: int) -> li
     result = call("ziwei_liupan", {
         "scope": "liu_nian",
         "subject": subject,
-        "start_time": f"{start_lunar_year:04d}-06-15T12:00:00+08:00",
+        "standard_time": f"{start_lunar_year:04d}-06-15T12:00:00+08:00",
         "count": count,
     })
     return _liunian_range_items("ziwei_liupan", result, count)

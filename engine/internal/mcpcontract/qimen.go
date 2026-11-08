@@ -18,12 +18,12 @@ type QimenYongShenSymbols []string
 
 // QimenChart computes a qimen chart for an explicitly selected method.
 func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, error) {
-	at, _, err := parseStandardTime(input.QiJu.QiJuTime)
+	at, _, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
-	if input.QiJu.Longitude < -180 || input.QiJu.Longitude > 180 {
-		return nil, fmt.Errorf("qimen.chart: qi_ju.longitude must be within [-180,180], got %v", input.QiJu.Longitude)
+	if float64(input.Longitude) < -180 || float64(input.Longitude) > 180 {
+		return nil, fmt.Errorf("qimen.chart: longitude must be within [-180,180], got %v", float64(input.Longitude))
 	}
 	methodInput := input.Method
 	method, err := qimen.ResolveMethodWithOptions(
@@ -38,7 +38,7 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 		if len(input.YongShen) > 0 || input.Subject != nil {
 			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or subject")
 		}
-		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, input.QiJu.Longitude))
+		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, float64(input.Longitude)))
 	}
 	var birthDate qimen.BirthDate
 	if input.Subject != nil {
@@ -57,13 +57,13 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 			}
 			symbols = append(symbols, symbol)
 		}
-		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, input.QiJu.Longitude, symbols, birthDate, method)
+		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, float64(input.Longitude), symbols, birthDate, method)
 		if err != nil {
 			return nil, fmt.Errorf("qimen.chart: %w", err)
 		}
 		return marshalRawOutput("qimen.chart", result)
 	}
-	result, err := qimen.ComputeChartWithMethodAt(at, input.QiJu.Longitude, method)
+	result, err := qimen.ComputeChartWithMethodAt(at, float64(input.Longitude), method)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}

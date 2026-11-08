@@ -74,11 +74,11 @@ naming_check
   "recorded_date": "1990-05-20",
   "recorded_time": "12:00",
   "record_timezone": "Asia/Shanghai",
-  "place_longitude": 116.4
+  "longitude": 116.4
 }
 ```
 
-排盘/流年工具只收标准时间：
+排盘/流年工具只收标准时间；需要真太阳时的工具才加 `longitude`：
 
 ```json
 {
@@ -110,8 +110,8 @@ naming_check
 ```json
 {
   "subject": {
-    "birth_time": "1990-05-20T12:00:00+08:00",
-    "birth_longitude": 116.407526,
+    "standard_time": "1990-05-20T12:00:00+08:00",
+    "longitude": 116.407526,
     "gender": "male"
   }
 }
@@ -160,7 +160,7 @@ naming_check
 奇门方法参数应按 scope / school / quarter rule 建立分支，而不是平铺所有
 optional enum。
 
-naming_check 使用单一 object 输入。`selected_yongshen` 直接使用八字用神裁决返回对象；工具只消费 `selected.yong / xi / ji`，逐字返回五行角色。
+naming_check 使用单一 object 输入。`selected_yongshen` 直接使用八字用神裁决返回对象；工具只消费 `selected_yongshen.yong / xi / ji`，逐字返回五行角色。
 
 runtime-only 校验不能替代 schema 可见性；仅当约束无法用分支表达时（如
 "perspective 仅在 matter=relationship 时合法"这类值级条件）才允许 validator

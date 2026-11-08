@@ -191,23 +191,27 @@ def _normalize_selected_yongshen(selected_yongshen: object) -> dict:
         raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
     raw = raw_selected_yongshen.get("selected_yongshen")
     if not isinstance(raw, dict):
-        raise ValueError("selected_yongshen.selected must be an object")
+        raise ValueError("selected_yongshen.selected_yongshen must be an object")
 
     yong = wuxing_from_chinese(raw.get("yong", ""))
     if not yong:
-        raise ValueError(f"invalid selected_yongshen.selected.yong {raw.get('yong')!r}")
+        raise ValueError(
+            f"invalid selected_yongshen.selected_yongshen.yong {raw.get('yong')!r}"
+        )
 
     normalized: dict = {"yong": yong, "xi": [], "ji": []}
     assigned = {yong: "yong"}
     for role in ("xi", "ji"):
         elements = raw.get(role) or []
         if not isinstance(elements, list):
-            raise LikiToolError(f"selected_yongshen.selected.{role} must be an array")
+            raise LikiToolError(
+                f"selected_yongshen.selected_yongshen.{role} must be an array"
+            )
         for element in elements:
             normalized_element = wuxing_from_chinese(element)
             if not normalized_element:
                 raise LikiToolError(
-                    f"invalid selected_yongshen.selected.{role} {element!r}"
+                    f"invalid selected_yongshen.selected_yongshen.{role} {element!r}"
                 )
             if normalized_element in assigned:
                 raise LikiToolError(

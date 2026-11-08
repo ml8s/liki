@@ -107,7 +107,6 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     patterns = [
         {
             **_with_id(item, f"pattern-{index + 1}"),
-            "kind": item.get("pattern_kind", ""),
         }
         for index, item in enumerate(chart.get("ge_ju", []))
     ]
@@ -324,5 +323,6 @@ def casting_projection(casting: dict) -> dict:
         "casting_digest": casting.get("casting_digest"),
     }
     if projected["mode"] == "coins":
+        projected["coin_convention"] = casting.get("coin_convention")
         projected["rounds"] = casting.get("rounds", [])
     return projected

@@ -1,12 +1,12 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-09-20T08:00:00+08:00",
-      "birth_longitude": 116.4,
+      "standard_time": "2000-09-20T08:00:00+08:00",
+      "longitude": 116.4,
       "gender": "female"
     },
     "scope": "liu_shi",
-    "start_time": "2026-07-23T12:00:00+08:00",
+    "standard_time": "2026-07-23T12:00:00+08:00",
     "longitude": 116.4
   }
 }

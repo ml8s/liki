@@ -74,7 +74,7 @@ func TestTimeInputsCanonical(t *testing.T) {
 				if err := json.Unmarshal(branch.Properties["subject"], &subject); err != nil {
 					t.Fatal(err)
 				}
-				for _, field := range []string{"birth_time", "birth_longitude", "gender"} {
+				for _, field := range []string{"standard_time", "longitude", "gender"} {
 					if _, ok := subject.Properties[field]; !ok {
 						t.Fatalf("subject missing %s", field)
 					}
@@ -121,59 +121,28 @@ func TestTimeInputsCanonical(t *testing.T) {
 			}
 
 			for schemaIndex, schema := range schemas {
-				timeObject := map[string]string{
-					"liuyao_chart": "qi_gua", "qimen_chart": "qi_ju",
-					"xuankong_chart": "zhai",
-				}[name]
-				if timeObject != "" {
-					object, ok := schema.Properties[timeObject]
-					if !ok {
-						t.Fatalf("schema[%d]: missing %s", schemaIndex, timeObject)
+				var fields []string
+				switch name {
+				case "huangli_days":
+					fields = []string{"standard_time"}
+				case "xuankong_chart", "xuankong_liunian":
+					// 玄空用立春事件 + 坐向，不使用真太阳时；不收无关经度。
+					fields = []string{"standard_time"}
+				case "bazhai_chart":
+					fields = []string{"subject"}
+				default:
+					fields = []string{"standard_time", "longitude"}
+				}
+				for _, field := range fields {
+					if _, ok := schema.Properties[field]; !ok {
+						t.Fatalf("schema[%d]: missing %s", schemaIndex, field)
 					}
-					if !containsString(schema.Required, timeObject) {
-						t.Fatalf("schema[%d]: %s must be required", schemaIndex, timeObject)
-					}
-					var nested struct {
-						Required   []string `json:"required"`
-						Properties map[string]struct {
-							Type json.RawMessage `json:"type"`
-						} `json:"properties"`
-					}
-					if err := json.Unmarshal(object, &nested); err != nil {
-						t.Fatalf("decode %s: %v", timeObject, err)
-					}
-					fields := []string{"longitude"}
-					switch timeObject {
-					case "qi_gua":
-						fields = []string{"qi_gua_time", "longitude"}
-					case "qi_ju":
-						fields = []string{"qi_ju_time", "longitude"}
-					case "zhai":
-						fields = []string{"yun_start_time", "zuo_shan", "xiang_shan"}
-					}
-					for _, field := range fields {
-						if _, ok := nested.Properties[field]; !ok {
-							t.Fatalf("%s missing %s", timeObject, field)
-						}
-						if !containsString(nested.Required, field) {
-							t.Fatalf("%s.%s must be required", timeObject, field)
-						}
-					}
-				} else {
-					timeField := map[string]string{
-						"huangli_days":     "standard_time",
-						"bazhai_chart":     "subject",
-						"xuankong_liunian": "start_time",
-					}[name]
-					if _, ok := schema.Properties[timeField]; !ok {
-						t.Fatalf("schema[%d]: missing %s", schemaIndex, timeField)
-					}
-					if !containsString(schema.Required, timeField) {
-						t.Fatalf("schema[%d]: %s must be required", schemaIndex, timeField)
+					if !containsString(schema.Required, field) {
+						t.Fatalf("schema[%d]: %s must be required", schemaIndex, field)
 					}
 				}
 				for _, forbidden := range []string{
-					"instant", "civil_time", "fold", "standard_time",
+					"instant", "civil_time", "fold",
 					"period_date", "birth_year", "birth_date",
 					"lunar_year", "target_lunar", "shi_zhi", "year",
 				} {

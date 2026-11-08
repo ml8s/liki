@@ -9,15 +9,17 @@ import (
 	"liki-engine/internal/engine/ziwei"
 )
 
-// NatalSubject is the minimal resolved identity needed by natal methods.
-// BirthTime is local standard time (fixed offset, no DST), not true solar time.
+// Longitude is the canonical wire encoding for an event or birth longitude.
+// The domain still receives float64; this named type carries schema bounds.
+type Longitude float64
+
 // NatalSubject is the calibrated natal identity produced by tianwen
-// normalization. BirthTime is local standard time (fixed offset, no DST) and
-// BirthLongitude is retained for true-solar-time correction.
+// normalization. StandardTime is local standard time (fixed offset, no DST),
+// not true solar time. Longitude is retained for true-solar-time correction.
 type NatalSubject struct {
-	BirthTime      StandardTime `json:"birth_time" jsonschema:"出生地标准时间（local standard time，无 DST），RFC3339 带 offset。"`
-	BirthLongitude float64      `json:"birth_longitude" jsonschema:"出生地经度（-180..180）。"`
-	Gender         GenderName   `json:"gender" jsonschema:"性别。"`
+	StandardTime StandardTime `json:"standard_time" jsonschema:"标准时间（fixed offset，无 DST），RFC3339 带 offset。"`
+	Longitude    Longitude    `json:"longitude" jsonschema:"经度（-180..180）。"`
+	Gender       GenderName   `json:"gender" jsonschema:"性别。"`
 }
 
 type SubjectSide struct {
@@ -25,7 +27,7 @@ type SubjectSide struct {
 }
 
 func (subject NatalSubject) standardTime() (time.Time, error) {
-	standard, _, err := parseStandardTime(subject.BirthTime)
+	standard, _, err := parseStandardTime(subject.StandardTime)
 	return standard, err
 }
 
@@ -34,8 +36,8 @@ func (subject NatalSubject) gender() (ganzhi.Gender, error) {
 }
 
 func (subject NatalSubject) validate() (time.Time, ganzhi.Gender, error) {
-	if subject.BirthLongitude < -180 || subject.BirthLongitude > 180 {
-		return time.Time{}, ganzhi.Male, fmt.Errorf("subject.birth_longitude must be within [-180,180], got %v", subject.BirthLongitude)
+	if subject.Longitude < -180 || subject.Longitude > 180 {
+		return time.Time{}, ganzhi.Male, fmt.Errorf("subject.longitude must be within [-180,180], got %v", subject.Longitude)
 	}
 	gender, err := subject.gender()
 	if err != nil {
@@ -53,7 +55,7 @@ func (subject NatalSubject) baziChart() (bazi.Chart, error) {
 	if err != nil {
 		return bazi.Chart{}, err
 	}
-	return bazi.ComputeChartAt(standard, subject.BirthLongitude, gender), nil
+	return bazi.ComputeChartAt(standard, float64(subject.Longitude), gender), nil
 }
 
 func (subject NatalSubject) baziCore() (bazi.Core, error) {
@@ -61,7 +63,7 @@ func (subject NatalSubject) baziCore() (bazi.Core, error) {
 	if err != nil {
 		return bazi.Core{}, err
 	}
-	return bazi.ComputeCoreAt(standard, subject.BirthLongitude, gender), nil
+	return bazi.ComputeCoreAt(standard, float64(subject.Longitude), gender), nil
 }
 
 func (subject NatalSubject) ziweiChart() (ziwei.Chart, error) {
@@ -69,5 +71,5 @@ func (subject NatalSubject) ziweiChart() (ziwei.Chart, error) {
 	if err != nil {
 		return ziwei.Chart{}, err
 	}
-	return ziwei.ComputeChartAt(standard, subject.BirthLongitude, gender)
+	return ziwei.ComputeChartAt(standard, float64(subject.Longitude), gender)
 }

@@ -17,7 +17,7 @@ from app.natal.tools.chart_integrity import with_natal_chart_digest
 def _valid_query_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return with_natal_chart_digest({
-        "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
+        "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "male"},
         "standard_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
@@ -86,7 +86,7 @@ class TestFactorMatchingContract(unittest.TestCase):
     def _chart(self, ri_gan="甲", yue_zhi="卯", state="帝旺"):
         return {
             "natal_chart_digest": "a" * 64,
-            "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
+            "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "male"},
             "gender": "male",
             "chart": {"yue": {"zhi": yue_zhi}, "ri": {"gan": ri_gan, "zhi": "辰"}},
             "bazi": {
@@ -104,7 +104,7 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def test_性别是排盘上下文而非因子(self):
         base = self._fac()
-        natal_chart = {"natal_chart_digest": "a" * 64, "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "female"}, "base": base, "gender": "female", "bazi": {}, "chart": {"chart_digest": "a" * 64}, "ziwei": {}}
+        natal_chart = {"natal_chart_digest": "a" * 64, "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "female"}, "base": base, "gender": "female", "bazi": {}, "chart": {"chart_digest": "a" * 64}, "ziwei": {}}
         result = factors.evaluate_snap_from_natal_chart(natal_chart)
         self.assertEqual(result["context"], {"性别": "female"})
         self.assertNotIn("性别", result["八字"])

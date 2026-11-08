@@ -26,7 +26,7 @@ def _saved_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     pillar_data = {pillar: {"gan": "甲", "zhi": "子"} for pillar in ("nian", "yue", "ri", "shi")}
     return with_natal_chart_digest({
-        "subject": {"birth_time": "1990-05-20T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
+        "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "male"},
         "bazi": pillar_data,
         "standard_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",

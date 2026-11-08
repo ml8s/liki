@@ -1,11 +1,11 @@
 {
   "input": {
     "subject": {
-      "birth_time": "1990-11-07T14:20:00+08:00",
-      "birth_longitude": 116,
+      "standard_time": "1990-11-07T14:20:00+08:00",
+      "longitude": 116,
       "gender": "female"
     },
     "scope": "liu_nian",
-    "start_time": "2026-06-15T12:00:00+08:00"
+    "standard_time": "2026-06-15T12:00:00+08:00"
   }
 }

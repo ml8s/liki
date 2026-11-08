@@ -13,8 +13,8 @@ PALACES = CONSTANTS["紫微宫位"]
 def _pan():
     chart = {
         "subject": {
-            "birth_time": "1990-05-20T12:00:00+08:00",
-            "birth_longitude": 116.4,
+            "standard_time": "1990-05-20T12:00:00+08:00",
+            "longitude": 116.4,
             "gender": "male",
         },
         "bazi": {pillar: {"gan": "甲", "zhi": "子"} for pillar in PILLARS},
@@ -43,7 +43,7 @@ def test_valid_natal_chart_passes():
 
 def test_digest_rejects_tampering():
     chart = _pan()
-    chart["subject"]["birth_longitude"] = 117.0
+    chart["subject"]["longitude"] = 117.0
     with pytest.raises(ValueError, match="digest mismatch"):
         validate_natal_chart(chart, action="test")
 

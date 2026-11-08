@@ -42,16 +42,15 @@ func TestTimeModelGolden(t *testing.T) {
 			}
 			if tc.Tool == "bazi_chart" || tc.Tool == "ziwei_chart" {
 				input["subject"] = map[string]any{
-					"birth_time":      tc.Input["standard_time"],
-					"birth_longitude": tc.Input["longitude"],
-					"gender":          tc.Input["gender"],
+					"standard_time": tc.Input["standard_time"],
+					"longitude":     tc.Input["longitude"],
+					"gender":        tc.Input["gender"],
 				}
 				delete(input, "standard_time")
 				delete(input, "longitude")
 				delete(input, "gender")
 			} else if tc.ChartFrom != "" {
 				input["subject"] = loadSubjectFixture(t, tc.ChartFrom, tc.Tool)
-				delete(input, "standard_time")
 			}
 			gotRaw, err := registry.Call(context.Background(), tc.Tool, mustJSON(t, input))
 			if err != nil {
@@ -78,24 +77,24 @@ func TestTimeModelGolden(t *testing.T) {
 func loadSubjectFixture(t *testing.T, name, tool string) map[string]any {
 	t.Helper()
 	subject := map[string]any{
-		"birth_time":      "1990-05-20T12:49:00+08:00",
-		"birth_longitude": 116.4,
-		"gender":          "male",
+		"standard_time": "1990-05-20T12:49:00+08:00",
+		"longitude":     116.4,
+		"gender":        "male",
 	}
 	domain, _, _ := strings.Cut(tool, "_")
 	switch {
 	case strings.Contains(name, "_female_"):
 		subject["gender"] = "female"
 		if domain == "bazi" {
-			subject["birth_time"] = "2000-09-20T08:30:00+08:00"
+			subject["standard_time"] = "2000-09-20T08:30:00+08:00"
 		} else {
-			subject["birth_time"] = "2000-09-20T08:00:00+08:00"
+			subject["standard_time"] = "2000-09-20T08:00:00+08:00"
 		}
 	case strings.Contains(name, "_1984_"):
 		if domain == "bazi" {
-			subject["birth_time"] = "1984-02-15T08:00:00+08:00"
+			subject["standard_time"] = "1984-02-15T08:00:00+08:00"
 		} else {
-			subject["birth_time"] = "1984-02-16T12:00:00+08:00"
+			subject["standard_time"] = "1984-02-16T12:00:00+08:00"
 		}
 	}
 	return subject

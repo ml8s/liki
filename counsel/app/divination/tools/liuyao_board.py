@@ -32,8 +32,8 @@ def _resolve_yong_shen(
 def factors(
     *,
     casting: dict,
-    qi_gua_longitude: float,
-    qi_gua_time: str,
+    longitude: float,
+    standard_time: str,
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
@@ -44,20 +44,17 @@ def factors(
         matter, yong_shen, perspective
     )
     require_object(casting, "casting")
-    if not qi_gua_time:
-        raise ValueError("qi_gua_time is required")
-    if qi_gua_longitude < -180 or qi_gua_longitude > 180:
-        raise ValueError("qi_gua_longitude must be within [-180,180]")
-    resolved_longitude = qi_gua_longitude
+    if not standard_time:
+        raise ValueError("standard_time is required")
+    if longitude < -180 or longitude > 180:
+        raise ValueError("longitude must be within [-180,180]")
 
     params: dict[str, Any] = {
         "yong_shen": resolved_yong_shen,
     }
-    params["qi_gua"] = {
-        "qi_gua_time": qi_gua_time,
-        "longitude": resolved_longitude,
-        "casting": casting,
-    }
+    params["standard_time"] = standard_time
+    params["longitude"] = longitude
+    params["casting"] = casting
     raw = engine_data("liuyao_chart", params)
     question_fact = {
         "text": question or "",

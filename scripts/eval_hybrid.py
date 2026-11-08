@@ -48,7 +48,7 @@ def build_natal_chart(civil_time: str, gender: str, longitude: float) -> dict:
     date, clock = civil_time[:19].split("T", 1)
     resolved = call("subject_candidates", {
         "calendar_kind": "solar", "recorded_date": date, "recorded_time": clock,
-        "record_timezone": "Asia/Shanghai", "place_longitude": longitude,
+        "record_timezone": "Asia/Shanghai", "longitude": longitude,
         "subject_gender": gender,
     })["data"]
     candidates = resolved.get("candidates") or []
@@ -70,9 +70,9 @@ def build_natal_chart(civil_time: str, gender: str, longitude: float) -> dict:
     return natal_chart
 
 
-def _bazi_liupan(subject: dict, scope: str, start_time: str, count: int = 1) -> list[dict]:
+def _bazi_liupan(subject: dict, scope: str, standard_time: str, count: int = 1) -> list[dict]:
     result = call("bazi_liupan", {
-        "subject": subject, "scope": scope, "start_time": start_time, "count": count,
+        "subject": subject, "scope": scope, "standard_time": standard_time, "count": count,
     })
     root = next((key for key, value in result["data"].items() if isinstance(value, list)), None)
     if root is None:
@@ -80,9 +80,9 @@ def _bazi_liupan(subject: dict, scope: str, start_time: str, count: int = 1) -> 
     return result["data"][root]
 
 
-def _ziwei_liupan(subject: dict, scope: str, start_time: str, count: int = 1) -> list[dict]:
+def _ziwei_liupan(subject: dict, scope: str, standard_time: str, count: int = 1) -> list[dict]:
     result = call("ziwei_liupan", {
-        "subject": subject, "scope": scope, "start_time": start_time, "count": count,
+        "subject": subject, "scope": scope, "standard_time": standard_time, "count": count,
     })
     root = next((key for key, value in result["data"].items() if isinstance(value, list)), None)
     if root is None:

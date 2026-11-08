@@ -5,12 +5,19 @@ import (
 	"fmt"
 
 	"liki-engine/internal/engine/bazhai"
+	"liki-engine/internal/engine/ganzhi"
 )
 
-// BazhaiChartInput consumes the calibrated natal subject; Bazhai does not need
-// the birth hour, but keeping subject preserves the upstream calibrated identity.
+// BazhaiSubjectInput is the minimal calibrated identity used by Bazhai. It does
+// not carry longitude because Bazhai does not use local apparent solar time.
+type BazhaiSubjectInput struct {
+	StandardTime StandardTime `json:"standard_time" jsonschema:"出生年代表标准时间（无 DST），RFC3339 带 offset；用于立春年界。"`
+	Gender       GenderName   `json:"gender" jsonschema:"性别。"`
+}
+
+// BazhaiChartInput consumes the Bazhai subject.
 type BazhaiChartInput struct {
-	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	Subject BazhaiSubjectInput `json:"subject" jsonschema:"八宅命卦主体。"`
 }
 
 type BazhaiGuaOutput struct {
@@ -84,11 +91,11 @@ type BazhaiLayoutOutput struct {
 }
 
 func BazhaiChart(_ context.Context, input BazhaiChartInput) (BazhaiChartOutput, error) {
-	standard, err := input.Subject.standardTime()
+	standard, _, err := parseStandardTime(input.Subject.StandardTime)
 	if err != nil {
 		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
 	}
-	gender, err := input.Subject.gender()
+	gender, err := ganzhi.ParseGender(string(input.Subject.Gender))
 	if err != nil {
 		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
 	}

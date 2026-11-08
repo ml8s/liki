@@ -13,33 +13,33 @@ import (
 // of mutually optional fields.
 
 type baziLiupanLiuNianForm struct {
-	Scope     BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime        `json:"start_time" jsonschema:"流年选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询年数。"`
+	Scope        BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime        `json:"standard_time" jsonschema:"流年选择起点：local standard time，RFC3339 fixed offset。"`
+	Count        *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询年数。"`
 }
 
 type baziLiupanLiuYueForm struct {
-	Scope     BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime        `json:"start_time" jsonschema:"流月选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询月数。"`
+	Scope        BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime        `json:"standard_time" jsonschema:"流月选择起点：local standard time，RFC3339 fixed offset。"`
+	Count        *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询月数。"`
 }
 
 type baziLiupanLiuRiForm struct {
-	Scope     BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime        `json:"start_time" jsonschema:"流日选择起点：local standard time，RFC3339 fixed offset。"`
-	Longitude float64             `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时校正用于日柱。"`
-	Count     *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询日数。"`
+	Scope        BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime        `json:"standard_time" jsonschema:"流日选择起点：local standard time，RFC3339 fixed offset。"`
+	Longitude    Longitude           `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时校正用于日柱。"`
+	Count        *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询日数。"`
 }
 
 type baziLiupanLiuShiForm struct {
-	Scope     BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime        `json:"start_time" jsonschema:"流时选择起点：local standard time，RFC3339 fixed offset。"`
-	Longitude float64             `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时校正用于日柱/时柱。"`
-	Count     *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询时辰数。"`
+	Scope        BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime        `json:"standard_time" jsonschema:"流时选择起点：local standard time，RFC3339 fixed offset。"`
+	Longitude    Longitude           `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时校正用于日柱/时柱。"`
+	Count        *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询时辰数。"`
 }
 
 type baziLiupanXiaoYunForm struct {
@@ -49,32 +49,32 @@ type baziLiupanXiaoYunForm struct {
 }
 
 type ziweiLiupanLiuNianForm struct {
-	Scope     ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime         `json:"start_time" jsonschema:"流年选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询年数。"`
+	Scope        ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime         `json:"standard_time" jsonschema:"流年选择起点：local standard time，RFC3339 fixed offset。"`
+	Count        *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询年数。"`
 }
 
 type ziweiLiupanLiuYueForm struct {
-	Scope     ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime         `json:"start_time" jsonschema:"流月选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询月数。"`
+	Scope        ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime         `json:"standard_time" jsonschema:"流月选择起点：local standard time，RFC3339 fixed offset。"`
+	Count        *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询月数。"`
 }
 
 type ziweiLiupanLiuRiForm struct {
-	Scope     ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime         `json:"start_time" jsonschema:"流日选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询日数。"`
+	Scope        ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime         `json:"standard_time" jsonschema:"流日选择起点：local standard time，RFC3339 fixed offset。"`
+	Count        *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询日数。"`
 }
 
 type ziweiLiupanLiuShiForm struct {
-	Scope     ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
-	Subject   NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
-	StartTime StandardTime         `json:"start_time" jsonschema:"流时选择起点：local standard time，RFC3339 fixed offset。"`
-	Longitude float64              `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时校正用于时辰。"`
-	Count     *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询时辰数。"`
+	Scope        ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject      NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StandardTime StandardTime         `json:"standard_time" jsonschema:"流时选择起点：local standard time，RFC3339 fixed offset。"`
+	Longitude    Longitude            `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时校正用于时辰。"`
+	Count        *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询时辰数。"`
 }
 
 func constFormSchema[T any](options *jsonschema.ForOptions, scope string) (json.RawMessage, error) {

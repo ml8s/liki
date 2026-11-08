@@ -94,10 +94,10 @@ class LiuyaoAskInput(BaseModel):
     question: Annotated[str, Field(min_length=2)] = Field(
         description="本次要判断的一个具体目标",
     )
-    qi_gua_longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
-        description="起卦地点经度（-180..180）；必须显式传入，不做默认（精度要求）。",
+    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
+        description="起卦地经度（-180..180）；必须显式传入，不做默认（精度要求）。",
     )
-    qi_gua_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         description="起卦地标准时间 RFC3339（无 DST），必填。",
     )
     casting: LiuyaoCastingInput = Field(
@@ -116,9 +116,9 @@ class LiuyaoCastingRoundsItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
     position: Annotated[int, Field(ge=1, le=6, description="铜钱记录爻位。")]
     coins: Annotated[list[Literal["正", "反"]], Field(min_length=3, max_length=3, description="三枚铜钱正反面。")]
-    value: Annotated[int, Field(ge=6, le=9, description="本爻爻值。")]
-    label: Literal["老阴", "少阳", "少阴", "老阳"] = Field(description="爻值名称。")
-    changing: bool = Field(description="是否动爻。")
+    yao_value: Annotated[int, Field(ge=6, le=9, description="本爻爻值。")]
+    yao_label: Literal["老阴", "少阳", "少阴", "老阳"] = Field(description="爻值名称。")
+    is_dong_yao: bool = Field(description="是否动爻。")
 
 
 DongYaoPositions = Annotated[
@@ -132,6 +132,10 @@ class LiuyaoCoinsCasting(BaseModel):
     model_config = ConfigDict(extra="forbid")
     mode: Literal["coins"] = Field(description="起卦方式。")
     order: Literal["bottom_up"] = Field(description="爻序。")
+    coin_convention: dict[Literal["正", "反"], int] | None = Field(
+        default=None,
+        description="铜钱记分约定；auto 实际落为 coins 时返回。",
+    )
     rounds: list[LiuyaoCastingRoundsItem] = Field(description="六组铜钱记录。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
     dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
@@ -185,7 +189,7 @@ class LiuyaoLine(BaseModel):
 class LiuyaoPattern(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: Annotated[str, Field(min_length=1, description="格局 ID。")]
-    kind: str = Field(description="格局类型。")
+    pattern_kind: str = Field(description="格局类型。")
     sub_type: str = Field(description="格局子类型。")
     position: int = Field(description="关联爻位。")
     is_true: bool = Field(description="结构是否成立。")
@@ -721,23 +725,6 @@ QimenMethod = (
 )
 
 
-class QimenCityLocation(BaseModel):
-    """按城市解析起局地点。"""
-    model_config = ConfigDict(extra="forbid")
-    kind: Literal["city"] = Field(description="地点类型：城市。")
-    city: Annotated[str, Field(min_length=1)] = Field(description="起局城市。")
-
-
-class QimenLongitudeLocation(BaseModel):
-    """直接提供起局经度。"""
-    model_config = ConfigDict(extra="forbid")
-    kind: Literal["longitude"] = Field(description="地点类型：经度。")
-    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(description="起局经度。")
-
-
-QimenLocation = QimenCityLocation | QimenLongitudeLocation
-
-
 class QimenMatterFocus(BaseModel):
     """按普通事象推导奇门用神。"""
     model_config = ConfigDict(extra="forbid")
@@ -785,13 +772,15 @@ class QimenAskInput(BaseModel):
     question: str = Field(
         description="本次要判断的一个具体目标",
     )
-    qi_ju_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         description="起局地标准时间 RFC3339（无 DST）；节气换局按此时刻判定。",
     )
     method: QimenMethod = Field(
         description="奇门方法事实；按 scope、school 和条件字段的合法组合传入。",
     )
-    location: QimenLocation = Field(description="起局地点；城市候选或显式经度。")
+    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
+        description="起局地经度（-180..180）；必须显式传入，城市需先转换为经度。",
+    )
     focus: QimenFocus | None = Field(
         default=None,
         description="普通事象或显式用神；quarter / specialized rule 可按规则省略。",
@@ -836,9 +825,14 @@ class QimenAskInput(BaseModel):
 class QimenQiJu(BaseModel):
     """Resolved qi ju facts."""
     model_config = ConfigDict(extra="forbid")
-    city: str | None = Field(default=None, description="起局城市；显式经度时为 null。")
-    longitude: float = Field(description="起局经度。")
-    qi_ju_time: str = Field(description="起局地标准时间。")
+    longitude: Annotated[float, Field(ge=-180, le=180, description="起局经度。")]
+    standard_time: Annotated[
+        str,
+        Field(
+            json_schema_extra={"format": "date-time"},
+            description="起局地标准时间。",
+        ),
+    ]
 
 
 class QimenEvidenceReference(BaseModel):

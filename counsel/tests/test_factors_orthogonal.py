@@ -39,8 +39,8 @@ def _engine_call(name: str, args: dict):
 def _subject(instant: str, timezone: str, gender: str, longitude: float) -> dict:
     from tests.time_helpers import standard_time_from_instant
     return {
-        "birth_time": standard_time_from_instant(instant, timezone),
-        "birth_longitude": longitude,
+        "standard_time": standard_time_from_instant(instant, timezone),
+        "longitude": longitude,
         "gender": gender,
     }
 

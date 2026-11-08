@@ -23,8 +23,8 @@ DAXIAN_COUNT = _CONSTANTS["大限段数"]
 
 class _SubjectModel(BaseModel):
     model_config = ConfigDict(extra="allow")
-    birth_time: Annotated[str, Field(min_length=1)]
-    birth_longitude: Annotated[float, Field(ge=-180, le=180)]
+    standard_time: Annotated[str, Field(min_length=1)]
+    longitude: Annotated[float, Field(ge=-180, le=180)]
     gender: Literal["male", "female"]
 
 

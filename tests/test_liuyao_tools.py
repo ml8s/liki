@@ -26,7 +26,17 @@ def test_qigua_sends_original_coins_to_engine(monkeypatch):
 
     def engine(method, params):
         calls.append((method, params))
-        return {"casting": {"mode": "coins", "rounds": [["正", "反", "反"]] * 6}}
+        return {"casting": {
+            "mode": "coins", "order": "bottom_up",
+            "coin_convention": {"正": 3, "反": 2},
+            "rounds": [
+                {"position": index, "coins": coins, "yao_value": 7,
+                 "yao_label": "少阳", "is_dong_yao": False}
+                for index, coins in enumerate(rounds, 1)
+            ],
+            "yaos": [7] * 6, "dong_yao": [],
+            "casting_digest": "a" * 64,
+        }}
 
     monkeypatch.setattr("app.divination.tools.liuyao_casting.engine_data", engine)
     rounds = [["正", "反", "反"]] * 6
@@ -44,7 +54,7 @@ def test_qigua_rejects_coin_conversion_inputs():
 def test_board_sends_casting_and_resolved_yongshen_only(monkeypatch):
     calls = []
     raw_chart = {
-        "name": "乾为天", "ben_gua": "乾", "gong": "乾", "gong_wuxing": "金",
+        "gua_name": "乾为天", "gong": "乾", "gong_wuxing": "金",
         "lines": [], "yong_shen": {"name": "官鬼", "position": 1},
         "timing_candidates": [],
     }
@@ -54,21 +64,29 @@ def test_board_sends_casting_and_resolved_yongshen_only(monkeypatch):
         return raw_chart
 
     monkeypatch.setattr("app.divination.tools.liuyao_board.engine_data", engine)
-    casting = {"mode": "coins", "rounds": [["正", "反", "反"]] * 6}
+    casting = {
+        "mode": "coins", "order": "bottom_up",
+        "coin_convention": {"正": 3, "反": 2},
+        "rounds": [
+            {"position": index, "coins": ["正", "反", "反"], "yao_value": 7,
+             "yao_label": "少阳", "is_dong_yao": False}
+            for index in range(1, 7)
+        ],
+        "yaos": [7] * 6, "dong_yao": [],
+        "casting_digest": "a" * 64,
+    }
     result = board_factors(
         casting=casting,
-        qi_gua_longitude=116.4,
-        qi_gua_time="2026-10-01T10:00:00+08:00",
+        longitude=116.4,
+        standard_time="2026-10-01T10:00:00+08:00",
         matter="career",
         question="这次面试能不能通过",
     )
     assert calls == [("liuyao_chart", {
         "yong_shen": "官鬼",
-        "qi_gua": {
-            "qi_gua_time": "2026-10-01T10:00:00+08:00",
-            "longitude": 116.4,
-            "casting": casting,
-        },
+        "standard_time": "2026-10-01T10:00:00+08:00",
+        "longitude": 116.4,
+        "casting": casting,
     })]
     assert result["matter"]["matter"] == "career"
     assert result["factors"]["selected_yongshen_context"]["selected_yongshen"]["name"] == "官鬼"
@@ -77,14 +95,14 @@ def test_board_sends_casting_and_resolved_yongshen_only(monkeypatch):
 def test_projected_factors_use_current_case_shape():
     casting = {"mode": "yaos", "yaos": [7] * 6, "dong_yao": []}
     chart = {
-        "name": "乾为天", "ben_gua": "乾", "gong": "乾", "gong_wuxing": "金",
+        "gua_name": "乾为天", "gong": "乾", "gong_wuxing": "金",
         "lines": [{
-            "position": 1, "type": 7, "gan": "甲", "zhi": "子", "wuxing": "水",
+            "position": 1, "yao_value": 7, "gan": "甲", "zhi": "子", "wuxing": "水",
             "liu_qin": "兄弟", "liu_shou": "青龙", "shi_ying": "世",
             "wang_shuai": "旺", "ri_chen_relations": ["扶"],
         }],
         "bian_yao": [{
-            "position": 1, "type": 8, "gan": "乙", "zhi": "丑", "wuxing": "土",
+            "position": 1, "yao_value": 8, "gan": "乙", "zhi": "丑", "wuxing": "土",
             "liu_qin": "官鬼",
         }],
         "ri_chen_gan": "甲", "ri_chen_zhi": "子",
@@ -117,6 +135,6 @@ def test_liuyao_ask_input_accepts_primary_call():
         "question": "这次面试能不能通过",
         "casting": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
         "focus": {"kind": "matter", "matter": "career"},
-        "qi_gua_longitude": 116.4,
-        "qi_gua_time": "2026-10-01T10:00:00+08:00",
+        "longitude": 116.4,
+        "standard_time": "2026-10-01T10:00:00+08:00",
     })

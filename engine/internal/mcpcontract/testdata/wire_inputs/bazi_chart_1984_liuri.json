@@ -1,12 +1,12 @@
 {
   "input": {
     "subject": {
-      "birth_time": "1984-02-15T08:00:00+08:00",
-      "birth_longitude": 123.75,
+      "standard_time": "1984-02-15T08:00:00+08:00",
+      "longitude": 123.75,
       "gender": "male"
     },
     "scope": "liu_ri",
-    "start_time": "2026-06-15T12:00:00+08:00",
+    "standard_time": "2026-06-15T12:00:00+08:00",
     "longitude": 116.4
   }
 }

@@ -4,30 +4,11 @@ from typing import Any
 
 from app.divination.tools.divination_rpc import engine_data
 from app.divination.tools.qimen_matters import resolve_matter
-from app.engine_mcp_client import MCPError
 from app.guards import require_mutually_exclusive
 
 
-def city_coords(city: str) -> dict:
-    try:
-        # Current engine exposes the broader city_info capability.
-        data = engine_data("city_info", {"city": city})
-    except MCPError:
-        # Compatibility with engines that still expose the narrow coords tool.
-        data = engine_data("city.coords", {"city": city})
-    candidates = data.get("candidates") or []
-    if len(candidates) != 1:
-        labels = "、".join(
-            f"{item.get('region', '')}{item.get('name', '')}" for item in candidates
-        ) or "无候选"
-        raise ValueError(
-            f"city '{city}' 存在歧义或未找到（{labels}）；请让用户确认城市"
-        )
-    return candidates[0]
-
-
 def qimen_chart(
-    qi_ju_time: str,
+    standard_time: str,
     longitude: float,
     *,
     method: dict[str, str],
@@ -57,13 +38,11 @@ def qimen_chart(
 
     if not isinstance(method, dict):
         raise ValueError("method must be an explicit qimen method object")
-    if not qi_ju_time:
-        raise ValueError("qi_ju_time is required")
+    if not standard_time:
+        raise ValueError("standard_time is required")
     params: dict[str, Any] = {
-        "qi_ju": {
-            "qi_ju_time": qi_ju_time,
-            "longitude": longitude,
-        },
+        "standard_time": standard_time,
+        "longitude": longitude,
         "method": method,
     }
     if subject is not None:

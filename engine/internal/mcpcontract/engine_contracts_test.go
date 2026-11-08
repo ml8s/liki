@@ -113,7 +113,7 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		t.Fatalf("subject_candidates oneOf forms = %d, want 4", len(resolveInput.OneOf))
 	}
 	for _, form := range resolveInput.OneOf {
-		if !slices.Contains(form.Required, "place_longitude") {
+		if !slices.Contains(form.Required, "longitude") {
 			t.Fatalf("subject_candidates form must require longitude: %#v", form.Required)
 		}
 		if !slices.Contains(form.Required, "calendar_kind") {
@@ -256,17 +256,16 @@ func TestQimenChartSchemaUsesMethodForms(t *testing.T) {
 	if _, exists := standard.Properties["subject"]; !exists {
 		t.Fatal("standard qimen form lacks subject")
 	}
-	for _, field := range []string{"yong_shen", "subject", "birth_timezone"} {
+	for _, field := range []string{"yong_shen", "subject", "standard_timezone"} {
 		if _, exists := jinhan.Properties[field]; exists {
 			t.Fatalf("jinhan form must not expose %s", field)
 		}
 	}
 	for _, branch := range []rootForm{standard, jinhan} {
-		qiju := branch.Properties["qi_ju"]
-		qijuLongitude := qiju.Properties["longitude"]
-		if qijuLongitude.Minimum == nil || *qijuLongitude.Minimum != -180 ||
-			qijuLongitude.Maximum == nil || *qijuLongitude.Maximum != 180 {
-			t.Fatalf("qimen qi_ju.longitude bounds = %#v", qijuLongitude)
+		qiju := branch.Properties["longitude"]
+		if qiju.Minimum == nil || *qiju.Minimum != -180 ||
+			qiju.Maximum == nil || *qiju.Maximum != 180 {
+			t.Fatalf("qimen longitude bounds = %#v", qiju)
 		}
 	}
 	if len(standard.Properties["method"].OneOf) != 9 {
@@ -376,7 +375,7 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 	// primary element but no 辅 element. Missing candidates use an explicit
 	// closure value; neither JSON null nor an empty-string sentinel is allowed.
 	subject := map[string]any{
-		"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male",
+		"standard_time": "1990-05-20T12:49:00+08:00", "longitude": 116.4, "gender": "male",
 	}
 	_ = callToolDocument(t, registry, "bazi_chart", map[string]any{"subject": subject})
 	full := callToolDocument(t, registry, "bazi_chart", map[string]any{"subject": subject})
@@ -473,8 +472,8 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	bazhaiRaw, err := registry.Call(context.Background(), "bazhai_chart", mustJSON(t, BazhaiChartInput{
-		Subject: NatalSubject{
-			BirthTime: "1984-06-15T12:00:00+08:00", BirthLongitude: 116.4, Gender: "male",
+		Subject: BazhaiSubjectInput{
+			StandardTime: "1984-06-15T12:00:00+08:00", Gender: "male",
 		},
 	}))
 	if err != nil {
@@ -513,11 +512,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	chartRaw, err := registry.Call(context.Background(), "xuankong_chart", mustJSON(t, XuankongChartInput{
-		Zhai: XuankongZhaiInput{
-			YunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
-			ZuoShan:      2,
-			XiangShan:    14,
-		},
+		StandardTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
+		ZuoShan:      2,
+		XiangShan:    14,
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
@@ -534,12 +531,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liunianRaw, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Zhai: XuankongZhaiInput{
-			YunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
-			ZuoShan:      2,
-			XiangShan:    14,
-		},
-		LiuNianStartTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
+		StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
+		ZuoShan:      2,
+		XiangShan:    14,
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.liunian: %v", err)
@@ -593,11 +587,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		QiGua: LiuyaoQiGuaInput{
-			QiGuaTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-			Longitude: 116.4,
-			Casting:   &qigua.Casting,
-		},
+		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		Longitude:    116.4,
+		Casting:      &qigua.Casting,
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.chart: %v", err)
@@ -617,11 +609,9 @@ func TestEngineContractCalls(t *testing.T) {
 	tamperedQigua := qigua
 	tamperedQigua.Casting.Yaos[0] = 8
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		QiGua: LiuyaoQiGuaInput{
-			QiGuaTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-			Longitude: 116.4,
-			Casting:   &tamperedQigua.Casting,
-		},
+		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		Longitude:    116.4,
+		Casting:      &tamperedQigua.Casting,
 	})); err == nil || (!strings.Contains(err.Error(), "casting_digest mismatch") &&
 		!strings.Contains(err.Error(), "dong_yao mismatch")) {
 		t.Fatalf("expected tampered casting rejection, got %v", err)

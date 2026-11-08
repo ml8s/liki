@@ -16,8 +16,8 @@ func TestContractToolHandlerRecordsMetrics(t *testing.T) {
 	request := &mcp.CallToolRequest{Params: &mcp.CallToolParamsRaw{}}
 	request.Params.Arguments = json.RawMessage(`{
 		"subject": {
-			"birth_time": "1990-05-20T12:00:00+08:00",
-			"birth_longitude": 116.4,
+			"standard_time": "1990-05-20T12:00:00+08:00",
+			"longitude": 116.4,
 			"gender": "male"
 		}
 	}`)

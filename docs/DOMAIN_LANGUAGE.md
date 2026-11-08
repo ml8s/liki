@@ -36,10 +36,7 @@ that concept's compatibility list.
 | `dayun` | canonical | 八字大运区间及其起运、干支和顺逆信息。 | `DaYun` | `DaYun` | `dayun` | 大运 | — |
 | `liunian` | canonical | 流年干支及其与本命的组合事实。 | `LiuNian` | `LiuNian` | `liunian` | 流年 | — |
 | `yingqi` | canonical | 事件可能兑现的时间窗口或时间点。 | `YingQi` | `YingQi` | `ying_qi` | 应期 | — |
-| `qi_ju` | canonical | 一次奇门起局的领域事实：起局地标准时间和经度。 | `QimenQiJuInput` | `QimenQiJuInput` | `qi_ju` | 奇门起局 | 禁止：`qimen_seed`, `qiju_time`<br>兼容：`qi_ju_time`（v2026.12.01.0）, `qi_ju_longitude`（v2026.12.01.0） |
 | `casting` | canonical | 一次六爻起卦的源事实与审计收据；包含爻值、动爻和 casting_digest。 | `LiuyaoCastingRequestInput / LiuyaoCastingOutput` | `LiuyaoCastingRequestInput` | `casting` | 六爻起卦收据 | 禁止：`liuyao_seed`, `casting_id` |
-| `qi_gua` | canonical | 一次六爻起卦事件：casting 加起卦地标准时间和经度。 | `LiuyaoQiGuaInput` | `LiuyaoQiGuaInput` | `qi_gua` | 六爻起卦事件 | 禁止：`liuyao_seed`, `qi_gua_time`<br>兼容：`qi_gua_time`（v2026.12.01.0）, `qi_gua_longitude`（v2026.12.01.0） |
-| `zhai` | canonical | 玄空宅的领域事实：宅运起始时间、坐山和向山。 | `XuankongZhaiInput` | `XuankongZhaiInput` | `zhai` | 玄空宅 | 禁止：`xuankong_seed`, `zhaiyun_start_time`<br>兼容：`zhaiyun_start_time`（v2026.12.01.0） |
 
 ## Rules
 

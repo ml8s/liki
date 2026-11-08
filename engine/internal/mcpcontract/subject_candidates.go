@@ -29,8 +29,8 @@ type TianwenSubjectCandidatesRangeInput struct {
 
 // TianwenSubjectCandidatesLongitudeRangeInput is the east-west span of the recorded place.
 type TianwenSubjectCandidatesLongitudeRangeInput struct {
-	West float64 `json:"west" jsonschema:"地点西界经度（-180..180）。"`
-	East float64 `json:"east" jsonschema:"地点东界经度（-180..180）。"`
+	West Longitude `json:"west" jsonschema:"地点西界经度（-180..180）。"`
+	East Longitude `json:"east" jsonschema:"地点东界经度（-180..180）。"`
 }
 
 // TianwenSubjectCandidatesInput is a time-fact normalization request. Exactly one of
@@ -40,10 +40,10 @@ type TianwenSubjectCandidatesInput struct {
 	RecordedDate   string                              `json:"recorded_date,omitempty" jsonschema:"公历日期 YYYY-MM-DD（calendar 为 solar 时必填）。"`
 	RecordedLunar  *TianwenSubjectCandidatesLunarInput `json:"recorded_lunar,omitempty" jsonschema:"农历日期（calendar 为 lunar 时必填，含闰月标记 leap）。"`
 	RecordTimezone string                              `json:"record_timezone,omitempty" jsonschema:"记录时间所在时区（IANA）；壁钟/农历形态必填。"`
-	PlaceLongitude float64                             `json:"place_longitude" jsonschema:"地点经度（-180..180）；真太阳时换算必需。"`
+	Longitude      Longitude                           `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时换算必需。"`
 	SubjectGender  GenderName                          `json:"subject_gender" jsonschema:"性别。"`
 
-	PlaceLongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"place_longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选，用于边界不确定性。"`
+	LongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选，用于边界不确定性。"`
 
 	RecordedTime      string                              `json:"recorded_time,omitempty" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）；与 recorded_shichen/recorded_time_range 二选一；recorded_date/recorded_lunar 提供日期。"`
 	RecordedShichen   string                              `json:"recorded_shichen,omitempty" jsonschema:"已知时辰（真太阳时基，2 小时）；与 recorded_time/recorded_time_range 二选一。"`
@@ -53,43 +53,43 @@ type TianwenSubjectCandidatesInput struct {
 // ── subject_candidates input variants (public oneOf) ──
 
 type TianwenDateTimeForm struct {
-	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
-	RecordedDate        string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
-	RecordedTime        string                                       `json:"recorded_time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）。"`
-	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	PlaceLongitude      float64                                      `json:"place_longitude" jsonschema:"地点经度（-180..180）。"`
-	SubjectGender       GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
-	PlaceLongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"place_longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
+	CalendarKind   CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
+	RecordedDate   string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
+	RecordedTime   string                                       `json:"recorded_time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）。"`
+	RecordTimezone string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
+	Longitude      Longitude                                    `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	SubjectGender  GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
+	LongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
 type TianwenLunarForm struct {
-	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
-	RecordedLunar       *TianwenSubjectCandidatesLunarInput          `json:"recorded_lunar" jsonschema:"农历日期（含闰月标记 leap）。"`
-	RecordedTime        string                                       `json:"recorded_time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS。"`
-	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	PlaceLongitude      float64                                      `json:"place_longitude" jsonschema:"地点经度（-180..180）。"`
-	SubjectGender       GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
-	PlaceLongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"place_longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
+	CalendarKind   CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
+	RecordedLunar  *TianwenSubjectCandidatesLunarInput          `json:"recorded_lunar" jsonschema:"农历日期（含闰月标记 leap）。"`
+	RecordedTime   string                                       `json:"recorded_time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS。"`
+	RecordTimezone string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
+	Longitude      Longitude                                    `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	SubjectGender  GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
+	LongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
 type TianwenShichenForm struct {
-	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
-	RecordedDate        string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
-	RecordedShichen     string                                       `json:"recorded_shichen" jsonschema:"已知时辰（真太阳时基，2 小时）。"`
-	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	PlaceLongitude      float64                                      `json:"place_longitude" jsonschema:"地点经度（-180..180）。"`
-	SubjectGender       GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
-	PlaceLongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"place_longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
+	CalendarKind    CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
+	RecordedDate    string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
+	RecordedShichen string                                       `json:"recorded_shichen" jsonschema:"已知时辰（真太阳时基，2 小时）。"`
+	RecordTimezone  string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
+	Longitude       Longitude                                    `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	SubjectGender   GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
+	LongitudeRange  *TianwenSubjectCandidatesLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
 type TianwenRangeForm struct {
-	CalendarKind        CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
-	RecordedDate        string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
-	RecordedTimeRange   *TianwenSubjectCandidatesRangeInput          `json:"recorded_time_range" jsonschema:"同日民用时间区间。"`
-	RecordTimezone      string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	PlaceLongitude      float64                                      `json:"place_longitude" jsonschema:"地点经度（-180..180）。"`
-	SubjectGender       GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
-	PlaceLongitudeRange *TianwenSubjectCandidatesLongitudeRangeInput `json:"place_longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
+	CalendarKind      CalendarKindName                             `json:"calendar_kind" jsonschema:"壁钟日期口径：solar 或 lunar。"`
+	RecordedDate      string                                       `json:"recorded_date" jsonschema:"公历日期 YYYY-MM-DD。"`
+	RecordedTimeRange *TianwenSubjectCandidatesRangeInput          `json:"recorded_time_range" jsonschema:"同日民用时间区间。"`
+	RecordTimezone    string                                       `json:"record_timezone" jsonschema:"记录时间所在时区（IANA）。"`
+	Longitude         Longitude                                    `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	SubjectGender     GenderName                                   `json:"subject_gender" jsonschema:"性别。"`
+	LongitudeRange    *TianwenSubjectCandidatesLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
 func tianwenResolveFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
@@ -132,8 +132,8 @@ type TianwenSubjectCandidatesReasonOutput struct {
 
 // TianwenSubjectCandidateOutput is one possible natal subject.
 //
-// BirthTime is local standard time (fixed offset, no DST), not true solar time.
-// BirthLongitude remains explicit for domain-specific solar corrections.
+// StandardTime is local standard time (fixed offset, no DST), not true solar time.
+// Longitude remains explicit for domain-specific solar corrections.
 type TianwenSubjectCandidateOutput struct {
 	Subject NatalSubject                           `json:"subject" jsonschema:"候选出生主体。"`
 	Reasons []TianwenSubjectCandidatesReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
@@ -150,7 +150,7 @@ func TianwenSubjectCandidates(_ context.Context, input TianwenSubjectCandidatesI
 		Calendar:  string(input.CalendarKind),
 		Date:      input.RecordedDate,
 		Timezone:  input.RecordTimezone,
-		Longitude: input.PlaceLongitude,
+		Longitude: float64(input.Longitude),
 		Time:      input.RecordedTime,
 		Shichen:   input.RecordedShichen,
 	}
@@ -163,10 +163,10 @@ func TianwenSubjectCandidates(_ context.Context, input TianwenSubjectCandidatesI
 	if input.RecordedTimeRange != nil {
 		in.Range = &tianwen.ResolveRange{Start: input.RecordedTimeRange.Start, End: input.RecordedTimeRange.End}
 	}
-	if input.PlaceLongitudeRange != nil {
+	if input.LongitudeRange != nil {
 		in.LongitudeRange = &tianwen.LongitudeRange{
-			West: input.PlaceLongitudeRange.West,
-			East: input.PlaceLongitudeRange.East,
+			West: float64(input.LongitudeRange.West),
+			East: float64(input.LongitudeRange.East),
 		}
 	}
 
@@ -195,9 +195,9 @@ func TianwenSubjectCandidates(_ context.Context, input TianwenSubjectCandidatesI
 		}
 		output.Candidates = append(output.Candidates, TianwenSubjectCandidateOutput{
 			Subject: NatalSubject{
-				BirthTime:      StandardTime(standardTimeString(candidate.StandardTime, zone)),
-				BirthLongitude: input.PlaceLongitude,
-				Gender:         input.SubjectGender,
+				StandardTime: StandardTime(standardTimeString(candidate.StandardTime, zone)),
+				Longitude:    input.Longitude,
+				Gender:       input.SubjectGender,
 			},
 			Reasons: reasons,
 		})

@@ -412,34 +412,28 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 	return LiuyaoQiguaOutput{Casting: liuyaoCastingWire(casting)}, nil
 }
 
-// LiuyaoQiGuaInput is one auditable divination event: the casting receipt plus
-// the local standard time and place used to derive day/month and hour facts.
-type LiuyaoQiGuaInput struct {
-	QiGuaTime StandardTime         `json:"qi_gua_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
-	Longitude float64              `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
-	Casting   *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao_qigua 返回的完整可审计起卦收据。"`
-}
-
 // LiuyaoChartInput consumes the divination event and the requested focus.
 type LiuyaoChartInput struct {
-	QiGua    LiuyaoQiGuaInput   `json:"qi_gua" jsonschema:"六爻起卦事件。"`
-	YongShen LiuyaoYongShenName `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
+	StandardTime StandardTime         `json:"standard_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude    Longitude            `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
+	Casting      *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao_qigua 返回的完整可审计起卦收据。"`
+	YongShen     LiuyaoYongShenName   `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
 }
 
 func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, error) {
-	if input.QiGua.Casting == nil {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: qi_gua.casting is required")
+	if input.Casting == nil {
+		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: casting is required")
 	}
-	casting, err := liuyaoCastingDomain(*input.QiGua.Casting)
+	casting, err := liuyaoCastingDomain(*input.Casting)
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
 	}
-	standard, _, err := parseStandardTime(input.QiGua.QiGuaTime)
+	standard, _, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	if input.QiGua.Longitude < -180 || input.QiGua.Longitude > 180 {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: qi_gua.longitude must be within [-180,180], got %v", input.QiGua.Longitude)
+	if float64(input.Longitude) < -180 || float64(input.Longitude) > 180 {
+		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: longitude must be within [-180,180], got %v", float64(input.Longitude))
 	}
 	yongShen := string(input.YongShen)
 	if yongShen == "" {
@@ -449,7 +443,7 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, 
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	chart := liuyao.ComputeChartAt(standard, input.QiGua.Longitude, ys, casting.Yaos)
+	chart := liuyao.ComputeChartAt(standard, float64(input.Longitude), ys, casting.Yaos)
 	chart.Casting = &casting
 	return liuyaoChartWire(chart), nil
 }

@@ -21,9 +21,9 @@ MATTER_TO_TOPIC = {
 def create(
     *,
     question: str,
-    qi_gua_longitude: float,
+    longitude: float,
     casting: dict | None = None,
-    qi_gua_time: str = "",
+    standard_time: str = "",
     focus: dict | None = None,
     topic: str | None = None,
 ) -> dict:
@@ -52,8 +52,8 @@ def create(
         yong_shen=yong_shen,
         perspective=perspective,
         question=question,
-        qi_gua_time=qi_gua_time,
-        qi_gua_longitude=qi_gua_longitude,
+        standard_time=standard_time,
+        longitude=longitude,
     )
     projected = result["factors"]
     resolved_topic = topic or MATTER_TO_TOPIC.get(matter or "")

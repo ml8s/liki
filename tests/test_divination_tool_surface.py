@@ -12,17 +12,17 @@ def test_ask_schemas_accept_primary_calls():
             "question": "这次面试能不能通过？",
             "focus": {"kind": "matter", "matter": "career"},
             "casting": {"mode": "auto"},
-            "qi_gua_longitude": 116.4,
-            "qi_gua_time": "2026-10-01T10:00:00+08:00",
+            "longitude": 116.4,
+            "standard_time": "2026-10-01T10:00:00+08:00",
         },
         _SCHEMAS["liuyao_ask"],
     )
     validate(
         {
             "question": "该往哪里推进？",
-            "location": {"kind": "longitude", "longitude": 121.47},
+            "longitude": 121.47,
             "focus": {"kind": "matter", "matter": "wealth"},
-            "qi_ju_time": "2026-10-01T10:00:00+08:00",
+            "standard_time": "2026-10-01T10:00:00+08:00",
             "method": {
                 "scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
             },

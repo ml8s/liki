@@ -44,8 +44,8 @@ def _build_natal():
 
     instant, timezone, gender, longitude = BIRTH
     subject = {
-        "birth_time": standard_time_from_instant(instant, timezone),
-        "birth_longitude": longitude,
+        "standard_time": standard_time_from_instant(instant, timezone),
+        "longitude": longitude,
         "gender": gender,
     }
     return _build_natal_chart(subject)

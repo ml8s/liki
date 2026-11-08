@@ -34,25 +34,27 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 		Event:        "sign",
 	})
 	call("bazi_chart", BaziChartInput{Subject: testNatalSubject(t, standardInputFromInstant(t, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")})
-	call("bazhai_chart", BazhaiChartInput{Subject: NatalSubject{BirthTime: "1984-06-15T12:00:00+08:00", BirthLongitude: 116.4, Gender: "male"}})
+	call("bazhai_chart", BazhaiChartInput{Subject: BazhaiSubjectInput{StandardTime: "1984-06-15T12:00:00+08:00", Gender: "male"}})
 	call("bazhai_layout", BazhaiLayoutInput{
 		MingGua: "乾", DoorGua: "坤", MasterGua: "艮", StoveGua: "兑",
 	})
-	xuankongRaw := call("xuankong_chart", XuankongChartInput{Zhai: XuankongZhaiInput{
-		YunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14,
-	}})
+	xuankongRaw := call("xuankong_chart", XuankongChartInput{
+		StandardTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14,
+	})
 	var xuankongChart XuankongChart
 	decode(t, xuankongRaw, &xuankongChart)
-	call("xuankong_liunian", XuankongLiunianInput{Zhai: XuankongZhaiInput{YunStartTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14}, LiuNianStartTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai")})
+	call("xuankong_liunian", XuankongLiunianInput{
+		StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14,
+	})
 	qiguaRaw := call("liuyao_qigua", LiuyaoQiguaInput{Casting: LiuyaoCastingRequestInput{
 		Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
 	}})
 	var qigua LiuyaoQiguaOutput
 	decode(t, qiguaRaw, &qigua)
-	call("liuyao_chart", LiuyaoChartInput{QiGua: LiuyaoQiGuaInput{
-		QiGuaTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-		Longitude: 116.4, Casting: &qigua.Casting,
-	}})
+	call("liuyao_chart", LiuyaoChartInput{
+		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		Longitude:    116.4, Casting: &qigua.Casting,
+	})
 
 	// Captured legacy fixtures cover the migrated high-volume bazi, ziwei, and
 	// qimen families, including every downstream chart consumer.

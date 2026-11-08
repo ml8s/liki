@@ -36,8 +36,8 @@ Time inputs are split into two public forms:
 
 | Tool layer | Fields | Rule |
 | --- | --- | --- |
-| `subject_candidates` | `calendar_kind` + `recorded_date`/`recorded_lunar` + `recorded_time`/`recorded_shichen`/`recorded_time_range` + `record_timezone` + `place_longitude` | Civil wall-clock input. DST is resolved once; fold returns two candidates and gap fails. |
-| Chart/flow tools | `standard_time` + `longitude` | Local standard time (no DST), RFC3339 with a known offset. `Z` is valid UTC standard time; `-00:00` is rejected as unknown offset. `timezone`, `instant`, and `fold` are rejected. |
+| `subject_candidates` | `calendar_kind` + `recorded_date`/`recorded_lunar` + `recorded_time`/`recorded_shichen`/`recorded_time_range` + `record_timezone` + `longitude` | Civil wall-clock input. DST is resolved once; fold returns two candidates and gap fails. |
+| Chart/flow tools | `standard_time`, plus `longitude` only where LAST is required | Local standard time (no DST), RFC3339 with a known offset. `Z` is valid UTC standard time; `-00:00` is rejected as unknown offset. `timezone`, `instant`, and `fold` are rejected. Huangli and Xuankong do not accept longitude. |
 
 `standard_time` is not an IANA timezone and its offset is not used to infer
 one. The offset selects the local standard representation: two RFC3339 values

@@ -184,8 +184,8 @@ func validateBaziLiupan(input BaziLiupanInput) error {
 	}
 	switch input.Scope {
 	case "liu_nian", "liu_yue", "liu_ri", "liu_shi":
-		if input.StartTime == "" {
-			return fmt.Errorf("start_time is required")
+		if input.StandardTime == "" {
+			return fmt.Errorf("standard_time is required")
 		}
 		if input.Scope == "liu_ri" || input.Scope == "liu_shi" {
 			if input.Longitude == nil {
@@ -195,8 +195,8 @@ func validateBaziLiupan(input BaziLiupanInput) error {
 			return fmt.Errorf("longitude is not allowed")
 		}
 	case "xiao_yun":
-		if input.StartTime != "" {
-			return fmt.Errorf("start_time is not allowed")
+		if input.StandardTime != "" {
+			return fmt.Errorf("standard_time is not allowed")
 		}
 		if input.Longitude != nil {
 			return fmt.Errorf("longitude is not allowed")
@@ -208,7 +208,7 @@ func validateBaziLiupan(input BaziLiupanInput) error {
 }
 
 func parseBaziLiuNianTime(input BaziLiupanInput) (bazi.LiuNianTime, tianwen.CivilDate, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return bazi.LiuNianTime{}, tianwen.CivilDate{}, time.Time{}, nil, err
 	}
@@ -234,12 +234,12 @@ func computeBaziLiuNian(input BaziLiupanInput, core bazi.Core) (BaziLiuNianOutpu
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liupan liu_nian: %w", err)
 	}
 	output.NianJie = BaziLiuNianResolved{
-		LiuNianStartTime: standardTimeValue(at),
-		LiuNianStartDate: civilDateString(date),
-		LichunYear:       resolved.LichunYear,
-		LichunStart:      civilDateString(resolved.Start),
-		LichunEnd:        civilDateString(resolved.End),
-		BoundaryDay:      resolved.BoundaryDay,
+		LiuNianStandardTime: standardTimeValue(at),
+		LiuNianStartDate:    civilDateString(date),
+		LichunYear:          resolved.LichunYear,
+		LichunStart:         civilDateString(resolved.Start),
+		LichunEnd:           civilDateString(resolved.End),
+		BoundaryDay:         resolved.BoundaryDay,
 	}
 	return output, nil
 }
@@ -253,12 +253,12 @@ func advanceBaziLiuNian(input BaziLiupanInput) (BaziLiupanInput, error) {
 	if err != nil {
 		return input, fmt.Errorf("bazi.liupan liu_nian: %w", err)
 	}
-	input.StartTime = standardTimeValue(next.StartInstant.In(loc))
+	input.StandardTime = standardTimeValue(next.StartInstant.In(loc))
 	return input, nil
 }
 
 func parseBaziLiuYueTime(input BaziLiupanInput) (bazi.LiuYueTime, tianwen.CivilDate, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return bazi.LiuYueTime{}, tianwen.CivilDate{}, time.Time{}, nil, err
 	}
@@ -284,11 +284,11 @@ func computeBaziLiuYue(input BaziLiupanInput, core bazi.Core) (BaziLiuYueOutput,
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liupan liu_yue: %w", err)
 	}
 	output.JieQi = BaziLiuYueJieQi{
-		LiuYueStartTime: standardTimeValue(at),
-		LiuYueStartDate: civilDateString(date),
-		JieqiStart:      civilDateString(resolved.Start),
-		JieqiEnd:        civilDateString(resolved.End),
-		BoundaryDay:     resolved.BoundaryDay,
+		LiuYueStandardTime: standardTimeValue(at),
+		LiuYueStartDate:    civilDateString(date),
+		JieqiStart:         civilDateString(resolved.Start),
+		JieqiEnd:           civilDateString(resolved.End),
+		BoundaryDay:        resolved.BoundaryDay,
 	}
 	return output, nil
 }
@@ -302,7 +302,7 @@ func advanceBaziLiuYue(input BaziLiupanInput) (BaziLiupanInput, error) {
 	if err != nil {
 		return input, fmt.Errorf("bazi.liupan liu_yue: %w", err)
 	}
-	input.StartTime = standardTimeValue(next.StartInstant.In(loc))
+	input.StandardTime = standardTimeValue(next.StartInstant.In(loc))
 	return input, nil
 }
 
@@ -310,11 +310,11 @@ func parseBaziLiuRiTime(input BaziLiupanInput) (bazi.LiuRiTime, *time.Location, 
 	if input.Longitude == nil {
 		return bazi.LiuRiTime{}, nil, fmt.Errorf("longitude is required")
 	}
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return bazi.LiuRiTime{}, nil, err
 	}
-	resolved, err := bazi.ResolveLiuRiTimeAt(standard, loc, *input.Longitude)
+	resolved, err := bazi.ResolveLiuRiTimeAt(standard, loc, float64(*input.Longitude))
 	return resolved, loc, err
 }
 
@@ -335,9 +335,9 @@ func computeBaziLiuRi(input BaziLiupanInput, core bazi.Core) (BaziLiuRiOutput, e
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liupan liu_ri: %w", err)
 	}
 	output.RiJie = BaziLiuRiJie{
-		LiuRiStartTime: standardTimeValue(resolved.Standard.In(loc)),
-		LiuRiLocalDate: civilDateString(resolved.Date),
-		LiuRiSolarDate: civilDateString(resolved.Date),
+		LiuRiStandardTime: standardTimeValue(resolved.Standard.In(loc)),
+		LiuRiLocalDate:    civilDateString(resolved.Date),
+		LiuRiSolarDate:    civilDateString(resolved.Date),
 	}
 	return output, nil
 }
@@ -351,7 +351,7 @@ func advanceBaziLiuRi(input BaziLiupanInput) (BaziLiupanInput, error) {
 	if err != nil {
 		return input, fmt.Errorf("bazi.liupan liu_ri: %w", err)
 	}
-	input.StartTime = standardTimeValue(next.Standard.In(loc))
+	input.StandardTime = standardTimeValue(next.Standard.In(loc))
 	return input, nil
 }
 
@@ -359,11 +359,11 @@ func parseBaziLiuShiTime(input BaziLiupanInput) (bazi.LiuShiTime, *time.Location
 	if input.Longitude == nil {
 		return bazi.LiuShiTime{}, nil, fmt.Errorf("longitude is required")
 	}
-	standard, loc, err := parseStandardTime(input.StartTime)
+	standard, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return bazi.LiuShiTime{}, nil, err
 	}
-	resolved, err := bazi.ResolveLiuShiTime(standard, loc, *input.Longitude)
+	resolved, err := bazi.ResolveLiuShiTime(standard, loc, float64(*input.Longitude))
 	return resolved, loc, err
 }
 
@@ -384,9 +384,9 @@ func computeBaziLiuShi(input BaziLiupanInput, core bazi.Core) (BaziLiuShiOutput,
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liupan liu_shi: %w", err)
 	}
 	output.ShiChen = BaziLiuShiChen{
-		LiuShiStartTime: standardTimeValue(resolved.Standard.In(loc)),
-		LiuShiLocalDate: civilDateString(resolved.LocalDate),
-		Shichen:         ZhiName(resolved.Shichen.String()),
+		LiuShiStandardTime: standardTimeValue(resolved.Standard.In(loc)),
+		LiuShiLocalDate:    civilDateString(resolved.LocalDate),
+		Shichen:            ZhiName(resolved.Shichen.String()),
 	}
 	return output, nil
 }
@@ -400,6 +400,6 @@ func advanceBaziLiuShi(input BaziLiupanInput) (BaziLiupanInput, error) {
 	if err != nil {
 		return input, fmt.Errorf("bazi.liupan liu_shi: %w", err)
 	}
-	input.StartTime = standardTimeValue(next.Standard.In(loc))
+	input.StandardTime = standardTimeValue(next.Standard.In(loc))
 	return input, nil
 }

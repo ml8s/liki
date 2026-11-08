@@ -7,8 +7,7 @@
       "tool": "bazhai_chart",
       "input": {
         "subject": {
-          "birth_time": "1984-01-20T12:00:00+08:00",
-          "birth_longitude": 116.4,
+          "standard_time": "1984-01-20T12:00:00+08:00",
           "gender": "male"
         }
       },
@@ -24,11 +23,9 @@
       "name": "xuankong_2024_before_lichun",
       "tool": "xuankong_chart",
       "input": {
-        "zhai": {
-          "yun_start_time": "2024-02-04T12:00:00+08:00",
-          "zuo_shan": 2,
-          "xiang_shan": 14
-        }
+        "standard_time": "2024-02-04T12:00:00+08:00",
+        "zuo_shan": 2,
+        "xiang_shan": 14
       },
       "expect": {
         "yun.year": 2023,
@@ -40,11 +37,9 @@
       "name": "xuankong_2024_after_lichun",
       "tool": "xuankong_chart",
       "input": {
-        "zhai": {
-          "yun_start_time": "2024-02-04T18:00:00+08:00",
-          "zuo_shan": 2,
-          "xiang_shan": 14
-        }
+        "standard_time": "2024-02-04T18:00:00+08:00",
+        "zuo_shan": 2,
+        "xiang_shan": 14
       },
       "expect": {
         "yun.year": 2024,
@@ -59,7 +54,7 @@
       "input": {
         "subject": {},
         "scope": "liu_ri",
-        "start_time": "2026-06-01T23:30:00+08:00",
+        "standard_time": "2026-06-01T23:30:00+08:00",
         "longitude": 116.4,
         "count": 1
       },
@@ -78,7 +73,7 @@
       "input": {
         "subject": {},
         "scope": "liu_ri",
-        "start_time": "2026-06-01T22:30:00-05:00",
+        "standard_time": "2026-06-01T22:30:00-05:00",
         "count": 1
       },
       "expect": {
@@ -96,7 +91,7 @@
       "input": {
         "subject": {},
         "scope": "liu_shi",
-        "start_time": "2026-06-01T22:30:00-05:00",
+        "standard_time": "2026-06-01T22:30:00-05:00",
         "longitude": -74.0,
         "count": 1
       },
@@ -116,7 +111,7 @@
       "input": {
         "subject": {},
         "scope": "liu_nian",
-        "start_time": "2024-01-20T12:00:00-05:00",
+        "standard_time": "2024-01-20T12:00:00-05:00",
         "count": 3
       },
       "expect": {
@@ -132,7 +127,7 @@
       "input": {
         "subject": {},
         "scope": "liu_yue",
-        "start_time": "2024-01-14T23:00:00-05:00",
+        "standard_time": "2024-01-14T23:00:00-05:00",
         "count": 3
       },
       "expect": {
@@ -162,7 +157,7 @@
       "input": {
         "subject": {},
         "scope": "liu_ri",
-        "start_time": "2024-02-09T23:30:00-05:00",
+        "standard_time": "2024-02-09T23:30:00-05:00",
         "count": 1
       },
       "expect": {
@@ -179,7 +174,7 @@
       "input": {
         "subject": {},
         "scope": "liu_nian",
-        "start_time": "2024-02-09T23:30:00-05:00",
+        "standard_time": "2024-02-09T23:30:00-05:00",
         "count": 1
       },
       "expect": {
@@ -196,7 +191,7 @@
       "input": {
         "subject": {},
         "scope": "liu_yue",
-        "start_time": "2024-02-09T23:30:00-05:00",
+        "standard_time": "2024-02-09T23:30:00-05:00",
         "count": 1
       },
       "expect": {
@@ -216,7 +211,7 @@
       "input": {
         "subject": {},
         "scope": "liu_shi",
-        "start_time": "2024-02-09T23:30:00-05:00",
+        "standard_time": "2024-02-09T23:30:00-05:00",
         "longitude": -74.0,
         "count": 1
       },
@@ -252,12 +247,12 @@
         },
         "recorded_time": "12:00",
         "record_timezone": "America/New_York",
-        "place_longitude": -74.0,
+        "longitude": -74.0,
         "subject_gender": "male"
       },
       "name": "subject_candidates_lunar_local_astronomical",
       "expect": {
-        "candidates.0.subject.birth_time": "2024-02-09T12:00:00-05:00"
+        "candidates.0.subject.standard_time": "2024-02-09T12:00:00-05:00"
       }
     },
     {
@@ -267,7 +262,7 @@
       "input": {
         "subject": {},
         "scope": "liu_nian",
-        "start_time": "2024-02-04T03:27:06-05:00",
+        "standard_time": "2024-02-04T03:27:06-05:00",
         "count": 1
       },
       "expect": {
@@ -282,7 +277,7 @@
       "input": {
         "subject": {},
         "scope": "liu_nian",
-        "start_time": "2024-02-04T03:27:07-05:00",
+        "standard_time": "2024-02-04T03:27:07-05:00",
         "count": 1
       },
       "expect": {
@@ -297,7 +292,7 @@
       "input": {
         "subject": {},
         "scope": "liu_yue",
-        "start_time": "2024-03-04T21:22:44-05:00",
+        "standard_time": "2024-03-04T21:22:44-05:00",
         "count": 1
       },
       "expect": {
@@ -311,7 +306,7 @@
       "input": {
         "subject": {},
         "scope": "liu_yue",
-        "start_time": "2024-03-04T21:22:45-05:00",
+        "standard_time": "2024-03-04T21:22:45-05:00",
         "count": 1
       },
       "expect": {
@@ -322,13 +317,10 @@
       "name": "xuankong_liunian_local_date",
       "tool": "xuankong_liunian",
       "input": {
-        "start_time": "2024-02-03T21:27:07-11:00",
+        "standard_time": "2024-02-03T21:27:07-11:00",
         "count": 1,
-        "zhai": {
-          "yun_start_time": "2023-02-04T10:00:00-11:00",
-          "zuo_shan": 2,
-          "xiang_shan": 14
-        }
+        "zuo_shan": 2,
+        "xiang_shan": 14
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2024,

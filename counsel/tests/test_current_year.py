@@ -29,7 +29,7 @@ def _fake_call(cst):
                 "local_standard_time": cst + "T12:00:00+08:00",
                 "offset": 28800,
             }}
-        gt = params["start_time"]
+        gt = params["standard_time"]
         if name == "bazi_chart":
             year = BAZI[_date(gt)]
             gan, zhi = GZ[year]

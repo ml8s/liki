@@ -7,15 +7,15 @@ from app.counsel_mcp import create_counsel_root_mcp  # noqa: E402
 LIUYAO_ARGS = {
     "question": "测试这次面试能不能通过",
     "casting": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
-    "qi_gua_longitude": 116.4,
+    "longitude": 116.4,
     "focus": {"kind": "matter", "matter": "general"},
-    "qi_gua_time": "2026-10-01T10:00:00+08:00",
+    "standard_time": "2026-10-01T10:00:00+08:00",
 }
 
 QIMEN_ARGS = {
     "question": "测试谈判时机",
-    "location": {"kind": "longitude", "longitude": 116.4},
-    "qi_ju_time": "2026-10-01T10:00:00+08:00",
+    "longitude": 116.4,
+    "standard_time": "2026-10-01T10:00:00+08:00",
     "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
     "focus": {"kind": "matter", "matter": "career"},
 }
@@ -31,7 +31,7 @@ def test_liuyao_ask_returns_self_contained_reading():
     assert any(item["layer"] == "primary" for item in got["evidence"])
     assert isinstance(got["timing_candidates"], list)
     assert all(item["source_kind"] for item in got["evidence"])
-    assert all("kind" in pattern for pattern in got["chart_view"]["patterns"])
+    assert all("pattern_kind" in pattern for pattern in got["chart_view"]["patterns"])
     if got["chart_view"]["gua_ci"] is not None:
         assert {"name", "text", "yao_ci"} <= set(got["chart_view"]["gua_ci"])
     policy = got["scope"]["followup_policy"]

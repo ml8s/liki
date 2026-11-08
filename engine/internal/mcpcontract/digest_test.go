@@ -51,7 +51,7 @@ func TestNatalChartOutputsDoNotCarryDigests(t *testing.T) {
 	for _, method := range []string{"bazi_chart", "ziwei_chart"} {
 		t.Run(method, func(t *testing.T) {
 			subject := map[string]any{
-				"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male",
+				"standard_time": "1990-05-20T12:49:00+08:00", "longitude": 116.4, "gender": "male",
 			}
 			raw, err := registry.Call(context.Background(), method, mustJSON(t, map[string]any{"subject": subject}))
 			if err != nil {
@@ -70,7 +70,7 @@ func TestNatalChartOutputsDoNotCarryDigests(t *testing.T) {
 
 func TestSeriesSubjectOmitsSourceDigest(t *testing.T) {
 	registry := testEngine()
-	input := map[string]any{"subject": map[string]any{"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male"}, "scope": "liu_nian", "start_time": "2026-06-15T12:00:00+08:00"}
+	input := map[string]any{"subject": map[string]any{"standard_time": "1990-05-20T12:49:00+08:00", "longitude": 116.4, "gender": "male"}, "scope": "liu_nian", "standard_time": "2026-06-15T12:00:00+08:00"}
 	raw, err := registry.Call(context.Background(), "bazi_liupan", mustJSON(t, input))
 	if err != nil {
 		t.Fatal(err)
