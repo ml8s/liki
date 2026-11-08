@@ -161,7 +161,7 @@ func TestTimeInputsCanonical(t *testing.T) {
 					}
 				} else {
 					timeField := map[string]string{
-						"huangli_days":     "start_date",
+						"huangli_days":     "standard_time",
 						"bazhai_chart":     "subject",
 						"xuankong_liunian": "start_time",
 					}[name]
@@ -177,6 +177,10 @@ func TestTimeInputsCanonical(t *testing.T) {
 					"period_date", "birth_year", "birth_date",
 					"lunar_year", "target_lunar", "shi_zhi", "year",
 				} {
+					// 黄历是民用日期范围查询，前端显式选择 timezone 后投影 standard_time。
+					if name == "huangli_days" && forbidden == "standard_time" {
+						continue
+					}
 					if _, ok := schema.Properties[forbidden]; ok {
 						t.Fatalf("schema[%d]: obsolete time input %q must not be exposed", schemaIndex, forbidden)
 					}

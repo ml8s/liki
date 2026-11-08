@@ -10,8 +10,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/google/jsonschema-go/jsonschema"
-
 	"liki-engine/internal/engine/tables"
 )
 
@@ -136,13 +134,13 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		} `json:"properties"`
 	}
 	decode(t, mustDefinition(t, registry, "huangli_days").InputSchema, &huangliInput)
-	if len(huangliInput.Required) != 2 || !slices.Contains(huangliInput.Required, "start_date") || !slices.Contains(huangliInput.Required, "timezone") {
+	if len(huangliInput.Required) != 3 || !slices.Contains(huangliInput.Required, "standard_time") || !slices.Contains(huangliInput.Required, "count") || !slices.Contains(huangliInput.Required, "event") {
 		t.Fatalf("huangli required = %#v", huangliInput.Required)
 	}
-	if _, ok := huangliInput.Properties["start_date"]; !ok {
+	if _, ok := huangliInput.Properties["standard_time"]; !ok {
 		t.Fatalf("huangli civil_time schema missing")
 	}
-	if count := huangliInput.Properties["day_count"]; count.Minimum == nil || *count.Minimum != 1 || count.Maximum == nil || *count.Maximum != 30 {
+	if count := huangliInput.Properties["count"]; count.Minimum == nil || *count.Minimum != 1 || count.Maximum == nil || *count.Maximum != 30 {
 		t.Fatalf("huangli count schema = %#v", count)
 	}
 	if event := huangliInput.Properties["event"]; len(event.Enum) != 15 {
@@ -449,10 +447,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	huangliRaw, err := registry.Call(context.Background(), "huangli_days", mustJSON(t, HuangliDaysInput{
-		StartDate: "2024-06-15",
-		Timezone:  "Asia/Shanghai",
-		DayCount:  jsonschema.Ptr(HuangliCount(1)),
-		Event:     "sign",
+		StandardTime: "2024-06-15T12:00:00+08:00",
+		Count:        HuangliCount(1),
+		Event:        "sign",
 	}))
 	if err != nil {
 		t.Fatalf("huangli.days: %v", err)

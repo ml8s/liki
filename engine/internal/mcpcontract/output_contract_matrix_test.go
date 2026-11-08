@@ -29,9 +29,9 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 	call("subject_candidates", civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4))
 	call("city_info", CityInfoInput{City: "北京"})
 	call("huangli_days", HuangliDaysInput{
-		StartDate: "2024-06-15",
-		Timezone:  "Asia/Shanghai",
-		DayCount:  jsonschemaPtr(HuangliCount(1)), Event: "sign",
+		StandardTime: "2024-06-15T12:00:00+08:00",
+		Count:        HuangliCount(1),
+		Event:        "sign",
 	})
 	call("bazi_chart", BaziChartInput{Subject: testNatalSubject(t, standardInputFromInstant(t, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")})
 	call("bazhai_chart", BazhaiChartInput{Subject: NatalSubject{BirthTime: "1984-06-15T12:00:00+08:00", BirthLongitude: 116.4, Gender: "male"}})

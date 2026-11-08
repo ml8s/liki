@@ -232,9 +232,8 @@
       "name": "huangli_local_date_default",
       "tool": "huangli_days",
       "input": {
-        "start_date": "2026-06-01",
-        "timezone": "Asia/Shanghai",
-        "day_count": 1,
+        "standard_time": "2026-06-01T12:00:00+08:00",
+        "count": 1,
         "event": "sign"
       },
       "expect": {

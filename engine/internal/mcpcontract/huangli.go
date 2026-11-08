@@ -3,7 +3,6 @@ package mcpcontract
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"liki-engine/internal/engine/huangli"
 	"liki-engine/internal/engine/tianwen"
@@ -11,10 +10,9 @@ import (
 
 // HuangliDaysInput selects a contiguous date range and optional life event.
 type HuangliDaysInput struct {
-	StartDate DateString    `json:"start_date" jsonschema:"黄历查询起始日期 YYYY-MM-DD。"`
-	Timezone  string        `json:"timezone" jsonschema:"查询地 IANA 时区。"`
-	DayCount  *HuangliCount `json:"day_count,omitempty" jsonschema:"黄历查询天数，默认3，最多30。"`
-	Event     HuangliEvent  `json:"event,omitempty" jsonschema:"事项类型；缺省仅列黄历事实。"`
+	Event        HuangliEvent `json:"event" jsonschema:"事项类型。"`
+	StandardTime StandardTime `json:"standard_time" jsonschema:"查询起始日标准时间（无 DST），RFC3339 带 offset。"`
+	Count        HuangliCount `json:"count" jsonschema:"黄历查询天数，最多30。"`
 }
 
 type HuangliDaysOutput struct {
@@ -76,19 +74,12 @@ type HuangliDayOutput struct {
 
 // HuangliDays returns almanac facts for consecutive dates.
 func HuangliDays(_ context.Context, input HuangliDaysInput) (HuangliDaysOutput, error) {
-	loc, err := loadTimezone(input.Timezone)
+	standard, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return HuangliDaysOutput{}, fmt.Errorf("huangli.days: %w", err)
 	}
-	parsedDate, err := time.ParseInLocation("2006-01-02", string(input.StartDate), loc)
-	if err != nil {
-		return HuangliDaysOutput{}, fmt.Errorf("huangli.days: start_date: %w", err)
-	}
-	start := tianwen.StandardDateAt(parsedDate, loc)
-	count := 3
-	if input.DayCount != nil {
-		count = int(*input.DayCount)
-	}
+	start := tianwen.StandardDateAt(standard, loc)
+	count := int(input.Count)
 	// 边界由 HuangliCount 的 schema 约束保证（1-30）；此处不再静默修正。
 
 	days := make([]HuangliDayOutput, 0, count)
