@@ -82,7 +82,7 @@ def test_declared_pins_cover_every_third_party_import():
     """Every third-party module import must be one of the declared pins.
 
     `counsel/app/**/tools/` adds its own directory to `sys.path`, so sibling modules
-    are imported flat (`from chart_id import chart_id`); a name is local when it is a
+    are imported flat (for example, sibling modules under `tools/`); a name is local when it is a
     file stem anywhere under `counsel/app`, which leaves only real distributions.
     """
     declared = set(_declared())

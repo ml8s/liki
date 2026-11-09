@@ -96,18 +96,42 @@ func tianwenResolveFormsSchema(options *jsonschema.ForOptions) (json.RawMessage,
 	builders := []func() (json.RawMessage, error){
 		func() (json.RawMessage, error) {
 			_, raw, err := inputSchemaFor[TianwenDateTimeForm](options)
+			if err == nil {
+				raw, err = withSchemaConst(raw, "calendar_kind", "solar")
+			}
+			if err == nil {
+				raw, err = withSchemaFormMeta(raw, "solar_wall_clock", "公历日期 + 当地壁钟精确时间。")
+			}
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
 			_, raw, err := inputSchemaFor[TianwenLunarForm](options)
+			if err == nil {
+				raw, err = withSchemaConst(raw, "calendar_kind", "lunar")
+			}
+			if err == nil {
+				raw, err = withSchemaFormMeta(raw, "lunar_wall_clock", "农历日期 + 当地壁钟精确时间。")
+			}
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
 			_, raw, err := inputSchemaFor[TianwenShichenForm](options)
+			if err == nil {
+				raw, err = withSchemaConst(raw, "calendar_kind", "solar")
+			}
+			if err == nil {
+				raw, err = withSchemaFormMeta(raw, "solar_shichen", "公历日期 + 已知时辰。")
+			}
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
 			_, raw, err := inputSchemaFor[TianwenRangeForm](options)
+			if err == nil {
+				raw, err = withSchemaConst(raw, "calendar_kind", "solar")
+			}
+			if err == nil {
+				raw, err = withSchemaFormMeta(raw, "solar_time_range", "公历日期 + 同日民用时间区间。")
+			}
 			return raw, err
 		},
 	}

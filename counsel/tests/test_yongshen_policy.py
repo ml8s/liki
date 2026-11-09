@@ -13,8 +13,6 @@ from app.natal.tools.operators_liunian import _flow_element_in_selected  # noqa:
 from app.natal.tools.yongshen import load_policy, resolve_yongshen, validate_policy  # noqa: E402
 from app.natal.tools.yongshen.evaluator import _MISSING  # noqa: E402
 
-INTERNAL_TEST_CHART_DIGEST = "a" * 64
-
 WIRE_INPUTS = ROOT / "engine" / "internal" / "mcpcontract" / "testdata" / "wire_inputs"
 
 
@@ -42,7 +40,7 @@ def test_selected_yongshen_never_leaks_internal_missing_sentinel():
     full = _bazi_chart_fixture("bazi_chart.json")
     full["tiao_hou"] = {}
 
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
 
     json.dumps(result, ensure_ascii=False)
 
@@ -56,11 +54,8 @@ def test_selected_yongshen_never_leaks_internal_missing_sentinel():
                 assert_materialized(item)
 
     assert_materialized(result)
-    assert result["alternatives"]["tiao_hou"]["yong"] == "无候选"
-
-
 def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
-    result = resolve_yongshen(_bazi_chart_fixture("bazi_chart_1984.json"), INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(_bazi_chart_fixture("bazi_chart_1984.json"))
     assert result["status"] == "resolved"
     assert result["rule_id"] == "YS-NEUTRAL-TH"
     assert result["selected"] == {
@@ -68,15 +63,11 @@ def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
         "xi": ["木"],
         "ji": ["水", "土"],
     }
-    assert result["alternatives"]["neutral"]["overstrong"]["value"] == "木"
     assert result["ge_ju_context"]["is_clear"] is True
-    assert result["factors"]["phase"] == "pre_yongshen"
-    assert result["factors"]["direct"]["fu_yi"]["qiang_ruo"] == "中和"
-    assert result["factors"]["secondary"]["tiaohou_yong"] == "火"
 
 
 def test_normal_chart_uses_fuyi_and_exposes_geju_context():
-    result = resolve_yongshen(_bazi_chart_fixture("bazi_chart_1990.json"), INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(_bazi_chart_fixture("bazi_chart_1990.json"))
     assert result["status"] == "resolved"
     assert result["rule_id"] == "YS-FUYI"
     assert result["selected"]["yong"] == "水"
@@ -86,7 +77,7 @@ def test_normal_chart_uses_fuyi_and_exposes_geju_context():
 
 
 def test_summer_tiaohou_conflict_is_explicit_and_not_forced():
-    result = resolve_yongshen(_bazi_chart_fixture("bazi_chart.json"), INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(_bazi_chart_fixture("bazi_chart.json"))
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-TH"
     assert result["selected"]["yong"] == "水"
@@ -116,15 +107,11 @@ def test_tiaohou_primary_missing_uses_secondary_when_condition_ok():
     full["tiao_hou"] = th
     full["fu_yi"] = {**copy.deepcopy(full["fu_yi"]), "ji": "土"}
 
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
     assert result["status"] == "partial"
     assert result["rule_id"] == "YS-TH"
     assert result["selected"]["yong"] == "金"
     assert result["selected"]["xi"] == []
-    assert result["alternatives"]["tiao_hou"]["yong_source"] == "secondary"
-    assert result["alternatives"]["tiao_hou"]["secondary_usable"] is True
-
-
 def test_tiaohou_secondary_condition_not_met_keeps_needed_primary_partial():
     full = _bazi_chart_fixture("bazi_chart.json")
     th = copy.deepcopy(full["tiao_hou"])
@@ -150,11 +137,10 @@ def test_tiaohou_secondary_condition_not_met_keeps_needed_primary_partial():
         "wuxing_count": {**(full["fu_yi"].get("wuxing_count") or {}), "水": 1},
     }
 
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
     assert result["status"] == "partial"
     assert result["rule_id"] == "YS-TH"
     assert result["selected"]["yong"] == "水"
-    assert result["alternatives"]["tiao_hou"]["yong_source"] == "needed_primary"
     assert result["conflicts"] == [{
         "code": "tiaohou_evidence_missing",
         "message": "调候主辅神均未在原局落实，仅保留所需五行，不作强断",
@@ -175,10 +161,9 @@ def test_tiaohou_controlling_auxiliary_is_not_promoted_to_xi():
     th["secondary_condition"] = "水多以戊佐"
     full["tiao_hou"] = th
 
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
 
     assert result["rule_id"] == "YS-TH"
-    assert result["alternatives"]["tiao_hou"]["secondary_usable"] is False
     assert result["selected"]["xi"] == []
     assert result["selected"]["yong"] == "水"
 
@@ -204,11 +189,10 @@ def test_hidden_rooted_officer_breaks_cong_wang_verification():
         {"shi_shen": "正官", "transparent": False, "rooted": True, "strength": "strong"},
     ]
 
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
 
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-UNVERIFIED"
-    assert result["alternatives"]["cong_ge"]["guan_sha_effective_count"] == 1
     assert any(item["source"] == "cong_ge" for item in result["evidence"])
 
 
@@ -232,18 +216,15 @@ def test_hidden_rooted_resource_breaks_cong_sha_verification():
         {"shi_shen": "正印", "transparent": False, "rooted": True, "strength": "neutral"},
     ]
 
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
 
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-UNVERIFIED"
-    assert result["alternatives"]["cong_ge"]["yin_rooted_count"] == 1
-
-
 def test_geju_clear_changes_context_without_yongshen():
     full = _bazi_chart_fixture("bazi_chart_1990.json")
-    baseline = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    baseline = resolve_yongshen(full)
     full["ge_ju"] = {**copy.deepcopy(full["ge_ju"]), "pattern_god_source": "main_qi"}
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
     assert result["rule_id"] == baseline["rule_id"] == "YS-FUYI"
     assert result["selected"] == baseline["selected"]
     assert result["ge_ju_context"]["is_clear"] is True
@@ -272,7 +253,7 @@ def test_congge_label_requires_matching_season_and_stem_evidence():
         {"shi_shen": "正印", "transparent": False},
         {"shi_shen": "偏印", "transparent": False},
     ]
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-UNVERIFIED"
     assert result["selected"]["yong"] == "无候选"
@@ -300,7 +281,7 @@ def test_verified_congge_selects_fuyi_cong_candidate():
         {"shi_shen": "正印", "transparent": False},
         {"shi_shen": "偏印", "transparent": False},
     ]
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
     assert result["status"] == "resolved"
     assert result["rule_id"] == "YS-CG-VERIFIED"
     assert result["selected"]["yong"] == "金"
@@ -310,7 +291,7 @@ def test_verified_congge_selects_fuyi_cong_candidate():
 def test_fake_congge_requires_review():
     full = _bazi_chart_fixture("bazi_chart_1990.json")
     full["fu_yi"] = {**copy.deepcopy(full["fu_yi"]), "pattern": "假从财格"}
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-FAKE"
     assert result["selected"]["yong"] == "无候选"
@@ -323,7 +304,7 @@ def test_neutral_tie_requires_review():
         for item in full["element_states"]
         if item["wuxing"] in ("木", "火")
     ]
-    result = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    result = resolve_yongshen(full)
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-NEUTRAL-REVIEW"
 
@@ -339,7 +320,7 @@ def test_unknown_yongshen_blocks_positive_and_negative_assertions():
 def test_known_yongshen_still_evaluates_factors():
     full = _bazi_chart_fixture("bazi_chart_1990.json")
     natal_chart = _pan(full)
-    natal_chart["_selected_yongshen"] = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    natal_chart["_selected_yongshen"] = resolve_yongshen(full)
     factors = evaluate_factors("male", natal_chart, shushi="bazi")
     assert factors["官杀为用"] == PredicateState.HIT
     assert factors["印为忌"] == PredicateState.HIT
@@ -355,24 +336,13 @@ def test_factor_evaluation_never_resolves_yongshen_implicitly():
 
 def test_liunian_jishen_uses_selected_not_engine_fuyi():
     full = _bazi_chart_fixture("bazi_chart_1990.json")
-    selected = resolve_yongshen(full, INTERNAL_TEST_CHART_DIGEST)
+    selected = resolve_yongshen(full)
     base = {"selected_yongshen": selected}
     const = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
     assert _flow_element_in_selected(base, "甲", "gan", const) == 1
     assert _flow_element_in_selected(base, "寅", "zhi", const) == 1
     assert _flow_element_in_selected(base, "子", "zhi", const) == 0
     assert _flow_element_in_selected(base, "丙", "gan", const) == 0
-
-
-def test_yongshen_digest_binds_published_decision_to_source_chart():
-    first = resolve_yongshen(_bazi_chart_fixture("bazi_chart_1990.json"), INTERNAL_TEST_CHART_DIGEST)
-    second = resolve_yongshen(
-        _bazi_chart_fixture("bazi_chart_1990.json"), "b" * 64
-    )
-    assert first["yongshen_digest"] == resolve_yongshen(
-        _bazi_chart_fixture("bazi_chart_1990.json"), INTERNAL_TEST_CHART_DIGEST
-    )["yongshen_digest"]
-    assert first["yongshen_digest"] != second["yongshen_digest"]
 
 
 def test_natal_liunian_query_computes_selected_yongshen_internally():

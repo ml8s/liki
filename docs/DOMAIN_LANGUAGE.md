@@ -26,8 +26,8 @@ that concept's compatibility list.
 | `rule` | canonical | 表驱动的条件与结论单元，拥有稳定规则 ID 和版本。 | `Rule` | `Rule` | `rule` | 规则 | — |
 | `evidence` | canonical | 支撑结论的命中的结构化事实和规则片段。 | `Evidence` | `Evidence` | `evidence` | 依据链 | — |
 | `provenance` | canonical | 事实、规则和经典出处的可追溯来源。 | `Provenance` | `Provenance` | `provenance` | 来源追溯 | — |
-| `digest` | canonical | 对规范化领域对象计算的抗碰撞摘要，用于追问与重放校验。 | `Digest` | `digest` | `*_digest` | 摘要 | — |
-| `snapshot` | canonical | 可追问的完整领域输入快照，绑定内容摘要，不因后续对话静默变化。 | `Snapshot` | `Snapshot` | `*_snapshot` | 快照 | — |
+| `digest` | canonical | 对完整本命盘计算的内容摘要，用于防篡改校验和内部缓存。 | `(none)` | `digest` | `natal_chart_digest` | 摘要 | — |
+| `snapshot` | canonical | 一次内部判断所需的不可变领域事实集合。 | `Snapshot` | `Snapshot` | `*_snapshot` | 快照 | — |
 | `answer` | canonical | 基于既有快照回答追问得到的结构化结果。 | `Answer` | `Answer` | `answer` | 追问回答 | — |
 | `yongshen` | canonical | 命局裁决得到的用神结论及其状态、冲突、规则、来源和证据。 | `YongShen` | `YongShen` | `selected_yongshen` | 用神 | 禁止：`use_god`<br>兼容：`explicit_yong_shen`（v2026.12.01.0）, `yong_shen_candidates`（v2026.12.01.0） |
 | `geju` | canonical | 以月令格神为核心的子平格局候选与结构。 | `GeJu` | `GeJu` | `ge_ju` | 格局 | — |
@@ -36,7 +36,7 @@ that concept's compatibility list.
 | `dayun` | canonical | 八字大运区间及其起运、干支和顺逆信息。 | `DaYun` | `DaYun` | `dayun` | 大运 | — |
 | `liunian` | canonical | 流年干支及其与本命的组合事实。 | `LiuNian` | `LiuNian` | `liunian` | 流年 | — |
 | `yingqi` | canonical | 事件可能兑现的时间窗口或时间点。 | `YingQi` | `YingQi` | `ying_qi` | 应期 | — |
-| `casting` | canonical | 一次六爻起卦的源事实与审计收据；包含爻值、动爻和 casting_digest。 | `LiuyaoCastingRequestInput / LiuyaoCastingOutput` | `LiuyaoCastingRequestInput` | `casting` | 六爻起卦收据 | 禁止：`liuyao_seed`, `casting_id` |
+| `casting` | canonical | 一次六爻起卦的源事实；包含卦象模式、爻序、铜钱记录、爻值和动爻。 | `LiuyaoCastingRequestInput / LiuyaoCastingOutput` | `LiuyaoCastingRequestInput` | `casting` | 六爻卦象源事实 | 禁止：`liuyao_seed`, `casting_id` |
 
 ## Rules
 

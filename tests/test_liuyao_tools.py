@@ -35,7 +35,6 @@ def test_qigua_sends_original_coins_to_engine(monkeypatch):
                 for index, coins in enumerate(rounds, 1)
             ],
             "yaos": [7] * 6, "dong_yao": [],
-            "casting_digest": "a" * 64,
         }}
 
     monkeypatch.setattr("app.divination.tools.liuyao_casting.engine_data", engine)
@@ -73,7 +72,6 @@ def test_board_sends_casting_and_resolved_yongshen_only(monkeypatch):
             for index in range(1, 7)
         ],
         "yaos": [7] * 6, "dong_yao": [],
-        "casting_digest": "a" * 64,
     }
     result = board_factors(
         casting=casting,

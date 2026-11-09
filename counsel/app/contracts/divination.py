@@ -139,7 +139,6 @@ class LiuyaoCoinsCasting(BaseModel):
     rounds: list[LiuyaoCastingRoundsItem] = Field(description="六组铜钱记录。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
     dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
-    casting_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="起卦收据摘要。")
 
 
 class LiuyaoYaosCasting(BaseModel):
@@ -149,7 +148,6 @@ class LiuyaoYaosCasting(BaseModel):
     order: Literal["bottom_up"] = Field(description="爻序。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
     dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
-    casting_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="起卦收据摘要。")
 
 
 LiuyaoCasting = LiuyaoCoinsCasting | LiuyaoYaosCasting
@@ -643,6 +641,8 @@ class LiuyaoCase(BaseModel):
 
 # ── qimen ask inputs ──
 class QimenHourZhuanpanMethod(BaseModel):
+    """时家奇门 + 转盘法；定局法可选，缺省拆补。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["hour"] = Field(description="时家奇门。")
     school: Literal["zhuanpan"] = Field(description="转盘法。")
@@ -650,6 +650,8 @@ class QimenHourZhuanpanMethod(BaseModel):
 
 
 class QimenHourLuoshuMethod(BaseModel):
+    """时家奇门 + 洛书飞盘法；定局法可选，缺省拆补。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["hour"] = Field(description="时家奇门。")
     school: Literal["luoshu_feipan"] = Field(description="洛书飞盘法。")
@@ -657,12 +659,16 @@ class QimenHourLuoshuMethod(BaseModel):
 
 
 class QimenHourMingfaMethod(BaseModel):
+    """时家奇门 + 鸣法飞盘法；盘式固定定局。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["hour"] = Field(description="时家奇门。")
     school: Literal["mingfa_feipan"] = Field(description="鸣法飞盘；定局由盘式固定。")
 
 
 class QimenDayZhuanpanMethod(BaseModel):
+    """日家奇门 + 转盘法；定局法可选，缺省拆补。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["day"] = Field(description="日家奇门。")
     school: Literal["zhuanpan"] = Field(description="转盘法。")
@@ -670,6 +676,8 @@ class QimenDayZhuanpanMethod(BaseModel):
 
 
 class QimenDayLuoshuMethod(BaseModel):
+    """日家奇门 + 洛书飞盘法；定局法可选，缺省拆补。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["day"] = Field(description="日家奇门。")
     school: Literal["luoshu_feipan"] = Field(description="洛书飞盘法。")
@@ -677,18 +685,24 @@ class QimenDayLuoshuMethod(BaseModel):
 
 
 class QimenMonthMethod(BaseModel):
+    """月家周期奇门；转盘或洛书飞盘。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["month"] = Field(description="月家周期奇门。")
     school: Literal["zhuanpan", "luoshu_feipan"] = Field(description="盘式流派。")
 
 
 class QimenYearMethod(BaseModel):
+    """年家周期奇门；转盘或洛书飞盘。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["year"] = Field(description="年家周期奇门。")
     school: Literal["zhuanpan", "luoshu_feipan"] = Field(description="盘式流派。")
 
 
 class QimenQuarterTenMethod(BaseModel):
+    """刻家奇门：十分钟三元刻家。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["quarter"] = Field(description="刻家奇门。")
     school: Literal["zhuanpan"] = Field(description="转盘法。")
@@ -696,6 +710,8 @@ class QimenQuarterTenMethod(BaseModel):
 
 
 class QimenQuarterTwelveMethod(BaseModel):
+    """刻家奇门：十二分钟十分局刻家。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["quarter"] = Field(description="刻家奇门。")
     school: Literal["zhuanpan"] = Field(description="转盘法。")
@@ -706,6 +722,8 @@ class QimenQuarterTwelveMethod(BaseModel):
 
 
 class QimenJinhanMethod(BaseModel):
+    """日家金函玉镜专用盘。"""
+
     model_config = ConfigDict(extra="forbid")
     scope: Literal["day"] = Field(description="日家奇门。")
     school: Literal["jinhan_yujing"] = Field(description="金函玉镜专用盘。")
@@ -1053,10 +1071,9 @@ class LiuyaoAskOutput(BaseModel):
     """六爻一次性问测返回的受控 Reading。"""
 
     technique: Literal["liuyao"] = Field(description="占测技术。")
-    reading_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$", description="Reading 的 SHA-256 摘要。")]
     question: Annotated[str, Field(min_length=2, description="本次问测问题。")]
     scope: LiuyaoReadingScope = Field(description="本次 Reading 的受控范围。")
-    casting: LiuyaoCasting = Field(description="起卦收据。")
+    casting: LiuyaoCasting = Field(description="本次使用的卦象源事实。")
     chart_view: LiuyaoChart = Field(description="六爻盘面受控视图。")
     selected_yongshen_context: LiuyaoSelectedYongshenContext = Field(description="用神上下文。")
     evidence: list[LiuyaoReadingEvidence] = Field(min_length=1, description="解读依据。")
@@ -1098,7 +1115,6 @@ class QimenAskOutput(BaseModel):
     """奇门一次性问测返回的受控 Reading。"""
 
     technique: Literal["qimen"] = Field(description="占测技术。")
-    reading_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$", description="Reading 的 SHA-256 摘要。")]
     question: Annotated[str, Field(min_length=2, description="本次问测问题。")]
     scope: QimenReadingScope = Field(description="本次 Reading 的受控范围。")
     qi_ju: QimenQiJu = Field(description="起局事实。")
@@ -1116,7 +1132,7 @@ LiuyaoAskInput = LiuyaoAskInput
 
 TOOL_LIUYAO_ASK = ToolContract(
     name="liuyao_ask",
-    description="一次完成六爻起卦、排盘和结构化解读；casting=auto 时会新起一卦，同一事禁止自动重试或重复调用。后续追问应基于本次 Reading 解释。",
+    description="一次完成六爻起卦、排盘和结构化解读；casting=auto 时会新起一卦，同一事禁止自动重试或重复调用。后续追问应基于本次 Reading 解释；卦象事实按 schema 原样使用。",
     input=LiuyaoAskInput,
     output=LiuyaoAskOutput,
     annotations={"readOnlyHint": False, "idempotentHint": False},

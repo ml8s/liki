@@ -50,7 +50,6 @@ def _pan() -> dict:
         "standard_time": "1990-05-20T12:00:00",
         "gender": "male",
         "chart": {
-            "chart_digest": "a" * 64,
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             "da_yun": {"steps": [], "current_step_index": -1},
         },

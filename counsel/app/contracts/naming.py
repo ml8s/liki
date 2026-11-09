@@ -84,7 +84,7 @@ PickWuxing = Literal["木", "火", "土", "金", "水"]
 PickRole = Literal["yong", "xi"]
 
 class ConsumableSelectedYongshen(BaseModel):
-    """起名只消费用神裁决中的五行计划与状态；审计字段原样携带但不参与校验。"""
+    """起名只消费用神裁决中的五行计划与状态；其他裁决上下文不参与校验。"""
 
     model_config = ConfigDict(extra="allow")
     selected_yongshen: YongShenChoice

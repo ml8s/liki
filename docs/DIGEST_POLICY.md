@@ -1,44 +1,17 @@
 # Digest policy
 
-Digest 不是通用输出装饰。只有当一个 MCP artifact 会离开当前调用，之后又可能被 LLM 原样传回 MCP input，或必须作为不可变事件留证时，才发布 digest。服务端编排内部的请求关联、缓存键和派生结果溯源不属于 digest 边界。确定性输出不因为“它是计算结果”而增加摘要。
+Digest 不是通用输出装饰，也不是 MCP 调用绑定。只有当产物会被复用、跨调用消费，或确实需要防篡改时才发布；普通确定性输出不加。
 
-## Canonical digest
-
-所有运行时使用同一套 canonical JSON 规则：
-
-1. UTF-8 文本，不转义中文；
-2. 对象键按 Unicode 码点排序；
-3. 无换行、缩进等多余空白；
-4. 数组保持业务顺序；
-5. null、boolean、整数和十进制数保持 JSON 标量语义，不发布 NaN/Infinity；
-6. 不做 HTML escape；U+2028/U+2029 统一编码为 `\u2028/\u2029`；
-7. 数字保留源 JSON 标量形式，SHA-256 输出为 64 位小写十六进制。
-
-`reading_digest`、`yongshen_digest`、`casting_digest` 等自身字段不参与自己的摘要。engine 保留 canonical JSON 规则实现；counsel 的唯一 Python digest 实现在 `counsel/app/integrity/digest.py`。业务代码只调用 artifact helper，不重复手写 canonical JSON。Go/Python 使用固定参考向量做兼容测试。
+实现规则：使用 canonical JSON，UTF-8，对象键排序，无多余空白，数组保持业务顺序；digest 字段本身不参与摘要。运行时实现只在 `counsel/app/integrity/digest.py`。
 
 ## 当前边界
 
 | Artifact | Digest / identity | 决策 | 原因 |
 | --- | --- | --- | --- |
-| `liuyao_ask` / `qimen_ask` | `reading_digest` | 保留 | 一次问测 Reading 的完整性摘要；case 本体不对外。 |
-| `liuyao.qigua` output `casting` | `casting_digest` | 保留 | casting 会原样进入 `liuyao.chart`，必须拒绝篡改。 |
-| `bazi_chart` / `ziwei_chart` / `qimen_chart` / `xuankong_chart` / `liuyao_chart` | 无 artifact digest | 不加 | 它们是当前调用的计算结果；后续方法重用领域身份重算，不把 chart 原样传回。 |
-| `xuankong_liunian` | 无 artifact digest | 不加 | 输入是 `standard_time + longitude + 坐向` 领域事实；输出是本次流年计算结果。 |
-| `bazi_yongshen` | `bazi_chart_digest`, `yongshen_digest` | 保留 | 用神裁决被起名、因子和应期消费，需要绑定源盘和结论。 |
-| natal internal factors | `natal_chart_digest` | 内部保留 | 因子只参与服务端断语计算，不作为公共 artifact 输出。 |
-| series / bond | 无 source digest | 不加 | 服务端同一编排内派生；请求-响应关联由编排层负责，不是防 LLM 伪造边界。 |
-| naming 工具 | 无 artifact digest | 不加 | 字池、组名、逐字五行角色是确定性事实，不构成可复用事件。 |
-| 普通查询/投影 | 无 | 不加 | 只展示或只在同一请求内消费的输出不需要身份。 |
-| 用户提问 | `message_digest` | 已删除 | 提问不是原样回传的 artifact；reading 已绑定问题与证据。 |
+| `natal_query` / `natal_liunian_query` / internal factor snapshots | `natal_chart_digest` | 保留 | 完整本命盘较大，需要防篡改身份，并作为内部缓存键。 |
+| `bazi_yongshen` | 无 | 不加 | 八字用神是自包含裁决；紫微没有对应 digest，保持两侧对称。 |
+| one-shot divination、普通 chart / series / naming | 无 | 不加 | 一次调用或确定性事实已自包含，不需要调用绑定。 |
 
 ## 决策规则
 
-新增或修改 artifact 时按顺序判断：
-
-1. 它会由 LLM 原样传回后续 MCP input 吗？不是就不加。
-2. 它是服务端创建的不可变事件吗？是则加 case/casting identity。
-3. 它是规则裁决、内部因子集或可复用源盘吗？是则加自身 digest，并绑定来源 digest。
-4. 它只是服务端编排内的派生结果吗？请求-响应关联由编排层负责，不加 source digest。
-5. 消费端必须校验 digest，失败时返回 tool error，不静默重算或降级。
-
-Digest 只表达内容身份，不表达置信度、质量、排序、优先级或吉凶强度。
+只有可复用且需要防篡改的裁决或源盘才加 digest；消费端校验失败时返回 tool error。Digest 只表达内容身份，不表达置信度、质量、排序或吉凶强度。

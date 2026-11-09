@@ -5,7 +5,6 @@ the schemas they publish and validate the same values consumed by MCP.
 """
 
 
-import hashlib
 import json
 from pathlib import Path
 
@@ -49,7 +48,8 @@ def test_qimen_ask_input_uses_method_branches():
 def test_ask_outputs_are_self_contained_readings():
     for name in ("liuyao_ask", "qimen_ask"):
         output = CONTRACTS[name].output_schema["properties"]
-        assert {"scope", "evidence", "interpretation", "reading_digest"} <= set(output)
+        assert {"scope", "evidence", "interpretation"} <= set(output)
+        assert "reading_digest" not in output
         assert "case_digest" not in output and "snapshot_digest" not in output
         assert "factors" not in output
 
@@ -208,9 +208,7 @@ def _resolved_yongshen():
     subject = json.loads(input_path.read_text(encoding="utf-8"))["input"]["subject"]
     from app.natal.tools.charts import _bazi_chart
 
-    return resolve_yongshen(
-        _bazi_chart(subject), "a" * 64
-    )
+    return resolve_yongshen(_bazi_chart(subject))
 
 
 def test_real_yongshen_output_conforms_to_the_shared_contract():
@@ -222,28 +220,19 @@ def test_real_yongshen_output_conforms_to_the_shared_contract():
     typed = SelectedYongShen.model_validate(published)
     assert typed.selected_yongshen.yong == published["selected_yongshen"]["yong"]
     assert typed.status == published["status"]
-    assert typed.yongshen_digest == published["yongshen_digest"]
+    assert "bazi_chart_digest" not in published
+    assert "yongshen_digest" not in published
     assert "source" not in published
     assert "confidence" not in published
     assert "known_fields" not in published
     assert "factors" not in published
     assert "alternatives" not in published
-    digest_input = {
-        key: value for key, value in published.items() if key != "yongshen_digest"
-    }
-    digest = hashlib.sha256(
-        json.dumps(
-            digest_input, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-        ).encode("utf-8")
-    ).hexdigest()
-    assert digest == published["yongshen_digest"]
 
 
 @pytest.mark.parametrize(
     "mutation",
     [
         lambda result: result.update(status="maybe"),
-        lambda result: result.pop("yongshen_digest"),
         lambda result: result["selected_yongshen"].update(yong="风"),
     ],
 )

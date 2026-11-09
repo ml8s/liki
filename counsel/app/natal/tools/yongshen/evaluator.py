@@ -8,18 +8,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-from app.integrity.digest import require_sha256, sha256_json
-
 from .schema import validate_policy
 
 POLICY_PATH = Path(__file__).resolve().parent / "policy.json"
 _MISSING = object()
 _POLICY_CACHE: dict | None = None
-_DIRECT_FACTOR_KEYS = (
-    "month_zhi", "day_master_stem", "day_master_element", "stems",
-    "fu_yi", "tiao_hou", "ge_ju", "atomic_facts",
-    "element_states", "ten_god_states", "wuxing_count",
-)
 
 
 class YongShenEvaluationError(ValueError):
@@ -362,9 +355,7 @@ def _apply_then(rule: dict, facts: dict, derived: dict) -> dict:
             "yong": NO_CANDIDATE,
             "xi": [],
             "ji": [],
-            "source": "",
         },
-        "source": "",
         "status": "unresolved",
         "conflicts": [],
     }
@@ -444,65 +435,18 @@ def _finalize(result: dict, policy: dict) -> None:
     result["conflicts"] = deduped
 
 
-def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
-    fu_yi = facts.get("fu_yi") or {}
-    tiao_hou = facts.get("tiao_hou") or {}
+def _ge_ju_context(facts: dict, derived: dict, policy: dict) -> dict:
     ge_ju = facts.get("ge_ju") or {}
-    basis = fu_yi.get("basis") or {}
     themes = policy["tables"].get("ge_ju_themes") or {}
     raw_ten_god = ge_ju.get("pattern_god_ten_god") or ""
     ten_god = raw_ten_god or "杂格"
     return {
-        "fu_yi": {
-            "qiang_ruo": fu_yi.get("qiang_ruo", ""),
-            "yong": _candidate(fu_yi.get("yong")),
-            "xi": _candidate(fu_yi.get("xi")),
-            "ji": _candidate(fu_yi.get("ji")),
-            "pattern": fu_yi.get("pattern", ""),
-            "ri_gan_gen": basis.get("ri_gan_gen", ""),
-            "season": basis.get("season", ""),
-            "yin_bi_shu_liang": basis.get("yin_bi_shu_liang", 0),
-        },
-        "tiao_hou": {
-            "primary_wuxing": tiao_hou.get("primary_wuxing", ""),
-            "secondary_wuxing": _candidate(tiao_hou.get("secondary_wuxing")),
-            "secondary_condition": tiao_hou.get("secondary_condition", ""),
-            "condition_ok": derived.get("tiaohou_secondary_condition_ok", False),
-            "secondary_usable": derived.get("tiaohou_secondary_usable", False),
-            "primary_present": derived.get("tiaohou_primary_present", False),
-            "primary_visible": derived.get("tiaohou_primary_visible", False),
-            "secondary_present": derived.get("tiaohou_secondary_present", False),
-            "secondary_visible": derived.get("tiaohou_secondary_visible", False),
-            "yong": _candidate(derived.get("tiaohou_yong")),
-            "yong_source": derived.get("tiaohou_yong_source", "none"),
-            "yong_present": derived.get("tiaohou_yong_present", False),
-            "yong_visible": derived.get("tiaohou_yong_visible", False),
-            "control_wuxing": _candidate(derived.get("tiaohou_control_wuxing")),
-        },
-        "ge_ju": {
-            "pattern": ge_ju.get("ge_ju", ""),
-            "pattern_god_ten_god": raw_ten_god or "无格神",
-            "pattern_god_source": ge_ju.get("pattern_god_source", ""),
-            "yong_fa": ge_ju.get("yong_fa", ""),
-            "is_clear": derived.get("ge_ju_clear", False),
-            "theme": themes.get(ten_god, themes.get("杂格", "")),
-        },
-        "cong_ge": {
-            "pattern": fu_yi.get("pattern", ""),
-            "is_verified": derived.get("congge_verified", False),
-            "is_fake_candidate": derived.get("congge_fake", False),
-            "guan_sha_effective_count": derived.get("guan_sha_effective_count", 0),
-            "cai_effective_count": derived.get("cai_effective_count", 0),
-            "shi_shang_effective_count": derived.get("shi_shang_effective_count", 0),
-            "yin_rooted_count": derived.get("yin_rooted_count", 0),
-            "bi_jie_rooted_count": derived.get("bi_jie_rooted_count", 0),
-        },
-        "neutral": {
-            "overstrong": derived.get("neutral_overstrong", {}),
-            "weak": derived.get("neutral_weak", {}),
-            "yong": _candidate(derived.get("neutral_yong")),
-            "status": derived.get("neutral_status", "unresolved"),
-        },
+        "pattern": ge_ju.get("ge_ju", ""),
+        "pattern_god_ten_god": raw_ten_god or "无格神",
+        "pattern_god_source": ge_ju.get("pattern_god_source", ""),
+        "yong_fa": ge_ju.get("yong_fa", ""),
+        "is_clear": derived.get("ge_ju_clear", False),
+        "theme": themes.get(ten_god, themes.get("杂格", "")),
     }
 
 
@@ -566,15 +510,6 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
 
 
 
-def _pre_factor_snapshot(facts: dict, derived: dict) -> dict:
-    """按阶段暴露取用神所需因子：engine 直读 + policy 二次因子。"""
-    return {
-        "phase": "pre_yongshen",
-        "direct": {key: facts[key] for key in _DIRECT_FACTOR_KEYS if key in facts},
-        "secondary": dict(derived),
-    }
-
-
 PUBLISHED_FIELDS = (
     "selected",
     "status",
@@ -583,24 +518,22 @@ PUBLISHED_FIELDS = (
     "ge_ju_context",
     "evidence",
     "policy_id",
-    "bazi_chart_digest",
 )
 
 
 def published_yongshen(result: dict) -> dict:
     """Project the internal resolver result to the MCP decision object.
 
-    The published digest binds the decision, its evidence, and the source chart.
-    Internal pre-factor snapshots and alternatives remain outside this wire object.
+    The published decision is self-contained: selected plan, conflicts, evidence,
+    and policy identity.
+    Internal candidate counts remain outside this wire object.
     """
     published = {field: result[field] for field in PUBLISHED_FIELDS}
     published["selected_yongshen"] = published.pop("selected")
-    if "yongshen_digest" in result:
-        published["yongshen_digest"] = result["yongshen_digest"]
     return published
 
 
-def resolve_yongshen(bazi_chart: dict, source_bazi_chart_digest: str) -> dict:
+def resolve_yongshen(bazi_chart: dict) -> dict:
     """从 canonical bazi.chart 事实裁决唯一 selected_yongshen。"""
     policy = load_policy()
     facts = _enrich_facts(bazi_chart or {}, policy)
@@ -608,13 +541,9 @@ def resolve_yongshen(bazi_chart: dict, source_bazi_chart_digest: str) -> dict:
     rule = _select_rule(policy, facts, derived)
     result = _apply_then(rule, facts, derived)
     _finalize(result, policy)
-    result["factors"] = _pre_factor_snapshot(facts, derived)
-    result["alternatives"] = _alternatives(facts, derived, policy)
-    result["ge_ju_context"] = result["alternatives"]["ge_ju"]
+    result["ge_ju_context"] = _ge_ju_context(facts, derived, policy)
     result["evidence"] = _evidence(facts, derived, policy)
     result["policy_id"] = policy["policy_id"]
-    result["bazi_chart_digest"] = require_sha256(source_bazi_chart_digest, "source_bazi_chart_digest")
-    result["yongshen_digest"] = sha256_json(published_yongshen(result))
     return result
 
 

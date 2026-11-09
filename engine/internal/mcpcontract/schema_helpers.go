@@ -13,6 +13,44 @@ func withSchemaEnum(raw json.RawMessage, field string, values ...string) (json.R
 	return withSchemaPropertyConstraints(raw, field, nil, values)
 }
 
+func withSchemaOptionalDefault(raw json.RawMessage, field, value string) (json.RawMessage, error) {
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	properties, ok := document["properties"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("schema has no properties")
+	}
+	property, ok := properties[field].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("schema has no property %q", field)
+	}
+	property["default"] = value
+	required := make([]string, 0, len(document["required"].([]any)))
+	for _, name := range document["required"].([]any) {
+		if name.(string) != field {
+			required = append(required, name.(string))
+		}
+	}
+	if len(required) == 0 {
+		delete(document, "required")
+	} else {
+		document["required"] = required
+	}
+	return json.Marshal(document)
+}
+
+func withSchemaFormMeta(raw json.RawMessage, title, description string) (json.RawMessage, error) {
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	document["title"] = title
+	document["description"] = description
+	return json.Marshal(document)
+}
+
 func withSchemaNumberBounds(raw json.RawMessage, field string, minimum, maximum float64) (json.RawMessage, error) {
 	var document map[string]any
 	if err := json.Unmarshal(raw, &document); err != nil {

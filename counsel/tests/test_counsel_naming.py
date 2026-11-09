@@ -27,8 +27,6 @@ def _selected_yongshen(yong="木", xi=None, ji=None, status="resolved"):
         "conflicts": [],
         "rule_id": "TEST-RULE",
         "policy_id": "liki.bazi.yongshen",
-        "bazi_chart_digest": "a" * 64,
-        "yongshen_digest": "b" * 64,
     }
 
 

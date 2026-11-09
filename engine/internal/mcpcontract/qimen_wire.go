@@ -100,16 +100,24 @@ func qimenMethodFormSchema[T any](options *jsonschema.ForOptions,
 func qimenMethodFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
 	builders := []func() (json.RawMessage, error){
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
+			raw, err := qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "hour", "school": "zhuanpan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun", "maoshan"}},
 			)
+			if err == nil {
+				raw, err = withSchemaOptionalDefault(raw, "dingju_method", "chaibu")
+			}
+			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
+			raw, err := qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "hour", "school": "luoshu_feipan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
+			if err == nil {
+				raw, err = withSchemaOptionalDefault(raw, "dingju_method", "chaibu")
+			}
+			return raw, err
 		},
 		func() (json.RawMessage, error) {
 			return qimenMethodFormSchema[qimenScopeSchoolForm](options,
@@ -117,16 +125,24 @@ func qimenMethodFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, er
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
+			raw, err := qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "day", "school": "zhuanpan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
+			if err == nil {
+				raw, err = withSchemaOptionalDefault(raw, "dingju_method", "chaibu")
+			}
+			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
+			raw, err := qimenMethodFormSchema[qimenScopeSchoolDingjuForm](options,
 				map[string]string{"scope": "day", "school": "luoshu_feipan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
+			if err == nil {
+				raw, err = withSchemaOptionalDefault(raw, "dingju_method", "chaibu")
+			}
+			return raw, err
 		},
 		func() (json.RawMessage, error) {
 			return qimenMethodFormSchema[qimenScopeSchoolForm](options,

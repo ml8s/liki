@@ -56,7 +56,7 @@ def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
 
 @pytest.mark.parametrize("sample", SAMPLES)
 def test_internal_factor_snapshot_matches_direct_evaluation(sample):
-    from app.natal.tools.counsel import _factor_snapshot
+    from app.natal.tools.counsel import _factor_snapshots
     from app.natal.tools.factors import evaluate_factors
 
     instant, timezone, gender, longitude = sample
@@ -64,7 +64,7 @@ def test_internal_factor_snapshot_matches_direct_evaluation(sample):
     natal_chart = _full_pan(instant, timezone, gender, longitude)
     for technique, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
         direct = evaluate_factors(gender, natal_chart, shushi=shushi)
-        remote = _factor_snapshot(subject, technique)["facts"]
+        remote = _factor_snapshots(subject)[technique]["facts"]
         diff, missing = _diff_fields(direct, remote)
         assert not diff and not missing, (
             f"{technique} factors differ: diff={diff[:5]} missing={missing[:5]}"

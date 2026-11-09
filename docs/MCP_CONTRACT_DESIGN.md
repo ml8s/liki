@@ -174,7 +174,7 @@ Schema 由 typed DTO / Pydantic model 生成，并满足：
 2. 字段有 description；
 3. enum 使用稳定 string；
 4. number 有边界；
-5. digest 有 SHA-256 pattern；
+5. digest 只按 Digest policy 使用，且有 SHA-256 pattern；
 6. date 使用 `YYYY-MM-DD`；
 7. array 必须有 `items`；
 8. object 输出尽量封闭；
@@ -211,14 +211,13 @@ engine `conflicts` 形状由 `DivinationConflict` 在 counsel 边界 fail-closed
 
 ## 6. 输出设计
 
-输出分成四层：
+输出分成三层：
 
 | 层 | 内容 |
 | --- | --- |
-| identity | digest、来源摘要 |
 | input_view | 服务端确认过的输入 |
 | facts | 确定性领域事实 |
-| assessment | 规则评估结论 |
+| assessment | 规则评估结论、证据和建议 |
 
 命名建议：
 
@@ -226,14 +225,12 @@ engine `conflicts` 形状由 `DivinationConflict` 在 counsel 边界 fail-closed
 standard_time
 selector_standard_time
 longitude
-longitude
 pillars
 palaces
 stars
 lines
 evidence
 assessment
-digest
 ```
 
 避免把这些词当类型名：
@@ -265,14 +262,13 @@ Reading      = controlled evidence + interpretation + followup policy
 1. 内部 case 只在服务端一次调用内创建和消费；
 2. Reading 不暴露 raw case 或 raw factors；
 3. 追问由 LLM 基于已返回 Reading 解释；超出 scope 时要求新的 ask；
-4. `reading_digest` 必须与 Reading canonical JSON 绑定；
+4. 不发布 `reading_digest` 或 `casting_digest`；
 5. 不做隐藏的服务端 case store；
-6. Reading 不返回 `schema_version`；身份由 technique 与 digest 表达。
+6. Reading 不返回 `schema_version`；身份由 technique 与自包含事实表达。
 
 ## 8. Digest policy
 
-Digest 只用于不可变事件、可审计裁决和需要防篡改的可复用 artifact，不作为普通确定性输出的装饰字段。当前边界、反模式与新增决策规则见
-[DIGEST_POLICY.md](./DIGEST_POLICY.md)。
+Digest 不是通用调用绑定；当前边界见 [DIGEST_POLICY.md](./DIGEST_POLICY.md)。
 
 ## 9. 错误反馈
 

@@ -15,6 +15,7 @@
               "additionalProperties": false,
               "properties": {
                 "dingju_method": {
+                  "default": "chaibu",
                   "description": "定局法。",
                   "enum": [
                     "chaibu",
@@ -36,8 +37,7 @@
               },
               "required": [
                 "scope",
-                "school",
-                "dingju_method"
+                "school"
               ],
               "type": "object"
             },
@@ -45,6 +45,7 @@
               "additionalProperties": false,
               "properties": {
                 "dingju_method": {
+                  "default": "chaibu",
                   "description": "定局法。",
                   "enum": [
                     "chaibu",
@@ -65,8 +66,7 @@
               },
               "required": [
                 "scope",
-                "school",
-                "dingju_method"
+                "school"
               ],
               "type": "object"
             },
@@ -94,6 +94,7 @@
               "additionalProperties": false,
               "properties": {
                 "dingju_method": {
+                  "default": "chaibu",
                   "description": "定局法。",
                   "enum": [
                     "chaibu",
@@ -114,8 +115,7 @@
               },
               "required": [
                 "scope",
-                "school",
-                "dingju_method"
+                "school"
               ],
               "type": "object"
             },
@@ -123,6 +123,7 @@
               "additionalProperties": false,
               "properties": {
                 "dingju_method": {
+                  "default": "chaibu",
                   "description": "定局法。",
                   "enum": [
                     "chaibu",
@@ -143,8 +144,7 @@
               },
               "required": [
                 "scope",
-                "school",
-                "dingju_method"
+                "school"
               ],
               "type": "object"
             },

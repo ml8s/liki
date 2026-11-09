@@ -565,16 +565,24 @@ func TestEngineContractCalls(t *testing.T) {
 	if err := registry.ValidateOutput("liuyao_qigua", qiguaRaw); err != nil {
 		t.Fatalf("liuyao_qigua output contract: %v", err)
 	}
+	var qiguaDocument map[string]any
+	if err := json.Unmarshal(qiguaRaw, &qiguaDocument); err != nil {
+		t.Fatal(err)
+	}
+	castingDocument, _ := qiguaDocument["casting"].(map[string]any)
+	if _, exists := castingDocument["casting_digest"]; exists {
+		t.Fatal("liuyao casting must not publish casting_digest")
+	}
 	var qigua LiuyaoQiguaOutput
 	if err := json.Unmarshal(qiguaRaw, &qigua); err != nil {
 		t.Fatal(err)
 	}
 	if qigua.Casting.Mode != "yaos" || len(qigua.Casting.Yaos) != 6 ||
-		len(qigua.Casting.DongYao) != 0 || qigua.Casting.CastingDigest == "" {
+		len(qigua.Casting.DongYao) != 0 {
 		t.Fatalf("incomplete liuyao casting: %#v", qigua.Casting)
 	}
 	if qigua.Casting.CoinConvention != nil || qigua.Casting.Rounds != nil {
-		t.Fatalf("yaos casting should omit coin-only audit fields: %#v", qigua.Casting)
+		t.Fatalf("yaos casting should omit coin-only fields: %#v", qigua.Casting)
 	}
 
 	if _, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
@@ -602,18 +610,17 @@ func TestEngineContractCalls(t *testing.T) {
 		t.Fatal(err)
 	}
 	if liuyaoChart.Name == "" || len(liuyaoChart.Lines) != 6 || len(liuyaoChart.BianLines) != 6 ||
-		liuyaoChart.Casting.CastingDigest == "" || liuyaoChart.TombSchool.School == "" {
+		liuyaoChart.TombSchool.School == "" {
 		t.Fatalf("incomplete liuyao chart: %#v", liuyaoChart)
 	}
 
 	tamperedQigua := qigua
-	tamperedQigua.Casting.Yaos[0] = 8
+	tamperedQigua.Casting.Yaos[0] = 9
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
 		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
 		Longitude:    116.4,
 		Casting:      &tamperedQigua.Casting,
-	})); err == nil || (!strings.Contains(err.Error(), "casting_digest mismatch") &&
-		!strings.Contains(err.Error(), "dong_yao mismatch")) {
+	})); err == nil || !strings.Contains(err.Error(), "dong_yao mismatch") {
 		t.Fatalf("expected tampered casting rejection, got %v", err)
 	}
 }

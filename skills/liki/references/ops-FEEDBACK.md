@@ -10,7 +10,7 @@
 
 ## Payload 契约
 
-固定模板见根目录 `feedback.契约.json`，`契约版本=feedback-v1`。
+固定 schema 见根目录 `feedback.schema.json`，`版本=feedback-v1`。
 
 `problem.type` 只能是 `error`、`gap`、`conflict`、`friction`、`clarity`。
 
@@ -18,11 +18,11 @@
 
 ## 提交方式
 
-1. 把符合 `feedback.契约.json` 的 payload 写入临时文件。
+1. 把符合 `feedback.schema.json` 的 payload 写入临时文件。
 2. 执行：
 
    ```bash
    python3 scripts/feedback.py --payload-file <临时文件>
    ```
 
-3. 按返回状态回写收据行（格式见根 `SKILL.md`）；失败不重试、不阻塞、不把内部错误展示为业务失败。
+3. 按返回状态在最终回复中报告结果；失败不重试、不阻塞、不把内部错误展示为业务失败。

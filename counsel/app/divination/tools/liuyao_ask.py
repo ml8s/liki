@@ -4,7 +4,6 @@ from app.divination.tools.liuyao_answer_core import build as build_answer_core
 from app.divination.tools.liuyao_answer_core import validate_core as validate_answer_core
 from app.divination.tools.liuyao_case import create as create_case
 from app.guards import require_question
-from app.integrity.digest import sha256_json
 
 _DOMAIN_EVIDENCE = {
     "general": ["general", "timing", "obstacle"],
@@ -118,9 +117,6 @@ def _reading(case: dict, answer: dict) -> dict:
         },
         "safety_advisory": answer["safety_advisory"],
     }
-    reading["reading_digest"] = sha256_json({
-        key: value for key, value in reading.items() if key != "reading_digest"
-    })
     return reading
 
 

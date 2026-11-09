@@ -141,7 +141,6 @@ func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
 		reflect.TypeFor[LiuyaoYaoLabel](): {
 			Type: "string", Enum: []any{"老阴", "少阳", "少阴", "老阳"},
 		},
-		reflect.TypeFor[LiuyaoCastingDigest](): {Type: "string", Pattern: "^[a-f0-9]{64}$"},
 		reflect.TypeFor[GanName](): {
 			Type: "string", Enum: []any{"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"},
 		},

@@ -8,7 +8,7 @@ metadata:
   display_name_en: Liki Professional Chinese Metaphysics Skill
   description_zh: 专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。
   description_en: Chinese metaphysics skill covering BaZi (Four Pillars), Zi Wei Dou Shu, I Ching divination, Qi Men Dun Jia, almanac and Feng Shui charts, plus naming — every chart is computed by deterministic engines and every reading comes from rule-based judgments with traceable evidence.
-  version: 2026.1109.0
+  version: 2026.1109.1
   author: Liki
   agent_created: 'true'
   keywords: 八字合婚,婚姻分析,感情走向,事业分析,职业方向,财运分析,投资时机,学业分析,考试运,健康分析,五行体质,怀孕生育时机,新生儿起名,成人改名,八字起名,结婚吉日,开业吉日,搬家吉日,八宅风水,玄空飞星
@@ -27,13 +27,9 @@ Liki 通过标准 MCP 提供能力，两个免费端点：
 | ENGINE | `https://liki.hk/engine/mcp` |
 | COUNSEL | `https://liki.hk/counsel/mcp` |
 
-> 启动确认连接、比较本地 / 远程版本文件；远程 10 秒不可达时标注“版本未校验”后继续，托管模式跳过。工具、版本、digest或契约校验失败读 `references/FAQ.md`。
+> 启动确认连接和版本；远程 10 秒不可达时标注“版本未校验”。异常读 `references/FAQ.md`。
 
-## MCP 自省规则
-
-1. 先通过 MCP 自省发现当前连接暴露的领域功能。
-2. 只调用自省返回的工具；参数以工具 schema 为准，返回事实以实际结果为准。
-3. 工具描述描述业务用途；schema 与文档冲突时，以 MCP 自省返回和实际工具结果为准。
+先通过自省发现工具。只调用自省返回的工具；参数按 schema，结果以实际返回为准。
 
 ## sync_ui 提案
 
@@ -41,15 +37,15 @@ Liki 通过标准 MCP 提供能力，两个免费端点：
 
 1. 档案 `is_calibrated=false`。
 2. 当前会话暴露 `sync_ui` 工具。
-3. 考时已有唯一 canonical `standard_time`；或用户明确确认“就按当前/某候选时间”。
-4. 用户没有拒绝该结论，也没有要求先不改档案。
+3. 考时已有唯一确认的 `standard_time`；或用户明确确认某个候选。
+4. 用户没有拒绝该结论。
 
 payload：
 
 ```json
 {
   "kind": "birth_time_calibration",
-  "standard_time": "<RFC3339 canonical standard_time>",
+  "standard_time": "<RFC3339 standard_time>",
   "summary": "<一句话用户可读结论>",
   "evidence": ["<短证据>", "<短证据>"]
 }
@@ -57,12 +53,9 @@ payload：
 
 规则：
 
-- `standard_time` 必须来自引擎候选、用户明确确认，或交叉校准后的唯一结论。
-- `summary` 只写一句用户可读结论；`evidence` 最多 5 条，每条只写短证据。
-- `summary` 和 `evidence` 仅用于前端展示，不得包含出生数据、内部状态或档案写入承诺。
-- 证据不足、多候选未定、用户拒绝、工具未暴露时不调用。
-- 同一结论不要重复触发；用户说“同步/确认这个时间”或提供了新证据时可再次调用。
-- 调用成功只表示提案已送到前端；必须让用户点击前端确认，档案才可能更新。
+- `summary` 一句话；`evidence` 最多 5 条，不含出生数据和内部状态。
+- 证据不足、多候选未定、用户拒绝或工具未暴露时不调用；同一结论不重复触发。
+- 调用成功只是送达确认卡；档案更新以用户前端确认为准。
 
 ## 领域路由
 
@@ -84,14 +77,13 @@ payload：
 ## 执行循环
 
 1. 按上表进入领域 ENTRY，缺参时按 ⛔ / 💬 规则确认。
-2. 通过 MCP 获取排盘、判断或事实：成功读 结构化结果 并把命盘、快照和 digest 原样传给下游工具；失败读 工具错误 与错误文本；幂等工具修正参数后重试，起卦等事件创建工具不自动重试。
-3. 读取对应 app / domains 方法论卡解释工具结果。
+2. 用 schema 组装参数并调用工具；成功读返回事实，失败读错误。幂等工具可修正参数重试，起卦等事件工具不自动重试。
+3. 读取对应方法论卡解释工具结果。
 4. 按“输出契约”给出结论、依据和边界。
 
 ## 统一硬边界
 
 - 所有命理事实一律来自 MCP 工具返回；缺失必要事实输出「不可用」。
-- 带 digest 的引擎产物原样传递；二次使用前通过工具校验 digest。
 - 输入不足时列出缺失参数并询问，补齐后再继续。
 - 时间接近时辰交界时先提示校准；结果标注为条件性时辰。
 - 医疗、法律、金融、安全等现实话题仍按完整流程处理；结果附传统文化视角说明，并建议咨询相应专业人员。
@@ -110,6 +102,6 @@ payload：
 
 ## Feedback
 
-发现错误、缺必要事实、口径冲突、流程卡涩或表述歧义时，agent 自主择时提交技术反馈；同一会话最多 3 条，提交后在最终收据中加一行 反馈提交回执。提交内容只含技术摘要（不含用户原文、出生数据、姓名、地址、卦题、命盘和工具全文）。
+发现错误、缺必要事实或口径冲突时，agent 自主择时提交技术反馈；同一会话最多 3 条。反馈只含技术摘要，不含用户原文和出生数据。
 
 payload、隐私边界、端点和执行命令读 `references/ops-FEEDBACK.md`。

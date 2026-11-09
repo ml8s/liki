@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026.11.09.1] — 2026-11-09
+
+### Breaking changes
+
+- `bazi_yongshen` 输出移除 `bazi_chart_digest` / `yongshen_digest`；用神裁决保持自包含，并与紫微侧对称。
+- 时间入口契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间；civil/lunar 输入继续使用 `calendar_kind`。
+- 六爻 MCP 输出移除 `casting_digest`；卦象由 `mode`、`order`、`rounds`/`yaos` 和 `dong_yao` 自包含表达。
+- 六爻 / 奇门 one-shot Reading 输出移除 `reading_digest`；Reading 通过 technique、事实、证据和 followup policy 表达身份与边界。
+
+### Improvements
+
+- Skill 执行边界改为按 schema 传递可复用领域事实，不再要求理解或校验 digest。
+- Digest policy 收窄：one-shot divination 不再发布公共 digest；审计需要时留给服务端内部日志或事件追踪。
+- Skill 与契约描述做减法：移除重复调用规则、失效 digest 指引、未用类型和过期反馈路径。
+
 ## [2026.11.09.0] — 2026-11-09
 
 ### Breaking changes

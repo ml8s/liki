@@ -59,6 +59,6 @@
 ## sync_ui 提案
 
 唯一结论后若暴露 `sync_ui`，在最终报告前自动调用一次；payload 仅承载展示信息：
-`{"kind":"birth_time_calibration","standard_time":"RFC3339 canonical standard_time","summary":"<一句话结论>","evidence":["<短证据>"]}`
+`{"kind":"birth_time_calibration","standard_time":"RFC3339 standard_time","summary":"一句话结论","evidence":["短证据"]}`
 
 证据不足、多候选未定、用户拒绝时不调用。成功只表示前端收到确认卡；用户确认后档案才可能更新。

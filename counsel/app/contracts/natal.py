@@ -10,7 +10,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
 from app.contracts.schema import ToolContract, unique_list
-from app.contracts.yongshen import BaziYongshenOutput
+from app.contracts.yongshen import SelectedYongShen
 
 
 class NatalSubjectInput(BaseModel):
@@ -44,7 +44,7 @@ TOOL_BAZI_YONGSHEN = ToolContract(
     name="bazi_yongshen",
     description=TOOL_BAZI_YONGSHEN_DESCRIPTION,
     input=BaziYongshenInput,
-    output=BaziYongshenOutput,
+    output=SelectedYongShen,
     output_description="唯一用神裁决结果。",
 )
 

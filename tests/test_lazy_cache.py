@@ -9,7 +9,7 @@ import pytest
 def _mk(ri_gan: str, ri_zhi: str) -> dict:
     return {
         "natal_chart_digest": "a" * 64,
-        "chart": {"chart_digest": "a" * 64, "nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},
+        "chart": {"nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},
                   "ri": {"gan": ri_gan, "zhi": ri_zhi}, "shi": {"gan": "庚", "zhi": "午"}},
         "full": {
             "ri": {"gan": ri_gan, "zhi": ri_zhi},

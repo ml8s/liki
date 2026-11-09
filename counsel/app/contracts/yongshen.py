@@ -1,14 +1,14 @@
 """Shared wire contracts for the bazi yongshen resolution.
 
-The resolver owns the only yongshen decision. Downstream tools consume this
-result verbatim, so the shape is published once here and reused by every MCP
-contract that carries it. ``SelectedYongShen`` is the complete, auditable
-decision. Cross-domain consumers project only the field they need; for example,
-naming uses ``selected_yongshen.yong`` as its target five element.
+The resolver owns the only yongshen decision. Downstream tools consume the
+published decision, so the shape is published once here and reused by every MCP
+contract that carries it. ``SelectedYongShen`` is the complete decision.
+Cross-domain consumers project only the fields they need; for example, naming
+uses ``selected_yongshen.yong`` as its target five element.
 """
 
 
-from typing import Annotated, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -22,7 +22,6 @@ TenGodNoGod = Literal[
     "无格神", "比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印",
 ]
 YongShenStatus = Literal["resolved", "partial", "needs_review", "unresolved"]
-Sha256Digest = Annotated[str, Field(pattern="^[a-f0-9]{64}$")]
 
 
 class YongShenChoice(BaseModel):
@@ -154,8 +153,8 @@ YongShenEvidence = (
 )
 
 
-class SelectedYongShenCore(BaseModel):
-    """The stable decision fields shared by every consumer."""
+class SelectedYongShen(BaseModel):
+    """The complete yongshen decision published over MCP."""
 
     model_config = ConfigDict(extra="forbid")
     selected_yongshen: YongShenChoice = Field(description="The only selected yong/xi/ji result.")
@@ -167,17 +166,6 @@ class SelectedYongShenCore(BaseModel):
     )
     rule_id: str = Field(description="Matched rule identifier.")
     policy_id: str = Field(description="Yongshen policy identifier.")
-    bazi_chart_digest: Sha256Digest = Field(
-        description="SHA-256 digest of the source bazi full chart.",
-    )
-    yongshen_digest: Sha256Digest = Field(
-        description="用神裁决摘要。",
-    )
-
-
-class SelectedYongShen(SelectedYongShenCore):
-    """The complete, auditable yongshen decision published over MCP."""
-
     ge_ju_context: YongShenGeJuContext = Field(
         description="用神裁决关联的格局上下文。",
     )
@@ -187,14 +175,9 @@ class SelectedYongShen(SelectedYongShenCore):
 
 
 __all__ = [
-    "BaziYongshenOutput",
     "SelectedYongShen",
-    "SelectedYongShenCore",
     "YongShenChoice",
     "YongShenConflict",
     "YongShenCongGeEvidence",
     "YongShenEvidence",
 ]
-
-#: The published bazi_yongshen output is the complete decision object.
-BaziYongshenOutput = SelectedYongShen

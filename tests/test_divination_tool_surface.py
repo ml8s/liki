@@ -38,6 +38,7 @@ def test_ask_outputs_are_controlled_readings():
             for contract in DIVINATION_TOOLS
             if contract.name == name
         )
-        assert {"scope", "evidence", "interpretation", "reading_digest"} <= set(properties)
+        assert {"scope", "evidence", "interpretation"} <= set(properties)
+        assert "reading_digest" not in properties
         assert "case" not in properties
         assert "factors" not in properties

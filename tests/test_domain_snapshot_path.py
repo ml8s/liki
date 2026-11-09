@@ -11,7 +11,6 @@ def _cmp_bazi_pan() -> dict:
         "natal_chart_digest": "a" * 64,
         "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "male"},
         "chart": {
-            "chart_digest": "a" * 64,
             "nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},
             "ri": {"gan": "甲", "zhi": "子"}, "shi": {"gan": "庚", "zhi": "午"},
             "da_yun": {"steps": [{"name": "甲午", "start_year": 2000, "end_year": 2010, "shi_shen": "偏印"}],

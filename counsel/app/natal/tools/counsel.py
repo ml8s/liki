@@ -7,7 +7,6 @@ back from the caller as a substitute for that subject.
 
 from concurrent.futures import ThreadPoolExecutor
 
-from app.integrity.digest import sha256_json
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
 from app.natal.tools.charts import _bazi_chart, _ziwei_chart
@@ -48,21 +47,14 @@ def bazi_yongshen(subject: dict) -> dict:
     bazi = _bazi_chart(subject)
     if "ri" not in bazi:
         raise ValueError("bazi.chart returned an invalid Bazi chart")
-    source_digest = sha256_json(bazi)
-    return published_yongshen(resolve_yongshen(bazi, source_digest))
-
-
-def _selected_yongshen(natal_chart: dict, bazi_digest: str | None = None) -> dict:
-    digest = bazi_digest if bazi_digest is not None else sha256_json(natal_chart["bazi"])
-    return published_yongshen(resolve_yongshen(natal_chart["bazi"], digest))
+    return published_yongshen(resolve_yongshen(bazi))
 
 
 def _factor_snapshots(subject: dict) -> dict[str, dict]:
     """Internal subject -> canonical charts -> both technique factor snapshots."""
     natal_chart = _build_natal_chart(subject)
     gender = natal_chart["subject"]["gender"]
-    bazi_digest = sha256_json(natal_chart["bazi"])
-    selected_yongshen = _selected_yongshen(natal_chart, bazi_digest)
+    selected_yongshen = published_yongshen(resolve_yongshen(natal_chart["bazi"]))
     snapshots: dict[str, dict] = {}
     for technique, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
         factor_snapshot = {
@@ -80,17 +72,10 @@ def _factor_snapshots(subject: dict) -> dict[str, dict]:
                 "status": selected_yongshen["status"],
             }
             factor_snapshot["provenance"].update({
-                "yongshen_digest": selected_yongshen["yongshen_digest"],
                 "policy_id": selected_yongshen["policy_id"],
-                "bazi_chart_digest": selected_yongshen["bazi_chart_digest"],
             })
         snapshots[technique] = factor_snapshot
     return snapshots
-
-
-def _factor_snapshot(subject: dict, technique: str) -> dict:
-    """Internal one-side snapshot helper for focused internal callers."""
-    return _factor_snapshots(subject)[technique]
 
 
 def natal_query(subject: dict, life_topics: list[str]) -> dict:
@@ -144,7 +129,7 @@ def natal_liunian_query(subject: dict, start_year: int,
 
     subject = _validate_subject(subject, "subject")
     natal_chart = _build_natal_chart(subject)
-    selected_yongshen = _selected_yongshen(natal_chart)
+    selected_yongshen = published_yongshen(resolve_yongshen(natal_chart["bazi"]))
     natal_chart["_selected_yongshen"] = {
         "selected": selected_yongshen["selected_yongshen"],
         "status": selected_yongshen["status"],

@@ -25,7 +25,7 @@ def test_liuyao_ask_returns_self_contained_reading():
     srv = create_counsel_root_mcp()
     got = asyncio.run(srv.call_tool("liuyao_ask", dict(LIUYAO_ARGS))).structured_content
     assert got["technique"] == "liuyao"
-    assert len(got["reading_digest"]) == 64
+    assert "reading_digest" not in got
     assert got["scope"]["focus_value"] == "general"
     assert got["interpretation"]["headline"]
     assert any(item["layer"] == "primary" for item in got["evidence"])
@@ -44,7 +44,7 @@ def test_qimen_ask_returns_self_contained_reading():
     srv = create_counsel_root_mcp()
     got = asyncio.run(srv.call_tool("qimen_ask", dict(QIMEN_ARGS))).structured_content
     assert got["technique"] == "qimen"
-    assert len(got["reading_digest"]) == 64
+    assert "reading_digest" not in got
     assert got["scope"]["focus_value"] == "career"
     assert got["interpretation"]["headline"]
     assert got["evidence"]

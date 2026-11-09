@@ -31,7 +31,6 @@ def _saved_pan() -> dict:
         "standard_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
-            "chart_digest": "a" * 64,
             **{
                 pillar: {"gan": "甲", "zhi": "子"}
                 for pillar in ("nian", "yue", "ri", "shi")

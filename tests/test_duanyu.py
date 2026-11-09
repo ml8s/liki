@@ -21,7 +21,6 @@ def _valid_query_pan() -> dict:
         "standard_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
-            "chart_digest": "a" * 64,
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             "da_yun": {"steps": [], "current_step_index": -1},
         },
@@ -104,7 +103,7 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def test_性别是排盘上下文而非因子(self):
         base = self._fac()
-        natal_chart = {"natal_chart_digest": "a" * 64, "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "female"}, "base": base, "gender": "female", "bazi": {}, "chart": {"chart_digest": "a" * 64}, "ziwei": {}}
+        natal_chart = {"natal_chart_digest": "a" * 64, "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "female"}, "base": base, "gender": "female", "bazi": {}, "chart": {}, "ziwei": {}}
         result = factors.evaluate_snap_from_natal_chart(natal_chart)
         self.assertEqual(result["context"], {"性别": "female"})
         self.assertNotIn("性别", result["八字"])

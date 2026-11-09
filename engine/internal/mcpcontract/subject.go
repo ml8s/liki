@@ -22,10 +22,6 @@ type NatalSubject struct {
 	Gender       GenderName   `json:"gender" jsonschema:"性别；来自用户明确事实。"`
 }
 
-type SubjectSide struct {
-	Subject NatalSubject `json:"subject" jsonschema:"schema 合法的出生主体；可来自用户明确事实或用户确认后的 subject_candidates 候选。"`
-}
-
 func (subject NatalSubject) standardTime() (time.Time, error) {
 	standard, _, err := parseStandardTime(subject.StandardTime)
 	return standard, err

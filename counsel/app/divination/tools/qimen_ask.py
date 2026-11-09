@@ -9,7 +9,6 @@ from app.divination.tools.qimen_jinhan_factors import validate as validate_jinha
 from app.divination.tools.qimen_projection import validate as validate_standard_factors
 from app.divination.tools.qimen_projection_common import public_palace_keys
 from app.guards import require_question
-from app.integrity.digest import sha256_json
 
 _ALL_QIMEN_DOMAINS = {
     "career", "health", "hiding", "legal", "missing_person",
@@ -206,9 +205,6 @@ def _reading(case: dict, answer: dict) -> dict:
         },
         "safety_advisory": answer["safety_advisory"],
     }
-    reading["reading_digest"] = sha256_json({
-        key: value for key, value in reading.items() if key != "reading_digest"
-    })
     return reading
 
 

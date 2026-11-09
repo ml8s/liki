@@ -184,17 +184,17 @@ All 10 counsel tools (`bazi_yongshen`, `natal_query`, `natal_liunian_query`,
 They are published together on the aggregate `/mcp` surface.
 
 The yongshen decision is a standalone typed business capability. It returns
-`selected_yongshen`, resolution `status`, conflicts, `rule_id`, policy provenance,
-the `ge_ju_context`, branch `evidence`, and the two SHA-256 digests. The evidence
-includes the 从格 effective/rooted counts used to verify or reject the candidate,
-so a `needs_review` result is auditable over MCP. Naming reads the decision's
+`selected_yongshen`, resolution `status`, conflicts, `rule_id`, policy identity,
+the `ge_ju_context`, and branch `evidence`. The evidence includes the 从格
+effective/rooted counts used to verify or reject the candidate, so a
+`needs_review` result remains auditable over MCP. Naming reads the decision's
 `selected_yongshen` plan and fails closed for `needs_review / unresolved`
 results.
 
 Natal factor evaluation is internal. `natal_query` and `natal_liunian_query`
 accept the confirmed resolved subject, build both Bazi and Ziwei charts and factors inside
 the service, and return Bazi / Ziwei assertions or grouped yearly periods with evidence. They do not expose
-the factor table, factor digest, or internal provenance artifact.
+the factor table, internal factor snapshots, or provenance artifact.
 
 `counsel/tests/test_tool_contracts.py` inspects the current Pydantic schemas and
 validates representative accepted and rejected values.

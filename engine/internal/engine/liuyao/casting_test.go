@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNewCoinsCasting_NormalizesAndAudits(t *testing.T) {
+func TestNewCoinsCasting_Normalizes(t *testing.T) {
 	rounds := [][]string{
 		{"正", "反", "反"}, // 7 少阳
 		{"正", "正", "反"}, // 8 少阴
@@ -27,9 +27,6 @@ func TestNewCoinsCasting_NormalizesAndAudits(t *testing.T) {
 	}
 	if len(got.Rounds) != 6 || got.Rounds[2].Label != "老阳" || !got.Rounds[2].Changing {
 		t.Fatalf("unexpected rounds: %+v", got.Rounds)
-	}
-	if got.CastingDigest == "" {
-		t.Fatal("CastingDigest is empty")
 	}
 	if err := got.Validate(); err != nil {
 		t.Fatalf("Validate() error = %v", err)
@@ -71,23 +68,7 @@ func TestNewValuesCasting_RejectsInvalidYao(t *testing.T) {
 	}
 }
 
-func TestCastingValidate_RejectsMissingOrTamperedCastingDigest(t *testing.T) {
-	got, err := NewValuesCasting([6]int{7, 7, 7, 7, 7, 7})
-	if err != nil {
-		t.Fatal(err)
-	}
-	castingDigest := got.CastingDigest
-	got.CastingDigest = ""
-	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "casting_digest is required") {
-		t.Fatalf("missing casting_digest error = %v", err)
-	}
-	got.CastingDigest = castingDigest + "00"
-	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "casting_digest mismatch") {
-		t.Fatalf("tampered casting_digest error = %v", err)
-	}
-}
-
-func TestCastingValidate_RejectsCrossModeAuditFacts(t *testing.T) {
+func TestCastingValidate_RejectsCrossModeFacts(t *testing.T) {
 	values, err := NewValuesCasting([6]int{7, 7, 7, 7, 7, 7})
 	if err != nil {
 		t.Fatal(err)

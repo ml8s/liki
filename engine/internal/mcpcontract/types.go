@@ -45,7 +45,6 @@ type (
 	LiuyaoYaoValue         int
 	LiuyaoPosition         int
 	LiuyaoYaoLabel         string
-	LiuyaoCastingDigest    string
 	LiuyaoOptionalPosition int
 	LiuyaoDongRelationType string
 	LiuyaoHexagramName     string

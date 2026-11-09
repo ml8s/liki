@@ -163,7 +163,8 @@ def test_bazi_yongshen_over_mcp(subject):
     out = r.structured_content
     assert out["selected_yongshen"]["yong"]
     assert out["status"] in ("resolved", "partial", "needs_review", "unresolved")
-    assert len(out["yongshen_digest"]) == 64
+    assert "yongshen_digest" not in out
+    assert "bazi_chart_digest" not in out
     assert "factors" not in out
     assert "alternatives" not in out
     assert out["ge_ju_context"]["pattern"]

@@ -127,14 +127,13 @@ type LiuyaoCastingOutput struct {
 	Mode           LiuyaoCastMode              `json:"mode" jsonschema:"实际使用的起卦模式。"`
 	Order          LiuyaoOrderName             `json:"order" jsonschema:"爻序；当前固定为初爻到上爻。"`
 	CoinConvention *LiuyaoCoinConventionOutput `json:"coin_convention,omitempty" jsonschema:"coins 模式的铜钱记分约定。"`
-	Rounds         LiuyaoCoinRoundsOutput      `json:"rounds,omitempty" jsonschema:"coins 模式的六组审计记录。"`
+	Rounds         LiuyaoCoinRoundsOutput      `json:"rounds,omitempty" jsonschema:"coins 模式的六组铜钱记录。"`
 	Yaos           LiuyaoYaoValuesOutput       `json:"yaos" jsonschema:"六个爻值，初爻到上爻。"`
 	DongYao        LiuyaoPositions             `json:"dong_yao" jsonschema:"动爻位置列表，1-6。"`
-	CastingDigest  LiuyaoCastingDigest         `json:"casting_digest" jsonschema:"canonical SHA-256 casting digest。"`
 }
 
 type LiuyaoQiguaOutput struct {
-	Casting LiuyaoCastingOutput `json:"casting" jsonschema:"完整可审计起卦收据；调用 liuyao.chart 时必须原样传回。"`
+	Casting LiuyaoCastingOutput `json:"casting" jsonschema:"一次起卦的完整源事实；调用 liuyao.chart 时按 schema 原样组装。"`
 }
 
 type LiuyaoLineOutput struct {
@@ -350,12 +349,12 @@ type LiuyaoChartOutput struct {
 	WangShuai             [6]WangShuaiName                   `json:"wang_shuai" jsonschema:"六爻旺衰。"`
 	DayRelations          [6]LiuyaoDayRelationOutput         `json:"ri_chen_relations" jsonschema:"日建与六爻关系。"`
 	XunKong               [2]ZhiName                         `json:"xun_kong" jsonschema:"日柱旬空地支。"`
-	TimingCandidates      []LiuyaoTimingOutput               `json:"timing_candidates,omitempty" jsonschema:"可审计应期候选。"`
+	TimingCandidates      []LiuyaoTimingOutput               `json:"timing_candidates,omitempty" jsonschema:"应期候选。"`
 	Patterns              []LiuyaoPatternOutput              `json:"ge_ju,omitempty" jsonschema:"特殊格局。"`
 	DongYaoRelations      []LiuyaoDongRelationOutput         `json:"dong_yao_relations,omitempty" jsonschema:"动爻与用神/原神/忌神关系。"`
 	HiddenLines           []LiuyaoHiddenLineOutput           `json:"hidden_lines,omitempty" jsonschema:"本宫全部伏神。"`
 	BranchRelationFacts   []LiuyaoBranchRelationOutput       `json:"branch_relation_facts,omitempty" jsonschema:"爻间地支关系。"`
-	Casting               LiuyaoCastingOutput                `json:"casting" jsonschema:"完整起卦收据。"`
+	Casting               LiuyaoCastingOutput                `json:"casting" jsonschema:"本次排盘使用的卦象源事实。"`
 	TombSchool            LiuyaoTombOutput                   `json:"tomb_school" jsonschema:"土爻墓库流派。"`
 	DayClashFacts         []LiuyaoDayClashOutput             `json:"day_clash_facts,omitempty" jsonschema:"日冲事实。"`
 	MovingTransformations []LiuyaoMovingTransformationOutput `json:"moving_transformations,omitempty" jsonschema:"动爻机械变化。"`
@@ -416,7 +415,7 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 type LiuyaoChartInput struct {
 	StandardTime StandardTime         `json:"standard_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude    Longitude            `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
-	Casting      *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao_qigua 返回的完整可审计起卦收据。"`
+	Casting      *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao_qigua 返回的卦象源事实。"`
 	YongShen     LiuyaoYongShenName   `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
 }
 
@@ -453,11 +452,10 @@ func liuyaoCastingDomain(output LiuyaoCastingOutput) (liuyao.Casting, error) {
 		return liuyao.Casting{}, fmt.Errorf("yaos requires exactly 6 values, got %d", len(output.Yaos))
 	}
 	casting := liuyao.Casting{
-		Mode:          string(output.Mode),
-		Order:         string(output.Order),
-		Yaos:          [6]int{},
-		DongYao:       make([]int, 0, len(output.DongYao)),
-		CastingDigest: string(output.CastingDigest),
+		Mode:    string(output.Mode),
+		Order:   string(output.Order),
+		Yaos:    [6]int{},
+		DongYao: make([]int, 0, len(output.DongYao)),
 	}
 	for i, value := range output.Yaos {
 		casting.Yaos[i] = int(value)
@@ -734,11 +732,10 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 
 func liuyaoCastingWire(casting liuyao.Casting) LiuyaoCastingOutput {
 	output := LiuyaoCastingOutput{
-		Mode:          LiuyaoCastMode(casting.Mode),
-		Order:         LiuyaoOrderName(casting.Order),
-		Yaos:          make(LiuyaoYaoValuesOutput, 0, len(casting.Yaos)),
-		DongYao:       make(LiuyaoPositions, 0, len(casting.DongYao)),
-		CastingDigest: LiuyaoCastingDigest(casting.CastingDigest),
+		Mode:    LiuyaoCastMode(casting.Mode),
+		Order:   LiuyaoOrderName(casting.Order),
+		Yaos:    make(LiuyaoYaoValuesOutput, 0, len(casting.Yaos)),
+		DongYao: make(LiuyaoPositions, 0, len(casting.DongYao)),
 	}
 	if casting.CoinConvention != nil {
 		output.CoinConvention = &LiuyaoCoinConventionOutput{

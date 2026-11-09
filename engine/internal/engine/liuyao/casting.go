@@ -2,16 +2,12 @@ package liuyao
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"math/big"
-	"strings"
 )
 
 // CoinRound is one cast of three coins. Coins keeps the normalized symbols in
-// the order supplied by the caller; it is an audit record, not an input to the
-// Yin/Yang conversion (that only depends on the sum).
+// the order supplied by the caller; only their sum drives Yin/Yang.
 type CoinRound struct {
 	Position int      `json:"position"`
 	Coins    []string `json:"coins"`
@@ -20,7 +16,7 @@ type CoinRound struct {
 	Changing bool     `json:"is_dong_yao"`
 }
 
-// Casting is the complete, auditable input to one divination.
+// Casting is the complete source-fact input to one divination.
 type Casting struct {
 	Mode           string         `json:"mode"`
 	Order          string         `json:"order"`
@@ -28,7 +24,6 @@ type Casting struct {
 	Rounds         []CoinRound    `json:"rounds,omitempty"`
 	Yaos           [6]int         `json:"yaos"`
 	DongYao        []int          `json:"dong_yao"`
-	CastingDigest  string         `json:"casting_digest"`
 }
 
 const (
@@ -99,7 +94,6 @@ func NewCoinsCasting(rounds [][]string) (Casting, error) {
 	}
 	receipt.Yaos = yaosToInts(values)
 	receipt.DongYao = dongYao(values)
-	receipt.CastingDigest = castingDigest(receipt)
 	return receipt, nil
 }
 
@@ -115,16 +109,12 @@ func NewValuesCasting(values [6]int) (Casting, error) {
 		Yaos:    values,
 		DongYao: dongYao(yts),
 	}
-	receipt.CastingDigest = castingDigest(receipt)
 	return receipt, nil
 }
 
-// Validate ensures a decoded casting can be bound to one and only one set of
-// six lines. It recomputes moving lines and never trusts the caller's array.
+// Validate ensures a decoded casting describes exactly one set of six lines.
+// It recomputes moving lines and rejects internally inconsistent source facts.
 func (c Casting) Validate() error {
-	if c.CastingDigest == "" {
-		return fmt.Errorf("casting_digest is required")
-	}
 	if c.Mode != "coins" && c.Mode != "yaos" {
 		return fmt.Errorf("unsupported casting mode %q", c.Mode)
 	}
@@ -172,16 +162,13 @@ func (c Casting) Validate() error {
 				return fmt.Errorf("casting round %d conflicts with yaos", i+1)
 			}
 			if round.Label != yaoLabel(yts[i]) || round.Changing != yts[i].IsChanging() {
-				return fmt.Errorf("casting round %d audit mismatch", i+1)
+				return fmt.Errorf("casting round %d fact mismatch", i+1)
 			}
 		}
 	case "yaos":
 		if len(c.Rounds) != 0 || len(c.CoinConvention) != 0 {
 			return fmt.Errorf("yaos casting must not contain coin rounds")
 		}
-	}
-	if c.CastingDigest != castingDigest(c) {
-		return fmt.Errorf("casting_digest mismatch")
 	}
 	return nil
 }
@@ -233,22 +220,4 @@ func SecureQigua() (Casting, error) {
 		rounds[i] = coins
 	}
 	return NewCoinsCasting(rounds)
-}
-
-// castingDigest is the stable domain identity of one normalized cast. It excludes
-// the derived casting_digest itself and engineering telemetry.
-func castingDigest(c Casting) string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "%s\x1f%s", c.Mode, c.Order)
-	if len(c.Rounds) != 0 {
-		for _, round := range c.Rounds {
-			fmt.Fprintf(&b, "\x1f%d|%s", round.Position, strings.Join(round.Coins, ","))
-		}
-	} else {
-		for _, value := range c.Yaos {
-			fmt.Fprintf(&b, "\x1f%d", value)
-		}
-	}
-	sum := sha256.Sum256([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
 }
