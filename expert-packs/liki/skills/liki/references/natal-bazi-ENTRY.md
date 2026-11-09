@@ -22,7 +22,7 @@
 
 ## 输入约定
 
-- 执行本层前须具备：原始出生信息（公历日期、Gregorian time或时段、出生地、性别；时辰存疑时附候补时辰）、所需信息（主题 × 维度）、约束（用户点名体系等）。
+- 执行本层前须具备：原始出生信息（公历或农历日期、时间或时段、出生地、性别；时辰存疑时附候补时辰）、所需信息（主题 × 维度）、约束（用户点名体系等）。
 - 跨轮：每次执行都从原始出生信息与已确认事实（如已定时辰、校时结论）出发，不依赖先前轮次的隐含上下文。
 
 ## 执行流
@@ -36,7 +36,7 @@
 ## 断语契约
 
 - 断语公共事实（技域 / `人生主题` 等）以 counsel 输出 契约 为准（自省读取）；技域 是 `bazi` / `ziwei`。
-- topic 标签（counsel 主题路由 单一源）：`marriage`＝婚姻、`family`＝家庭、`children`＝子女、`career`＝事业、`wealth`＝财运、`health`＝健康、`mental`＝精神、`study`＝学业、`personality`＝性格、`appearance`＝外貌、`origin`＝出身、`relocation`＝迁移、`social`＝人际、`property`＝房产、`adversity`＝风险、`命盘结构`＝盘面结构。
+- topic 标签（counsel 主题路由 单一源）：`marriage`＝婚姻、`family`＝家庭、`children`＝子女、`career`＝事业、`wealth`＝财运、`health`＝健康、`mental`＝精神、`study`＝学业、`personality`＝性格、`appearance`＝外貌、`origin`＝出身、`relocation`＝迁移、`social`＝人际、`property`＝房产、`adversity`＝风险、`chart_structure`＝盘面结构。
 - 流年区间 `起始年 + 年数`；`年数=1` 即单年，最多 50 年；年份为年号（八字公历立春界）。
 - 直接采纳判断输出为最终判断；判断输出与规则卡冲突 → 以判断输出为准并说明冲突。
 - 排盘失败 → 提示重试，不降级查表。

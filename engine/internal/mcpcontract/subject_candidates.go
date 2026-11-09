@@ -135,7 +135,7 @@ type TianwenSubjectCandidatesReasonOutput struct {
 // StandardTime is local standard time (fixed offset, no DST), not true solar time.
 // Longitude remains explicit for domain-specific solar corrections.
 type TianwenSubjectCandidateOutput struct {
-	Subject NatalSubject                           `json:"subject" jsonschema:"候选出生主体。"`
+	Subject NatalSubject                           `json:"subject" jsonschema:"候选 canonical 出生主体；用户确认后可原样用于下游 subject 参数，客户端也可用明确事实组装等价 subject。"`
 	Reasons []TianwenSubjectCandidatesReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
 }
 

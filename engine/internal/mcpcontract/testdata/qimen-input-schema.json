@@ -287,7 +287,7 @@
           "description": "可选命主；提供时用于年命。",
           "properties": {
             "gender": {
-              "description": "性别。",
+              "description": "性别；来自用户明确事实。",
               "enum": [
                 "male",
                 "female"
@@ -295,13 +295,13 @@
               "type": "string"
             },
             "longitude": {
-              "description": "经度（-180..180）。",
+              "description": "地点经度（-180..180）；来自用户确认地点、地点检索结果或既有事实。",
               "maximum": 180,
               "minimum": -180,
               "type": "number"
             },
             "standard_time": {
-              "description": "标准时间（fixed offset，无 DST），RFC3339 带 offset。",
+              "description": "当地标准时间（fixed offset，无 DST），RFC3339 带 offset；来自用户明确事实或 subject_candidates 候选，不得编造。",
               "format": "date-time",
               "type": "string"
             }

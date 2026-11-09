@@ -126,6 +126,12 @@ services for WEB, tests, and internal composition.
 
 ## Deployment rules
 
+LLM clients may compose arguments from explicit user facts and prior MCP
+structured results. `subject_candidates` resolves uncertain or ambiguous civil
+time and should be followed by user confirmation when it returns multiple
+candidates. Canonical outputs may be copied into later inputs, but there is no
+mandatory source digest or provenance binding.
+
 1. Run engine and counsel as stateless containers.
 2. Terminate TLS at the edge and set trusted-proxy hops explicitly.
 3. Keep birth data in the current request/session context only.

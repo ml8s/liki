@@ -13,7 +13,7 @@ import (
 // BaziChartInput consumes a resolved natal subject. The chart domain derives
 // year/month from solar-term events and day/hour from LAST + 子时.
 type BaziChartInput struct {
-	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	Subject NatalSubject `json:"subject" jsonschema:"schema 合法的出生主体；可来自用户明确事实或用户确认后的 subject_candidates 候选。"`
 }
 
 // BaziChartCompute returns the canonical complete natal chart.

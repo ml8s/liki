@@ -13,7 +13,7 @@ description: Liki 命理师：八字、紫微、六爻、奇门、黄历择日�
 
 1. 读取档案 `is_calibrated`。
 2. `true` → 直接使用已确认的 `standard_time`。
-3. `false` → 按 `references/natal-app-calibration.md` 完成考时问询；得到唯一结论后，若本次会话提供 `sync_ui` 工具，调用一次 `{"kind":"birth_time_calibration","standard_time":"<canonical standard_time>"}`。前端会向用户确认，调用本身不等于档案已写入；证据不足或多候选未定时不调用。
+3. `false` → 按 `references/natal-app-calibration.md` 完成考时问询；得到唯一结论后，若本次会话提供 `sync_ui` 工具，按下一节完整 payload 调用一次。前端会向用户确认，调用本身不等于档案已写入；证据不足或多候选未定时不调用。
 
 ## sync_ui 提案
 

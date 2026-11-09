@@ -286,7 +286,7 @@ func NewEngine() *Registry {
 	mustRegister(registry, Tool[TianwenSubjectCandidatesInput, TianwenSubjectCandidatesOutput]{
 		Name:        "subject_candidates",
 		InputSchema: resolveSchema,
-		Description: "把时间事实归一化为考时候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。输出永远包含一个 input 候选（输入的直接换算）；若时间/地点不确定性触及时辰、日界、交节或夏令时边界，追加候选并标注原因领域（时辰/日界/交节/时制）。下游排盘能力使用候选 subject 排盘。",
+		Description: "把民用时间事实归一化为 canonical subject 候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。时间明确且无歧义时，客户端可按 subject schema 直接组装排盘输入；时间模糊或触及时辰、日界、交节、夏令时边界时，先调用本工具、向用户展示 reasons 并等待确认。不得静默选择候选，也不得编造缺失时间或地点。",
 		Handler:     TianwenSubjectCandidates,
 	})
 	mustRegister(registry, Tool[CityInfoInput, CityInfoOutput]{
@@ -296,7 +296,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[BaziChartInput, BaziChartOutput]{
 		Name:        "bazi_chart",
-		Description: "排八字确定性命盘。在 subject_candidates 产出候选后、用户询问本命（性格、婚姻、事业、财运、健康、学业、六亲等）时调用。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑候选、调候候选、格局结构证据与命盘关系事实。",
+		Description: "排八字确定性命盘。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。用户询问本命（性格、婚姻、事业、财运、健康、学业、六亲等）时调用。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑候选、调候候选、格局结构证据与命盘关系事实。",
 		Handler:     BaziChartCompute,
 	})
 	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
@@ -357,7 +357,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",
-		Description: "紫微斗数确定性命盘。在 subject_candidates 产出候选后、需要十二宫细节（宫位主星、亮度、四化、大限等）时调用。返回十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前与大限。",
+		Description: "紫微斗数确定性命盘。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。需要十二宫细节（宫位主星、亮度、四化、大限等）时调用。返回十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前与大限。",
 		Handler:     ZiweiChartCompute,
 	})
 	ziweiLiupanInput, err := ziweiLiupanFormsSchema(options)

@@ -57,7 +57,7 @@ def test_changelog_documents_current_runtime_release():
         "standard_time",
         "tianwen.resolve",
         "time_now",
-        "birth_standard_time",
+        "calendar_kind",
         "known-offset",
     ):
         assert term in current, term

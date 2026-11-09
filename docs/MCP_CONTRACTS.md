@@ -52,6 +52,20 @@ LAST. Huangli and Xuankong do not accept longitude.
 The per-domain projection matrix (solar-term event, standard date, local LAST)
 is defined in [TIME_MODEL.md](./TIME_MODEL.md).
 
+### Client composition
+
+MCP clients, including LLMs, may compose request arguments directly from
+explicit user facts and prior structured tool outputs. There is no source digest,
+provenance token, or mandatory request-chain binding. `subject_candidates` is the
+normalization helper for ambiguous civil time, lunar dates, shichen boundaries,
+DST folds, solar-term boundaries, or multiple possible subjects—not a mandatory
+gateway for already-explicit facts.
+
+The model may assemble a valid subject from confirmed facts once the time,
+longitude, and gender are explicit. It must not invent missing facts, silently
+choose among ambiguous candidates, or present an inferred value as user-confirmed
+fact. Schema validation and domain validation remain the fail-closed boundary.
+
 ## Go pattern
 
 `engine/internal/mcpcontract` owns the typed MCP registry. A tool registers:

@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026.11.09.0] — 2026-11-09
+
+### Breaking changes
+
+- 时间入口契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间。
+- 时间候选契约统一：civil/lunar 输入需要 `calendar_kind`；地点字段统一为 `longitude`；下游工具只在需要 local apparent solar time 时接收经度，黄历与玄空不接收经度。
+- 奇门年命主体继续使用 canonical `standard_time`，不再接受旧 `birth_time` 别名。
+- MCP 状态面拒绝未通告的 subscription stream，避免 stateless 部署打开长连流。
+
+### Improvements
+
+- Skill 同步最新 MCP schema：补齐公历 / 农历入口口径、城市多候选与 IANA 时区确认、`chart_structure` topic、奇门与六爻显式 `longitude` 传参。
+- MCP 契约新增 client composition 边界：LLM 可由明确用户事实和前序结构化结果组装参数；`subject_candidates` 用于歧义时间归一化，不引入 digest 或 provenance 绑定。
+- `sync_ui` 提案统一为完整 payload（`kind`、`standard_time`、`summary`、`evidence`），并明确前端确认后才可能写档案。
+- 黄历标准时间契约恢复为与其他时间面一致的 canonical `standard_time`。
+- 按 CalVer 单一源刷新 Skill、专家包、部署 profile 与 WorkBuddy 制品版本。
+
 ## [2026.11.05.0] — 2026-11-05
 
 ### Breaking changes

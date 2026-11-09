@@ -20,16 +20,19 @@ class NatalSubjectInput(BaseModel):
         Field(
             min_length=1,
             json_schema_extra={"format": "date-time"},
-            description="出生地标准时间，RFC3339 fixed offset。",
+            description="出生地标准时间，RFC3339 fixed offset；来自用户明确事实或 subject_candidates 候选，不得编造。",
         ),
     ]
-    longitude: Annotated[float, Field(ge=-180, le=180, description="出生地经度。")]
-    gender: Literal["male", "female"] = Field(description="性别。")
+    longitude: Annotated[
+        float,
+        Field(ge=-180, le=180, description="出生地经度；来自用户确认地点、地点检索结果或既有事实。"),
+    ]
+    gender: Literal["male", "female"] = Field(description="性别；来自用户明确事实。")
 
 
 
 # ── bazi_yongshen ──
-TOOL_BAZI_YONGSHEN_DESCRIPTION = "考时后的 subject → 八字排盘与唯一用神裁决。返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要；起名只消费 selected_yongshen.yong 投影出的目标五行。"
+TOOL_BAZI_YONGSHEN_DESCRIPTION = "schema 合法的出生主体 → 八字排盘与唯一用神裁决。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要；起名只消费 selected_yongshen.yong 投影出的目标五行。"
 
 class BaziYongshenInput(BaseModel):
     """八字用神裁决输入。"""
@@ -47,7 +50,7 @@ TOOL_BAZI_YONGSHEN = ToolContract(
 
 
 # ── natal_query ──
-TOOL_NATAL_QUERY_DESCRIPTION = "已确认出生主体 + 人生问题 → 八字与紫微本命合参断语。因子计算由服务端内部完成，不对外返回。"
+TOOL_NATAL_QUERY_DESCRIPTION = "schema 合法的出生主体 + 人生问题 → 八字与紫微本命合参断语。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。因子计算由服务端内部完成，不对外返回。"
 
 LifeTopic = Literal[
     "marriage", "family", "children", "career", "wealth", "health", "mental",
@@ -133,7 +136,7 @@ TOOL_NATAL_QUERY = ToolContract(
 
 
 # ── natal_liunian_query ──
-TOOL_LIUNIAN_QUERY_DESCRIPTION = "已确认出生主体 + 起始年号/年数 + 人生问题 → 八字与紫微逐年流年合参断语。因子计算由服务端内部完成；year_count=1 表示单年，单次最多 50 年。"
+TOOL_LIUNIAN_QUERY_DESCRIPTION = "schema 合法的出生主体 + 起始年号/年数 + 人生问题 → 八字与紫微逐年流年合参断语。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。因子计算由服务端内部完成；year_count=1 表示单年，单次最多 50 年。"
 
 
 class LiunianQueryInput(BaseModel):

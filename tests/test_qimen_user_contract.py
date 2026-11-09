@@ -19,8 +19,8 @@ def _zhuanzhan_shared_boundary() -> str:
 
 def test_qimen_card_keeps_normal_users_on_default_chart() -> None:
     text = CARD.read_text(encoding="utf-8")
-    assert "默认时家转盘常规定局" in text
-    assert "用户没有明确要求，不传方法参数" in text
+    assert "按当前 schema 声明的默认方式调用" in text
+    assert "schema 若表达 default，就使用 default" in text
     assert "不能从“更细”“传统”“准确”推断高级方法" in text
 
 
@@ -41,7 +41,7 @@ def test_qimen_card_guides_matter_selection() -> None:
     assert "普通问事（事项用神）" in text
     assert "普通问事用事项用神（契约 二选一）" in text
     assert "显式用神" in text
-    assert "用户没有明确要求，不传方法参数" in text
+    assert "按当前 schema 声明的默认方式调用" in text
 
 
 def test_quarter_domain_defers_public_axes_to_schema() -> None:

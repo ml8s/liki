@@ -101,7 +101,7 @@ class LiuyaoAskInput(BaseModel):
         description="起卦地标准时间 RFC3339（无 DST），必填。",
     )
     casting: LiuyaoCastingInput = Field(
-        description="起卦方式。",
+        description="起卦方式；按 schema 选择 auto / coins / yaos，用户手动记录按原顺序组装。",
         default={"mode": "auto"},
     )
     focus: LiuyaoFocus = Field(
@@ -773,10 +773,10 @@ class QimenAskInput(BaseModel):
         description="本次要判断的一个具体目标",
     )
     standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
-        description="起局地标准时间 RFC3339（无 DST）；节气换局按此时刻判定。",
+        description="起局地标准时间 RFC3339（无 DST）；来自用户明确事实或既有工具结果，节气换局按此时刻判定。",
     )
     method: QimenMethod = Field(
-        description="奇门方法事实；按 scope、school 和条件字段的合法组合传入。",
+        description="奇门方法事实；用户未指定高级方法时按 schema 描述选择常规组合，不臆造高级参数。",
     )
     longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
         description="起局地经度（-180..180）；必须显式传入，城市需先转换为经度。",

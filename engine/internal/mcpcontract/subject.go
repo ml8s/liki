@@ -17,13 +17,13 @@ type Longitude float64
 // normalization. StandardTime is local standard time (fixed offset, no DST),
 // not true solar time. Longitude is retained for true-solar-time correction.
 type NatalSubject struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"标准时间（fixed offset，无 DST），RFC3339 带 offset。"`
-	Longitude    Longitude    `json:"longitude" jsonschema:"经度（-180..180）。"`
-	Gender       GenderName   `json:"gender" jsonschema:"性别。"`
+	StandardTime StandardTime `json:"standard_time" jsonschema:"当地标准时间（fixed offset，无 DST），RFC3339 带 offset；来自用户明确事实或 subject_candidates 候选，不得编造。"`
+	Longitude    Longitude    `json:"longitude" jsonschema:"地点经度（-180..180）；来自用户确认地点、地点检索结果或既有事实。"`
+	Gender       GenderName   `json:"gender" jsonschema:"性别；来自用户明确事实。"`
 }
 
 type SubjectSide struct {
-	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	Subject NatalSubject `json:"subject" jsonschema:"schema 合法的出生主体；可来自用户明确事实或用户确认后的 subject_candidates 候选。"`
 }
 
 func (subject NatalSubject) standardTime() (time.Time, error) {

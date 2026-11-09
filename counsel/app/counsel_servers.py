@@ -51,6 +51,14 @@ def create_counsel_root_mcp() -> MCPServer:
         title="Liki Reading Engine",
         description="断语引擎：八字/紫微本命、起名、六爻与奇门能力聚合。",
         version=RUNTIME_VERSION,
+        instructions=(
+            "Clients may compose tool arguments from explicit user facts and prior "
+            "structured tool outputs; do not invent missing facts. For natal subjects, "
+            "use subject_candidates when birth time is uncertain, ambiguous, near an "
+            "hour boundary, or has multiple candidates; present candidates and wait for "
+            "user confirmation. Once facts are explicit or confirmed, compose a valid "
+            "subject without requiring a separate provenance token or digest."
+        ),
         # Counsel tools are immutable per image and this stateless process does
         # not publish change events. A false-valued subscription bus keeps the
         # SDK from advertising listChanged or accepting listen streams.
