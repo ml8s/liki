@@ -4,7 +4,6 @@
 mcp/shared/peer.py —— model_dump(by_alias=True, mode="json", exclude_none=True)
 """
 
-import asyncio
 from contextlib import asynccontextmanager
 
 from test_gateway import _call, _list_tools_result, upstream_tools

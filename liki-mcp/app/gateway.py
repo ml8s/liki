@@ -88,9 +88,7 @@ async def _upstream_tools_list(
                 params={"cursor": cursor} if cursor else None
             )
             for tool in result.tools:
-                # Glama 等目录的严格 schema 将显式 null 视为非法；
-                # 可选字段缺失等价于 null，省略即可——对齐官方 SDK
-                # peer.py 序列化器标准（by_alias + mode + exclude_none）。
+                # 对齐官方 SDK 线序列化标准（mcp/shared/peer.py: exclude_none）。
                 tools.append(tool.model_dump(
                     by_alias=True, mode="json", exclude_none=True))
 
