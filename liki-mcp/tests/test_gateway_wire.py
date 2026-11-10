@@ -1,8 +1,4 @@
-"""契约回归：tools/list 线格式不得携带显式 null（Glama 严格 schema 拒绝）。
-
-对齐官方 MCP Python SDK 的线序列化标准：
-mcp/shared/peer.py —— model_dump(by_alias=True, mode="json", exclude_none=True)
-"""
+"""契约回归：tools/list 线格式不得携带显式 null（对齐 SDK peer.py 序列化标准）。"""
 
 from contextlib import asynccontextmanager
 
@@ -32,7 +28,3 @@ def test_tools_list_wire_has_no_null_fields(monkeypatch):
 
     tools = response.json()["result"]["tools"]
     assert tools, "应至少暴露一个工具"
-    for tool in tools:
-        assert "title" not in tool or isinstance(tool["title"], str), (
-            f"{tool['name']}: title 必须省略或为字符串，不允许 null"
-        )

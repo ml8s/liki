@@ -88,7 +88,6 @@ async def _upstream_tools_list(
                 params={"cursor": cursor} if cursor else None
             )
             for tool in result.tools:
-                # 对齐官方 SDK 线序列化标准（mcp/shared/peer.py: exclude_none）。
                 tools.append(tool.model_dump(
                     by_alias=True, mode="json", exclude_none=True))
 
