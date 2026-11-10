@@ -32,7 +32,7 @@ class NatalSubjectInput(BaseModel):
 
 
 # ── bazi_yongshen ──
-TOOL_BAZI_YONGSHEN_DESCRIPTION = "schema 合法的已归一化出生主体 → 八字排盘与唯一用神裁决。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。返回 selected_yongshen、status、conflicts、命中规则、格局上下文与裁决证据；conflicts 非空或 status 需复核时不静默改选，下游按结构化状态处理。起名只消费 selected_yongshen.yong 投影出的目标五行。"
+TOOL_BAZI_YONGSHEN_DESCRIPTION = "schema 合法的已归一化出生主体 → 确定性唯一用神裁决。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates；时间模糊或多候选时先归一化并确认。返回 status、selected_yongshen、conflicts、命中规则、格局上下文与裁决证据；conflicts 非空或 status 需复核时不静默改选。只要原始八字盘时用 bazi_chart；起名只消费 selected_yongshen.yong。"
 
 class BaziYongshenInput(BaseModel):
     """八字用神裁决输入。"""
@@ -136,7 +136,7 @@ TOOL_NATAL_QUERY = ToolContract(
 
 
 # ── natal_liunian_query ──
-TOOL_LIUNIAN_QUERY_DESCRIPTION = "schema 合法的出生主体 + 起始年号/年数 + 人生问题 → 八字与紫微逐年流年合参断语。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。只要单个原始流盘时改用 bazi_liupan / ziwei_liupan；本命断语用 natal_query。因子计算由服务端内部完成；year_count=1 表示单年，单次最多 50 年，失败年保留结构化 error。"
+TOOL_LIUNIAN_QUERY_DESCRIPTION = "schema 合法出生主体 + start_year/year_count/life_topics → 八字与紫微逐年流年合参断语。subject 必须来自用户确认事实或 subject_candidates；时间模糊先归一化确认。服务端内部计算因子；失败年保留结构化 error，不中断整批。只要单个原始流盘用 bazi_liupan / ziwei_liupan；本命断语用 natal_query。"
 
 
 class LiunianQueryInput(BaseModel):

@@ -270,7 +270,7 @@ func NewEngine() *Registry {
 	registry := New(options)
 	mustRegister(registry, Tool[TimeNowInput, TimeNowOutput]{
 		Name:        "time_now",
-		Description: "按 IANA 时区返回服务端当前标准时间（无 DST）。所有「现在/今天/当前年份」等运算必须以本返回值为时间基准，禁止使用模型自拟或猜测的时间；用户出生时间等事实输入不属于本工具职责。",
+		Description: "按 IANA 时区返回服务端当前标准时间（无 DST）；空值或无效 timezone 直接报错，不猜测。所有「现在/今天/当前年份」等运算必须以本返回值为时间基准；用户出生时间等事实输入不属于本工具职责。",
 		Handler:     TimeNow,
 	})
 	mustRegister(registry, Tool[HuangliDaysInput, HuangliDaysOutput]{
@@ -285,7 +285,7 @@ func NewEngine() *Registry {
 	mustRegister(registry, Tool[TianwenSubjectCandidatesInput, TianwenSubjectCandidatesOutput]{
 		Name:        "subject_candidates",
 		InputSchema: resolveSchema,
-		Description: "把民用时间事实归一化为 canonical subject 候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。时间明确且无歧义时，客户端可按 subject schema 直接组装排盘输入；时间模糊或触及时辰、日界、交节、夏令时边界时，先调用本工具、向用户展示 reasons 并等待确认。不得静默选择候选，也不得编造缺失时间或地点。",
+		Description: "把民用时间事实归一化为 canonical subject 候选：接受公历/农历壁钟、时辰或同日区间；longitude_range 可选，表示地点边界不确定性。返回候选列表，input 候选恒定第一，边界派生候选按时间排序，每个候选附 reasons；longitude_range 省略时只用精确 longitude，非法时间、时区或范围直接报错。时间明确时直接组装下游 subject；模糊或触及时辰、日界、交节、夏令时边界时先调用本工具并等待确认。地点未知先用 city_info，不得静默选择候选或编造缺失时间/地点。",
 		Handler:     TianwenSubjectCandidates,
 	})
 	mustRegister(registry, Tool[CityInfoInput, CityInfoOutput]{
@@ -315,7 +315,7 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[XuankongLiunianInput, XuankongLiuNianSeries]{
 		Name:         "xuankong_liunian",
-		Description:  "玄空流年飞星：在宅运盘基础上叠加指定年份的流年飞星，count=1（默认）返回单年，count>1 返回批量。评估阳宅某一年风水变化时调用；尚未起宅运盘的先调用 xuankong_chart。",
+		Description:  "玄空流年飞星：在宅运盘上叠加指定年份，返回流年飞星盘；count=1（默认）单年，count>1 连续批量。评估阳宅某一年风水变化时调用；固定格局用 xuankong_chart，尚未起宅运盘的也先调用 xuankong_chart。",
 		Handler:      XuankongLiunian,
 		OutputSchema: mustSeriesSchema[XuankongLiunianOutput](options, "liu_nian"),
 	})
