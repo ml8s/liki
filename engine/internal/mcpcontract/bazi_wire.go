@@ -630,7 +630,7 @@ type BaziLiupanInput struct {
 }
 
 // BaziLiupanOutput is the raw-handler schema marker; the published contract is
-// a oneOf of the five named domain roots.
+// the five named domain roots as optional top-level properties.
 type BaziLiupanOutput struct{}
 
 // ── bazi.liupan liu_nian output ──

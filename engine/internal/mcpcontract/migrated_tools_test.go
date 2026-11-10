@@ -530,29 +530,23 @@ func liupanOutputProperties(t *testing.T, registry *Registry, domain, root strin
 		t.Fatalf("%v", err)
 	}
 	var schema struct {
-		OneOf []struct {
-			Properties map[string]json.RawMessage `json:"properties"`
-		} `json:"oneOf"`
+		Properties map[string]json.RawMessage `json:"properties"`
 	}
 	decode(t, definition.OutputSchema, &schema)
-	for _, branch := range schema.OneOf {
-		raw, ok := branch.Properties[root]
-		if !ok {
-			continue
-		}
-		var series struct {
-			Items struct {
-				Properties map[string]any `json:"properties"`
-			} `json:"items"`
-		}
-		decode(t, raw, &series)
-		if series.Items.Properties == nil {
-			t.Fatalf("%s.%s output schema has no item properties", domain, root)
-		}
-		return series.Items.Properties
+	raw, ok := schema.Properties[root]
+	if !ok {
+		t.Fatalf("%s.%s output root is missing", domain, root)
 	}
-	t.Fatalf("%s.%s output root is missing", domain, root)
-	return nil
+	var series struct {
+		Items struct {
+			Properties map[string]any `json:"properties"`
+		} `json:"items"`
+	}
+	decode(t, raw, &series)
+	if series.Items.Properties == nil {
+		t.Fatalf("%s.%s output schema has no item properties", domain, root)
+	}
+	return series.Items.Properties
 }
 
 // enumAt walks a property path and returns the declared enum values. The "[ ]"

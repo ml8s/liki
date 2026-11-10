@@ -349,7 +349,7 @@ func NewEngine() *Registry {
 	}
 	mustRegisterRaw(registry, RawTool[BaziLiupanInput, BaziLiupanOutput]{
 		Name:         "bazi_liupan",
-		Description:  "八字流盘。scope 显式选择流年、流月、流日、流时或小运；standard_time 为当地标准时间，liu_ri/liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
+		Description:  "八字流盘。scope 显式选择层级：liu_nian 返回 year/shi_shen/gan/zhi/gan_wuxing/na_yin/sheng_ri/ke_ri/shen_sha/fu_yin_fan_yin/da_yun_interactions/natal_interactions/nian_jie；liu_yue 返回 shi_shen/gan/zhi/gan_wuxing/sheng_ri/ke_ri/shen_sha/gan_rels/zhi_rels/jie_qi；liu_ri 返回 date/shi_shen/gan/zhi/na_yin/shen_sha/gan_rels/zhi_rels/da_yun_rels/liu_nian_rels/ri_jie；liu_shi 返回 hour_range/shi_shen/gan/zhi/gan_rels/zhi_rels/shi_chen；xiao_yun 返回 method/basis/zhus。standard_time 为当地标准时间，liu_ri/liu_shi 必须带经度；count=1（默认）返回对应根数组，count>1 返回连续批量。",
 		InputSchema:  baziLiupanInput,
 		OutputSchema: baziLiupanOutput,
 		Handler:      BaziLiupan,
@@ -369,7 +369,7 @@ func NewEngine() *Registry {
 	}
 	mustRegisterRaw(registry, RawTool[ZiweiLiupanInput, ZiweiLiupanOutput]{
 		Name:         "ziwei_liupan",
-		Description:  "紫微流盘。scope 显式选择流年、流月、流日或流时；standard_time 为当地标准时间，liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
+		Description:  "紫微流盘。scope 显式选择层级：liu_nian 返回 ming_gong/zhi/si_hua/gong_wei/nian_jie；liu_yue 返回 yue_jie/ming_gong/zhi/si_hua/gong_wei；liu_ri 返回 ri_jie/ming_gong/zhi/si_hua/gong_wei；liu_shi 返回 ming_gong/zhi/si_hua/gong_wei/shi_chen。standard_time 为当地标准时间，liu_shi 必须带经度；count=1（默认）返回对应根数组，count>1 返回连续批量。",
 		InputSchema:  ziweiLiupanInput,
 		OutputSchema: ziweiLiupanOutput,
 		Handler:      ZiweiLiupan,

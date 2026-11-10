@@ -160,7 +160,7 @@ func baziLiupanOutputSchema(options *jsonschema.ForOptions) (json.RawMessage, er
 		func() (json.RawMessage, error) { return seriesOutputSchema[BaziLiuShiOutput](options, "liu_shi") },
 		func() (json.RawMessage, error) { return seriesOutputSchema[BaziXiaoYunItem](options, "xiao_yun") },
 	}
-	return domainFormsOutputSchema("bazi.liupan output schema", roots)
+	return flattenedDomainOutputSchema("bazi.liupan output schema", roots)
 }
 
 func ziweiLiupanOutputSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
@@ -170,17 +170,38 @@ func ziweiLiupanOutputSchema(options *jsonschema.ForOptions) (json.RawMessage, e
 		func() (json.RawMessage, error) { return seriesOutputSchema[ZiweiLiuRiOutput](options, "liu_ri") },
 		func() (json.RawMessage, error) { return seriesOutputSchema[ZiweiLiuShiOutput](options, "liu_shi") },
 	}
-	return domainFormsOutputSchema("ziwei.liupan output schema", roots)
+	return flattenedDomainOutputSchema("ziwei.liupan output schema", roots)
 }
 
-func domainFormsOutputSchema(name string, builders []func() (json.RawMessage, error)) (json.RawMessage, error) {
-	forms := make([]json.RawMessage, 0, len(builders))
+func flattenedDomainOutputSchema(name string, builders []func() (json.RawMessage, error)) (json.RawMessage, error) {
+	properties := make(map[string]json.RawMessage, len(builders))
 	for _, build := range builders {
 		raw, err := build()
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", name, err)
 		}
-		forms = append(forms, raw)
+		var schema struct {
+			Type       string                     `json:"type"`
+			Properties map[string]json.RawMessage `json:"properties"`
+		}
+		if err := json.Unmarshal(raw, &schema); err != nil {
+			return nil, fmt.Errorf("%s: %w", name, err)
+		}
+		if schema.Type != "object" || len(schema.Properties) != 1 {
+			return nil, fmt.Errorf("%s: series schema must contain exactly one named root", name)
+		}
+		for root, property := range schema.Properties {
+			if _, exists := properties[root]; exists {
+				return nil, fmt.Errorf("%s: duplicate output root %q", name, root)
+			}
+			properties[root] = property
+		}
 	}
-	return oneOfSchema(forms)
+	return json.Marshal(map[string]any{
+		"type":                 "object",
+		"properties":           properties,
+		"minProperties":        1,
+		"maxProperties":        1,
+		"additionalProperties": false,
+	})
 }

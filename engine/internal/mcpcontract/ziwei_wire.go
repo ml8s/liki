@@ -35,7 +35,7 @@ type ZiweiLiupanInput struct {
 }
 
 // ZiweiLiupanOutput is the raw-handler schema marker; the published contract is
-// a oneOf of the four named domain roots.
+// the four named domain roots as optional top-level properties.
 type ZiweiLiupanOutput struct{}
 
 // ── ziwei.liupan liu_nian output ──
