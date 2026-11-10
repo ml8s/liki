@@ -270,7 +270,7 @@ func NewEngine() *Registry {
 	registry := New(options)
 	mustRegister(registry, Tool[TimeNowInput, TimeNowOutput]{
 		Name:        "time_now",
-		Description: "按 IANA 时区返回服务端当前标准时间（无 DST）；空值或无效 timezone 直接报错，不猜测。所有「现在/今天/当前年份」等运算必须以本返回值为时间基准；用户出生时间等事实输入不属于本工具职责。",
+		Description: "按 IANA 时区返回服务端当前标准时间（无 DST）；空值、无效或未知 timezone 直接报错。所有「现在/今天/当前年份」运算以本返回值为唯一时间基准。用户出生时间不走本工具：民用/农历/时辰/日界模糊时先用 subject_candidates；地点或时区未知先用 city_info；黄历择日用 huangli_days。",
 		Handler:     TimeNow,
 	})
 	mustRegister(registry, Tool[HuangliDaysInput, HuangliDaysOutput]{
@@ -336,7 +336,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{
 		Name:        "bazi_bond",
-		Description: "八字合盘原始事实。a/b 必须是用户确认事实或 subject_candidates 归一化后的主体，不得手造模糊时间。用户询问双方关系配适度（合婚、合作、亲子等）并需要八字侧证据时调用。返回日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。需要紫微宫位主星对照时改用 ziwei_bond，两者常配合使用。",
+		Description: "八字合盘返回确定性关系事实，不做合婚评级。a/b 必须来自用户确认事实或 subject_candidates 归一化候选；非法、不完整或未确认的模糊 subject 直接报错。用户询问合婚、合作、亲子等关系并需要八字侧证据时调用；需要紫微宫位主星对照用 ziwei_bond，两者常配合使用。",
 		Handler:     BaziBond,
 	})
 	baziLiupanInput, err := baziLiupanFormsSchema(options)
@@ -349,7 +349,7 @@ func NewEngine() *Registry {
 	}
 	mustRegisterRaw(registry, RawTool[BaziLiupanInput, BaziLiupanOutput]{
 		Name:         "bazi_liupan",
-		Description:  "八字流盘：按 scope 返回 liu_nian/liu_yue/liu_ri/liu_shi/xiao_yun 对应的领域数组，字段见 output schema。count=1（默认）单层，count>1 连续批量；standard_time 为当地标准时间，liu_ri/liu_shi 必须带经度。只返回确定性流盘事实，不做断语；本命盘用 bazi_chart，八字紫微逐年合参断语用 natal_liunian_query。",
+		Description:  "八字流盘：按 scope 返回 liu_nian/liu_yue/liu_ri/liu_shi/xiao_yun 对应领域数组，字段见 output schema。按粒度选择：逐年用 liu_nian，逐月用 liu_yue，具体日期用 liu_ri，具体时辰用 liu_shi，童年或小运趋势用 xiao_yun。count=1 单层，count>1 连续批量；liu_ri/liu_shi 必须带经度，非法 scope/count/time 或缺失必需经度直接报错。只返回确定性流盘事实，不做断语；本命盘用 bazi_chart，八字紫微逐年合参断语用 natal_liunian_query。",
 		InputSchema:  baziLiupanInput,
 		OutputSchema: baziLiupanOutput,
 		Handler:      BaziLiupan,

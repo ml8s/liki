@@ -23,6 +23,7 @@ func slimSchemaRaw(raw json.RawMessage) (json.RawMessage, error) {
 	if err := hoistRepeatedEnums(schema); err != nil {
 		return nil, err
 	}
+	hoistRepeatedObjects(schema)
 	slimmed, err := json.Marshal(schema)
 	if err != nil {
 		return nil, fmt.Errorf("encode slimmed schema: %w", err)
@@ -216,6 +217,173 @@ func canonicalEnumSchema(schema map[string]any) map[string]any {
 				sorted[index] = text
 			}
 			key["enum"] = sorted
+		}
+	}
+	return key
+}
+
+// hoistRepeatedObjects shares exact object schemas at root $defs. Only
+// property/item positions are candidates: tool roots and generated enum
+// definitions stay untouched. A size floor prevents many tiny $ref wrappers
+// from costing more wire bytes than they save.
+func hoistRepeatedObjects(schema map[string]any) {
+	counts := make(map[string]int)
+	for key, value := range schema {
+		if key == "$defs" {
+			continue
+		}
+		collectObjectSchemas(value, counts)
+	}
+	definitions, _ := schema["$defs"].(map[string]any)
+	if definitions == nil {
+		definitions = make(map[string]any)
+	}
+	for key, value := range schema {
+		if key == "$defs" {
+			continue
+		}
+		hoistObjectSchemas(value, definitions, counts)
+	}
+	if len(definitions) > 0 {
+		schema["$defs"] = definitions
+	}
+}
+
+func collectObjectSchemas(node any, counts map[string]int) {
+	switch value := node.(type) {
+	case map[string]any:
+		if kind, ok := value["type"].(string); ok && kind == "object" {
+			if objectSchemaBytes(value) >= minObjectSchemaBytes {
+				counts[objectSchemaKey(value)]++
+			}
+			// A repeated object is published as one unit. Do not also count
+			// its descendants for replacement inside this unit; that keeps
+			// generated definitions self-contained and easier for clients to
+			// resolve conservatively.
+			return
+		}
+		for _, field := range value {
+			collectObjectSchemas(field, counts)
+		}
+	case []any:
+		for _, field := range value {
+			collectObjectSchemas(field, counts)
+		}
+	}
+}
+
+func hoistObjectSchemas(node any, definitions map[string]any, counts map[string]int) {
+	switch value := node.(type) {
+	case map[string]any:
+		for key, field := range value {
+			object, ok := field.(map[string]any)
+			if !ok {
+				hoistObjectSchemas(field, definitions, counts)
+				continue
+			}
+			kind, ok := object["type"].(string)
+			if !ok || kind != "object" {
+				hoistObjectSchemas(field, definitions, counts)
+				continue
+			}
+			id := objectSchemaKey(object)
+			if counts[id] < 2 || objectSchemaBytes(object) < minObjectSchemaBytes {
+				hoistObjectSchemas(field, definitions, counts)
+				continue
+			}
+			name := "Object_" + id
+			if _, exists := definitions[name]; !exists {
+				definition := make(map[string]any, len(object))
+				for objectKey, objectValue := range object {
+					switch objectKey {
+					case "description", "title", "default", "examples":
+						continue
+					default:
+						definition[objectKey] = objectValue
+					}
+				}
+				definitions[name] = definition
+			}
+			ref := map[string]any{"$ref": "#/$defs/" + name}
+			for _, metadata := range []string{"description", "title", "default", "examples"} {
+				if metadataValue, exists := object[metadata]; exists {
+					ref[metadata] = metadataValue
+				}
+			}
+			value[key] = ref
+		}
+	case []any:
+		for key, field := range value {
+			if object, ok := field.(map[string]any); ok {
+				if kind, exists := object["type"].(string); exists && kind == "object" {
+					id := objectSchemaKey(object)
+					if counts[id] >= 2 && objectSchemaBytes(object) >= minObjectSchemaBytes {
+						name := "Object_" + id
+						if _, exists := definitions[name]; !exists {
+							definition := make(map[string]any, len(object))
+							for objectKey, objectValue := range object {
+								switch objectKey {
+								case "description", "title", "default", "examples":
+									continue
+								default:
+									definition[objectKey] = objectValue
+								}
+							}
+							definitions[name] = definition
+						}
+						ref := map[string]any{"$ref": "#/$defs/" + name}
+						for _, metadata := range []string{"description", "title", "default", "examples"} {
+							if metadataValue, exists := object[metadata]; exists {
+								ref[metadata] = metadataValue
+							}
+						}
+						value[key] = ref
+						continue
+					}
+				}
+			}
+			hoistObjectSchemas(field, definitions, counts)
+		}
+	}
+}
+
+func objectSchemaKey(schema map[string]any) string {
+	key := make(map[string]any, len(schema))
+	for field, value := range schema {
+		switch field {
+		case "description", "title", "default", "examples":
+			continue
+		default:
+			key[field] = value
+		}
+	}
+	raw, err := json.Marshal(key)
+	if err != nil {
+		panic(fmt.Sprintf("marshal object schema: %v", err))
+	}
+	sum := sha256.Sum256(raw)
+	return hex.EncodeToString(sum[:8])
+}
+
+const minObjectSchemaBytes = 120
+
+func objectSchemaBytes(schema map[string]any) int {
+	key := canonicalObjectSchema(schema)
+	raw, err := json.Marshal(key)
+	if err != nil {
+		panic(fmt.Sprintf("marshal object schema: %v", err))
+	}
+	return len(raw)
+}
+
+func canonicalObjectSchema(schema map[string]any) map[string]any {
+	key := make(map[string]any, len(schema))
+	for field, value := range schema {
+		switch field {
+		case "description", "title", "default", "examples":
+			continue
+		default:
+			key[field] = value
 		}
 	}
 	return key

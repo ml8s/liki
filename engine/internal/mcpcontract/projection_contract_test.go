@@ -48,6 +48,10 @@ func toolProperties(t *testing.T, tool string) map[string]any {
 	return outputProperties(t, testEngine(), tool)
 }
 
+func toolPropertiesAndDefs(t *testing.T, tool string) (map[string]any, map[string]any) {
+	t.Helper()
+	return outputPropertiesAndDefs(t, testEngine(), tool)
+}
 func TestProjectionContractCoversEngineChartFields(t *testing.T) {
 	contract := loadProjectionContract(t)
 	full := toolProperties(t, "bazi_chart")
@@ -99,17 +103,18 @@ func TestProjectionContractCoversEngineChartFields(t *testing.T) {
 
 func TestProjectionContractPathsExistInEngineSchema(t *testing.T) {
 	contract := loadProjectionContract(t)
-	full := toolProperties(t, "bazi_chart")
-	chart := toolProperties(t, "bazi_chart")
-	ziwei := toolProperties(t, "ziwei_chart")
+	full, definitions := toolPropertiesAndDefs(t, "bazi_chart")
+	chart := full
+	ziwei, _ := toolPropertiesAndDefs(t, "ziwei_chart")
 
 	var missing []string
 	for _, pillar := range contract.Pillars {
-		pillarSchema, ok := full[pillar].(map[string]any)
+		resolvedPillar, ok := resolveSchemaRef(t, full[pillar], definitions).(map[string]any)
 		if !ok {
 			missing = append(missing, "chart."+pillar)
 			continue
 		}
+		pillarSchema := resolvedPillar
 		properties, _ := pillarSchema["properties"].(map[string]any)
 		for source, label := range contract.ValueFields {
 			if _, ok := properties[source]; !ok {

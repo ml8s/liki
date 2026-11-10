@@ -395,26 +395,28 @@ func TestBondInputsShareShape(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: missing", tool)
 		}
-		var schema struct {
-			Properties map[string]struct {
-				Properties map[string]any `json:"properties"`
-				Required   []string       `json:"required"`
-			} `json:"properties"`
-			Required []string `json:"required"`
-		}
+		var schema map[string]any
 		if err := json.Unmarshal(definition.InputSchema, &schema); err != nil {
 			t.Fatalf("%s: decode schema: %v", tool, err)
 		}
+		definitions, _ := schema["$defs"].(map[string]any)
+		properties, _ := schema["properties"].(map[string]any)
 		for _, side := range []string{"a", "b"} {
-			entry, ok := schema.Properties[side]
+			node, ok := properties[side]
 			if !ok {
 				t.Fatalf("%s: missing side %s", tool, side)
 			}
-			if _, ok := entry.Properties["subject"]; !ok {
+			entry, ok := resolveSchemaRef(t, node, definitions).(map[string]any)
+			if !ok {
+				t.Fatalf("%s.%s schema is not an object: %#v", tool, side, entry)
+			}
+			entryProperties, _ := entry["properties"].(map[string]any)
+			entryRequired, _ := entry["required"].([]any)
+			if _, ok := entryProperties["subject"]; !ok {
 				t.Errorf("%s.%s: must wrap the subject as {subject}", tool, side)
 			}
-			if len(entry.Required) != 1 || entry.Required[0] != "subject" {
-				t.Errorf("%s.%s required = %v, want [subject]", tool, side, entry.Required)
+			if len(entryRequired) != 1 || entryRequired[0] != "subject" {
+				t.Errorf("%s.%s required = %v, want [subject]", tool, side, entryRequired)
 			}
 		}
 	}
@@ -489,6 +491,17 @@ func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 // outputProperties returns a tool's declared output schema properties.
 func outputProperties(t *testing.T, registry *Registry, name string) map[string]any {
 	t.Helper()
+	properties, _ := outputPropertiesAndDefs(t, registry, name)
+	if properties == nil {
+		t.Fatalf("%s output schema has no properties", name)
+	}
+	return properties
+}
+
+// outputPropertiesAndDefs returns published output properties plus root
+// definitions so callers can resolve schemas compacted into shared $defs.
+func outputPropertiesAndDefs(t *testing.T, registry *Registry, name string) (map[string]any, map[string]any) {
+	t.Helper()
 	definition, err := registry.Definition(name)
 	if err != nil {
 		t.Fatalf("%s: %v", name, err)
@@ -498,12 +511,17 @@ func outputProperties(t *testing.T, registry *Registry, name string) map[string]
 	}
 	var schema map[string]any
 	decode(t, definition.OutputSchema, &schema)
+	definitions, _ := schema["$defs"].(map[string]any)
 	// Series tools root at a named domain array; the array's item schema
 	// carries the single-output properties.
 	for _, key := range []string{"anyOf", "oneOf"} {
 		if branches, ok := schema[key].([]any); ok && len(branches) > 0 {
 			if first, ok := branches[0].(map[string]any); ok {
-				schema = first
+				resolved, ok := resolveSchemaRef(t, first, definitions).(map[string]any)
+				if !ok {
+					t.Fatalf("%s output root branch is not an object: %#v", name, first)
+				}
+				schema = resolved
 				break
 			}
 		}
@@ -512,17 +530,18 @@ func outputProperties(t *testing.T, registry *Registry, name string) map[string]
 		for _, root := range namedSeriesRoots {
 			if items, ok := seriesProperties[root].(map[string]any); ok {
 				if itemSchema, ok := items["items"].(map[string]any); ok {
-					schema = itemSchema
+					resolved, ok := resolveSchemaRef(t, itemSchema, definitions).(map[string]any)
+					if !ok {
+						t.Fatalf("%s output item is not an object: %#v", name, itemSchema)
+					}
+					schema = resolved
 				}
 				break
 			}
 		}
 	}
 	properties, _ := schema["properties"].(map[string]any)
-	if properties == nil {
-		t.Fatalf("%s output schema has no properties", name)
-	}
-	return properties
+	return properties, definitions
 }
 
 func liupanOutputProperties(t *testing.T, registry *Registry, domain, root string) (map[string]any, map[string]any) {
