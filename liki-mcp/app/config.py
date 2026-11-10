@@ -221,9 +221,9 @@ def load_config() -> GatewayConfig:
         )
 
     return GatewayConfig(
-        server_name=_env("LIKI_MCP_SERVER_NAME", "liki-mcp"),
-        server_title=_env("LIKI_MCP_SERVER_TITLE", "LIKI product MCP"),
-        server_version=_env("LIKI_VERSION", "0.1.0"),
+        server_name=_env("LIKI_MCP_SERVER_NAME", "hk.liki/liki"),
+        server_title=_env("LIKI_MCP_SERVER_TITLE", "Liki — Professional AI Astrologer"),
+        server_version=_env("LIKI_VERSION", "2026.11.09.1"),
         engine=UpstreamConfig(
             name="engine",
             url=_env("LIKI_UPSTREAM_ENGINE_URL", "http://engine-mcp:8081/mcp"),

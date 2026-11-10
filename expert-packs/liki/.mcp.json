@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "liki-mcp": {
+    "liki": {
       "type": "streamableHttp",
       "url": "https://liki.hk/mcp"
     }
