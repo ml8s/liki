@@ -289,7 +289,8 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 	}
 
 	for _, item := range calls {
-		allowed := enumAt(t, liupanOutputProperties(t, registry, "bazi", item.scope), "shen_sha", "[]", "name")
+		properties, defs := liupanOutputProperties(t, registry, "bazi", item.scope)
+		allowed := enumAtDefs(t, properties, defs, "shen_sha", "[]", "name")
 		document := callToolDocument(t, registry, item.name, item.params)
 		first := firstSeriesItem(t, document)
 		items, _ := first["shen_sha"].([]any)
@@ -314,7 +315,8 @@ func TestMigratedShiShenEnumMatchesTenGodClosure(t *testing.T) {
 		"偏财", "七杀", "正官", "偏印", "正印",
 	}
 	for _, scope := range []string{"liu_nian", "liu_yue", "liu_ri", "liu_shi"} {
-		allowed := enumAt(t, liupanOutputProperties(t, registry, "bazi", scope), "shi_shen")
+		properties, defs := liupanOutputProperties(t, registry, "bazi", scope)
+		allowed := enumAtDefs(t, properties, defs, "shi_shen")
 		if len(allowed) != len(want) {
 			t.Fatalf("%s: shi_shen enum = %v, want the %d-value 十神 closure", scope, allowed, len(want))
 		}
@@ -523,7 +525,7 @@ func outputProperties(t *testing.T, registry *Registry, name string) map[string]
 	return properties
 }
 
-func liupanOutputProperties(t *testing.T, registry *Registry, domain, root string) map[string]any {
+func liupanOutputProperties(t *testing.T, registry *Registry, domain, root string) (map[string]any, map[string]any) {
 	t.Helper()
 	definition, err := registry.Definition(domain + "_liupan")
 	if err != nil {
@@ -531,6 +533,7 @@ func liupanOutputProperties(t *testing.T, registry *Registry, domain, root strin
 	}
 	var schema struct {
 		Properties map[string]json.RawMessage `json:"properties"`
+		Defs       map[string]any             `json:"$defs"`
 	}
 	decode(t, definition.OutputSchema, &schema)
 	raw, ok := schema.Properties[root]
@@ -546,12 +549,18 @@ func liupanOutputProperties(t *testing.T, registry *Registry, domain, root strin
 	if series.Items.Properties == nil {
 		t.Fatalf("%s.%s output schema has no item properties", domain, root)
 	}
-	return series.Items.Properties
+	return series.Items.Properties, schema.Defs
 }
 
 // enumAt walks a property path and returns the declared enum values. The "[ ]"
 // segment descends into array items.
 func enumAt(t *testing.T, properties map[string]any, path ...string) []string {
+	t.Helper()
+	return enumAtDefs(t, properties, nil, path...)
+}
+
+// enumAtDefs walks a property path and resolves shared enum definitions.
+func enumAtDefs(t *testing.T, properties, defs map[string]any, path ...string) []string {
 	t.Helper()
 	var node any = properties
 	for _, segment := range path {
@@ -561,16 +570,19 @@ func enumAt(t *testing.T, properties map[string]any, path ...string) []string {
 		}
 		if segment == "[]" {
 			node = current["items"]
+			node = resolveSchemaRef(t, node, defs)
 			continue
 		}
 		// The first segment indexes the caller-supplied properties map; nested
 		// segments must descend through the schema's own "properties".
 		if child, ok := current[segment]; ok {
 			node = child
+			node = resolveSchemaRef(t, node, defs)
 			continue
 		}
 		nested, _ := current["properties"].(map[string]any)
 		node = nested[segment]
+		node = resolveSchemaRef(t, node, defs)
 	}
 	schema, ok := node.(map[string]any)
 	if !ok {
@@ -589,4 +601,25 @@ func enumAt(t *testing.T, properties map[string]any, path ...string) []string {
 		out = append(out, text)
 	}
 	return out
+}
+
+func resolveSchemaRef(t *testing.T, node any, defs map[string]any) any {
+	t.Helper()
+	schema, ok := node.(map[string]any)
+	if !ok {
+		return node
+	}
+	ref, ok := schema["$ref"].(string)
+	if !ok {
+		return schema
+	}
+	const prefix = "#/$defs/"
+	if !strings.HasPrefix(ref, prefix) || defs == nil {
+		t.Fatalf("cannot resolve schema ref %q", ref)
+	}
+	definition, ok := defs[ref[len(prefix):]]
+	if !ok {
+		t.Fatalf("schema ref %q has no definition", ref)
+	}
+	return definition
 }

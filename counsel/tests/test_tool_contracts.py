@@ -86,11 +86,25 @@ def test_published_schemas_do_not_ship_conditional_clauses(name):
 
 
 @pytest.mark.parametrize("name", sorted(CONTRACTS))
-def test_published_schemas_are_flat_self_contained_documents(name):
+def test_published_schema_shared_refs_resolve_locally(name):
     for schema in (CONTRACTS[name].input_schema, CONTRACTS[name].output_schema):
-        document = json.dumps(schema)
-        assert "$defs" not in document
-        assert "$ref" not in document
+        definitions = schema.get("$defs", {})
+        refs = []
+
+        def walk(node):
+            if isinstance(node, dict):
+                if "$ref" in node:
+                    refs.append(node["$ref"])
+                for value in node.values():
+                    walk(value)
+            elif isinstance(node, list):
+                for value in node:
+                    walk(value)
+
+        walk(schema)
+        for ref in refs:
+            assert ref.startswith("#/$defs/")
+            assert ref.rsplit("/", 1)[-1] in definitions
 
 
 def test_unique_items_is_projected_and_enforced():
@@ -116,11 +130,13 @@ def test_yongshen_contracts_publish_the_typed_core():
     from app.contracts.yongshen import SelectedYongShen
 
     selected_schema = CONTRACTS["bazi_yongshen"].output_schema
+    definitions = selected_schema.get("$defs", {})
     assert set(selected_schema["required"]) == set(SelectedYongShen.model_fields)
     choice = selected_schema["properties"]["selected_yongshen"]
     yong_schema = choice["properties"]["yong"]
-    assert yong_schema["type"] == "string"
-    assert yong_schema["enum"] == ["木", "火", "土", "金", "水", "无候选"]
+    yong_definition = definitions[yong_schema["$ref"].rsplit("/", 1)[-1]]
+    assert yong_definition["type"] == "string"
+    assert set(yong_definition["enum"]) == {"木", "火", "土", "金", "水", "无候选"}
     assert set(choice["required"]) == {"yong", "xi", "ji"}
 
 
@@ -131,16 +147,16 @@ def test_yongshen_contracts_publish_the_typed_core():
         "forbidden_chars",
         "required_chars",
     }
-    selected_ref = naming_schema["properties"]["selected_yongshen"]["anyOf"][0]
-    assert set(selected_ref["required"]) == set(ConsumableSelectedYongshen.model_fields)
+    naming_selected_schema = naming_schema["properties"]["selected_yongshen"]
+    assert set(naming_selected_schema["required"]) == set(ConsumableSelectedYongshen.model_fields)
 
-    assert "factors" not in selected_schema["properties"]
-    assert "alternatives" not in selected_schema["properties"]
+    assert "factors" not in naming_selected_schema["properties"]
+    assert "alternatives" not in naming_selected_schema["properties"]
     evidence_items = selected_schema["properties"]["evidence"]["items"]
     assert {branch["properties"]["source"]["const"] for branch in evidence_items["anyOf"]} == {
         "facts", "fu_yi", "tiao_hou", "ge_ju", "cong_ge",
     }
-    assert "#/$defs" not in json.dumps(selected_schema)
+    assert "$defs" in selected_schema
 
 
 def test_event_tools_are_not_marked_idempotent():

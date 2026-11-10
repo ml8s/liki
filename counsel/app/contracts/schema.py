@@ -9,6 +9,7 @@ generator; nothing about a tool's shape is written by hand.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from typing import Annotated, Any, TypeVar
@@ -63,6 +64,123 @@ def _inline_refs(node: Any, defs: dict[str, Any], active: frozenset[str] = froze
     return node
 
 
+def _normalize_nullable_any_of(node: Any) -> None:
+    """Rewrite ``[null, T]`` unions to the equivalent compact ``type`` array."""
+    if isinstance(node, dict):
+        branches = node.get("anyOf")
+        if isinstance(branches, list) and len(branches) == 2:
+            non_null = None
+            null_count = 0
+            for branch in branches:
+                if not isinstance(branch, dict):
+                    continue
+                if set(branch) == {"type"} and branch["type"] == "null":
+                    null_count += 1
+                    continue
+                non_null = branch
+            if null_count == 1 and isinstance(non_null, dict):
+                kind = non_null.get("type")
+                if isinstance(kind, str) and kind != "null":
+                    replacement = {
+                        key: value for key, value in non_null.items() if key != "type"
+                    }
+                    replacement["type"] = ["null", kind]
+                    replacement.update(
+                        {
+                            key: value
+                            for key, value in node.items()
+                            if key not in {"anyOf", "type"}
+                        }
+                    )
+                    node.clear()
+                    node.update(replacement)
+        for value in node.values():
+            _normalize_nullable_any_of(value)
+    elif isinstance(node, list):
+        for value in node:
+            _normalize_nullable_any_of(value)
+
+
+def _schema_key(schema: dict[str, Any]) -> str:
+    canonical = json.dumps(schema, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode()).hexdigest()[:12]
+
+
+def _enum_schema_key(schema: dict[str, Any]) -> str:
+    reader_metadata = {"description", "title", "default", "examples"}
+    comparable = {
+        key: value for key, value in schema.items() if key not in reader_metadata
+    }
+    values = comparable.get("enum")
+    if isinstance(values, list) and all(isinstance(value, str) for value in values):
+        comparable["enum"] = sorted(values)
+    return _schema_key(comparable)
+
+
+def _collect_enum_schemas(node: Any, counts: dict[str, int]) -> None:
+    if isinstance(node, dict):
+        if "enum" in node:
+            key = _enum_schema_key(node)
+            counts[key] = counts.get(key, 0) + 1
+        for value in node.values():
+            _collect_enum_schemas(value, counts)
+    elif isinstance(node, list):
+        for value in node:
+            _collect_enum_schemas(value, counts)
+
+
+def _hoist_enum_schemas(
+    node: Any,
+    definitions: dict[str, Any],
+    counts: dict[str, int],
+) -> Any:
+    """Replace exact repeated enum schemas with shared, resolvable ``$defs``."""
+    if isinstance(node, dict):
+        if "enum" in node and counts[_enum_schema_key(node)] >= 2:
+            name = f"Enum_{_enum_schema_key(node)}"
+            if name not in definitions:
+                definition = {
+                    key: value for key, value in node.items() if key != "description"
+                }
+                if isinstance(definition.get("enum"), list) and all(
+                    isinstance(value, str) for value in definition["enum"]
+                ):
+                    definition["enum"] = sorted(definition["enum"])
+                definitions[name] = definition
+            ref: dict[str, Any] = {"$ref": f"#/$defs/{name}"}
+            # Keep reader-facing metadata at the field itself so catalogs do not
+            # have to dereference a ref merely to show why the field exists.
+            for key in ("description", "title", "default", "examples"):
+                if key in node:
+                    ref[key] = node[key]
+            return ref
+        return {
+            key: _hoist_enum_schemas(value, definitions, counts)
+            for key, value in node.items()
+        }
+    if isinstance(node, list):
+        return [_hoist_enum_schemas(value, definitions, counts) for value in node]
+    return node
+
+
+def _slim_published_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Apply semantics-preserving publication compaction to a flat schema.
+
+    Runtime validation is owned by the Pydantic models; this only compactly
+    represents the same JSON Schema. Repeated enum schemas are shared through
+    ``$defs`` while field descriptions remain at the field site.
+    """
+    _normalize_nullable_any_of(schema)
+    counts: dict[str, int] = {}
+    _collect_enum_schemas(schema, counts)
+    existing = schema.pop("$defs", {})
+    definitions = dict(existing)
+    slim = _hoist_enum_schemas(schema, definitions, counts)
+    if definitions:
+        slim["$defs"] = definitions
+    return slim
+
+
 class ContractSchema(GenerateJsonSchema):
     """Pydantic's generator, restricted to what a published tool schema needs.
 
@@ -111,6 +229,7 @@ def emit_schema(annotation: Any, *, description: str | None = None) -> dict[str,
         schema["type"] = "object"
         if all(branch.get("additionalProperties") is False for branch in schema["anyOf"]):
             schema["additionalProperties"] = False
+    schema = _slim_published_schema(schema)
     if description is not None and "description" not in schema:
         schema["description"] = description
     return schema

@@ -98,6 +98,10 @@ func deriveToolSchemas[In, Out any](options *jsonschema.ForOptions, publicInputS
 	if len(publicInputSchema) > 0 {
 		inputSchema = publicInputSchema
 	}
+	inputSchema, err = slimSchemaRaw(inputSchema)
+	if err != nil {
+		return derivedSchemas{}, fmt.Errorf("slim input schema: %w", err)
+	}
 	var outputSchema json.RawMessage
 	var outputValidator *lazyOutputValidator
 	if len(publicOutputSchema) > 0 {
@@ -111,6 +115,10 @@ func deriveToolSchemas[In, Out any](options *jsonschema.ForOptions, publicInputS
 	}
 	if err != nil {
 		return derivedSchemas{}, err
+	}
+	outputSchema, err = slimSchemaRaw(outputSchema)
+	if err != nil {
+		return derivedSchemas{}, fmt.Errorf("slim output schema: %w", err)
 	}
 	fastInput := supportsFastInputSchema(inputTree)
 	fastClosed := map[*jsonschema.Schema]bool{}

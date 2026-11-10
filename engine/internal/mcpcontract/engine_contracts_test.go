@@ -393,6 +393,7 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 
 	var schema map[string]any
 	decode(t, mustDefinition(t, registry, "bazi_chart").OutputSchema, &schema)
+	definitions, _ := schema["$defs"].(map[string]any)
 	properties := schema["properties"].(map[string]any)
 	fuYi := properties["fu_yi"].(map[string]any)["properties"].(map[string]any)
 	tiaoHouSchema := properties["tiao_hou"].(map[string]any)["properties"].(map[string]any)
@@ -402,6 +403,7 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 		"fu_yi.ji":                  fuYi["ji"].(map[string]any),
 		"tiao_hou.secondary_wuxing": tiaoHouSchema["secondary_wuxing"].(map[string]any),
 	} {
+		field = resolveTestSchemaRef(t, field, definitions)
 		if field["type"] != "string" {
 			t.Errorf("%s schema is not a string: %#v", name, field)
 		}
@@ -421,6 +423,31 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 		}
 	}
 
+}
+
+func resolveTestSchemaRef(t *testing.T, node any, definitions map[string]any) map[string]any {
+	t.Helper()
+	schema, ok := node.(map[string]any)
+	if !ok {
+		t.Fatalf("schema node is not an object: %#v", node)
+	}
+	ref, ok := schema["$ref"].(string)
+	if !ok {
+		return schema
+	}
+	const prefix = "#/$defs/"
+	if !strings.HasPrefix(ref, prefix) {
+		t.Fatalf("unsupported schema ref %q", ref)
+	}
+	definition, ok := definitions[ref[len(prefix):]]
+	if !ok {
+		t.Fatalf("schema ref %q has no definition", ref)
+	}
+	definitionSchema, ok := definition.(map[string]any)
+	if !ok {
+		t.Fatalf("schema ref %q is not an object", ref)
+	}
+	return definitionSchema
 }
 
 func TestEngineContractCalls(t *testing.T) {
