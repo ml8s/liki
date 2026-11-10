@@ -1140,7 +1140,7 @@ TOOL_LIUYAO_ASK = ToolContract(
 
 TOOL_QIMEN_ASK = ToolContract(
     name="qimen_ask",
-    description="一次完成奇门起局、因子投影和结构化解读，适用于需要时空方位信息的决策类问题（出行、谈判、寻物、择时方位等）。同一事禁止重新排局，后续追问基于本次 Reading 解释；起卦问事（得卦象而非方位盘）改用 liuyao_ask。",
+    description="一次完成奇门起局、因子投影和结构化解读，适用于需要时空方位信息的决策类问题（出行、谈判、寻物、择时方位等）。longitude 必填，城市需先转换；subject 与金函玉镜不兼容，非法组合在解读前失败。同一事禁止重新排局，后续追问基于本次 Reading 解释；起卦问事（得卦象而非方位盘）改用 liuyao_ask。",
     input=QimenAskInput,
     output=QimenAskOutput,
 )

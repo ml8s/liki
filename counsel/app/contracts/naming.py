@@ -13,7 +13,7 @@ from app.contracts.schema import ToolContract, unique_list
 from app.contracts.yongshen import YongShenChoice
 
 # ── naming_surname ──
-TOOL_NAMING_SURNAME_DESCRIPTION = "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。仅处理姓氏；名字用字与五行核对由 naming_pick / naming_check 负责。"
+TOOL_NAMING_SURNAME_DESCRIPTION = "按发音匹配候选姓氏：源姓必须是 Latin 拼音/英文拼写，匹配前会 trim、lowercase 并折叠常见拉丁变体；按 pinyin_exact / romanization_exact / phonetic_close 排序，无匹配时按百家姓顺序回退。max_candidates 是硬上限。仅处理姓氏；取字池用 naming_pick，整名评估用 naming_check。"
 
 class NamingSurnameInput(BaseModel):
     """按发音匹配姓氏的输入。"""
@@ -163,7 +163,7 @@ TOOL_NAMING_PICK = ToolContract(
 
 
 # ── naming_character ──
-TOOL_NAMING_CHAR_DESCRIPTION = "查询单个汉字的起名字库事实：字频、五行、笔画、部首、拼音、声调；未收录返回空。适用于挑字或核对单字属性时；从八字取字池、组合候选名、整名评估分别用 naming_pick / naming_compose / naming_check。"
+TOOL_NAMING_CHAR_DESCRIPTION = "按精确单字查询起名字库事实：字频、五行、笔画、部首、拼音、声调。不做繁简/异体折叠，不接受多字或空白变体；未收录时 character 为 null。适用于核对单字属性；取字池用 naming_pick，组合候选名用 naming_compose，整名评估用 naming_check。"
 
 class NamingCharInput(BaseModel):
     """单字字库查询输入。"""
@@ -222,7 +222,7 @@ TOOL_NAMING_CHAR = ToolContract(
 
 
 # ── naming_compose ──
-TOOL_NAMING_COMPOSE_DESCRIPTION = "将取字池中的字组合为候选名：单名=first_chars 单字，双名=first_chars×second_chars 两字组合；按 first_chars 顺序生成，最多 max_names 个。字池来自 naming_pick；组合后的候选名评估用 naming_check，单字事实查询用 naming_character。"
+TOOL_NAMING_COMPOSE_DESCRIPTION = "将已收录且非禁用的字组合为候选名：单名=first_chars 单字，双名=first_chars×second_chars 两字组合；按 first_chars 顺序生成并在 max_names 处截断。输入字池须来自 naming_pick，重复字会被拒绝。组合后的候选名评估用 naming_check，单字事实查询用 naming_character。"
 
 class NamingComposeInput(BaseModel):
     """候选名组合输入。"""
@@ -257,7 +257,7 @@ TOOL_NAMING_COMPOSE = ToolContract(
 
 
 # ── naming_check ──
-TOOL_NAMING_CHECK_DESCRIPTION = "独立评估候选名：长度、字库收录、禁用字与音律校验；selected_yongshen 给定时逐字对照 用/喜/忌 五行计划并返回角色。selected_yongshen 直接使用八字用神裁决返回对象。"
+TOOL_NAMING_CHECK_DESCRIPTION = "独立评估整名，不生成候选名；生成用 naming_compose，取字池用 naming_pick。接受 1-200 个去重候选名，逐个返回 evaluations：invalid 不中断批量，以 valid=false 与结构化 errors 说明长度、字库、禁用/必含字或音律问题。selected_yongshen 直接使用八字裁决对象且仅接受 resolved/partial；省略时不做五行角色评估。"
 
 class NamingCheckInput(BaseModel):
     """候选名评估输入。"""

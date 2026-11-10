@@ -275,7 +275,7 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[HuangliDaysInput, HuangliDaysOutput]{
 		Name:        "huangli_days",
-		Description: "黄历择日查日。用户询问某事项宜忌日期、某日吉凶或黄历宜忌事实时调用；需要日期范围与事项名称。返回连续日期的黄历事实，指定事项时附适配结论与判定依据。命理合参（八字/紫微本命、流年）不走本工具，改用对应排盘与查询工具。",
+		Description: "黄历择日查日。用户询问某事项宜忌日期、某日吉凶或黄历宜忌事实时调用；从 standard_time 起返回连续 count 天，指定 event 时逐日附适配结论与判定依据，范围内无适配日也不报错。命理合参（八字/紫微本命、流年）不走本工具，改用对应排盘与查询工具。",
 		Handler:     HuangliDays,
 	})
 	resolveSchema, err := tianwenResolveFormsSchema(options)
@@ -290,22 +290,22 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[CityInfoInput, CityInfoOutput]{
 		Name:        "city_info",
-		Description: "根据城市名返回城市信息候选（内置表，不访问外链）：每项含名称、行政区、层级、经纬度、IANA 时区与可选经度范围。长度 1 可直接使用；多于 1（同名区县等）必须由用户确认，不得静默取第一个。未命中时请询问附近大城市，或让用户直接提供经纬度和时区。",
+		Description: "根据城市名返回城市信息候选（内置表，不访问外链）：每项含名称、行政区、层级、经纬度、IANA 时区与可选经度范围；locale 只本地化名称展示，不改变匹配集合。长度 1 可直接使用；多于 1（同名区县等）必须由用户确认，不得静默取第一个。未命中时请询问附近大城市，或让用户直接提供经纬度和时区。",
 		Handler:     CityInfo,
 	})
 	mustRegisterRaw(registry, RawTool[BaziChartInput, BaziChartOutput]{
 		Name:        "bazi_chart",
-		Description: "排八字确定性命盘。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。用户询问本命（性格、婚姻、事业、财运、健康、学业、六亲等）时调用。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑候选、调候候选、格局结构证据与命盘关系事实。",
+		Description: "排八字本命盘并返回确定性结构事实。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。需要四柱、大运、十神、藏干、神煞、刑冲合会、扶抑/调候或格局证据时调用。只要原始本命盘，不用八字紫微合参断语；后者用 natal_query，紫微宫位细节用 ziwei_chart。",
 		Handler:     BaziChartCompute,
 	})
 	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
 		Name:        "bazhai_chart",
-		Description: "八宅排盘：由已校准 subject 推导出生年与性别，排命卦、四吉四凶方与出生年紫白飞星。住宅风水评估、命卦方位吉凶类问题调用；后续门/主/灶方位配合改用 bazhai_layout。八宅不需要出生时辰，也不与八字四柱合参。",
+		Description: "八宅排盘：由已校准 subject 推导出生年与性别，排命卦、四吉四凶方与出生年紫白飞星。subject 必须来自用户确认事实或 subject_candidates；时间或性别非法时返回错误，不猜测出生时辰。住宅风水评估、命卦方位吉凶类问题调用；门/主/灶配合改用 bazhai_layout。八宅不与八字四柱合参。",
 		Handler:     BazhaiChart,
 	})
 	mustRegister(registry, Tool[BazhaiLayoutInput, BazhaiLayoutOutput]{
 		Name:        "bazhai_layout",
-		Description: "八宅门主灶配合：输入命卦与门/主/灶卦，输出各自方向、游年九星与吉凶结论。已由 bazhai_chart 排出命卦、需评估大门/主卧/灶位方位配合时调用；仅覆盖八宅法，玄空飞星另用 xuankong 工具。",
+		Description: "八宅门主灶配合：评估命卦与门/主/灶卦的游年九星、方向与吉凶。门/主/灶卦必须来自建筑方位或用户确认事实，本工具不反推方位。已由 bazhai_chart 得到命卦后调用；输出是八宅学派确定性参考判断，不是施工或安全建议；玄空飞星用 xuankong 工具。",
 		Handler:     BazhaiLayout,
 	})
 	mustRegister(registry, Tool[XuankongChartInput, XuankongChart]{
@@ -336,7 +336,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{
 		Name:        "bazi_bond",
-		Description: "八字合盘原始事实。用户提供双方出生信息、询问关系配适度（合婚、合作、亲子等）时调用。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。需要紫微宫位主星对照时改用 ziwei_bond，两者常配合使用。",
+		Description: "八字合盘原始事实。a/b 必须是用户确认事实或 subject_candidates 归一化后的主体，不得手造模糊时间。用户询问双方关系配适度（合婚、合作、亲子等）并需要八字侧证据时调用。返回日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。需要紫微宫位主星对照时改用 ziwei_bond，两者常配合使用。",
 		Handler:     BaziBond,
 	})
 	baziLiupanInput, err := baziLiupanFormsSchema(options)
@@ -349,14 +349,14 @@ func NewEngine() *Registry {
 	}
 	mustRegisterRaw(registry, RawTool[BaziLiupanInput, BaziLiupanOutput]{
 		Name:         "bazi_liupan",
-		Description:  "八字流盘。scope 显式选择层级：liu_nian 返回 year/shi_shen/gan/zhi/gan_wuxing/na_yin/sheng_ri/ke_ri/shen_sha/fu_yin_fan_yin/da_yun_interactions/natal_interactions/nian_jie；liu_yue 返回 shi_shen/gan/zhi/gan_wuxing/sheng_ri/ke_ri/shen_sha/gan_rels/zhi_rels/jie_qi；liu_ri 返回 date/shi_shen/gan/zhi/na_yin/shen_sha/gan_rels/zhi_rels/da_yun_rels/liu_nian_rels/ri_jie；liu_shi 返回 hour_range/shi_shen/gan/zhi/gan_rels/zhi_rels/shi_chen；xiao_yun 返回 method/basis/zhus。standard_time 为当地标准时间，liu_ri/liu_shi 必须带经度；count=1（默认）返回对应根数组，count>1 返回连续批量。",
+		Description:  "八字流盘：按 scope 返回 liu_nian/liu_yue/liu_ri/liu_shi/xiao_yun 对应的领域数组，字段见 output schema。count=1（默认）单层，count>1 连续批量；standard_time 为当地标准时间，liu_ri/liu_shi 必须带经度。只返回确定性流盘事实，不做断语；本命盘用 bazi_chart，八字紫微逐年合参断语用 natal_liunian_query。",
 		InputSchema:  baziLiupanInput,
 		OutputSchema: baziLiupanOutput,
 		Handler:      BaziLiupan,
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",
-		Description: "紫微斗数确定性命盘。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。需要十二宫细节（宫位主星、亮度、四化、大限等）时调用。返回十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前与大限。",
+		Description: "紫微斗数排本命盘并返回确定性宫位事实。subject 可由用户明确事实组装，也可取自用户确认后的 subject_candidates 候选；时间模糊或多候选时先归一化并确认。需要十二宫主星、亮度、四化、杂曜、长生博士十二神、小限或大限时调用。两人合盘用 ziwei_bond，流盘用 ziwei_liupan，八字紫微断语合参用 natal_query。",
 		Handler:     ZiweiChartCompute,
 	})
 	ziweiLiupanInput, err := ziweiLiupanFormsSchema(options)
@@ -369,14 +369,14 @@ func NewEngine() *Registry {
 	}
 	mustRegisterRaw(registry, RawTool[ZiweiLiupanInput, ZiweiLiupanOutput]{
 		Name:         "ziwei_liupan",
-		Description:  "紫微流盘。scope 显式选择层级：liu_nian 返回 ming_gong/zhi/si_hua/gong_wei/nian_jie；liu_yue 返回 yue_jie/ming_gong/zhi/si_hua/gong_wei；liu_ri 返回 ri_jie/ming_gong/zhi/si_hua/gong_wei；liu_shi 返回 ming_gong/zhi/si_hua/gong_wei/shi_chen。standard_time 为当地标准时间，liu_shi 必须带经度；count=1（默认）返回对应根数组，count>1 返回连续批量。",
+		Description:  "紫微流盘：按 scope 返回 liu_nian/liu_yue/liu_ri/liu_shi 对应的领域数组，字段见 output schema。count=1（默认）单层，count>1 连续批量；standard_time 为当地标准时间，liu_shi 必须带经度。只返回确定性流盘事实，不做断语；本命盘用 ziwei_chart，八字紫微逐年合参断语用 natal_liunian_query。",
 		InputSchema:  ziweiLiupanInput,
 		OutputSchema: ziweiLiupanOutput,
 		Handler:      ZiweiLiupan,
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiBondInput, ZiweiBondOutput]{
 		Name:        "ziwei_bond",
-		Description: "紫微合盘原始事实。用户询问两人关系并需要紫微侧证据（命宫、夫妻宫、子女宫主星对比）时调用；八字干支与十神视角改用 bazi_bond，两者常配合使用。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
+		Description: "紫微合盘原始事实。a/b 必须是用户确认事实或 subject_candidates 归一化后的主体，不得手造模糊时间。用户询问两人关系并需要紫微侧证据时调用；八字干支与十神视角改用 bazi_bond，两者常配合使用。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
 		Handler:     ZiweiBond,
 	})
 	qimenSchema, err := qimenChartFormsSchema(options)
