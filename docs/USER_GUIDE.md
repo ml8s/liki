@@ -141,7 +141,7 @@ Liki 紫微采用三合派基础口径（标准四化表、庙旺亮度、三方
 Skill 启动时会检查版本。提示更新后重新执行：
 
 ```bash
-npx skills add https://liki.hk -y
+npx skills add ml8s/liki -y
 ```
 
 ### 服务端怎么升级？
@@ -150,7 +150,7 @@ npx skills add https://liki.hk -y
 
 ### 旧版 Skill 遇到「工具不存在」或参数校验失败怎么办？
 
-说明 Skill 版本落后于服务端。重新执行 `npx skills add https://liki.hk -y` 升级后重试。升级后仍失败请提交反馈。
+说明 Skill 版本落后于服务端。重新执行 `npx skills add ml8s/liki -y` 升级后重试。升级后仍失败请提交反馈。
 
 ## 输出原则
 

@@ -71,7 +71,7 @@
 ### 第一步：安装 skill（一行命令）
 
 ```bash
-npx skills add https://liki.hk
+npx skills add ml8s/liki
 ```
 
 ### 第二步：直接问
@@ -84,7 +84,7 @@ npx skills add https://liki.hk
 | 择日 | `下个月哪天适合搬家？` |
 | 风水 | `我家风水怎么样？` |
 
-第一次使用命理时，建议提供出生日期、尽量精确的时间、出生城市和性别。信息不全时，Skill 会追问或进入考时流程。提示更新后重新执行：`npx skills add https://liki.hk -y`。
+第一次使用命理时，建议提供出生日期、尽量精确的时间、出生城市和性别。信息不全时，Skill 会追问或进入考时流程。提示更新后重新执行：`npx skills add ml8s/liki -y`。
 
 ## 对比：直接问大模型，还是用 Liki
 
@@ -145,7 +145,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 
 ### 怎么更新？
 
-按提示重新执行 `npx skills add https://liki.hk -y`。版本校验失败时不降级调用旧 RPC。
+按提示重新执行 `npx skills add ml8s/liki -y`。版本校验失败时不降级调用旧 RPC。
 
 ## 仓库与部署
 

@@ -27,5 +27,8 @@
 
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
 - 请求远程版本时携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
-- GitHub 直连受限（国内网络常见）时，`npx skills add ml8s/liki -y` 可能因内部 git clone 超时失败。优先改用官方托管源：`npx skills add https://liki.hk -y`。它通过 liki.hk 的 well-known 清单下载 archive 并校验 完整性摘要，不依赖 GitHub clone。仍需保证 npx / npm registry 可用；不要手改本地 Skill 文件。
-- 旧版 Skill 调新版 MCP 遇到「工具不存在」或参数校验失败时，说明 Skill 版本落后于服务端；执行 `npx skills add https://liki.hk -y` 升级后重试。升级后仍失败按 `references/ops-FEEDBACK.md` 提交反馈。
+- 运行端点有两个等价选择：`https://liki.hk/engine|counsel/mcp` 与
+  `https://mcp.tokflux.com/engine|counsel/mcp`。首次连接按响应速度自动选用并
+  在会话内固定；需要固定端点时设置 `LIKI_ENGINE_URL` / `LIKI_COUNSEL_URL`
+  （优先级最高），端点失败自动切换到另一个。
+- 旧版 Skill 调新版 MCP 遇到「工具不存在」或参数校验失败时，说明 Skill 版本落后于服务端；执行 `npx skills add ml8s/liki -y` 升级后重试。升级后仍失败按 `references/ops-FEEDBACK.md` 提交反馈。

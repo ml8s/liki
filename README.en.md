@@ -71,7 +71,7 @@ your time + birthplace → normalization → candidate set (each with reasons)
 ### Step 1: install the skill (one line)
 
 ```bash
-npx skills add https://liki.hk
+npx skills add ml8s/liki
 ```
 
 ### Step 2: just ask
@@ -84,7 +84,7 @@ npx skills add https://liki.hk
 | Date selection | `Which day next month is good for moving?` |
 | Feng shui | `How is my home's feng shui?` |
 
-For destiny readings, provide the birth date, exact time when possible, birth city, and gender. If data is incomplete, the Skill asks follow-up questions or enters time calibration. When prompted, update with `npx skills add https://liki.hk -y`.
+For destiny readings, provide the birth date, exact time when possible, birth city, and gender. If data is incomplete, the Skill asks follow-up questions or enters time calibration. When prompted, update with `npx skills add ml8s/liki -y`.
 
 ## Ask an LLM directly, or use Liki?
 
@@ -145,7 +145,7 @@ No. Birth data remains in the current conversation context. It is not written to
 
 ### How do I update?
 
-Run `npx skills add https://liki.hk -y` when prompted. The Skill fails closed instead of calling stale RPCs.
+Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead of calling stale RPCs.
 
 ## Repositories and deployment
 

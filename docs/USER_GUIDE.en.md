@@ -136,7 +136,7 @@ Conclusions are conditional interpretations from a traditional cultural perspect
 The Skill checks its version at startup. When prompted, run:
 
 ```bash
-npx skills add https://liki.hk -y
+npx skills add ml8s/liki -y
 ```
 
 ### How do I upgrade a self-hosted engine?
