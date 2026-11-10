@@ -270,12 +270,12 @@ func NewEngine() *Registry {
 	registry := New(options)
 	mustRegister(registry, Tool[TimeNowInput, TimeNowOutput]{
 		Name:        "time_now",
-		Description: "按 IANA 时区返回服务端当前标准时间（无 DST）。用于获取可信时间基准，避免模型使用幻觉时间。",
+		Description: "按 IANA 时区返回服务端当前标准时间（无 DST）。所有「现在/今天/当前年份」等运算必须以本返回值为时间基准，禁止使用模型自拟或猜测的时间；用户出生时间等事实输入不属于本工具职责。",
 		Handler:     TimeNow,
 	})
 	mustRegister(registry, Tool[HuangliDaysInput, HuangliDaysOutput]{
 		Name:        "huangli_days",
-		Description: "黄历查日。用户询问适合某事项的日期或某日吉凶时调用。返回连续日期的黄历事实；指定事项时返回该事项的适配结论与判定依据。",
+		Description: "黄历择日查日。用户询问某事项宜忌日期、某日吉凶或黄历宜忌事实时调用；需要日期范围与事项名称。返回连续日期的黄历事实，指定事项时附适配结论与判定依据。命理合参（八字/紫微本命、流年）不走本工具，改用对应排盘与查询工具。",
 		Handler:     HuangliDays,
 	})
 	resolveSchema, err := tianwenResolveFormsSchema(options)
@@ -300,22 +300,22 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
 		Name:        "bazhai_chart",
-		Description: "八宅排盘。使用上游已校准 subject 推导出生年与性别，排命卦 + 四吉四凶方 + 出生年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
+		Description: "八宅排盘：由已校准 subject 推导出生年与性别，排命卦、四吉四凶方与出生年紫白飞星。住宅风水评估、命卦方位吉凶类问题调用；后续门/主/灶方位配合改用 bazhai_layout。八宅不需要出生时辰，也不与八字四柱合参。",
 		Handler:     BazhaiChart,
 	})
 	mustRegister(registry, Tool[BazhaiLayoutInput, BazhaiLayoutOutput]{
 		Name:        "bazhai_layout",
-		Description: "八宅门主灶配合。命卦 + 门/主/灶卦 → 方向、游年九星、吉凶。确定性计算。",
+		Description: "八宅门主灶配合：输入命卦与门/主/灶卦，输出各自方向、游年九星与吉凶结论。已由 bazhai_chart 排出命卦、需评估大门/主卧/灶位方位配合时调用；仅覆盖八宅法，玄空飞星另用 xuankong 工具。",
 		Handler:     BazhaiLayout,
 	})
 	mustRegister(registry, Tool[XuankongChartInput, XuankongChart]{
 		Name:        "xuankong_chart",
-		Description: "玄空飞星。宅运起盘日期属于宅体事实（如建成、入住或改宅日期），不是命主出生时间；坐山与向山使用二十四山序号。",
+		Description: "玄空飞星起盘：按宅体事实日期（建成、入住或改宅）与二十四山坐向，排九宫飞星盘。评估阳宅固定风水格局时调用；流年飞星变化改用 xuankong_liunian。注意起盘日期不是命主出生时间。",
 		Handler:     XuankongChartCompute,
 	})
 	mustRegister(registry, Tool[XuankongLiunianInput, XuankongLiuNianSeries]{
 		Name:         "xuankong_liunian",
-		Description:  "玄空流年飞星。count=1（默认）返回单年；count>1 返回领域数组批量。",
+		Description:  "玄空流年飞星：在宅运盘基础上叠加指定年份的流年飞星，count=1（默认）返回单年，count>1 返回批量。评估阳宅某一年风水变化时调用；尚未起宅运盘的先调用 xuankong_chart。",
 		Handler:      XuankongLiunian,
 		OutputSchema: mustSeriesSchema[XuankongLiunianOutput](options, "liu_nian"),
 	})
@@ -336,7 +336,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{
 		Name:        "bazi_bond",
-		Description: "八字合盘原始事实。用户提供双方出生信息、询问关系配适度（合婚、合作、亲子等）时调用。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
+		Description: "八字合盘原始事实。用户提供双方出生信息、询问关系配适度（合婚、合作、亲子等）时调用。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。需要紫微宫位主星对照时改用 ziwei_bond，两者常配合使用。",
 		Handler:     BaziBond,
 	})
 	baziLiupanInput, err := baziLiupanFormsSchema(options)
@@ -376,7 +376,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiBondInput, ZiweiBondOutput]{
 		Name:        "ziwei_bond",
-		Description: "紫微合盘原始事实。用户询问两人关系并需要紫微侧证据（命宫、夫妻宫、子女宫主星对比）时调用。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
+		Description: "紫微合盘原始事实。用户询问两人关系并需要紫微侧证据（命宫、夫妻宫、子女宫主星对比）时调用；八字干支与十神视角改用 bazi_bond，两者常配合使用。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
 		Handler:     ZiweiBond,
 	})
 	qimenSchema, err := qimenChartFormsSchema(options)

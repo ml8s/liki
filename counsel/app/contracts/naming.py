@@ -13,7 +13,7 @@ from app.contracts.schema import ToolContract, unique_list
 from app.contracts.yongshen import YongShenChoice
 
 # ── naming_surname ──
-TOOL_NAMING_SURNAME_DESCRIPTION = "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。"
+TOOL_NAMING_SURNAME_DESCRIPTION = "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。仅处理姓氏；名字用字与五行核对由 naming_pick / naming_check 负责。"
 
 class NamingSurnameInput(BaseModel):
     """按发音匹配姓氏的输入。"""
@@ -78,7 +78,7 @@ TOOL_NAMING_SURNAME = ToolContract(
 
 
 # ── naming_pick ──
-TOOL_NAMING_PICK_DESCRIPTION = "按用/喜五行角色取字池：selected_yongshen 直接使用八字用神裁决返回；first_role 与 second_role 选择字位角色，second_role 省略表示单名。生成阶段不提供 ji 字池。"
+TOOL_NAMING_PICK_DESCRIPTION = "按用/喜五行角色取字池：selected_yongshen 直接使用八字用神裁决返回；first_role 与 second_role 选择字位角色，second_role 省略表示单名；生成阶段不提供 ji 字池。字池产出后组合候选名用 naming_compose，组合前查单字事实用 naming_character。"
 
 PickWuxing = Literal["木", "火", "土", "金", "水"]
 PickRole = Literal["yong", "xi"]
@@ -163,7 +163,7 @@ TOOL_NAMING_PICK = ToolContract(
 
 
 # ── naming_character ──
-TOOL_NAMING_CHAR_DESCRIPTION = "查询单个汉字的起名字库信息：字频、五行、笔画、部首、拼音、声调；未收录返回空。"
+TOOL_NAMING_CHAR_DESCRIPTION = "查询单个汉字的起名字库事实：字频、五行、笔画、部首、拼音、声调；未收录返回空。适用于挑字或核对单字属性时；从八字取字池、组合候选名、整名评估分别用 naming_pick / naming_compose / naming_check。"
 
 class NamingCharInput(BaseModel):
     """单字字库查询输入。"""
@@ -222,7 +222,7 @@ TOOL_NAMING_CHAR = ToolContract(
 
 
 # ── naming_compose ──
-TOOL_NAMING_COMPOSE_DESCRIPTION = "将取字池中的字组合为候选名：单名=first_chars 单字，双名=first_chars×second_chars 两字组合；按 first_chars 顺序生成，最多 max_names 个。"
+TOOL_NAMING_COMPOSE_DESCRIPTION = "将取字池中的字组合为候选名：单名=first_chars 单字，双名=first_chars×second_chars 两字组合；按 first_chars 顺序生成，最多 max_names 个。字池来自 naming_pick；组合后的候选名评估用 naming_check，单字事实查询用 naming_character。"
 
 class NamingComposeInput(BaseModel):
     """候选名组合输入。"""

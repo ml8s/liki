@@ -1132,7 +1132,7 @@ LiuyaoAskInput = LiuyaoAskInput
 
 TOOL_LIUYAO_ASK = ToolContract(
     name="liuyao_ask",
-    description="一次完成六爻起卦、排盘和结构化解读；casting=auto 时会新起一卦，同一事禁止自动重试或重复调用。后续追问应基于本次 Reading 解释；卦象事实按 schema 原样使用。",
+    description="一次完成六爻起卦、排盘和结构化解读，适用于以卦象断事的问询（吉凶、成败、得失）。casting=auto 时会新起一卦，同一事禁止自动重试或重复调用；后续追问基于本次 Reading 解释，卦象事实按 schema 原样使用。需要时空方位决策时改用 qimen_ask。",
     input=LiuyaoAskInput,
     output=LiuyaoAskOutput,
     annotations={"readOnlyHint": False, "idempotentHint": False},
@@ -1140,7 +1140,7 @@ TOOL_LIUYAO_ASK = ToolContract(
 
 TOOL_QIMEN_ASK = ToolContract(
     name="qimen_ask",
-    description="一次完成奇门起局、因子投影和结构化解读；同一事禁止重新排局，后续追问应基于本次 Reading 解释。",
+    description="一次完成奇门起局、因子投影和结构化解读，适用于需要时空方位信息的决策类问题（出行、谈判、寻物、择时方位等）。同一事禁止重新排局，后续追问基于本次 Reading 解释；起卦问事（得卦象而非方位盘）改用 liuyao_ask。",
     input=QimenAskInput,
     output=QimenAskOutput,
 )
