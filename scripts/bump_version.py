@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bump every Liki runtime/compatibility CalVer surface atomically."""
+"""Bump every Liki runtime and distribution CalVer surface atomically."""
 
 import json
 import sys
@@ -14,17 +14,16 @@ from version_projection import workbuddy_version  # noqa: E402  制品版本的�
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
 )
-PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))
+PROFILE_FILE = ROOT / "distribution/liki-expert/profile.json"
 # The remaining surfaces are projections of skills/liki/VERSION.txt.
 SKILL_FRONTMATTER = ROOT / "skills/liki/SKILL.md"
-EXPERT_PACKS = ROOT / "expert-packs"
-CONNECTOR_METAS = tuple(sorted((ROOT / "workbuddy").glob("*-connector/connector-meta.json")))
+CHANNEL_PACKS = ROOT / "distribution/workbuddy"
 
 
 def current_versions() -> list[str]:
     return [
         path.read_text(encoding="utf-8").strip()
-        for path in (*VERSION_FILES, *PROFILE_FILES)
+        for path in (*VERSION_FILES, PROFILE_FILE)
     ]
 
 
@@ -60,26 +59,11 @@ def replace_frontmatter_version(path: Path, version: str) -> None:
             return
 
 
-def set_expert_pack_versions(version: str) -> None:
-    for skill_path in sorted(EXPERT_PACKS.glob("*/SKILL.md")):
-        replace_frontmatter_version(skill_path, version)
-    for skill_path in sorted(EXPERT_PACKS.glob("*/skills/*/SKILL.md")):
-        replace_frontmatter_version(skill_path, version)
-    for plugin_path in sorted(EXPERT_PACKS.glob("*/.codebuddy-plugin/plugin.json")):
+def set_channel_pack_versions(version: str) -> None:
+    for plugin_path in sorted(CHANNEL_PACKS.glob("*/.codebuddy-plugin/plugin.json")):
         document = json.loads(plugin_path.read_text(encoding="utf-8"))
         document["version"] = version
         plugin_path.write_text(
-            json.dumps(document, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-
-
-def set_connector_meta_versions(version: str) -> None:
-    """连接器元信息的 `version` 同样是制品面：与技能/专家同源，不手写。"""
-    for meta_path in CONNECTOR_METAS:
-        document = json.loads(meta_path.read_text(encoding="utf-8"))
-        document["version"] = version
-        meta_path.write_text(
             json.dumps(document, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
@@ -103,20 +87,18 @@ def main() -> None:
     version = next_version()
     for path in VERSION_FILES:
         path.write_text(version + "\n", encoding="utf-8")
-    for path in PROFILE_FILES:
-        document = json.loads(path.read_text(encoding="utf-8"))
-        document.setdefault("metadata", {})["version"] = version
-        path.write_text(
-            json.dumps(document, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-    # 平台按 semver 解析制品版本：技能/专家/连接器统一写投影值。
+    profile = json.loads(PROFILE_FILE.read_text(encoding="utf-8"))
+    profile.setdefault("metadata", {})["version"] = version
+    PROFILE_FILE.write_text(
+        json.dumps(profile, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    # 平台按 semver 解析制品版本：技能/渠道专家统一写投影值。
     artifact_version = workbuddy_version(version)
     replace_frontmatter_version(SKILL_FRONTMATTER, artifact_version)
-    set_expert_pack_versions(artifact_version)
-    set_connector_meta_versions(artifact_version)
+    set_channel_pack_versions(artifact_version)
     set_pyproject(version)
-    print(f"✅ version → {version}（WorkBuddy 制品 {artifact_version}）")
+    print(f"✅ version → {version}（distribution artifact {artifact_version}）")
 
 
 if __name__ == "__main__":

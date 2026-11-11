@@ -49,14 +49,14 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 - 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。
 - 领域 `ENTRY.md` 只做域内路由、工具契约与硬边界；`app` 卡平铺为 `references/<域>-app-<目标>.md`（`natal-app-outcome.md`…）并承载流程、交互闸口与输出模板，方法论卡平铺为 `references/<域>-<体系>-<卡>.md`（`natal-bazi-*.md`、`divination-qimen-*.md`…）；一份信息只在一处定义（`tests/test_unified_skill_structure.py` 钉住路由可达与引用形态）。
-- **单一聚合专家**：`expert-packs/liki/` 与 `skills/liki/references/` 全量镜像（单包，不分域子包）；`agents/liki/agent.yaml` 与 `profiles/liki.json` 是唯一部署配置。领域路由由 `references/<域>-ENTRY.md` 承载，不需要子代理。
+- **单一聚合专家**：`skills/liki/` 是唯一内容源；`distribution/workbuddy/liki-pro/` 只保存 WorkBuddy 渠道资产。`distribution/liki-expert/deployment.yaml` 与 `distribution/liki-expert/profile.json` 是唯一部署配置。领域路由由 `references/<域>-ENTRY.md` 承载，不需要子代理。
 - **卡写作约定（`scripts/check_docs.py` + `tests/test_unified_skill_structure.py` 钉住）**：
   方法论卡（`references/*-app-*.md`、`references/<域>-<体系>-*.md`）不带 frontmatter——卡的身份由平铺命名（域 / app / 体系段）与 `<域>-ENTRY.md` 路由表表达，元数据写在卡内没有消费方；
   `## 输出模板` 必须给模板体（代码块 / 列表 / 表），示例放 `### 示例` 之下；
   一条规则只在一处定义——域级公共口径进该域 `ENTRY.md` / `TOOLS.md`，跨体系合参进 `app/`，被专家包自包含逼出的同源双份（如 natal / naming 的用神优先序）用测试钉成同字；
   卡内只引工具字段名与工具名，不写实现内部数据文件名（`data/*.json`）；
   卡间互引统一平铺全路径 `references/<平铺名>.md`——裸名 / 旧嵌套 / 跨域 / 根级共享卡 / `scripts/` 依赖在生成器 fail-closed。
-- 专家身份的唯一手写源是包根 `expert-packs/liki/SKILL.md`（元数据 + 角色正文，内部部署与市场包共用；`plugin.json` 的 `agents`/`agentName` 指向它本身）；域 `skills/liki/SKILL.md`（含方法论卡索引）与 `plugin.json` 元数据由 `scripts/sync_expert_packs.py` 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本。
+- 专家身份的唯一手写源是 `skills/liki/SKILL.md`；WorkBuddy 包内入口由唯一身份、`distribution/workbuddy/liki-pro/channel.json` 和付费 overlay 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本。
 - `engine-mcp` 只做确定性排盘/历法/风水计算；`counsel-mcp` 只做因子、断语、起名和问卦判断。
 - 公开 `/engine` 与 `/counsel` 前缀由网关负责；两个服务内部只实现 `/mcp`。
 - 不恢复旧 Python CLI 或 JSON-RPC 发现/调用路径；历史评测资产已归档，迁移前不得进入 gate。
@@ -71,7 +71,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 - Python lint 使用 Ruff 0.16.0：`make lint-python`。
 - Go 漏洞扫描使用 `govulncheck`；counsel 哈希锁使用 `pip-audit`。两者在 CI 分别执行。
-- 每次升版本必须同步更新：`VERSION.txt`（make 统一 bump）+ `CHANGELOG.md`；需要生成分发包时运行 `make build-archive`
+- 每次升版本必须同步更新：`VERSION.txt`、`distribution/liki-expert/profile.json` 和 `CHANGELOG.md`（make 统一 bump）；需要生成分发包时运行 `make build-archive` 或 `make distribution-package`
 
 ## 有意保留的重复（不要合并）
 
@@ -83,9 +83,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 | 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
 | 版本面 `skills/liki/VERSION.txt` | 唯一手写源；engine 与 counsel 在构建时注入，不再保留副本。 |
 | 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |
-| 镜像卡之间逐卡重复的边界 / 参数句（如 `divination-qimen-*` 专占卡的公共排盘步、`naming-app-*` 卡的公共 `[必读]` 声明） | 每张卡随专家包独立分发，必须在包内自包含；合并会引入跨包引用或包内死链。 |
-| `skills/liki/references/natal-bazi-calibration.md` 与 `natal-ziwei-calibration.md` 的考时六步 | 两张卡会被 `sync_expert_packs.py` 分别镜像进单侧专家包，包内只有一侧，卡片必须自包含；差异仅“公历 → 农历”与年号界两处，合并即产生跨侧死链。 |
-| 包根 `SKILL.md` 与 `skills/*/SKILL.md` 正文同源 | 包根 `SKILL.md` 是唯一手写身份源，域 `SKILL.md` 由生成器按 ADK skill 格式渲染（另加自动方法论卡索引）；同源保证市场入口、ADK skill 与部署 instruction 三面不漂移（`make check` 漂移门）。 |
+| `skills/liki/SKILL.md` 与渠道包内 `skills/liki/SKILL.md` 正文同源 | 根 `SKILL.md` 是唯一手写身份源，渠道包内入口由构建器按平台格式渲染（WorkBuddy 另加方法论卡索引）；同源保证市场入口、ADK skill 与部署 instruction 不漂移（`make check` 漂移门）。 |
 | 单文件目录 `tools/` | 目录里只有生成物 `mcp-tool-catalog.json`：保持 `scripts/check_mcp_schema.py --emit` 生成、`make check` 漂移检测，而不是合并目录或手改。 |
 
 ## 设计原则（为什么这样设计）
@@ -99,7 +97,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 - [docs/SYSTEM.md](./docs/SYSTEM.md)：系统全况与本仓对齐——四仓分工、权威源、专家定义结构、MCP 连接器模型、生成/校验链、变更传播。
 - [docs/MCP_CONTRACTS.md](./docs/MCP_CONTRACTS.md)：MCP 契约模型——typed wire DTO → JSON Schema → 运行时校验，engine / counsel 两侧模式。
-- [workbuddy/README.md](./workbuddy/README.md)：WorkBuddy 四类上架物与本仓目录的对应关系、连接器提交包结构与提审流程。
+- [distribution/workbuddy/README.md](./distribution/workbuddy/README.md)：WorkBuddy 技能 / 专家包结构、分发产物与校验流程。
 
 ## 发布版本模型
 

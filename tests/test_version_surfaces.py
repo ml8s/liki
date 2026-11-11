@@ -41,7 +41,7 @@ def test_counsel_contracts_use_distributed_version():
 
 def test_deployment_surfaces_use_distributed_version():
     version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
-    for path in sorted((ROOT / "profiles").glob("*.json")):
+    for path in sorted((ROOT / "distribution").glob("*/profile.json")):
         document = json.loads(path.read_text(encoding="utf-8"))
         assert document["metadata"]["version"] == version, path
 

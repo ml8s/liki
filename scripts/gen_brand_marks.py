@@ -3,7 +3,7 @@
 
 两族图形同一套母题：深色圆角底 + 金色田字格 + 一个汉字，只差尺寸、用字与十字线：
 
-    专家头像 512×512  深色圆角底 + 金字   `expert-packs/liki/avatars/expert.svg`    命
+    专家头像 512×512  深色圆角底 + 金字   `distribution/workbuddy/liki-pro/avatars/expert.svg`    命
     连接器图标 64×64   深色圆角底 + 金字   `workbuddy/liki-*-connector/icon.svg`    盘 / 断
 
 深色圆角牌自带底色，亮暗主题下都立得住（平台图标规范只是「建议」透明底，我们选了
@@ -66,7 +66,7 @@ ICON = Preset(canvas=64, backdrop=BACKDROP, backdrop_rx=14, ink=INK, frame_size=
 
 # 唯一聚合专家头像用字。
 AVATARS: tuple[tuple[str, str], ...] = (
-    ("expert-packs/liki/avatars/expert.svg", "命"),
+    ("distribution/workbuddy/liki-pro/avatars/expert.svg", "命"),
 )
 # 连接器 → 图标用字（见 workbuddy/README.md「连接器」）。
 ICONS: tuple[tuple[str, str], ...] = (

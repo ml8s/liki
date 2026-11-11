@@ -14,9 +14,9 @@ if ! command -v inkscape >/dev/null 2>&1; then
     exit 1
 fi
 
-svg="$ROOT/expert-packs/liki/avatars/expert.svg"
+svg="$ROOT/distribution/workbuddy/liki-pro/avatars/expert.svg"
 if [ ! -f "$svg" ]; then
-    echo "[workbuddy-avatars] error: expert-packs/liki/avatars/expert.svg not found" >&2
+    echo "[workbuddy-avatars] error: distribution/workbuddy/liki-pro/avatars/expert.svg not found" >&2
     exit 1
 fi
 if grep -qE '<text|font-family|dominant-baseline' "$svg"; then

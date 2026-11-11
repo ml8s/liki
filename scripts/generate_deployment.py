@@ -1,29 +1,30 @@
 """AgentDeployment 工件生成器。
 
-读专家身份文件 + agents/ 发布结构 + profiles/ 定义，组装 liki-agent-runtime 直接
-消费的 deployment 工件（deployment.json + instruction + output schema）。
+读唯一专家身份 + `distribution/liki-expert/` 部署配置，组装 `liki-agent-runtime`
+直接消费的 deployment 工件（deployment.json + instruction + output schema）。
 
-身份单一源：域专家 = `expert-packs/liki-<name>/SKILL.md`（包内 skill 入口与插件
-agent 入口都由它生成）。instruction 就是身份正文本身，不做拓扑增补：每个专家是
-一个单 chat agent，直调本域工具；单侧/双侧执行路由由域卡（natal-ENTRY）承载，
-域边界由工具白名单（profile + agent.yaml 的显式排除表）强制。
+身份单一源：`skills/liki/SKILL.md`。内部部署只追加
+`distribution/liki-expert/host-adapter.md` 中的宿主协议；公开渠道不会得到该协议。
+单 chat agent 直调本域工具；单侧/双侧执行路由由域卡（natal-ENTRY）承载，域边界由
+工具白名单（profile + deployment.yaml）强制。
 
 用法:
-    python3 scripts/generate_deployment.py --profile natal --out dist/agents
+    python3 scripts/generate_deployment.py --profile liki-expert --out dist
 
 产物:
-    dist/agents/<profile>/deployment.json
-    dist/agents/<profile>/agents/<name>/instruction.md
-    dist/agents/<profile>/agents/<name>/output-schema.json   (若定义)
+    dist/<profile>/deployment.json
+    dist/<profile>/agents/<name>/instruction.md
+    dist/<profile>/agents/<name>/output-schema.json   (若定义)
 
 方法论去重: instruction 只保留骨架（角色/能力/边界/路由）。方法论卡
-的唯一权威源是 skill（liki / expert-packs 域 skill 的 references/），
+的唯一权威源是 `skills/liki/references/`，
 由 ADK skilltoolset 按需 load_skill / load_skill_resource 渐进加载，
 不再烘焙进工件（避免双源与 ~245KB/轮 的 prompt 膨胀）。
 """
 
 import argparse
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -31,19 +32,28 @@ from pathlib import Path
 import yaml
 
 _ROOT = Path(__file__).resolve().parent.parent
+DISTRIBUTION_DIR = _ROOT / "distribution"
 AGENTS_DIR = _ROOT / "agents"
-PROFILES_DIR = _ROOT / "profiles"
+EXPERT_PROFILE = "liki-expert"
+EXPERT_CONFIG_DIR = DISTRIBUTION_DIR / EXPERT_PROFILE
 TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
+CANONICAL_SKILL = _ROOT / "skills" / "liki" / "SKILL.md"
+FREE_CHANNEL_PATTERN = re.compile(
+    r"<!-- channel:free -->.*?<!-- /channel:free -->\n?",
+    re.S,
+)
 
 
 def identity_path(name: str) -> Path:
-    """身份文件：聚合专家＝agents/<name>/<name>.md。"""
+    """身份文件：聚合专家＝唯一根 Skill；子代理保留扩展位。"""
+    if name == "liki":
+        return CANONICAL_SKILL
     return AGENTS_DIR / name / f"{name}.md"
 
 
 def load_identity(name: str) -> tuple[dict, str]:
-    """身份文件单一源 → (frontmatter dict, 部署 instruction 正文)。"""
+    """唯一身份源 → (frontmatter dict, 部署 instruction 正文)。"""
     path = identity_path(name)
     if not path.is_file():
         sys.exit(f"identity source not found: {name} ({path})")
@@ -57,11 +67,22 @@ def load_identity(name: str) -> tuple[dict, str]:
     body = text[end + len("\n---\n"):]
     if body.startswith("\n"):
         body = body[1:]
+    if name == "liki":
+        body = FREE_CHANNEL_PATTERN.sub("", body)
+        host_adapter = EXPERT_CONFIG_DIR / "host-adapter.md"
+        if not host_adapter.is_file():
+            sys.exit(f"internal host adapter not found: {host_adapter.relative_to(_ROOT)}")
+        body += "\n" + host_adapter.read_text(encoding="utf-8").rstrip() + "\n"
+        description_en = frontmatter.get("metadata", {}).get("description_en")
+        if isinstance(description_en, str) and description_en.strip():
+            frontmatter.setdefault("description_en", description_en)
     return frontmatter, body.rstrip() + "\n"
 
 
 def load_profile(name: str) -> dict:
-    path = PROFILES_DIR / f"{name}.json"
+    if name != EXPERT_PROFILE:
+        sys.exit(f"unsupported deployment profile: {name} (expected {EXPERT_PROFILE})")
+    path = EXPERT_CONFIG_DIR / "profile.json"
     if not path.exists():
         sys.exit(f"profile not found: {name} ({path})")
     with open(path, encoding="utf-8") as fh:
@@ -69,7 +90,7 @@ def load_profile(name: str) -> dict:
 
 
 def load_agent_yaml(name: str) -> dict:
-    path = AGENTS_DIR / name / "agent.yaml"
+    path = EXPERT_CONFIG_DIR / "deployment.yaml"
     if not path.exists():
         sys.exit(f"agent definition not found: {name} ({path})")
     with open(path, encoding="utf-8") as fh:
@@ -179,7 +200,7 @@ def build_agent(
     definition = definitions[name]
     if definition.get("name") != name:
         sys.exit(f"agent definition name mismatch: profile={name} yaml={definition.get('name')}")
-    agent_dir = AGENTS_DIR / name
+    config_dir = EXPERT_CONFIG_DIR
 
     identity, instruction_text = identities[name]
     sub_agents = definition.get("sub_agents", [])
@@ -209,7 +230,7 @@ def build_agent(
             f"agent {name} tools.allow.skilltoolset must be exactly {SKILL_TOOLSET_TOOLS}"
         )
 
-    output_schema = agent_dir / "output-schema.json"
+    output_schema = config_dir / "output-schema.json"
     if output_schema.exists():
         schema_path = out_dir / "agents" / name / "output-schema.json"
         shutil.copyfile(output_schema, schema_path)
@@ -222,8 +243,8 @@ def build_agent(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", required=True, help="profile 名（profiles/<name>.json）")
-    parser.add_argument("--out", default="dist/agents", help="输出目录")
+    parser.add_argument("--profile", required=True, help=f"deployment 名（{EXPERT_PROFILE}）")
+    parser.add_argument("--out", default="dist", help="输出目录")
     parser.add_argument(
         "--version",
         default=runtime_version(),

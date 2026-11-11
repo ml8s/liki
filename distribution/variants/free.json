@@ -1,0 +1,17 @@
+{
+  "sku": "liki-free",
+  "top": "liki-free",
+  "mcpServers": {
+    "engine": {
+      "type": "streamableHttp",
+      "url": "https://mcp.tokflux.com/engine/mcp"
+    },
+    "counsel": {
+      "type": "streamableHttp",
+      "url": "https://mcp.tokflux.com/counsel/mcp"
+    }
+  },
+  "payment": {
+    "enabled": false
+  }
+}

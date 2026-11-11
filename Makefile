@@ -27,26 +27,22 @@ export GOTOOLCHAIN ?= go1.26.10
         test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp verify-city-data \
         test-python-coverage \
         eval-mingli160 golden gate hooks version build-archive build-deployment \
-        workbuddy-package \
+        workbuddy-package skillhub-package distribution-package \
         workbuddy-avatars \
         brand-marks \
-        sync-expert-packs sync-domain-language check-domain-language check-actions check-content \
-        build-web-skill-bundle \
+        build-channel-package sync-domain-language check-domain-language check-actions check-content \
         runtime-validate image image-engine image-counsel image-liki-mcp image-assembly \
         smoke smoke-engine smoke-counsel smoke-liki-mcp
 
 build-skill build-archive: ## Build the installable skill archive
 	scripts/build-archive.sh
 
-build-web-skill-bundle: build-archive ## Build the liki-web skill bundle (local artifact)
-	scripts/build-web-skill-bundle.sh
-
-DEPLOYMENT_PROFILES ?= liki
+DEPLOYMENT_PROFILES ?= liki-expert
 
 build-deployment: ## Generate AgentDeployment artifacts for all profiles
-	@rm -rf dist/agents && mkdir -p dist/agents
+	@rm -rf dist/liki-expert && mkdir -p dist
 	@set -eu; for p in $(DEPLOYMENT_PROFILES); do \
-		python3 scripts/generate_deployment.py --profile "$$p" --out dist/agents; \
+		python3 scripts/generate_deployment.py --profile "$$p" --out dist; \
 	done
 
 AGENT_RUNTIME_IMAGE ?=
@@ -60,11 +56,11 @@ runtime-validate: build-deployment ## Validate deployment artifacts (AGENT_RUNTI
 	fi; \
 	if [ -n "$(AGENT_RUNTIME_VALIDATOR)" ]; then \
 		for p in $(DEPLOYMENT_PROFILES); do \
-			$(AGENT_RUNTIME_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
+			$(AGENT_RUNTIME_VALIDATOR) validate -deployment "dist/$$p/deployment.json"; \
 		done; \
 	else \
 		for p in $(DEPLOYMENT_PROFILES); do \
-			docker run --rm -v "$$PWD/dist/agents:/deployment:ro" \
+			docker run --rm -v "$$PWD/dist:/deployment:ro" \
 				-e AGENT_RUNTIME_DEPLOYMENT_FILE=/deployment/$$p/deployment.json \
 				--entrypoint /agent-runtime $(AGENT_RUNTIME_IMAGE) \
 				validate -deployment /deployment/$$p/deployment.json; \
@@ -76,8 +72,15 @@ build-engine-mcp: ## Build the engine MCP server
 
 build: build-skill build-engine-mcp ## Build local artifacts (skill archive + engine binary).
 
-workbuddy-package: ## 打包全部 WorkBuddy 提交包（连接器 / 技能 / 专家）到 dist/workbuddy/ 并校验
-	scripts/package-workbuddy.sh
+workbuddy-package: ## Build free and pro WorkBuddy packages
+	python3 scripts/build_channel_package.py --channel workbuddy --variant free
+	python3 scripts/build_channel_package.py --channel workbuddy --variant pro
+
+skillhub-package: ## Build free and pro SkillHub packages
+	python3 scripts/build_channel_package.py --channel skillhub --variant free
+	python3 scripts/build_channel_package.py --channel skillhub --variant pro
+
+distribution-package: workbuddy-package skillhub-package ## Build all channel packages
 
 workbuddy-avatars: ## 从包内 avatars/expert.svg 重新栅格化专家头像（512×512 PNG）
 	scripts/build-workbuddy-avatars.sh
@@ -106,7 +109,7 @@ image-liki-mcp: ## Build the LIKI product MCP gateway image
 
 image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE=<local runtime ref> required)
 	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
-	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/liki assembly/dist/agents/liki
+	@rm -rf assembly/dist && mkdir -p assembly/dist/deployment && cp -r "dist/$(DEPLOYMENT_PROFILES)" "assembly/dist/deployment/$(DEPLOYMENT_PROFILES)"
 	@cp -r skills assembly/dist/skills
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-expert:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
@@ -163,9 +166,8 @@ check: lint-md lint-python fmt-check go-version-check runtime-version-check chec
 	bash scripts/check-exec-bits.sh
 
 
-CONTENT_PATHS := skills/liki expert-packs workbuddy agents tools/mcp-tool-catalog.json \
-	scripts/sync_expert_packs.py scripts/check_expert_docs.py \
-	scripts/check_workbuddy_zips.py
+CONTENT_PATHS := skills/liki distribution tools/mcp-tool-catalog.json \
+	scripts/build_channel_package.py scripts/check_expert_docs.py
 CONTENT_FILES := $(shell find $(CONTENT_PATHS) -type f 2>/dev/null | LC_ALL=C sort)
 CONTENT_FINGERPRINT := $(shell printf '%s\n' $(CONTENT_FILES) | xargs sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1)
 CONTENT_STAMP := .cache/content-check.$(CONTENT_FINGERPRINT)
@@ -174,15 +176,16 @@ $(CONTENT_STAMP):
 	@mkdir -p $(@D)
 	@echo "[check-content] content fingerprint $(CONTENT_FINGERPRINT); running skill and package checks"
 	@python3 scripts/check_expert_docs.py
-	python3 scripts/sync_expert_packs.py --check
-	python3 scripts/check_workbuddy_zips.py
+	python3 scripts/build_channel_package.py --channel workbuddy --variant free --check
+	python3 scripts/build_channel_package.py --channel workbuddy --variant pro --check
+	python3 scripts/build_channel_package.py --channel skillhub --variant free --check
+	python3 scripts/build_channel_package.py --channel skillhub --variant pro --check
 	@touch $@
 
 check-content: $(CONTENT_STAMP) ## Run skill and WorkBuddy checks only when related content changes.
 	@echo "[check-content] content fingerprint unchanged; skipped"
 
-sync-expert-packs: ## 从根 skill 生成 expert-packs 方法论卡（唯一生成入口）
-	python3 scripts/sync_expert_packs.py
+build-channel-package: distribution-package ## Build all channel-specific distribution packages
 
 sync-domain-language: ## 从 tools/domain-language.json 生成 docs/DOMAIN_LANGUAGE.md
 	python3 scripts/sync_domain_language.py

@@ -6,7 +6,7 @@ import pytest
 from _helpers import ROOT
 
 SOURCES = (
-    ROOT / "expert-packs/liki/SKILL.md",
+    ROOT / "skills/liki/SKILL.md",
     ROOT / "skills/liki/references/natal-ENTRY.md",
     ROOT / "skills/liki/references/natal-app-calibration.md",
     ROOT / "skills/liki/references/natal-bazi-ENTRY.md",
@@ -37,8 +37,8 @@ def test_natal_prompts_do_not_name_methods_or_wire_fields(path: Path):
 
 
 def test_root_identity_describes_capability_based_routing() -> None:
-    text = (ROOT / "expert-packs/liki/SKILL.md").read_text(encoding="utf-8")
-    assert "排盘和断语来自确定性工具" in text
+    text = (ROOT / "skills/liki/SKILL.md").read_text(encoding="utf-8")
+    assert "排盘和断语来自确定性引擎" in text
 
 
 def test_calibration_prompt_keeps_semantic_impact_mapping() -> None:

@@ -88,14 +88,13 @@ make gate
 ## Route boundary
 
 The skill and WorkBuddy checks below are run by `check-content`, which `make check`
-invokes only when the content fingerprint under `skills/liki`, `expert-packs`,
+invokes only when the content fingerprint under `skills/liki`, `distribution/workbuddy`,
 `workbuddy`, `agents`, or the packaging scripts changes:
 
 | Script | Contract |
 | --- | --- |
 | `scripts/check_expert_docs.py` | Expert-pack methodology cards against the root skill |
-| `scripts/sync_expert_packs.py` | Expert methodology cards are in sync with the root skill |
-| `scripts/check_workbuddy_zips.py` | WorkBuddy submission zips in `dist/workbuddy/`: byte-parity with sources, top-level dir, expert-pack layout |
+| `scripts/build_channel_package.py` | Expert methodology cards are in sync with the root skill |
 
 The public paths are `/engine/mcp` and `/counsel/mcp`. Caddy strips `/engine` or `/counsel`; the services themselves see `/mcp`. Tests must not document or assert service-level public prefixes.
 

@@ -96,6 +96,17 @@ npx skills add ml8s/liki
 | 输出 | 纯文本，下游难以复用 | 结构化 JSON + SHA-256 摘要防篡改，可接入你的产品 |
 | 验证方式 | 无法验证 | 开源，全链路可审计 |
 
+## 发行版本
+
+Liki 使用同一套方法论构建两个分发变体：
+
+| 变体 | MCP 接入 | 支付 |
+| --- | --- | --- |
+| `liki-free` | 直连 `engine-mcp` 与 `counsel-mcp` | 无 |
+| `liki-pro` | 通过 `liki-mcp` 付费网关 | 支持 SkillPay / 402 支付流程 |
+
+免费版本仓库通过 `npx skills add ml8s/liki` 安装。付费包按渠道发布到 SkillHub / WorkBuddy。
+
 ## 信任与边界
 
 ### 可靠性的三根支柱
@@ -137,7 +148,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 
 ### 需要联网吗？
 
-需要。Skill 通过 liki.hk 托管的 `engine-mcp`（排盘）与 `counsel-mcp`（断语）两个 MCP 端点提供服务——安装即用，无需任何配置。
+需要。Skill 通过托管的 `engine-mcp`（排盘）与 `counsel-mcp`（断语）两个 MCP 端点提供服务——安装即用，无需任何配置。
 
 ### 出生数据会被存储吗？
 

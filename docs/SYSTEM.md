@@ -15,7 +15,7 @@
                          └─→ counsel-mcp
 ```
 
-Liki 只有一个生产专家：`liki`。`natal`、`divination`、`naming`、`fengshui` 是专家内部的领域路由和方法论组织，不是独立 Agent 或产品域。
+Liki 只有一个生产专家身份：`liki`；其 Expert assembly 产物是 `liki-expert`。`natal`、`divination`、`naming`、`fengshui` 是专家内部的领域路由和方法论组织，不是独立 Agent 或产品域。
 
 | 仓 | 角色 | 产物 |
 |---|---|---|
@@ -26,49 +26,54 @@ Liki 只有一个生产专家：`liki`。`natal`、`divination`、`naming`、`fe
 
 ## 本仓制品
 
-1. **专家定义**：`agents/liki/liki.md` 是部署身份；`agents/liki/agent.yaml` 是部署配置；`profiles/liki.json` 是唯一发布 profile。
-2. **WorkBuddy 身份**：`expert-packs/liki/SKILL.md` 是 WorkBuddy 专家身份唯一手写源；`skills/liki/references/` 是方法论卡唯一源。
+1. **专家身份**：`skills/liki/SKILL.md` 是唯一身份和公共 instruction 源；`distribution/liki-expert/deployment.yaml` 是部署配置；`distribution/liki-expert/host-adapter.md` 只追加内部宿主协议；`distribution/liki-expert/profile.json` 是唯一发布 profile。
+2. **WorkBuddy 渠道配置**：`distribution/workbuddy/liki-pro/channel.json` 只承载平台投影字段；`distribution/workbuddy/liki-pro/overlays/payment.md` 只追加付费行为；`skills/liki/references/` 是方法论卡唯一源。
 3. **MCP 服务**：`engine/` 与 `counsel/` 分别构建 `liki-engine` 和 `liki-counsel`。
-4. **装配镜像**：`scripts/generate_deployment.py` 生成 `deployment.json`，装配镜像只包含 `deployment/liki/deployment.json`。
-5. **WorkBuddy 交付物**：两个连接器、一个根技能、一个专家包；见 `workbuddy/README.md`。
+4. **装配镜像**：`scripts/generate_deployment.py` 生成 `deployment.json` 和 instruction，装配镜像包含 deployment 与 `/skills`。
+5. **分发产物**：`liki-free` / `liki-pro`；WorkBuddy 和 SkillHub 使用同一套方法论生成渠道包。
 
 ## 权威源与生成
 
 | 事实 | 唯一源 |
 |---|---|
 | 方法论与路由卡 | `skills/liki/references/` |
-| 生产 agent 身份 | `agents/liki/liki.md` |
-| WorkBuddy 专家身份 | `expert-packs/liki/SKILL.md` |
-| 部署 profile | `profiles/liki.json` |
+| 专家身份与公共 instruction | `skills/liki/SKILL.md` |
+| WorkBuddy 渠道投影字段 | `distribution/workbuddy/liki-pro/channel.json` |
+| 部署 profile | `distribution/liki-expert/profile.json` |
+| 分发变体 | `distribution/variants/free.json`, `distribution/variants/pro.json` |
 
-`make sync-expert-packs` 把根技能方法论卡镜像到 WorkBuddy 包，并从 WorkBuddy 身份源投影包内入口和 plugin 元数据。`make check` 对漂移 fail-closed。
+`make build-channel-package` 不再生成第二份方法论源；它在构建 WorkBuddy 包时从唯一身份、唯一方法论卡、渠道配置和付费 overlay 组装包内容。`make check` 对漂移 fail-closed。
 
 ## 生成链
 
 ```text
-skills/liki/references/ ─────────┐
-expert-packs/liki/SKILL.md ──────┼→ sync_expert_packs → expert-packs/liki
-agents/liki/liki.md ─────────────┤
-agents/liki/agent.yaml ──────────┼→ generate_deployment → deployment.json
-profiles/liki.json ──────────────┘         ↓
+skills/liki/SKILL.md ────────────┐
+skills/liki/references/ ─────────┤
+distribution/workbuddy/liki-pro/channel.json ──┼→ build_channel_package → dist/workbuddy/liki-pro.zip
+distribution/workbuddy/liki-pro/overlays/ ─────┤
+skills/liki/references/ ───────────────────────┘
+
+skills/liki/SKILL.md ────────────┐
+distribution/liki-expert/host-adapter.md ─────┤
+distribution/liki-expert/deployment.yaml ──────────┼→ generate_deployment → deployment.json
+distribution/liki-expert/profile.json ──────────────┘         ↓
 liki-agent-runtime → liki-expert
 ```
 
-装配镜像只包含单专家 profile：
+装配镜像包含单专家 profile 和公共 skill 树：
 
 ```text
-/deployment/liki/deployment.json
+/deployment/liki-expert/deployment.json
+/skills/liki/
 ```
-
-运行时进程加载该 profile。一个产品、一个专家、一个部署单元。
 
 ## 变更传播
 
 | 变更 | 后续 |
 |---|---|
-| 根方法论卡 | `make sync-expert-packs` 更新 WorkBuddy 包；重建装配镜像 |
-| 专家身份 / 工具白名单 | 重新生成 deployment；重建并重发 `liki-expert` |
-| engine / counsel 工具契约 | 对齐 `agents/liki/agent.yaml`；重建并重发 |
+| 根方法论卡 / 唯一身份 | `make distribution-package` 构建渠道包；重建装配镜像 |
+| 工具白名单 / 内部宿主协议 | 重新生成 deployment；重建并重发 `liki-expert` |
+| engine / counsel 工具契约 | 对齐 `distribution/liki-expert/deployment.yaml`；重建并重发 |
 | deployment contract | 先升级 runtime 校验，再更新生成器并重新 validate |
 
 ## CI 与发布

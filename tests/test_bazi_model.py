@@ -160,7 +160,7 @@ def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
 def test_yong_shen_guidance_requires_effective_support_not_team_labels() -> None:
     text = (
         ROOT
-        / "expert-packs/liki/skills/liki/references/natal-bazi-yongshen.md"
+        / "skills/liki/references/natal-bazi-yongshen.md"
     ).read_text(encoding="utf-8")
     assert "数量不等于有效力量" in text
     assert "决策表裁决" in text  # card rewritten: wuxing_count scoring removed

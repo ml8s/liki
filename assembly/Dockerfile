@@ -17,7 +17,7 @@ ARG BUILD_TIME=unknown
 
 # 组合工件由 liki CI 在构建前生成（make build-deployment）；运行时进程加载
 # 单聚合 profile（一 app 一服务，ADK 生产实践）。
-COPY dist/agents/ ${DEPLOYMENT_DIR}/
+COPY dist/deployment/ ${DEPLOYMENT_DIR}/
 
 # Skill 文件（阶段2 skilltoolset source rootFS）：
 COPY dist/skills/ /skills/

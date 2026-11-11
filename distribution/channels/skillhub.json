@@ -1,0 +1,15 @@
+{
+  "format": "skill-zip",
+  "packages": {
+    "free": {
+      "variant": "free",
+      "artifact": "liki-free.zip",
+      "top": "liki-free"
+    },
+    "pro": {
+      "variant": "pro",
+      "artifact": "liki-pro.zip",
+      "top": "liki-pro"
+    }
+  }
+}

@@ -23,9 +23,9 @@ def test_naming_tools_use_domain_prefix():
 
 
 def test_only_production_expert_profiles_are_released():
-    profiles = [path.stem for path in (ROOT / "profiles").glob("*.json")]
-    assert profiles == ["liki"]
-    assert not (ROOT / "agents/single_expert").exists()
+    profiles = [json.loads(path.read_text())["metadata"]["name"] for path in (ROOT / "distribution").glob("*/profile.json")]
+    assert profiles == ["liki-expert"]
+    assert not (ROOT / "distribution/single_expert").exists()
 
 
 def test_deployment_generator_emits_contract_version():
@@ -34,13 +34,13 @@ def test_deployment_generator_emits_contract_version():
 
     # TemporaryDirectory：mkdtemp 不清理，历史上在 /tmp 泄漏过成百个目录。
     with tempfile.TemporaryDirectory(prefix="liki-deployment-") as tmp:
-        output = Path(tmp) / "liki"
+        output = Path(tmp) / "liki-expert"
         subprocess.run(
             [
                 "python3",
                 str(ROOT / "scripts/generate_deployment.py"),
                 "--profile",
-                "liki",
+                "liki-expert",
                 "--out",
                 str(output.parent),
             ],

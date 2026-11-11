@@ -14,11 +14,11 @@ import yaml
 from _helpers import ROOT, SKILL_ROOT
 
 sys.path.insert(0, str(ROOT / "scripts"))
-import sync_expert_packs as gen  # noqa: E402
+import build_channel_package as gen  # noqa: E402
 
 DOMAINS = ("natal", "divination", "fengshui", "naming")
 # 顶层领域 = 专家包（1:1）：由生成器 MAPPINGS 派生，杜绝第二份包名清单。
-EXPERT_PACKS = tuple(pack for _domain, pack in gen.MAPPINGS)
+EXPERT_PACKS = gen.EXPERT_PACKS
 
 
 def test_liki_root_has_one_entry_and_domain_routing_entries():
@@ -92,8 +92,9 @@ def test_natal_layers_are_orthogonal():
     assert "八字侧" in root_entry and "紫微侧" in root_entry
     assert "编排" in root_entry
     assert "专家" not in root_entry
-    # 跨层索引禁止：根入口不得出现侧层文件名
-    assert "natal-bazi-" not in root_entry and "natal-ziwei-" not in root_entry
+    # 明确单侧请求由本命域入口继续路由到侧层入口。
+    assert "references/natal-bazi-ENTRY.md" in root_entry
+    assert "references/natal-ziwei-ENTRY.md" in root_entry
     for side, other in (("bazi", "ziwei"), ("ziwei", "bazi")):
         entry = (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
         assert "## 任务路由" in entry, side
@@ -190,10 +191,10 @@ def test_natal_cards_reference_packaged_expert_methodology():
             assert (SKILL_ROOT / reference).is_file(), (card, reference)
 
 
-def test_expert_packs_follow_workbuddy_standard():
+def test_workbuddy_pro_static_channel_assets_exist():
     for pack in EXPERT_PACKS:
-        root = ROOT / "expert-packs" / pack
-        assert (root / "SKILL.md").is_file(), pack
+        root = ROOT / "distribution" / "workbuddy" / pack
+        assert (root / "channel.json").is_file(), pack
         assert (root / ".codebuddy-plugin" / "plugin.json").is_file(), pack
         assert (root / "README.md").is_file(), pack
         assert (root / "avatars").is_dir(), pack
@@ -205,13 +206,8 @@ def test_expert_packs_follow_workbuddy_standard():
                   "keywords", "skills"]:
             assert f in d, (pack, f)
         assert d["expertType"] == "agent", pack
-        agent_docs = sorted((root / "agents").glob("*.md"))
-        assert agent_docs == [root / "agents" / f"{pack}.md"], f"{pack}: agents/ 只有身份文件投影的那一份"
-        assert d["agentName"] == d["name"], pack
+        assert d["agentName"] == d["name"] == d["plugin"] == pack, pack
         assert d["agents"] == [f"./agents/{pack}.md"], pack
-        for declared in d["agents"]:
-            assert (root / declared.removeprefix("./")).is_file(), (pack, declared)
-        assert d["plugin"] == d["name"], pack
         assert len(d["tags"]) == 3 and len(d["quickPrompts"]) == 3, pack
         assert d["quickPrompts"][0]["zh"] == d["defaultInitPrompt"]["zh"], pack
         n = len([c for c in d["displayDescription"]["zh"] if not c.isspace()])
@@ -219,40 +215,31 @@ def test_expert_packs_follow_workbuddy_standard():
         # 付费专家包不声明 connector 依赖；MCP 端点由包内 .mcp.json 声明（liki-mcp）。
         deps = d.get("dependencies")
         assert not deps, (pack, deps)
-        # agent md（平台入口）frontmatter：平台字段名 + 与文件名一致的 name
-        agent_meta = yaml.safe_load(agent_docs[0].read_text(encoding="utf-8").split("---\n", 2)[1])
-        assert agent_meta["name"] == pack, (pack, agent_meta)
-        assert set(agent_meta) >= {"name", "description", "displayName", "profession", "maxTurns"}, pack
-        assert set(agent_meta["displayName"]) == {"en", "zh"}, pack
-        assert set(agent_meta["profession"]) == {"en", "zh"}, pack
-        assert isinstance(agent_meta["maxTurns"], int), pack
-        # 身份文件 frontmatter（内部部署与市场包共用同一份）
-        identity_text = (root / "SKILL.md").read_text(encoding="utf-8")
+        # 唯一身份 frontmatter（内部部署与市场包共用同一份）
+        identity_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         identity_meta = yaml.safe_load(identity_text.split("---\n", 2)[1])
-        for f in ["name", "description", "description_en", "display_name",
-                  "display_name_en", "profession", "maxTurns", "keywords", "skills"]:
+        for f in ["name", "description"]:
             assert f in identity_meta, (pack, f)
-        # 身份文件是单一源：plugin.json 的 keywords/skills 由它投影而来
-        assert d["keywords"] == identity_meta["keywords"], pack
-        assert d["skills"] == [f"./skills/{name}" for name in identity_meta["skills"]], pack
-        # 付费专家包必须带 .mcp.json（指向 liki-mcp 付费网关）
-        assert (root / ".mcp.json").exists(), pack
+        assert identity_meta["metadata"]["display_name"]
+        assert identity_meta["metadata"]["display_name_en"]
+        assert identity_meta["metadata"]["description_en"]
+        # 渠道配置是单一源：plugin.json 的 keywords/skills 由它投影而来
+        channel_meta = json.loads((root / "channel.json").read_text(encoding="utf-8"))
+        assert d["keywords"] == channel_meta["keywords"], pack
+        assert d["skills"] == [f"./skills/{name}" for name in channel_meta["skills"]], pack
+        # 付费包的 .mcp.json 由构建器从 pro variant 注入
+        assert gen.load_variant("pro")["mcpServers"]["liki"]["url"] == "https://mcp.tokflux.com/mcp", pack
 
 
-def test_expert_pack_methodology_matches_index():
-    # pack -> (skill dir, 镜像卡总数)。包内 references/ 是根平铺卡的按域前缀逐字节视图。
-    for pack, skill, expect in (
-        ("liki", "liki", 72),
-                            ):
-        skill_dir = ROOT / "expert-packs" / pack / "skills" / "liki"
-        assert (skill_dir / "SKILL.md").is_file(), pack
-        cards = [p for p in (skill_dir / "references").rglob("*.md") if p.name != "SKILL.md"]
-        assert len(cards) == expect, (pack, len(cards), expect)
+def test_expert_package_manifest_has_shared_methodology():
+    manifest = gen.package_manifest("workbuddy", "pro")
+    cards = [name for name in manifest if name.startswith("liki-pro/skills/liki/references/")]
+    assert len(cards) == 72
 
 
 def test_no_legacy_naming_in_skills():
     legacy = ("liki-analysis", "liki-engine", "liki-master", "liki-usage", "RPC.md")
-    roots = [ROOT / "skills" / "liki"] + [ROOT / "expert-packs" / pack for pack in EXPERT_PACKS]
+    roots = [ROOT / "skills" / "liki"] + [ROOT / "distribution" / "workbuddy" / pack for pack in EXPERT_PACKS]
     for root in roots:
         for path in root.rglob("*"):
             if not path.is_file() or "__pycache__" in path.parts or path.suffix == ".png":
@@ -262,6 +249,28 @@ def test_no_legacy_naming_in_skills():
             text = path.read_text(encoding="utf-8", errors="ignore")
             for old in legacy:
                 assert old not in text, f"{path}: {old}"
+
+
+def test_external_skill_packages_do_not_expose_internal_profile_sync():
+    """`is_calibrated` / `sync_ui` 是内部宿主协议，不进开源或付费 Skill 包。"""
+    forbidden = re.compile(r"\b(?:is_calibrated|sync_ui)\b")
+    external_roots = [SKILL_ROOT] + [ROOT / "distribution" / "workbuddy" / pack for pack in EXPERT_PACKS]
+    for root in external_roots:
+        for path in root.rglob("*"):
+            if not path.is_file() or "__pycache__" in path.parts:
+                continue
+            if path.suffix not in {".py", ".md", ".json", ".yaml", ".yml", ".txt"}:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            hit = forbidden.search(text)
+            assert hit is None, f"{path}: 内部字段暴露 `{hit.group(0)}`"
+
+
+def test_liki_hk_is_not_a_skill_distribution_channel():
+    """liki.hk 只保留品牌 / 技术服务面，不再生成 web skill 分发包。"""
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    assert "build-web-skill-bundle" not in makefile
+    assert not (ROOT / "scripts" / "build-web-skill-bundle.sh").exists()
 
 
 def test_root_skill_routes_close_with_archive_sources():
@@ -367,4 +376,4 @@ def test_domain_lists_stay_in_sync():
     """域清单三处定义（check_docs / 生成器 MAPPINGS / 本测试）必须一致。"""
     import check_docs
 
-    assert set(check_docs.DOMAINS) == {domain for domain, _pack in gen.MAPPINGS} == {"liki"}
+    assert set(check_docs.DOMAINS) == set(gen.DOMAINS) == {"liki"}

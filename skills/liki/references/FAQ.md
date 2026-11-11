@@ -8,7 +8,6 @@
 
 - MCP 未连接或端点不可达时，明确说明「MCP 不可用」；不用模型记忆补齐，不虚构盘面或断语。
 - MCP 工具返回 `工具错误` 时按错误消息修正参数后重试。
-- 引擎版本低于本地 版本文件 时停止；不得用旧结果、缓存或模型知识补齐引擎事实。
 
 ## 缺输入与失败
 
@@ -26,7 +25,6 @@
 ## 版本与升级
 
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
-- 请求远程版本时携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
-- 官方技术 endpoint 是 `https://mcp.tokflux.com/engine|counsel/mcp`；需要固定
-  或自建环境时设置 `LIKI_ENGINE_URL` / `LIKI_COUNSEL_URL`（优先级最高）。
+- MCP 连接以同目录 `.mcp.json` 为准；固定或自建环境时设置
+  `LIKI_ENGINE_URL` / `LIKI_COUNSEL_URL`（优先级最高）。
 - 旧版 Skill 调新版 MCP 遇到「工具不存在」或参数校验失败时，说明 Skill 版本落后于服务端；执行 `npx skills add ml8s/liki -y` 升级后重试。升级后仍失败按 `references/ops-FEEDBACK.md` 提交反馈。

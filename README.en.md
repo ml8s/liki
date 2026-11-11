@@ -96,6 +96,17 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 | Output | Plain text, hard to build on | Structured JSON + SHA-256 digests; plug it into your product |
 | Verification | None | Open source; the whole chain is auditable |
 
+## Distribution variants
+
+Liki builds two distribution variants from the same methodology:
+
+| Variant | MCP access | Payment |
+| --- | --- | --- |
+| `liki-free` | Direct `engine-mcp` and `counsel-mcp` | None |
+| `liki-pro` | Through the `liki-mcp` paid gateway | Supports SkillPay / 402 payment flow |
+
+The free source installs with `npx skills add ml8s/liki`. Paid packages are distributed by channel to SkillHub / WorkBuddy.
+
 ## Trust and boundaries
 
 ### Three pillars of reliability
@@ -137,7 +148,7 @@ Clock time is not destiny time: standard time (say, Beijing time) can drift from
 
 ### Does it need internet?
 
-Yes. The Skill talks to the hosted `engine-mcp` (charts) and `counsel-mcp` (readings) MCP endpoints on liki.hk — install and ask, no configuration needed.
+Yes. The Skill talks to the hosted `engine-mcp` (charts) and `counsel-mcp` (readings) MCP endpoints — install and ask, no configuration needed.
 
 ### Is my birth data stored?
 

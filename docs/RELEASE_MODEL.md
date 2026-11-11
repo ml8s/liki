@@ -1,7 +1,7 @@
 # Release model
 
 Liki uses **one date-based version** (`YYYY.MM.DD.SERIAL`) as the source for
-runtime, contracts, and product releases. WorkBuddy marketplace artifacts carry a
+runtime, contracts, and distribution artifacts. Marketplace packages carry a
 **derived** semver projection of that version (see below); because it is derived
 rather than hand-maintained, there is still no parallel version.
 
@@ -29,7 +29,7 @@ v2026.10.12.0
 
 The tag is a release name only; the version stored in files has no `v` prefix.
 
-## WorkBuddy artifact version (semver projection)
+## Distribution artifact version (semver projection)
 
 The marketplace parser rejects 4-segment versions (`版本号 "2026.10.16.2" 格式不合法`),
 so every submitted artifact carries a projection of the release CalVer:
@@ -44,10 +44,10 @@ gates both call it, so the artifact version is never hand-written and never drif
 It stays a legal semver, increases strictly (same day via `SERIAL`, next day via
 `MMDD`, next year via `YYYY`), and is reversible (`MINOR` is always 3–4 digits).
 
-Surfaces carrying the projection: `skills/liki/SKILL.md`, `expert-packs/*/SKILL.md`
-(identity source), generated `expert-packs/*/skills/*/SKILL.md`, generated
-`expert-packs/*/.codebuddy-plugin/plugin.json`, and
-`workbuddy/*-connector/connector-meta.json`.
+Surfaces carrying the projection: `skills/liki/SKILL.md`,
+`distribution/liki-expert/profile.json`,
+`distribution/workbuddy/liki-pro/.codebuddy-plugin/plugin.json`, and the
+generated `liki-pro.zip`.
 
 ## Single version surface
 
@@ -59,9 +59,8 @@ Surfaces carrying the projection: `skills/liki/SKILL.md`, `expert-packs/*/SKILL.
 | Engine MCP runtime | build 注入（`-ldflags -X main.Version`） |
 | Counsel runtime | build 注入（`LIKI_VERSION`） |
 | Skill package metadata | `skills/liki/SKILL.md` frontmatter `version`（平台必填字段，顶层；写投影值） |
-| Expert package metadata | `expert-packs/*/SKILL.md`, nested domain `SKILL.md`, and `.codebuddy-plugin/plugin.json`（写投影值） |
-| WorkBuddy connector metadata | `workbuddy/*-connector/connector-meta.json`（写投影值） |
-| Deployment profiles | `profiles/*.json` |
+| Expert package metadata | `.codebuddy-plugin/plugin.json`（写投影值；zip 内嵌套 `SKILL.md` 由构建器生成） |
+| Deployment profile | `distribution/liki-expert/profile.json` |
 | Root and counsel package metadata | `pyproject.toml`, `counsel/pyproject.toml` |
 
 Rules:

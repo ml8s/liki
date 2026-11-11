@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "name": "liki-expert",
+    "version": "2026.11.09.1"
+  },
+  "mcpServers": [
+    {
+      "name": "engine",
+      "endpointEnv": "LIKI_ENGINE_URL"
+    },
+    {
+      "name": "counsel",
+      "endpointEnv": "LIKI_COUNSEL_URL"
+    }
+  ],
+  "agents": [
+    {
+      "name": "liki"
+    }
+  ]
+}

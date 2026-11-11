@@ -12,7 +12,7 @@ from _helpers import ROOT
 
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
 EXPERTS = ["liki", "liki", "liki", "liki"]
-PROFILES = ("liki",)
+PROFILES = ("liki-expert",)
 ALLOWED_ROOTS = {"/skills"}
 
 
@@ -23,20 +23,14 @@ def _repo_path(root: str) -> Path:
 
 
 class TestAgentYamlSkillsBindings(unittest.TestCase):
-    def test_every_agent_yaml_binds_skilltoolset(self):
-        agent_dirs = sorted(
-            path
-            for path in (ROOT / "agents").iterdir()
-            if path.is_dir() and (path / "agent.yaml").is_file()
-        )
-        self.assertEqual(len(agent_dirs), len(PROFILES))
-        for agent_dir in agent_dirs:
-            with self.subTest(agent=agent_dir.name):
-                document = yaml.safe_load(
-                    (agent_dir / "agent.yaml").read_text(encoding="utf-8")
-                )
+    def test_every_deployment_yaml_binds_skilltoolset(self):
+        deployment_yamls = sorted((ROOT / "distribution").glob("*/deployment.yaml"))
+        self.assertEqual(len(deployment_yamls), len(PROFILES))
+        for deployment_yaml in deployment_yamls:
+            with self.subTest(deployment_yaml=deployment_yaml.name):
+                document = yaml.safe_load(deployment_yaml.read_text(encoding="utf-8"))
                 skills = document.get("skills")
-                self.assertIsInstance(skills, dict, f"{agent_dir.name} missing skills")
+                self.assertIsInstance(skills, dict, f"{deployment_yaml} missing skills")
                 root = skills.get("root")
                 self.assertIn(root, ALLOWED_ROOTS)
                 allow = document["tools"]["allow"].get("skilltoolset")

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from _helpers import ROOT
 
-PROFILES = ("liki",)
+PROFILES = ("liki-expert",)
 class TestDeploymentGeneration(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.mkdtemp(prefix="liki-agent-runtime-")
@@ -43,18 +43,18 @@ class TestDeploymentGeneration(unittest.TestCase):
                 self.assertTrue(all(agent["version"] == runtime_version for agent in agents))
 
     def test_single_root_and_reachable_tree(self):
-        deployment = self._deployment("liki")
+        deployment = self._deployment("liki-expert")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
         self.assertEqual(agents["liki"]["sub_agents"], [])
         for profile in PROFILES:
             with self.subTest(profile=profile):
                 deployment = self._deployment(profile)
                 self.assertEqual(
-                    [a["name"] for a in deployment["spec"]["agents"]], [profile]
+                    [a["name"] for a in deployment["spec"]["agents"]], ["liki"]
                 )
 
     def test_every_expert_is_a_single_chat_agent(self):
-        deployment = self._deployment("liki")
+        deployment = self._deployment("liki-expert")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
         self.assertEqual(agents["liki"]["mode"], "chat")
         for profile in PROFILES:
@@ -63,7 +63,7 @@ class TestDeploymentGeneration(unittest.TestCase):
 
     def test_natal_owns_the_full_domain_surface(self):
         """聚合专家拥有全部工具面（六域全集），无域排除。"""
-        deployment = self._deployment("liki")
+        deployment = self._deployment("liki-expert")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
         allow = agents["liki"]["tools"]["allow"]
         assert len(allow["engine"]) == 14, f"ENGINE tools = {len(allow['engine'])}"
@@ -88,8 +88,8 @@ class TestDeploymentGeneration(unittest.TestCase):
 
     def test_instructions_carry_no_delegation_section(self):
         """单 agent 拓扑：任何 instruction 不得残留子代理 / 委派语义。"""
-        deployment = self._deployment("liki")
-        root = self.out / "liki" / "agents"
+        deployment = self._deployment("liki-expert")
+        root = self.out / "liki-expert" / "agents"
         natal = (root / "liki" / "instruction.md").read_text(encoding="utf-8")
         for marker in ("委派", "子代理", "子能力", "协作委派", "同一轮只调用一个"):
             self.assertNotIn(marker, natal)
@@ -107,7 +107,7 @@ class TestDeploymentGeneration(unittest.TestCase):
                     self.assertLess(path.stat().st_size, 2 << 20)
 
     def test_mcp_servers_use_contract_endpoint_env_names(self):
-        deployment = self._deployment("liki")
+        deployment = self._deployment("liki-expert")
         servers = {s["name"]: s for s in deployment["spec"]["mcpServers"]}
         self.assertEqual(servers["engine"]["endpointEnv"], "LIKI_ENGINE_URL")
         self.assertEqual(servers["counsel"]["endpointEnv"], "LIKI_COUNSEL_URL")
@@ -140,25 +140,26 @@ class TestDeploymentGeneration(unittest.TestCase):
         self.assertEqual(exposed["counsel"], set(catalog_tools["counsel"]))
 
     def test_instruction_body_comes_from_identity_source(self):
-        """聚合专家 instruction＝agents/liki/liki.md 正文。"""
+        """聚合专家 instruction＝唯一根身份正文 + 内部 host adapter。"""
         sys.path.insert(0, str(ROOT / "scripts"))
         import generate_deployment as gen  # noqa: E402
 
         for profile in PROFILES:
             self._generate(profile)
-        identity = ROOT / "agents" / "liki" / "liki.md"
+        identity = gen.identity_path("liki")
         self.assertEqual(gen.identity_path("liki"), identity)
-        body = identity.read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
+        loaded_metadata, body = gen.load_identity("liki")
         instruction = (
-            self.out / "liki" / "agents" / "liki" / "instruction.md"
+            self.out / "liki-expert" / "agents" / "liki" / "instruction.md"
         ).read_text(encoding="utf-8")
         self.assertEqual(instruction, body)
-        self.assertIn("时间与定盘", instruction)
+        self.assertIn("内部档案同步", instruction)
+        self.assertIn("sync_ui", instruction)
         self.assertIn("MCP", instruction)
 
     def test_single_expert_profile_is_the_only_release_profile(self):
         self.assertEqual(
-            sorted(path.stem for path in (ROOT / "profiles").glob("*.json")),
+            sorted(json.loads(path.read_text())["metadata"]["name"] for path in (ROOT / "distribution").glob("*/profile.json")),
             sorted(PROFILES),
         )
 

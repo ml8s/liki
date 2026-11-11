@@ -22,7 +22,7 @@ class TestSkillFrontmatter(unittest.TestCase):
 
     def test_skills_dir_holds_single_installable_skill(self):
         """npx skills add ml8s/liki 只装 liki：skills/ 下有且仅有一个 SKILL.md。
-        专家包必须位于 expert-packs/，否则会被 CLI 误装进任何宿主。"""
+        专家包必须位于 distribution/workbuddy/，否则会被 CLI 误装进任何宿主。"""
         roots = list(SKILL_ROOT.parent.rglob("SKILL.md"))
         self.assertEqual([str(p.relative_to(SKILL_ROOT.parent)) for p in roots],
                          ["liki/SKILL.md"], roots)

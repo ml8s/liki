@@ -6,9 +6,13 @@ Liki 本命域：**八字侧与紫微侧都在本域内自举**——各自排�
 
 natal / liunian 运行时能力恒定返回八字侧与紫微侧结果；LLM 按用户问题读取对应侧，合参时综合同向证据，冲突时并列两侧证据，不静默丢弃任一侧。
 
+路由只由用户明确意图触发；不根据命盘特征、单个弱关键词或推测的关心点进入专项卡。算命、看命、全盘看看或未命中具体主题时，一律进入命书卡。多个本命主题并列且没有主问时，也进入命书卡。
+
 | 用户场景 | 入口卡 | 历史验证聚焦 |
 | --- | --- | --- |
-| 无明确问题 / 要看命书 | `references/natal-app-mingshu.md` | 全盘大事 |
+| 算命 / 看命 / 看我命运 / 无明确问题 / 未命中具体主题 | `references/natal-app-mingshu.md` | 全盘大事 |
+| 明确只要八字单侧 | `references/natal-bazi-ENTRY.md` | 八字层路由 |
+| 明确只要紫微单侧 | `references/natal-ziwei-ENTRY.md` | 紫微层路由 |
 | 婚姻与感情 | `references/natal-app-marriage.md` | 结婚 / 婚变年 |
 | 事业方向与起伏 | `references/natal-app-career.md` | 升职 / 离职 / 创业年 |
 | 财源与风险 | `references/natal-app-wealth.md` | 得财 / 破财年 |
