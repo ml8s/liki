@@ -161,16 +161,19 @@ def skill_doc(variant: str, skill_name: str, *, include_index: bool = False) -> 
 
 def agent_doc() -> str:
     metadata, body = canonical_identity(pro=True)
-    channel = load_json(PRO_ASSETS_DIR / "channel.json", "WorkBuddy pro channel config")
+    max_turns = load_json(PRO_ASSETS_DIR / "channel.json", "WorkBuddy pro channel config")["maxTurns"]
     doc_metadata = {
-        "name": "liki-pro",
+        "name": PRO_PACKAGE_ID,
         "description": metadata["description_en"],
         "displayName": {
             "en": metadata["display_name_en"],
             "zh": metadata["display_name"],
         },
-        "profession": channel["profession"],
-        "maxTurns": channel["maxTurns"],
+        "profession": {
+            "en": metadata["display_name_en"],
+            "zh": metadata["display_name"],
+        },
+        "maxTurns": max_turns,
     }
     return _frontmatter_block(doc_metadata) + body
 
@@ -179,9 +182,10 @@ def plugin_doc(variant: str) -> dict:
     if variant != "pro":
         raise SystemExit("WorkBuddy plugin packages use the pro variant")
     metadata, _body = canonical_identity(pro=True)
-    channel = load_json(PRO_ASSETS_DIR / "channel.json", "WorkBuddy pro channel config")
     version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
     plugin = load_json(PRO_ASSETS_DIR / ".codebuddy-plugin" / "plugin.json", "WorkBuddy plugin template")
+    keywords = [item.strip() for item in metadata.get("keywords", "").split(",") if item.strip()]
+    skill_name = SKILL_DIR.name
     plugin.update(
         {
             "name": PRO_PACKAGE_ID,
@@ -193,9 +197,12 @@ def plugin_doc(variant: str) -> dict:
                 "en": metadata["display_name_en"],
                 "zh": metadata["display_name"],
             },
-            "profession": channel["profession"],
-            "keywords": channel["keywords"],
-            "skills": [f"./skills/{name}" for name in channel["skills"]],
+            "profession": {
+                "en": metadata["display_name_en"],
+                "zh": metadata["display_name"],
+            },
+            "keywords": keywords,
+            "skills": [f"./skills/{skill_name}"],
             "plugin": PRO_PACKAGE_ID,
         }
     )

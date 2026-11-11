@@ -198,23 +198,23 @@ def test_workbuddy_pro_static_channel_assets_exist():
         assert (root / ".codebuddy-plugin" / "plugin.json").is_file(), pack
         assert (root / "README.md").is_file(), pack
         assert (root / "avatars").is_dir(), pack
-        # plugin.json 必填
+        # plugin.json 只保存 WorkBuddy 静态平台字段；身份 / 渠道投影由构建器注入。
         d = json.loads((root / ".codebuddy-plugin" / "plugin.json").read_text(encoding="utf-8"))
-        for f in ["name", "expertType", "version", "description", "author", "agents",
-                  "agentName", "displayName", "profession", "displayDescription",
-                  "avatar", "categoryId", "defaultInitPrompt", "plugin", "tags", "quickPrompts",
-                  "keywords", "skills"]:
+        for f in ["author", "expertType", "displayDescription", "avatar", "categoryId",
+                  "defaultInitPrompt", "tags", "quickPrompts", "dependencies"]:
             assert f in d, (pack, f)
-        assert d["expertType"] == "agent", pack
-        assert d["agentName"] == d["name"] == d["plugin"] == pack, pack
-        assert d["agents"] == [f"./agents/{pack}.md"], pack
         assert len(d["tags"]) == 3 and len(d["quickPrompts"]) == 3, pack
         assert d["quickPrompts"][0]["zh"] == d["defaultInitPrompt"]["zh"], pack
         n = len([c for c in d["displayDescription"]["zh"] if not c.isspace()])
         assert 40 <= n <= 50, (pack, n)
-        # 付费专家包不声明 connector 依赖；MCP 端点由包内 .mcp.json 声明（liki-mcp）。
+        # connector 依赖已退役；MCP 端点由构建器注入的 .mcp.json 声明（liki-mcp）。
         deps = d.get("dependencies")
         assert not deps, (pack, deps)
+        projected = {
+            "name", "version", "description", "agents", "agentName", "displayName",
+            "profession", "keywords", "skills", "plugin",
+        }
+        assert not (projected & d.keys()), (pack, projected & d.keys())
         # 唯一身份 frontmatter（内部部署与市场包共用同一份）
         identity_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         identity_meta = yaml.safe_load(identity_text.split("---\n", 2)[1])
@@ -223,10 +223,8 @@ def test_workbuddy_pro_static_channel_assets_exist():
         assert identity_meta["metadata"]["display_name"]
         assert identity_meta["metadata"]["display_name_en"]
         assert identity_meta["metadata"]["description_en"]
-        # 渠道配置是单一源：plugin.json 的 keywords/skills 由它投影而来
         channel_meta = json.loads((root / "channel.json").read_text(encoding="utf-8"))
-        assert d["keywords"] == channel_meta["keywords"], pack
-        assert d["skills"] == [f"./skills/{name}" for name in channel_meta["skills"]], pack
+        assert channel_meta["maxTurns"] == 40, pack
         # 付费包的 .mcp.json 由构建器从 pro variant 注入
         assert gen.load_variant("pro")["mcpServers"]["liki"]["url"] == "https://mcp.tokflux.com/mcp", pack
 
@@ -234,7 +232,7 @@ def test_workbuddy_pro_static_channel_assets_exist():
 def test_expert_package_manifest_has_shared_methodology():
     manifest = gen.package_manifest("workbuddy", "pro")
     cards = [name for name in manifest if name.startswith("liki-pro/skills/liki/references/")]
-    assert len(cards) == 72
+    assert len(cards) == 73
 
 
 def test_no_legacy_naming_in_skills():
