@@ -67,15 +67,8 @@ def test_free_packages_do_not_include_payment_overlay():
 
 
 def test_builder_writes_and_verifies_zip(tmp_path):
-    import inspect
-    print("module", gen.__file__)
-    print(inspect.getsource(gen.build))
-    print("keys", list(gen.package_manifest("workbuddy", "pro"))[:5])
     target = gen.build("workbuddy", "pro", tmp_path / "liki-pro.zip")
     assert target.is_file()
-    with zipfile.ZipFile(target) as debug_archive:
-        print("built names", debug_archive.namelist()[:5])
-    print("check top repr", repr(gen.load_channel("workbuddy", "pro")[1]["top"]))
     assert gen.check("workbuddy", "pro", target) == 0
     with zipfile.ZipFile(target) as archive:
         assert archive.testzip() is None

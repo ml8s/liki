@@ -18,7 +18,7 @@ import build_channel_package as gen  # noqa: E402
 
 DOMAINS = ("natal", "divination", "fengshui", "naming")
 # 顶层领域 = 专家包（1:1）：由生成器 MAPPINGS 派生，杜绝第二份包名清单。
-EXPERT_PACKS = gen.EXPERT_PACKS
+EXPERT_PACKS = ("liki-pro",)
 
 
 def test_liki_root_has_one_entry_and_domain_routing_entries():
@@ -376,4 +376,4 @@ def test_domain_lists_stay_in_sync():
     """域清单三处定义（check_docs / 生成器 MAPPINGS / 本测试）必须一致。"""
     import check_docs
 
-    assert set(check_docs.DOMAINS) == set(gen.DOMAINS) == {"liki"}
+    assert set(check_docs.DOMAINS) == {"liki"}

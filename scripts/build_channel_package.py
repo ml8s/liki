@@ -39,9 +39,7 @@ VARIANTS_DIR = DISTRIBUTION_DIR / "variants"
 CHANNELS_DIR = DISTRIBUTION_DIR / "channels"
 WORKBUDDY_DIR = DISTRIBUTION_DIR / "workbuddy"
 PRO_ASSETS_DIR = WORKBUDDY_DIR / "liki-pro"
-DOMAINS = ("liki",)
-DOMAIN_PACKS = {"liki": "liki-pro"}
-EXPERT_PACKS = tuple(DOMAIN_PACKS.values())
+PRO_PACKAGE_ID = "liki-pro"
 PACK_AUTHOR = "Liki"
 
 FREE_CHANNEL_PATTERN = re.compile(
@@ -61,14 +59,6 @@ def load_json(path: Path, label: str) -> dict:
     if not isinstance(value, dict):
         raise SystemExit(f"{label} must be a JSON object: {path.relative_to(ROOT)}")
     return value
-
-
-def identity_path(variant: str) -> Path:
-    return CANONICAL_SKILL
-
-
-def overlay_path(variant: str) -> Path:
-    return PRO_ASSETS_DIR / "overlays" / "payment.md"
 
 
 def load_channel(channel: str, variant: str) -> tuple[dict, dict]:
@@ -104,31 +94,25 @@ def split_frontmatter(path: Path) -> tuple[dict, str]:
     return frontmatter, body[1:] if body.startswith("\n") else body
 
 
-def canonical_identity(variant: str, *, workbuddy: bool = False) -> tuple[dict, str, str]:
+def canonical_identity(*, pro: bool = False) -> tuple[dict, str]:
     metadata, body = split_frontmatter(CANONICAL_SKILL)
     channel_meta = metadata.get("metadata", {})
     if not isinstance(channel_meta, dict):
         raise SystemExit("canonical identity metadata must be an object")
-    variant_config = load_variant(variant)
-    sku = variant_config["sku"]
 
     for key in ("description_en", "display_name", "display_name_en"):
         value = channel_meta.get(key)
         if isinstance(value, str) and value.strip():
             metadata.setdefault(key, value)
 
-    if variant == "pro":
+    if pro:
         body = FREE_CHANNEL_PATTERN.sub("", body)
         overlay = PRO_ASSETS_DIR / "overlays" / "payment.md"
         if not overlay.is_file():
             raise SystemExit(f"pro payment overlay missing: {overlay}")
         body += "\n" + overlay.read_text(encoding="utf-8").rstrip() + "\n"
 
-    if workbuddy:
-        skill_name = "liki"
-    else:
-        skill_name = sku
-    return metadata, body.rstrip() + "\n", skill_name
+    return metadata, body.rstrip() + "\n"
 
 
 def methodology_index() -> list[str]:
@@ -155,8 +139,8 @@ def _frontmatter_block(metadata: dict) -> str:
     return "---\n" + dumped + "---\n\n"
 
 
-def skill_doc(variant: str, *, workbuddy: bool = False, include_index: bool = False) -> str:
-    metadata, body, skill_name = canonical_identity(variant, workbuddy=workbuddy)
+def skill_doc(variant: str, skill_name: str, *, include_index: bool = False) -> str:
+    metadata, body = canonical_identity()
     version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
     doc_metadata = {
         "name": skill_name,
@@ -176,7 +160,7 @@ def skill_doc(variant: str, *, workbuddy: bool = False, include_index: bool = Fa
 
 
 def agent_doc() -> str:
-    metadata, body, _skill_name = canonical_identity("pro", workbuddy=True)
+    metadata, body = canonical_identity(pro=True)
     channel = load_json(PRO_ASSETS_DIR / "channel.json", "WorkBuddy pro channel config")
     doc_metadata = {
         "name": "liki-pro",
@@ -194,17 +178,17 @@ def agent_doc() -> str:
 def plugin_doc(variant: str) -> dict:
     if variant != "pro":
         raise SystemExit("WorkBuddy plugin packages use the pro variant")
-    metadata, _body, _skill_name = canonical_identity("pro", workbuddy=True)
+    metadata, _body = canonical_identity(pro=True)
     channel = load_json(PRO_ASSETS_DIR / "channel.json", "WorkBuddy pro channel config")
     version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
     plugin = load_json(PRO_ASSETS_DIR / ".codebuddy-plugin" / "plugin.json", "WorkBuddy plugin template")
     plugin.update(
         {
-            "name": "liki-pro",
+            "name": PRO_PACKAGE_ID,
             "version": version,
             "description": metadata["description_en"],
-            "agents": ["./agents/liki-pro.md"],
-            "agentName": "liki-pro",
+            "agents": [f"./agents/{PRO_PACKAGE_ID}.md"],
+            "agentName": PRO_PACKAGE_ID,
             "displayName": {
                 "en": metadata["display_name_en"],
                 "zh": metadata["display_name"],
@@ -212,7 +196,7 @@ def plugin_doc(variant: str) -> dict:
             "profession": channel["profession"],
             "keywords": channel["keywords"],
             "skills": [f"./skills/{name}" for name in channel["skills"]],
-            "plugin": "liki-pro",
+            "plugin": PRO_PACKAGE_ID,
         }
     )
     return plugin
@@ -240,7 +224,8 @@ def canonical_files(top: str, variant: str) -> dict[str, bytes]:
                 indent=2,
             ).encode("utf-8") + b"\n"
         elif relative == "SKILL.md":
-            files[f"{top}/SKILL.md"] = skill_doc(variant, workbuddy=False).encode("utf-8")
+            sku = load_variant(variant)["sku"]
+            files[f"{top}/SKILL.md"] = skill_doc(variant, sku).encode("utf-8")
         else:
             files[f"{top}/{relative}"] = path.read_bytes()
     return files
@@ -275,10 +260,11 @@ def package_manifest(channel: str, variant: str) -> dict[str, bytes]:
             ensure_ascii=False,
             indent=2,
         ).encode("utf-8") + b"\n"
-        files[f"{top}/agents/liki-pro.md"] = agent_doc().encode("utf-8")
+        agent_path = f"{PRO_PACKAGE_ID}.md"
+        files[f"{top}/agents/{agent_path}"] = agent_doc().encode("utf-8")
         files[f"{top}/skills/liki/SKILL.md"] = skill_doc(
             variant,
-            workbuddy=True,
+            "liki",
             include_index=True,
         ).encode("utf-8")
         plugin = plugin_doc(variant)
