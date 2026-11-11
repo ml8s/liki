@@ -1,6 +1,7 @@
 # uv 基础镜像默认走 NJU 境内镜像（ghcr.io 直连不可靠）；海外构建可用
 # --build-arg UV_IMAGE=ghcr.io/astral-sh/uv:0.11.20 覆盖。digest 固定不变。
 ARG UV_IMAGE=ghcr.nju.edu.cn/astral-sh/uv:0.11.20
+ARG UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
 # uv stage 置于最前：被 deps 引用，避免前向引用触发的循环依赖误报。
 FROM ${UV_IMAGE}@sha256:eaa5f1a3305307aaf9e67fe2bbba1d85ebbb2d8a63bce23af21797bfafbe0f8b AS uv
 
@@ -11,7 +12,8 @@ ARG BUILD_TIME=unknown
 
 COPY --from=uv /uv /usr/local/bin/uv
 COPY counsel/requirements.lock /tmp/requirements.lock
-ENV UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+ARG UV_INDEX_URL
+ENV UV_INDEX_URL=$UV_INDEX_URL
 RUN uv venv /opt/venv && \
     UV_HTTP_TIMEOUT=300 UV_CONCURRENT_DOWNLOADS=10 \
     uv pip install --python /opt/venv/bin/python \
