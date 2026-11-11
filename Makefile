@@ -155,7 +155,7 @@ lint: lint-md lint-engine lint-python ## Full lint entry point
 
 security-engine: ## Run the pinned engine vulnerability scanner
 	go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
-	"$(shell go env GOPATH)/bin/govulncheck" ./engine/...
+	cd engine && "$(shell go env GOPATH)/bin/govulncheck" ./...
 
 security-python: ## Run the pinned Python dependency audit
 	python3 -m pip install pip-audit==2.10.0
