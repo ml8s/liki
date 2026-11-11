@@ -16,6 +16,7 @@ LINT_PYTHON = ROOT / "scripts" / "lint-python.sh"
 COUNSEL_TEST = ROOT / "scripts" / "test-counsel.sh"
 ENGINE_COVERAGE = ROOT / "scripts" / "test-engine-coverage.sh"
 PYTHON_COVERAGE = ROOT / "scripts" / "test-python-coverage.sh"
+CI_REQUIREMENTS = ROOT / "scripts" / "requirements-ci.txt"
 PRE_PUSH_HOOK = ROOT / ".githooks" / "pre-push"
 
 
@@ -30,10 +31,27 @@ def test_ci_lints_through_the_local_target():
     assert "golangci/golangci-lint-action" not in text, (
         "CI must lint through scripts/lint-engine.sh, not a separate action"
     )
-    assert "make lint-engine" in text, "CI must run the local lint target"
+    assert "make gate" in text, "CI must run the same local gate as pre-push"
     assert "deps/golangci-lint.version" in text, (
         "CI must provision golangci-lint from the single pin file"
     )
+
+
+def test_ci_has_exactly_the_local_gate():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert text.count("run: make gate") == 1
+    for split_direct_target in (
+        "run: make check",
+        "run: make lint-engine",
+        "run: make test",
+        "run: make build-archive",
+        "run: make build-deployment",
+        "run: make verify-city-data",
+        "run: make test-engine-coverage",
+        "run: make test-python-coverage",
+        "run: make test-counsel",
+    ):
+        assert split_direct_target not in text, split_direct_target
 
 
 def test_makefile_lint_engine_uses_the_pinned_script():
@@ -56,8 +74,8 @@ def test_ruff_pin_matches_ci():
     script = LINT_PYTHON.read_text(encoding="utf-8")
     local = re.search(r'RUFF_VERSION="\$\{RUFF_VERSION:-([^}"]+)\}"', script)
     assert local, "lint-python.sh must default RUFF_VERSION"
-    ci = re.search(r"ruff==([0-9][0-9.]*)", WORKFLOW.read_text(encoding="utf-8"))
-    assert ci, "CI must install a pinned ruff"
+    ci = re.search(r"^ruff==([0-9][0-9.]*)$", CI_REQUIREMENTS.read_text(encoding="utf-8"), re.M)
+    assert ci, "CI requirements must install a pinned ruff"
     assert local.group(1) == ci.group(1), (local.group(1), ci.group(1))
 
 
@@ -88,7 +106,7 @@ def test_engine_coverage_floor_is_single_sourced():
     floor = re.search(r'FLOOR="\$\{COVERAGE_FLOOR:-([0-9]+)\}"', script)
     assert floor, "test-engine-coverage.sh must default COVERAGE_FLOOR"
     workflow = WORKFLOW.read_text(encoding="utf-8")
-    assert "make test-engine-coverage" in workflow, "CI must run the shared coverage target"
+    assert "make gate" in workflow, "CI must run the shared coverage gate"
     assert re.search(r"m=\"85\"", workflow) is None, (
         "the coverage floor must live in test-engine-coverage.sh, not CI"
     )
@@ -108,7 +126,7 @@ def test_python_coverage_floor_and_suites_are_single_sourced():
     assert "pytest tests -q" in script, "root Python tests must contribute coverage"
     assert "COUNSEL_COVERAGE=1" in script, "counsel integration tests must contribute coverage"
     workflow = WORKFLOW.read_text(encoding="utf-8")
-    assert "make test-python-coverage" in workflow
+    assert "make gate" in workflow
     assert "actions/setup-go@" in workflow, "combined coverage must be able to build the local engine"
 
 

@@ -5,7 +5,7 @@
 #
 # 统一语义（四仓一致）：
 #   make lint   静态检查聚合
-#   make check  纯静态检查（lint+格式+数据结构+docs+专家一致性；不跑测试、不写盘）
+#   make check  静态检查（lint+格式+数据结构+docs+专家一致性；临时构建分发包后校验）
 #   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
 #   make gate   check + test ＝推送门槛
 #   make eval-mingli160 手动 skill 校准/评估报告；不属于测试或发布门禁
@@ -25,14 +25,14 @@ export GOTOOLCHAIN ?= go1.26.11
 unexport GOROOT
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
-        go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine \
+        go-version-check runtime-version-check lint security-engine security-python python-ci-deps lint-md check test test-content test-engine \
         test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp verify-city-data \
         test-python-coverage \
         eval-mingli160 golden gate hooks version build-archive build-deployment \
         workbuddy-package skillhub-package distribution-package \
         workbuddy-avatars \
         brand-marks \
-        build-channel-package sync-domain-language check-domain-language check-actions check-content \
+        sync-domain-language check-domain-language check-actions check-content \
         runtime-validate image image-engine image-counsel image-liki-mcp image-assembly \
         smoke smoke-engine smoke-counsel smoke-liki-mcp
 
@@ -153,11 +153,19 @@ lint-python: ## Python static analysis
 
 lint: lint-md lint-engine lint-python ## Full lint entry point
 
-vuln: ## Vulnerability scan (govulncheck + pip-audit); CI also runs these as required jobs
-	@if command -v govulncheck >/dev/null 2>&1; then (cd engine && govulncheck ./...); else echo "govulncheck 未安装，跳过 engine 扫描（CI 会跑）"; fi
-	@if command -v pip-audit >/dev/null 2>&1; then pip-audit -r counsel/requirements.lock --require-hashes --disable-pip; else echo "pip-audit 未安装，跳过 Python 扫描（CI 会跑）"; fi
+security-engine: ## Run the pinned engine vulnerability scanner
+	go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+	"$(shell go env GOPATH)/bin/govulncheck" ./engine/...
 
-check: lint-md lint-python fmt-check go-version-check runtime-version-check check-actions check-content ## 纯静态检查（lint + Python lint + 格式 + 数据结构 + docs + 领域语言；skill/packaging 校验按内容指纹执行）。不跑测试、不提交工件。
+security-python: ## Run the pinned Python dependency audit
+	python3 -m pip install pip-audit==2.10.0
+	pip-audit -r counsel/requirements.lock --require-hashes --disable-pip
+
+python-ci-deps: ## Install the single pinned Python dependency set for check/test
+	uv venv --allow-existing counsel/.venv --python "$$(cat .python-version)"
+	uv pip install --python counsel/.venv/bin/python -r scripts/requirements-ci.txt
+
+check: lint-md lint-python fmt-check go-version-check runtime-version-check check-actions check-content ## 静态检查（lint + Python lint + 格式 + 数据结构 + docs + 领域语言；dist 中临时构建分发包后校验）。不跑测试。
 	python3 scripts/check_factor_data.py
 	python3 scripts/check_docs.py
 	python3 scripts/check_doc_paths.py
@@ -168,31 +176,16 @@ check: lint-md lint-python fmt-check go-version-check runtime-version-check chec
 	bash scripts/check-exec-bits.sh
 
 
-CONTENT_PATHS := skills/liki distribution tools/mcp-tool-catalog.json \
-	scripts/build_channel_package.py scripts/check_expert_docs.py
-CONTENT_FILES := $(shell find $(CONTENT_PATHS) -type f 2>/dev/null | LC_ALL=C sort)
-CONTENT_FINGERPRINT := $(shell printf '%s\n' $(CONTENT_FILES) | xargs sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1)
-CONTENT_STAMP := .cache/content-check.$(CONTENT_FINGERPRINT)
-
-$(CONTENT_STAMP):
-	@mkdir -p $(@D)
-	@echo "[check-content] content fingerprint $(CONTENT_FINGERPRINT); running skill and package checks"
+check-content: distribution-package ## Build ephemeral packages and verify every channel deterministically.
 	@python3 scripts/check_expert_docs.py
 	python3 scripts/build_channel_package.py --channel workbuddy --variant free --check
 	python3 scripts/build_channel_package.py --channel workbuddy --variant pro --check
 	python3 scripts/build_channel_package.py --channel skillhub --variant free --check
 	python3 scripts/build_channel_package.py --channel skillhub --variant pro --check
-	@touch $@
-
-check-content: $(CONTENT_STAMP) ## Run skill and WorkBuddy checks only when related content changes.
-	@echo "[check-content] content fingerprint unchanged; skipped"
-
-build-channel-package: distribution-package ## Build all channel-specific distribution packages
 
 sync-domain-language: ## 从 tools/domain-language.json 生成 docs/DOMAIN_LANGUAGE.md
 	python3 scripts/sync_domain_language.py
 
-PYTEST_TARGETS ?= tests/
 P ?= ./...
 BASE ?= baseline
 OLD ?= baseline
@@ -200,8 +193,7 @@ NEW ?= current
 BENCH_COUNT ?= 5
 BENCHTIME ?= 1s
 
-test-content: ## Root skill / rules / documentation suite
-	python3 -m pytest $(PYTEST_TARGETS) -q
+test-content: test-python-coverage ## Root Python contract suite and Counsel integration coverage
 
 test-engine-package: go-version-check ## Run one engine package, e.g. P=./internal/engine/bazi
 	@cd engine && go test -count=1 $(P)
@@ -250,7 +242,7 @@ test-engine-mcp: ## Engine MCP root/domain protocol smoke
 eval-mingli160: ## Manual Mingli160 skill calibration/evaluation report (not a gate)
 	scripts/eval-mingli160.sh
 
-test: test-content test-engine test-counsel test-engine-mcp ## All deterministic tests
+test: test-content test-engine-coverage test-engine-mcp ## All deterministic tests
 test-python-coverage: ## Run root Python domain suite with coverage
 	scripts/test-python-coverage.sh
 
@@ -261,7 +253,7 @@ test-engine-golden: ## Focused engine golden/oracle/matrix subset
 
 golden: test-engine-golden ## Backward-compatible alias for the focused golden suite
 
-gate: lint-engine check test ## Full source push gate: lint, static checks, and tests
+gate: lint-engine python-ci-deps check verify-city-data build-archive build-deployment test ## Full source push gate: same checks and tests as CI
 
 
 check-actions: ## Reject mutable reusable workflow/action references
@@ -275,8 +267,7 @@ version: ## Bump all runtime CalVer surfaces together
 
 python-env: ## Provision the exact CI Python (.python-version) via uv + counsel venv
 	uv python install $$(cat .python-version)
-	rm -rf counsel/.venv
-	uv venv counsel/.venv --python $$(cat .python-version)
+	uv venv --allow-existing counsel/.venv --python $$(cat .python-version)
 	uv pip install --python counsel/.venv/bin/python -r counsel/requirements.lock --require-hashes
 	uv pip install --python counsel/.venv/bin/python -r counsel/requirements-dev.txt
 

@@ -1,0 +1,7 @@
+PyYAML
+jsonschema
+pydantic==2.13.5
+ruff==0.16.0
+coverage
+pytest
+-r requirements-data.txt

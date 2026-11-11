@@ -12,7 +12,7 @@ Liki 的 WorkBuddy pro 渠道包是 `liki-pro`（Liki 命理师）。它覆盖�
 - 内部宿主协议：`distribution/liki-expert/host-adapter.md`
 - 发布 profile：`distribution/liki-expert/profile.json`
 
-本目录是 WorkBuddy pro 渠道适配层。zip 包由 `make build-channel-package` 在构建时从唯一源组装；生产部署使用 `distribution/liki-expert/` 配置生成的 `deployment.json`，并烘进 `liki-expert` 装配镜像。
+本目录是 WorkBuddy pro 渠道适配层。zip 包由 `make distribution-package` 在构建时从唯一源组装；生产部署使用 `distribution/liki-expert/` 配置生成的 `deployment.json`，并烘进 `liki-expert` 装配镜像。
 
 ## 包结构
 
@@ -31,7 +31,7 @@ Liki 的 WorkBuddy pro 渠道包是 `liki-pro`（Liki 命理师）。它覆盖�
 修改根技能后运行：
 
 ```sh
-make build-channel-package
+make distribution-package
 make check
 ```
 

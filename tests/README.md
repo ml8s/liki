@@ -46,9 +46,10 @@ Notes:
 
 ## Static check scripts
 
-`make check` runs no tests and writes nothing: it is the static half of the push gate. Its
-script set is pinned by `tests/test_check_scripts_contract.py`, so adding a script to the
-`check` recipe without listing it here (or leaving a listed script unwired) fails.
+`make check` is the static half of the push gate. It builds and verifies ephemeral
+channel packages under ignored `dist/`. Its script set is pinned by
+`tests/test_check_scripts_contract.py`, so adding a script to the `check` recipe
+without listing it here (or leaving a listed script unwired) fails.
 
 | Script | Contract |
 | --- | --- |
@@ -57,6 +58,8 @@ script set is pinned by `tests/test_check_scripts_contract.py`, so adding a scri
 | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.11 |
 | `scripts/check-runtime-versions.sh` | Local node/python must equal `.nvmrc`/`.python-version` |
 | `scripts/check_actions_pinned.py` | Rejects mutable workflow/action references |
+| `scripts/check_expert_docs.py` | Expert methodology cards match the root skill and entrypoint |
+| `scripts/build_channel_package.py` | Build and byte-compare WorkBuddy/SkillHub free/pro packages |
 | `scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
 | `scripts/check_docs.py` | Distributed skill documentation: assertions, paths, budgets |
 | `scripts/check_doc_paths.py` | Markdown link targets and top-level code-span paths resolve |
@@ -87,14 +90,13 @@ make gate
 
 ## Route boundary
 
-The skill and WorkBuddy checks below are run by `check-content`, which `make check`
-invokes only when the content fingerprint under `skills/liki`, `distribution/workbuddy`,
-`workbuddy`, `agents`, or the packaging scripts changes:
+`make check` builds ephemeral channel packages and runs the checks below on every
+execution; results are never cached across runs:
 
 | Script | Contract |
 | --- | --- |
 | `scripts/check_expert_docs.py` | Expert-pack methodology cards against the root skill |
-| `scripts/build_channel_package.py` | Expert methodology cards are in sync with the root skill |
+| `scripts/build_channel_package.py` | Packages are built from the root skill and channel configs, then compared byte-for-byte |
 
 The public paths are `/engine/mcp` and `/counsel/mcp`. Caddy strips `/engine` or `/counsel`; the services themselves see `/mcp`. Tests must not document or assert service-level public prefixes.
 

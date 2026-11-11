@@ -42,7 +42,7 @@ Liki 只有一个生产专家身份：`liki`；其 Expert assembly 产物是 `li
 | 部署 profile | `distribution/liki-expert/profile.json` |
 | 分发变体 | `distribution/variants/free.json`, `distribution/variants/pro.json` |
 
-`make build-channel-package` 不再生成第二份方法论源；它在构建 WorkBuddy 包时从唯一身份、唯一方法论卡、渠道配置和付费 overlay 组装包内容。`make check` 对漂移 fail-closed。
+`make distribution-package` 不再生成第二份方法论源；它在构建 WorkBuddy 包时从唯一身份、唯一方法论卡、渠道配置和付费 overlay 组装包内容。`make check` 对漂移 fail-closed。
 
 ## 生成链
 

@@ -30,7 +30,7 @@ echo "[build-archive] 打包 $SKILL_NAME..."
 # 根 skill（liki）是方法论卡的唯一权威源，已自包含各域平铺方法论卡
 # （references/<域>-…；ENTRY/TOOLS/app/体系卡全平铺）。直接打包根 skill 即可，
 # 无需合并独立专家包。
-# 独立专家包（distribution/workbuddy/）由 make build-channel-package 从根生成。
+# 独立专家包（distribution/workbuddy/）由 make distribution-package 从根生成。
 
 # 可复现：固定排序/时间戳/属主，gzip -n 去除时间戳。
 tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
