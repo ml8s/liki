@@ -32,6 +32,7 @@ jobs:
           python-version-file: .python-version
       - run: npm ci
       - run: python -m pip install pyyaml jsonschema pydantic==2.13.5 ruff==0.16.0
+      - run: make distribution-package
       - run: make check
       - name: Generate deployment artifacts
         run: make build-deployment
