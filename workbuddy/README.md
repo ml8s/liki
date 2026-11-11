@@ -6,7 +6,7 @@
 
 | 路径 | 内容 |
 | --- | --- |
-| `.mcp.json` | 指向 liki-mcp 付费网关（`https://liki.hk/mcp`） |
+| `.mcp.json` | 指向 liki-mcp 付费网关（`https://mcp.tokflux.com/mcp`） |
 | `SKILL.md` | 方法论卡索引（生成物） |
 | `expert-packs/liki/agents/liki.md` | 部署身份（从身份源投影） |
 | `avatars/expert.svg` / `expert.png` | 品牌资源 |

@@ -20,15 +20,14 @@ metadata:
 
 ## MCP 前置
 
-Liki 通过标准 MCP 提供能力，两个等价端点：
+Liki 通过官方 MCP endpoint 提供能力：
 
-| MCP | 端点 A | 端点 B |
-| --- | --- | --- |
-| ENGINE | `https://liki.hk/engine/mcp` | `https://mcp.tokflux.com/engine/mcp` |
-| COUNSEL | `https://liki.hk/counsel/mcp` | `https://mcp.tokflux.com/counsel/mcp` |
+| MCP | Endpoint |
+| --- | --- |
+| ENGINE | `https://mcp.tokflux.com/engine/mcp` |
+| COUNSEL | `https://mcp.tokflux.com/counsel/mcp` |
 
-> 连接规则：首次连接并发探测两个端点（各 5 秒超时），选用先应答者并在会话内
-> 固定；会话中端点失败时切换到另一个端点重试一次。已设置 `LIKI_ENGINE_URL` /
+> 连接规则：使用 endpoint 与 `.mcp.json` 保持一致；已设置 `LIKI_ENGINE_URL` /
 > `LIKI_COUNSEL_URL` 环境变量时以环境变量为准。启动确认连接和版本；远程 10 秒
 > 不可达时标注“版本未校验”。异常读 `references/FAQ.md`。
 

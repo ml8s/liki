@@ -2,7 +2,7 @@
   "mcpServers": {
     "liki": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp"
+      "url": "https://mcp.tokflux.com/mcp"
     }
   }
 }

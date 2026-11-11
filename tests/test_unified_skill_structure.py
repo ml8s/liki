@@ -168,11 +168,11 @@ def test_root_mcp_declares_manual_install_surface():
     assert mcp["mcpServers"] == {
         "engine": {
             "type": "streamableHttp",
-            "url": "https://liki.hk/engine/mcp",
+            "url": "https://mcp.tokflux.com/engine/mcp",
         },
         "counsel": {
             "type": "streamableHttp",
-            "url": "https://liki.hk/counsel/mcp",
+            "url": "https://mcp.tokflux.com/counsel/mcp",
         },
     }
 
