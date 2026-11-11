@@ -1,5 +1,5 @@
 # 多阶段构建：镜像仅含 engine-mcp 运行时。
-FROM golang:1.26.10-alpine@sha256:5cb67f19c5e7994dcb80c074f7cfca8aeeada45bbdca035f73df269cefdcce61 AS build
+FROM golang:1.26.11-alpine@sha256:ae52b5bc6ed045a9ed26ab03dc19327a802a9cc9aa8b27ed57f5c6b60579b0bb AS build
 WORKDIR /src
 ENV GOPROXY=https://goproxy.cn,direct
 ARG VERSION=local

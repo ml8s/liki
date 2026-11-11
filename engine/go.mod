@@ -1,6 +1,6 @@
 module liki-engine
 
-go 1.26.10
+go 1.26.11
 
 require (
 	golang.org/x/time v0.15.0 // indirect

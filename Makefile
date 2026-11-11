@@ -19,8 +19,10 @@ export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 NODE_BIN := $(HOME)/.nvm/versions/node/v$(shell cat .nvmrc)/bin
 PYTHON_BIN := $(CURDIR)/counsel/.venv/bin
-export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go1.26.10/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
-export GOTOOLCHAIN ?= go1.26.10
+export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/sdk/go1.26.11/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
+export GOTOOLCHAIN ?= go1.26.11
+# Stale host GOROOT would force the 1.26.10 standard library onto the 1.26.11 toolchain.
+unexport GOROOT
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine \

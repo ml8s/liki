@@ -7,6 +7,10 @@
     "node": "24.14.1"
   },
   "devDependencies": {
-    "markdownlint-cli2": "0.23.3"
+    "markdownlint-cli2": "^0.24.0"
+  },
+  "overrides": {
+    "katex": "0.19.1",
+    "re2js": "2.10.0"
   }
 }
