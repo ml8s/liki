@@ -50,6 +50,18 @@ class UpstreamRoutes:
     counsel: str
 
 
+# Retired names intentionally have no compatibility aliases. A structured
+# migration hint keeps old clients from interpreting a generic unknown-tool
+# error as a runtime outage.
+RETIRED_TOOLS = {
+    "compute_factors": "removed; factors are internal; use natal_query",
+    "liuyao_snapshot": "renamed; use liuyao_ask",
+    "period_query": "renamed; use natal_liunian_query",
+    "qimen_snapshot": "renamed; use qimen_ask",
+    "tianwen_resolve": "renamed; use subject_candidates",
+}
+
+
 def _jsonrpc_result(request_id: Any, result: Any) -> JSONResponse:
     return JSONResponse({"jsonrpc": "2.0", "id": request_id, "result": result})
 
@@ -140,7 +152,13 @@ def _route_tool(config: GatewayConfig, tool_name: str) -> str:
         raise ProtocolError(-32003, f"tool is forbidden on LIKI: {tool_name}", tool=tool_name)
     upstream_name = config.exposed_tools.get(tool_name)
     if upstream_name is None:
-        raise ProtocolError(-32602, f"unknown tool: {tool_name}", tool=tool_name)
+        migration = RETIRED_TOOLS.get(tool_name)
+        detail = f"; {migration}" if migration else ""
+        raise ProtocolError(
+            -32602,
+            f"unknown tool: {tool_name}{detail}",
+            tool=tool_name,
+        )
     return upstream_name
 
 
@@ -388,7 +406,7 @@ async def mcp_endpoint(request: Request) -> Response:
 
 
 async def healthz(_: Request) -> JSONResponse:
-    return JSONResponse({"status": "ok"})
+    return JSONResponse({"status": "ok", "version": load_config().server_version})
 
 
 async def readyz(_: Request) -> JSONResponse:
