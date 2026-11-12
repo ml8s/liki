@@ -268,7 +268,7 @@ check-actions: ## Reject mutable reusable workflow/action references
 hooks: ## Install repository git hooks
 	git config core.hooksPath .githooks
 
-version: ## Bump all runtime CalVer surfaces together
+version: ## Bump the single release version source
 	@python3 scripts/bump_version.py
 
 python-env: ## Provision the exact CI Python (.python-version) via uv + counsel venv

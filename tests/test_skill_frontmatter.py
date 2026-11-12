@@ -2,7 +2,7 @@
 import unittest
 
 import yaml
-from _helpers import ROOT, SKILL_ROOT
+from _helpers import SKILL_ROOT
 
 
 class TestSkillFrontmatter(unittest.TestCase):
@@ -41,23 +41,15 @@ class TestSkillFrontmatter(unittest.TestCase):
             set(meta),
             {"name", "license", "description", "metadata"},
         )
-        for key in ("description_zh", "description_en", "version", "author"):
+        for key in ("description_zh", "description_en", "author"):
             value = meta["metadata"].get(key)
             self.assertIsInstance(value, str, key)
             self.assertTrue(value.strip(), key)
 
-    def test_frontmatter_version_is_platform_semver_projection(self):
-        """SKILL.md metadata.version 是平台投影：取发行 CalVer 的 semver 投影（平台拒 4 段）。"""
-        import sys
-
-        sys.path.insert(0, str(ROOT / "scripts"))
-        from version_projection import workbuddy_version
-
-        meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
-        version = meta["metadata"]["version"]
-        runtime_version = (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
-        self.assertEqual(str(version), workbuddy_version(runtime_version))
-        self.assertRegex(str(version), r"^\d+\.\d+\.\d+$", version)
+    def test_frontmatter_has_no_manual_release_version(self):
+        """源码 SKILL.md 不手写版本；渠道包由构建器注入平台投影。"""
+        meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---\n")[1])
+        self.assertNotIn("version", meta["metadata"])
 
     def test_skill_readable_markdown_lives_in_references(self):
         """ADK LoadResource 只认 references/assets/scripts：references 外不得有可读 md。"""

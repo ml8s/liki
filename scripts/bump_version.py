@@ -1,104 +1,27 @@
 #!/usr/bin/env python3
-"""Bump every Liki runtime and distribution CalVer surface atomically."""
+"""Bump the single release version source; all other versions are generated."""
 
-import json
-import sys
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
-from version_projection import workbuddy_version  # noqa: E402  制品版本的唯一投影
-
-VERSION_FILES = (
-    ROOT / "skills/liki/VERSION.txt",
-)
-PROFILE_FILE = ROOT / "distribution/liki-expert/profile.json"
-# The remaining surfaces are projections of skills/liki/VERSION.txt.
-SKILL_FRONTMATTER = ROOT / "skills/liki/SKILL.md"
-CHANNEL_PACKS = ROOT / "distribution/workbuddy"
-
-
-def current_versions() -> list[str]:
-    return [
-        path.read_text(encoding="utf-8").strip()
-        for path in (*VERSION_FILES, PROFILE_FILE)
-    ]
+VERSION_FILE = ROOT / "skills/liki/VERSION.txt"
 
 
 def next_version() -> str:
     today = datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y.%m.%d")
-    serial = -1
-    found = False
-    for version in current_versions():
-        if version.startswith(today + "."):
-            found = True
-            serial = max(serial, int(version.rsplit(".", 1)[1]))
-    if not found:
-        serial = 0
-    else:
-        serial += 1
-    return f"{today}.{serial}"
-
-
-def replace_frontmatter_version(path: Path, version: str) -> None:
-    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
-    if not lines or lines[0].rstrip("\r\n") != "---":
-        raise SystemExit(f"missing frontmatter in {path.relative_to(ROOT)}")
-    for index in range(1, len(lines)):
-        if lines[index].rstrip("\r\n") == "---":
-            raise SystemExit(
-                f"frontmatter version missing in {path.relative_to(ROOT)}"
-            )
-        stripped = lines[index].lstrip()
-        indent = lines[index][: len(lines[index]) - len(stripped)]
-        if stripped.startswith("version:"):
-            lines[index] = f"{indent}version: {version}\n"
-            path.write_text("".join(lines), encoding="utf-8")
-            return
-
-
-def set_channel_pack_versions(version: str) -> None:
-    for plugin_path in sorted(CHANNEL_PACKS.glob("*/.codebuddy-plugin/plugin.json")):
-        document = json.loads(plugin_path.read_text(encoding="utf-8"))
-        document["version"] = version
-        plugin_path.write_text(
-            json.dumps(document, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-
-
-def set_pyproject(version: str) -> None:
-    for relative in ("pyproject.toml", "counsel/pyproject.toml"):
-        path = ROOT / relative
-        lines = path.read_text(encoding="utf-8").splitlines()
-        changed = False
-        for index, line in enumerate(lines):
-            if line.startswith("version ="):
-                lines[index] = f'version = "{version}"'
-                changed = True
-                break
-        if changed:
-            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    current = VERSION_FILE.read_text(encoding="utf-8").strip()
+    serial = -1 if current.startswith(today + ".") else 0
+    if serial == -1:
+        serial = int(current.rsplit(".", 1)[1])
+    return f"{today}.{serial + 1}"
 
 
 def main() -> None:
     version = next_version()
-    for path in VERSION_FILES:
-        path.write_text(version + "\n", encoding="utf-8")
-    profile = json.loads(PROFILE_FILE.read_text(encoding="utf-8"))
-    profile.setdefault("metadata", {})["version"] = version
-    PROFILE_FILE.write_text(
-        json.dumps(profile, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    # 平台按 semver 解析制品版本：技能/渠道专家统一写投影值。
-    artifact_version = workbuddy_version(version)
-    replace_frontmatter_version(SKILL_FRONTMATTER, artifact_version)
-    set_channel_pack_versions(artifact_version)
-    set_pyproject(version)
-    print(f"✅ version → {version}（distribution artifact {artifact_version}）")
+    VERSION_FILE.write_text(version + "\n", encoding="utf-8")
+    print(f"release version → {version}")
 
 
 if __name__ == "__main__":
