@@ -10,15 +10,11 @@ import (
 	"liki-engine/internal/engine/liuyao"
 )
 
-type LiuyaoCoinRoundsInput []LiuyaoCoinRoundInput
+// LiuyaoCoinRoundInput is one raw three-coin outcome. The engine owns totaling,
+// labels, changing flags, and the normalized receipt.
+type LiuyaoCoinRoundInput [3]LiuyaoCoinSymbol
 
-type LiuyaoCoinRoundInput struct {
-	Position LiuyaoPosition      `json:"position" jsonschema:"爻位，初爻到上爻 1-6。"`
-	Coins    [3]LiuyaoCoinSymbol `json:"coins" jsonschema:"三枚铜钱记录，正/反按调用顺序保留。"`
-	Value    LiuyaoYaoValue      `json:"yao_value" jsonschema:"三币合计爻值 6-9。"`
-	Label    LiuyaoYaoLabel      `json:"yao_label" jsonschema:"老阴/少阳/少阴/老阳。"`
-	Changing bool                `json:"is_dong_yao" jsonschema:"是否动爻。"`
-}
+type LiuyaoCoinRoundsInput []LiuyaoCoinRoundInput
 
 type LiuyaoYaoValuesInput []LiuyaoYaoValue
 
@@ -387,7 +383,7 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 		rounds := make([][]liuyao.CoinFace, 0, 6)
 		for _, round := range request.Rounds {
 			coins := make([]liuyao.CoinFace, 0, 3)
-			for _, coin := range round.Coins {
+			for _, coin := range round {
 				coins = append(coins, liuyao.CoinFace(coin))
 			}
 			rounds = append(rounds, coins)

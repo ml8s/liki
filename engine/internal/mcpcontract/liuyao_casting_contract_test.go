@@ -50,6 +50,60 @@ func TestLiuyaoCoinScoresUseConstSchema(t *testing.T) {
 	}
 }
 
+func TestLiuyaoQiguaCoinsInputUsesRawThreeCoinArrays(t *testing.T) {
+	definition, err := testEngine().Definition("liuyao_qigua")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var schema struct {
+		OneOf []struct {
+			Properties struct {
+				Casting struct {
+					Properties struct {
+						Mode   map[string]any `json:"mode"`
+						Rounds map[string]any `json:"rounds"`
+					} `json:"properties"`
+				} `json:"casting"`
+			} `json:"properties"`
+		} `json:"oneOf"`
+	}
+	if err := json.Unmarshal(definition.InputSchema, &schema); err != nil {
+		t.Fatal(err)
+	}
+
+	var roundsSchema map[string]any
+	for _, form := range schema.OneOf {
+		if form.Properties.Casting.Properties.Mode["const"] == "coins" {
+			roundsSchema = form.Properties.Casting.Properties.Rounds
+			break
+		}
+	}
+	if roundsSchema == nil {
+		t.Fatal("coins form is missing rounds schema")
+	}
+	if roundsSchema["minItems"] != float64(6) || roundsSchema["maxItems"] != float64(6) {
+		t.Fatalf("rounds bounds = %v, want exactly 6", roundsSchema)
+	}
+	items, ok := roundsSchema["items"].(map[string]any)
+	if !ok {
+		t.Fatalf("rounds items is not an object schema: %#v", roundsSchema["items"])
+	}
+	if items["type"] != "array" {
+		t.Fatalf("round items type = %#v, want array", items["type"])
+	}
+	if items["minItems"] != float64(3) || items["maxItems"] != float64(3) {
+		t.Fatalf("round item bounds = %#v, want exactly 3", items)
+	}
+	coinItems, ok := items["items"].(map[string]any)
+	if !ok {
+		t.Fatalf("coin items is not an object schema: %#v", items["items"])
+	}
+	enum, ok := coinItems["enum"].([]any)
+	if !ok || len(enum) != 2 || enum[0] != "正" || enum[1] != "反" {
+		t.Fatalf("coin item enum = %#v, want 正/反", coinItems["enum"])
+	}
+}
+
 func TestLiuyaoQiguaReceiptFeedsChartForAutoAndCoins(t *testing.T) {
 	registry := testEngine()
 	chartInput := func(t *testing.T, casting LiuyaoCastingOutput) LiuyaoChartInput {
@@ -99,12 +153,12 @@ func TestLiuyaoQiguaReceiptFeedsChartForAutoAndCoins(t *testing.T) {
 		Casting: LiuyaoCastingRequestInput{
 			Mode: "coins",
 			Rounds: LiuyaoCoinRoundsInput{
-				{Position: 1, Coins: [3]LiuyaoCoinSymbol{"正", "正", "反"}, Value: 8, Label: "少阴", Changing: false},
-				{Position: 2, Coins: [3]LiuyaoCoinSymbol{"正", "反", "反"}, Value: 7, Label: "少阳", Changing: false},
-				{Position: 3, Coins: [3]LiuyaoCoinSymbol{"反", "反", "反"}, Value: 6, Label: "老阴", Changing: true},
-				{Position: 4, Coins: [3]LiuyaoCoinSymbol{"正", "正", "正"}, Value: 9, Label: "老阳", Changing: true},
-				{Position: 5, Coins: [3]LiuyaoCoinSymbol{"正", "反", "反"}, Value: 7, Label: "少阳", Changing: false},
-				{Position: 6, Coins: [3]LiuyaoCoinSymbol{"正", "正", "反"}, Value: 8, Label: "少阴", Changing: false},
+				{"正", "正", "反"},
+				{"正", "反", "反"},
+				{"反", "反", "反"},
+				{"正", "正", "正"},
+				{"正", "反", "反"},
+				{"正", "正", "反"},
 			},
 		},
 	}))

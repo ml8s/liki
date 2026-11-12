@@ -12,6 +12,21 @@ LIUYAO_ARGS = {
     "standard_time": "2026-10-01T10:00:00+08:00",
 }
 
+LIUYAO_COINS_ARGS = {
+    **LIUYAO_ARGS,
+    "casting": {
+        "mode": "coins",
+        "rounds": [
+            ["正", "正", "反"],
+            ["正", "反", "反"],
+            ["反", "反", "反"],
+            ["正", "正", "正"],
+            ["正", "反", "反"],
+            ["正", "正", "反"],
+        ],
+    },
+}
+
 QIMEN_ARGS = {
     "question": "测试谈判时机",
     "longitude": 116.4,
@@ -38,6 +53,24 @@ def test_liuyao_ask_returns_self_contained_reading():
     assert set(policy["same_matter"]) == {"clarification", "timing", "obstacle"}
     assert "used_evidence_ids" not in got["interpretation"]
     assert all("applies" not in item for item in got["condition_candidates"])
+
+
+def test_liuyao_ask_coins_uses_raw_outcomes_and_engine_normalization():
+    """Guard the full counsel -> engine coins contract, not mocked projections."""
+    srv = create_counsel_root_mcp()
+    got = asyncio.run(
+        srv.call_tool("liuyao_ask", dict(LIUYAO_COINS_ARGS))
+    ).structured_content
+
+    assert got["casting"]["mode"] == "coins"
+    assert got["casting"]["coin_convention"] == {"正": 3, "反": 2}
+    assert got["casting"]["yaos"] == [8, 7, 6, 9, 7, 8]
+    assert got["casting"]["dong_yao"] == [3, 4]
+    for position, round_value in enumerate(got["casting"]["rounds"], 1):
+        assert round_value["position"] == position
+        assert round_value["yao_value"] in {6, 7, 8, 9}
+        assert round_value["is_dong_yao"] == (round_value["yao_value"] in {6, 9})
+    assert got["interpretation"]["headline"]
 
 
 def test_qimen_ask_returns_self_contained_reading():
