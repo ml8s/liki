@@ -97,7 +97,7 @@ not rate-limit.
 | `LIKI_UPSTREAM_COUNSEL_TIMEOUT_SECONDS` | `35` | COUNSEL tools/call timeout |
 | `LIKI_VERSION` | `0.1.0` | Runtime version reported by LIKI gateway |
 | `LIKI_MCP_SERVER_NAME` | `liki-mcp` | Server name in MCP `initialize` response |
-| `LIKI_MCP_SERVER_TITLE` | `LIKI product MCP` | Server title in MCP `initialize` response |
+| `LIKI_MCP_SERVER_TITLE` | `Liki 命理师 MCP` | Server title in MCP `initialize` response |
 | `LIKI_PAYWALL_ENABLED` | `false` | Enable AI A2M paywall for paid tools |
 | `ALIPAY_APP_ID` | — | Alipay application ID (required when paywall enabled) |
 | `ALIPAY_PRIVATE_KEY_PKCS1` | — | Alipay application private key for the Python SDK (PKCS#1) |

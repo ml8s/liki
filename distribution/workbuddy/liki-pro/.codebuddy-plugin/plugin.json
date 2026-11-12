@@ -11,8 +11,8 @@
   "avatar": "./avatars/expert.png",
   "categoryId": "lifestyle",
   "defaultInitPrompt": {
-    "en": "Hello, I am Liki",
-    "zh": "你好，我是 Liki 命理师"
+    "en": "Hello, I am Liki Astrologer.",
+    "zh": "你好，我是 Liki 命理师。"
   },
   "tags": [
     "命理",
@@ -23,7 +23,7 @@
     {
       "label": "八字命盘",
       "prompt": "帮我看八字命盘",
-      "zh": "你好，我是 Liki 命理师"
+      "zh": "你好，我是 Liki 命理师。"
     },
     {
       "label": "六爻占卜",

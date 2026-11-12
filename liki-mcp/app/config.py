@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 import os
-from decimal import Decimal, InvalidOperation
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -222,7 +222,7 @@ def load_config() -> GatewayConfig:
 
     return GatewayConfig(
         server_name=_env("LIKI_MCP_SERVER_NAME", "hk.liki/liki"),
-        server_title=_env("LIKI_MCP_SERVER_TITLE", "Liki — Professional AI Astrologer"),
+        server_title=_env("LIKI_MCP_SERVER_TITLE", "Liki 命理师 MCP"),
         server_version=_env("LIKI_VERSION", "dev"),
         engine=UpstreamConfig(
             name="engine",
