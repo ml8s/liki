@@ -186,6 +186,11 @@ def test_natal_query_over_mcp(subject):
     out = r.structured_content
     assert out["bazi"]["assertions"]
     assert "ziwei" in out and isinstance(out["ziwei"]["assertions"], list)
+    for side in ("bazi", "ziwei"):
+        counts = out[side]["counts"]
+        assert counts["returned"] == len(out[side]["assertions"])
+        assert counts["filtered"] == counts["matched"] - counts["returned"]
+        assert sum(counts["filtered_by"].values()) == counts["filtered"]
     assert all("technique" not in a for a in out["bazi"]["assertions"])
     assert out["natal_chart_digest"]
 
@@ -210,6 +215,14 @@ def test_natal_liunian_query_over_mcp(subject):
     assert any(a["assertion_id"].startswith("ymar_") for a in bazi_assertions)
     assert bazi_assertions
     assert isinstance(ziwei_assertions, list)
+    for year in years:
+        for side in ("bazi", "ziwei"):
+            if "counts" not in year[side]:
+                continue
+            counts = year[side]["counts"]
+            assert counts["returned"] == len(year[side]["assertions"])
+            assert counts["filtered"] == counts["matched"] - counts["returned"]
+            assert sum(counts["filtered_by"].values()) == counts["filtered"]
     assert all("technique" not in a for a in bazi_assertions + ziwei_assertions)
 
 
