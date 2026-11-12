@@ -42,6 +42,11 @@ func supportsFastInputSchema(schema *jsonschema.Schema) bool {
 	if schema == nil {
 		return true
 	}
+	if hasNumericEnum(schema) {
+		// JSON numbers have canonical semantic equality (3 == 3.0). Keep the
+		// generic validator authoritative instead of comparing boxed Go types.
+		return false
+	}
 	if schema.Ref != "" || schema.DynamicRef != "" ||
 		schema.Const != nil || schema.MultipleOf != nil || schema.Pattern != "" ||
 		schema.ExclusiveMinimum != nil || schema.ExclusiveMaximum != nil ||
@@ -72,6 +77,18 @@ func supportsFastInputSchema(schema *jsonschema.Schema) bool {
 
 func isFalseSchema(schema *jsonschema.Schema) bool {
 	return schema != nil && schema.Not != nil && reflect.ValueOf(*schema.Not).IsZero()
+}
+
+func hasNumericEnum(schema *jsonschema.Schema) bool {
+	for _, value := range schema.Enum {
+		switch reflect.ValueOf(value).Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+			reflect.Float32, reflect.Float64:
+			return true
+		}
+	}
+	return false
 }
 
 func collectClosedInputSchemas(schema *jsonschema.Schema, closed map[*jsonschema.Schema]bool) {
@@ -608,11 +625,6 @@ func enumContains(value any, values []any) bool {
 		case string:
 			text, ok := allowed.(string)
 			if ok && typed == text {
-				return true
-			}
-		case float64:
-			number, ok := allowed.(float64)
-			if ok && typed == number {
 				return true
 			}
 		case bool:
