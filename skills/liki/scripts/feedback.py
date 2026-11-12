@@ -29,7 +29,7 @@ SESSION_HASH_PATTERN = r"^sha256:[a-f0-9]{64}$"
 MAX_PAYLOAD_BYTES = 32 * 1024
 
 TOP_LEVEL = {"schema_version", "meta", "agent", "llm", "problem"}
-META_FIELDS = {"source", "skill", "session_hash"}
+META_FIELDS = {"source", "skill", "skill_version", "engine_version", "session_hash"}
 AGENT_FIELDS = {"name", "version"}
 LLM_FIELDS = {"provider", "model", "model_version"}
 PROBLEM_FIELDS = {"type", "severity", "tool", "summary", "expected", "observed"}

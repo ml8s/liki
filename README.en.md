@@ -108,7 +108,7 @@ Liki Skill builds two distribution variants from the same methodology:
 | Variant | MCP access | Payment |
 | --- | --- | --- |
 | `liki-free` | Direct `engine-mcp` and `counsel-mcp` | None |
-| `liki-pro` | Through the `liki-mcp` paid gateway | Supports SkillPay / 402 payment flow |
+| `liki-pro` | Through the `liki-mcp` paid product MCP | Supports SkillPay / 402 payment flow |
 
 The free source installs with `npx skills add ml8s/liki`. Paid packages are distributed by channel to SkillHub / WorkBuddy.
 

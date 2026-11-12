@@ -26,7 +26,7 @@ skills/liki/feedback.schema.json
 
 | 组 | 必填 | 字段 | 用途 |
 |---|---|---|---|
-| `meta` | 是 | `source`, `skill`, `session_hash?` | 识别反馈来源和会话去重 |
+| `meta` | 是 | `source`, `skill`, `session_hash?`, `skill_version?`, `engine_version?` | 识别反馈来源和会话去重；两个 version 字段仅为旧包兼容，可选且不注入 |
 | `agent` | 是 | `name`, `version` | 判断是否为 agent 宿主或框架问题 |
 | `llm` | 是 | `provider`, `model`, `model_version?` | 判断是否为模型能力或快照差异 |
 | `problem` | 是 | `type`, `severity`, `summary`, `tool?`, `expected?`, `observed?` | 描述问题本体 |

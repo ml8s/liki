@@ -108,7 +108,7 @@ Liki Skill 使用同一套方法论构建两个分发变体：
 | 变体 | MCP 接入 | 支付 |
 | --- | --- | --- |
 | `liki-free` | 直连 `engine-mcp` 与 `counsel-mcp` | 无 |
-| `liki-pro` | 通过 `liki-mcp` 付费网关 | 支持 SkillPay / 402 支付流程 |
+| `liki-pro` | 通过 `liki-mcp` 付费产品 MCP | 支持 SkillPay / 402 支付流程 |
 
 免费版本仓库通过 `npx skills add ml8s/liki` 安装。付费包按渠道发布到 SkillHub / WorkBuddy。
 

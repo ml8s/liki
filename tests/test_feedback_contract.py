@@ -60,7 +60,7 @@ class TestFeedbackContract(unittest.TestCase):
         self.assertEqual(set(schema["required"]), {"schema_version", "meta", "agent", "llm", "problem"})
         self.assertEqual(set(schema["properties"]), {"schema_version", "meta", "agent", "llm", "problem"})
         for group, allowed in {
-            "meta": {"source", "skill", "session_hash"},
+            "meta": {"source", "skill", "skill_version", "engine_version", "session_hash"},
             "agent": {"name", "version"},
             "llm": {"provider", "model", "model_version"},
             "problem": {"type", "severity", "tool", "summary", "expected", "observed"},
