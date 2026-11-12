@@ -106,19 +106,20 @@ def _normalize_row(
 def _flatten_side_result(
     result: dict, selected: list[tuple[str, dict]], routes: dict,
     year: int | None = None,
-) -> tuple[dict[str, list[dict]], dict[str, int]]:
+) -> tuple[dict[str, list[dict]], dict[str, dict[str, int]]]:
     assertions: dict[str, list[dict]] = {}
-    matched: dict[str, int] = {}
+    counts: dict[str, dict[str, int]] = {}
     cross_cutting = frozenset(routes.get("cross_cutting_domains") or ())
     for label, technique in _side_pairs():
         assertions[technique] = []
-        matched[technique] = 0
+        counts[technique] = {"matched": 0, "topic_not_selected": 0}
         for row in result.get(label, []):
             if not isinstance(row, dict):
                 continue
-            matched[technique] += 1
+            counts[technique]["matched"] += 1
             life_topics = _life_topics_for_row(row, selected, cross_cutting)
             if not life_topics:
+                counts[technique]["topic_not_selected"] += 1
                 continue
             source_rule = row.get("rule") or result.get("_rule", "")
             assertions[technique].append(_normalize_row(
@@ -126,7 +127,34 @@ def _flatten_side_result(
                 rule_id=routes["method_ids"].get(source_rule, source_rule),
                 year=year,
             ))
-    return assertions, matched
+    return assertions, counts
+
+
+def _empty_source_counts() -> dict[str, dict[str, int]]:
+    return {
+        technique: {"matched": 0, "topic_not_selected": 0}
+        for technique in ("bazi", "ziwei")
+    }
+
+
+def _add_source_counts(total: dict[str, dict[str, int]], part: dict[str, dict[str, int]]) -> None:
+    for technique in ("bazi", "ziwei"):
+        for reason in ("matched", "topic_not_selected"):
+            total[technique][reason] += part[technique][reason]
+
+
+def _public_counts(
+    matched: int, topic_not_selected: int, returned: int,
+) -> dict:
+    return {
+        "matched": matched,
+        "returned": returned,
+        "filtered": matched - returned,
+        "filtered_by": {
+            "topic_not_selected": topic_not_selected,
+            "deduplicated": matched - topic_not_selected - returned,
+        },
+    }
 
 
 
@@ -179,15 +207,15 @@ def _analyze_liunian(natal_chart: dict, args: dict, validate_pan: bool = True) -
             })
             continue
         grouped: dict[str, list[dict]] = {}
-        matched: dict[str, int] = {}
+        source_counts = _empty_source_counts()
         for rule, rule_result in result.items():
             rule_result["_rule"] = rule
             part, matched_count = _flatten_side_result(
                 rule_result, selected_pairs, routes, year
             )
+            _add_source_counts(source_counts, matched_count)
             for technique in ("bazi", "ziwei"):
                 grouped.setdefault(technique, []).extend(part[technique])
-                matched[technique] = matched.get(technique, 0) + matched_count[technique]
         side_results = {}
         for technique in ("bazi", "ziwei"):
             unique = [
@@ -196,10 +224,11 @@ def _analyze_liunian(natal_chart: dict, args: dict, validate_pan: bool = True) -
             ]
             side_results[technique] = {
                 "assertions": unique,
-                "counts": {
-                    "matched": matched.get(technique, 0),
-                    "returned": len(unique),
-                },
+                "counts": _public_counts(
+                    source_counts[technique]["matched"],
+                    source_counts[technique]["topic_not_selected"],
+                    len(unique),
+                ),
             }
         output_scopes.append({
             "year": year,

@@ -114,10 +114,25 @@ class NatalAssertion(BaseModel):
     )
 
 
+class AssertionFilteredBy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    topic_not_selected: int = Field(ge=0, description="因所属领域未被选中而过滤的次数。")
+    deduplicated: int = Field(ge=0, description="跨规则重复命中的去重次数。")
+
+
+class AssertionCounts(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    matched: int = Field(ge=0, description="来源断语命中次数。")
+    returned: int = Field(ge=0, description="过滤后返回的断语数。")
+    filtered: int = Field(ge=0, description="未返回的命中次数。")
+    filtered_by: AssertionFilteredBy = Field(description="过滤原因计数。")
+
+
 class NatalSideResult(BaseModel):
     """One technique side of a combined natal result."""
     model_config = ConfigDict(extra="forbid")
     assertions: list[NatalAssertion] = Field(description="该侧命理断语结果。")
+    counts: AssertionCounts = Field(description="命中、过滤与返回计数。")
 
 
 class NatalQueryOutput(BaseModel):
@@ -155,12 +170,6 @@ class LiunianQueryInput(BaseModel):
     )
 
 
-class LiunianCounts(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    matched: int = Field(ge=0, description="来源断语命中次数。")
-    returned: int = Field(ge=0, description="过滤后返回的断语数。")
-
-
 class LiunianYearError(BaseModel):
     model_config = ConfigDict(extra="forbid")
     code: Literal["ENGINE_UNAVAILABLE"] = Field(description="错误码。")
@@ -171,7 +180,7 @@ class LiunianSideResult(BaseModel):
     """One technique side of a combined yearly result."""
     model_config = ConfigDict(extra="forbid")
     assertions: list[NatalAssertion] = Field(description="该侧流年断语。")
-    counts: LiunianCounts = Field(description="命中与返回计数。")
+    counts: AssertionCounts = Field(description="命中、过滤与返回计数。")
 
 
 class LiunianYearSuccess(BaseModel):

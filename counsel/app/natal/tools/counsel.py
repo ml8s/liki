@@ -81,10 +81,13 @@ def _factor_snapshots(subject: dict) -> dict[str, dict]:
 def natal_query(subject: dict, life_topics: list[str]) -> dict:
     """Subject + topics -> combined Bazi and Ziwei natal assertions."""
     from app.natal.tools.analytics import (
+        _add_source_counts,
         _deduplicate,
+        _empty_source_counts,
         _flatten_side_result,
         _load_routes,
         _public_assertion,
+        _public_counts,
         _require_life_topics,
     )
     from app.natal.tools.factor_constants import load_constants
@@ -100,21 +103,29 @@ def natal_query(subject: dict, life_topics: list[str]) -> dict:
         "context": context,
     }
     grouped: dict[str, list[dict]] = {"bazi": [], "ziwei": []}
+    source_counts = _empty_source_counts()
     for topic, route in selected:
         for rule in route["natal_rules"]:
             result = match_rule(rule, snapshots)
             result["_rule"] = rule
-            part, _count = _flatten_side_result(result, selected, routes)
+            part, part_counts = _flatten_side_result(result, selected, routes)
+            _add_source_counts(source_counts, part_counts)
             for technique in ("bazi", "ziwei"):
                 grouped[technique].extend(part[technique])
 
     side_results = {}
     for technique in ("bazi", "ziwei"):
+        assertions = [
+            _public_assertion(item)
+            for item in _deduplicate(grouped[technique])
+        ]
         side_results[technique] = {
-            "assertions": [
-                _public_assertion(item)
-                for item in _deduplicate(grouped[technique])
-            ],
+            "assertions": assertions,
+            "counts": _public_counts(
+                source_counts[technique]["matched"],
+                source_counts[technique]["topic_not_selected"],
+                len(assertions),
+            ),
         }
     return {
         "natal_chart_digest": factor_snapshots["bazi"]["provenance"]["natal_chart_digest"],
