@@ -1,6 +1,11 @@
-<h1 align="center">Liki — Professional Astrology Skill</h1>
+<p align="center">
+  <img src="./docs/assets/liki-c3.svg" alt="Liki Skill logo" width="96" height="96">
+</p>
+
+<h1 align="center">Liki Skill</h1>
 
 <p align="center">
+  Professional Astrology Skill.<br>
   For Astrology, use Liki.<br>
   Reproducible charts · Traceable readings · Honest boundaries<br>
   Bazi · Ziwei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
@@ -13,11 +18,11 @@
   <a href="https://liki.hk"><img alt="website" src="https://img.shields.io/badge/liki.hk-6d5acf?style=flat-square"></a>
 </p>
 
-## Why Liki
+## Why Liki Skill
 
 Ask a general-purpose LLM about the same chart three times and you may get three different answers. Chinese metaphysics amplifies small errors: miss a solar-term boundary by a day and the year pillar changes — every reading after it shifts.
 
-So Liki turned each error-prone step into an explicit process: chart casting cross-checked against multiple implementations, readings emitted from rule truth tables, birth time normalized and calibrated before any judgment. **Conclusions are computed, not improvised.**
+So Liki Skill turns each error-prone step into an explicit process: chart casting cross-checked against multiple implementations, readings emitted from rule truth tables, birth time normalized and calibrated before any judgment. **Conclusions are computed, not improvised.**
 
 - ✅ **Reproducible charts** — same input, same chart, every time; solar terms and true solar time are handled by the astronomical engine
 - ✅ **Traceable readings** — every conclusion cites its factor evidence, all the way to the classics (《三命通会》《滴天髓》…)
@@ -25,7 +30,7 @@ So Liki turned each error-prone step into an explicit process: chart casting cro
 
 ## Three deep dives
 
-Three places most tools stay vague — and where Liki differs the most.
+Three places most tools stay vague — and where Liki Skill differs the most.
 
 ### 1｜The chart engine was cross-checked against three open-source implementations
 
@@ -57,7 +62,7 @@ The most error-prone step in chart casting is "determining the time":
 - Born near a solar-term boundary, a few minutes change the year pillar;
 - After 23:00, the "late Zi" rule makes the day pillar assignment error-prone.
 
-So Liki makes calibration an explicit process instead of silently casting your chart from wall-clock time:
+So Liki Skill makes calibration an explicit process instead of silently casting your chart from wall-clock time:
 
 ```text
 your time + birthplace → normalization → candidate set (each with reasons)
@@ -86,9 +91,9 @@ npx skills add ml8s/liki
 
 For destiny readings, provide the birth date, exact time when possible, birth city, and gender. If data is incomplete, the Skill asks follow-up questions or enters time calibration. When prompted, update with `npx skills add ml8s/liki -y`.
 
-## Ask an LLM directly, or use Liki?
+## Ask an LLM directly, or use Liki Skill?
 
-|  | Ask an LLM directly | Liki |
+|  | Ask an LLM directly | Liki Skill |
 | --- | --- | --- |
 | Charts | Mental math by the model; solar terms / true solar time are error-prone; results vary | Astronomical engine; same input, same chart, every time |
 | Readings | Freeform, no sources | 829 rule truth-table assertions, each with classical sources |
@@ -98,7 +103,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 
 ## Distribution variants
 
-Liki builds two distribution variants from the same methodology:
+Liki Skill builds two distribution variants from the same methodology:
 
 | Variant | MCP access | Payment |
 | --- | --- | --- |
@@ -144,7 +149,7 @@ The Skill asks follow-up questions or uses real events for calibration. Insuffic
 
 ### I know my exact birth time — why calibrate?
 
-Clock time is not destiny time: standard time (say, Beijing time) can drift from your birthplace's true solar time by half a shichen; a few minutes near a solar-term boundary changes the year pillar; the late-Zi rule makes the day pillar error-prone. These errors hide at boundaries you cannot see — so even with an accurate clock time, Liki normalizes first: list candidates with reasons, cast each, then calibrate against your real events. It is the first step of chart correctness.
+Clock time is not destiny time: standard time (say, Beijing time) can drift from your birthplace's true solar time by half a shichen; a few minutes near a solar-term boundary changes the year pillar; the late-Zi rule makes the day pillar error-prone. These errors hide at boundaries you cannot see — so even with an accurate clock time, Liki Skill normalizes first: list candidates with reasons, cast each, then calibrate against your real events. It is the first step of chart correctness.
 
 ### Does it need internet?
 
