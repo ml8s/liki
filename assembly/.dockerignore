@@ -2,6 +2,8 @@
 **
 !dist/agents
 !dist/agents/**
+!dist/deployment
+!dist/deployment/**
 !dist/skills
 !dist/skills/**
 !Dockerfile
