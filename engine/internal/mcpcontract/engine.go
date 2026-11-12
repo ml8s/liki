@@ -162,7 +162,7 @@ func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
 		},
 		reflect.TypeFor[LiuyaoPatternType](): {
 			Type: "string", Enum: []any{
-				"旬空", "月破", "飞伏", "进退", "冲合", "反吟", "随鬼入墓", "独发", "独静", "两现",
+				"旬空", "月破", "飞伏", "进退", "冲合", "反吟", "伏吟", "随鬼入墓", "独发", "独静", "两现",
 			},
 		},
 		reflect.TypeFor[LiuyaoForceRole](): {

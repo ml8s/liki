@@ -11,7 +11,8 @@ const (
 	PatternFeiFu      PatternType = "飞伏"   // 飞伏
 	PatternJinTui     PatternType = "进退"   // 进退神
 	PatternChongHe    PatternType = "冲合"   // 六冲/六合
-	PatternFanYin     PatternType = "反吟"   // 反吟/伏吟
+	PatternFanYin     PatternType = "反吟"   // 动爻变支六冲
+	PatternFuYin      PatternType = "伏吟"   // 动爻变支相同
 	PatternSuiGuiRuMu PatternType = "随鬼入墓" // 随鬼入墓
 	PatternDuFa       PatternType = "独发"   // 独发
 	PatternDuJing     PatternType = "独静"   // 独静
@@ -70,7 +71,7 @@ func ComputePatterns(p *Chart, yongShen YongShen) []Pattern {
 	patterns = append(patterns, computeChongHe(p, yongShen)...)
 
 	// 反吟/伏吟
-	patterns = append(patterns, computeFanYin(p, yongShen)...)
+	patterns = append(patterns, computeFanFuYin(p, yongShen)...)
 
 	// 随鬼入墓
 	patterns = append(patterns, computeSuiGuiRuMu(p, yongShen)...)
@@ -313,82 +314,89 @@ func computeChongHe(p *Chart, yongShen YongShen) []Pattern {
 	return patterns
 }
 
-// computeFanYin 计算反吟/伏吟
-func computeFanYin(p *Chart, yongShen YongShen) []Pattern {
+// computeFanFuYin 计算爻变与卦变的反吟、伏吟。
+// 《增删卜易·反伏章》分别论述“内卦反伏”“外卦反伏”“内外反伏”，并以
+// “反吟有冲有克”“伏吟……忧郁呻吟”区分二类：反吟取动爻变支六冲，
+// 伏吟取动爻变支同支。静爻保留本支，不构成动变反伏。
+func computeFanFuYin(p *Chart, yongShen YongShen) []Pattern {
 	var patterns []Pattern
 
-	// 反吟 / 伏吟只看动爻本爻与变爻；静爻在变卦中保留原支，不是伏吟。
 	if len(p.BianLines) > 0 {
-		isFanYin := false
 		for _, position := range p.DongYao {
 			line := p.Lines[position-1]
 			bianLine := p.BianLines[position-1]
-			if ganzhi.IsLiuChong(line.Zhi, bianLine.Zhi) {
-				isFanYin = true
-				break
-			}
-		}
-
-		if isFanYin {
-			patterns = append(patterns, Pattern{
-				Type:     PatternFanYin,
-				SubType:  "反吟",
-				Position: 0,
-				IsTrue:   true,
-			})
-		}
-	}
-
-	if len(p.DongYao) > 0 {
-		scopes := []struct {
-			name  string
-			start int
-			end   int
-		}{
-			{"全卦", 0, 6}, {"内卦", 0, 3}, {"外卦", 3, 6},
-		}
-		for _, scope := range scopes {
-			fuYin, fanYin := true, true
-			for i := scope.start; i < scope.end; i++ {
-				if p.Lines[i].Zhi != p.BianLines[i].Zhi {
-					fuYin = false
-				}
-				if !ganzhi.IsLiuChong(p.Lines[i].Zhi, p.BianLines[i].Zhi) {
-					fanYin = false
-				}
-			}
-			if fuYin {
-				patterns = append(patterns, Pattern{Type: PatternFanYin, SubType: scope.name + "伏吟", Position: 0, IsTrue: true})
-			}
-			if fanYin {
-				patterns = append(patterns, Pattern{Type: PatternFanYin, SubType: scope.name + "反吟", Position: 0, IsTrue: true})
+			switch {
+			case line.Zhi == bianLine.Zhi:
+				patterns = append(patterns, Pattern{
+					Type:     PatternFuYin,
+					SubType:  "伏吟",
+					Position: 0,
+					IsTrue:   true,
+				})
+			case ganzhi.IsLiuChong(line.Zhi, bianLine.Zhi):
+				patterns = append(patterns, Pattern{
+					Type:     PatternFanYin,
+					SubType:  "反吟",
+					Position: 0,
+					IsTrue:   true,
+				})
 			}
 		}
 	}
 
-	// 检查伏吟（本卦与变卦地支相同）
-	if len(p.BianLines) > 0 {
-		isFuYin := false
-		for _, position := range p.DongYao {
-			line := p.Lines[position-1]
-			bianLine := p.BianLines[position-1]
-			if line.Zhi == bianLine.Zhi {
-				isFuYin = true
-				break
-			}
-		}
+	// 卦变反伏必须以本卦范围内的动爻为准。静爻虽在变卦里保留原支，
+	// 但不能拿来补足内卦、外卦或全卦的范围。
+	innerFuYin := fanFuYinScope(p, 0, 3, PatternFuYin)
+	outerFuYin := fanFuYinScope(p, 3, 6, PatternFuYin)
+	innerFanYin := fanFuYinScope(p, 0, 3, PatternFanYin)
+	outerFanYin := fanFuYinScope(p, 3, 6, PatternFanYin)
 
-		if isFuYin {
-			patterns = append(patterns, Pattern{
-				Type:     PatternFanYin,
-				SubType:  "伏吟",
-				Position: 0,
-				IsTrue:   true,
-			})
+	if innerFuYin && outerFuYin {
+		patterns = append(patterns, Pattern{Type: PatternFuYin, SubType: "全卦伏吟", Position: 0, IsTrue: true})
+	} else {
+		if innerFuYin {
+			patterns = append(patterns, Pattern{Type: PatternFuYin, SubType: "内卦伏吟", Position: 0, IsTrue: true})
+		}
+		if outerFuYin {
+			patterns = append(patterns, Pattern{Type: PatternFuYin, SubType: "外卦伏吟", Position: 0, IsTrue: true})
+		}
+	}
+
+	if innerFanYin && outerFanYin {
+		patterns = append(patterns, Pattern{Type: PatternFanYin, SubType: "全卦反吟", Position: 0, IsTrue: true})
+	} else {
+		if innerFanYin {
+			patterns = append(patterns, Pattern{Type: PatternFanYin, SubType: "内卦反吟", Position: 0, IsTrue: true})
+		}
+		if outerFanYin {
+			patterns = append(patterns, Pattern{Type: PatternFanYin, SubType: "外卦反吟", Position: 0, IsTrue: true})
 		}
 	}
 
 	return patterns
+}
+
+// fanFuYinScope 判断一个经卦是否整段发动且统一构成伏吟或反吟。
+func fanFuYinScope(p *Chart, start, end int, kind PatternType) bool {
+	if len(p.BianLines) == 0 {
+		return false
+	}
+	moving := make(map[int]bool, len(p.DongYao))
+	for _, position := range p.DongYao {
+		moving[position] = true
+	}
+	for i := start; i < end; i++ {
+		if !moving[i+1] {
+			return false
+		}
+		line, bianLine := p.Lines[i], p.BianLines[i]
+		same := line.Zhi == bianLine.Zhi
+		chong := ganzhi.IsLiuChong(line.Zhi, bianLine.Zhi)
+		if (kind == PatternFuYin && !same) || (kind == PatternFanYin && !chong) {
+			return false
+		}
+	}
+	return true
 }
 
 // computeSuiGuiRuMu 计算随鬼入墓
