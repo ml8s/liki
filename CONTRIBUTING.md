@@ -19,13 +19,13 @@
 
 1. 同步最新 `main`：`git pull --ff-only`
 2. 安装 git hooks（一次）：`make hooks`
-3. 升版本用根 Makefile 统一写入当日日期和序号（`VERSION.txt`、engine/counsel VERSION、根与专家包 SKILL 元数据、插件版本、profiles、counsel 投影契约同步）：
+3. 需要发布时用根 Makefile 更新唯一版本源 `skills/liki/VERSION.txt`：
 
    ```bash
    make version
    ```
 
-4. 同步更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
+4. 有用户可见行为变化时更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
 5. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
 6. 提交时描述清楚改了什么、为什么；不相关的变更保持独立提交
 
@@ -71,7 +71,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 - Python lint 使用 Ruff 0.16.0：`make lint-python`。
 - Go 漏洞扫描使用 `govulncheck`；counsel 哈希锁使用 `pip-audit`。两者在 CI 分别执行。
-- 每次升版本必须同步更新：`VERSION.txt`、`distribution/liki-expert/profile.json` 和 `CHANGELOG.md`（make 统一 bump）；需要生成分发包时运行 `make build-archive` 或 `make distribution-package`
+- `make version` 只写 `skills/liki/VERSION.txt`；其他发布面由打包或生成器注入。需要生成分发包时运行 `make build-archive` 或 `make distribution-package`
 
 ## 有意保留的重复（不要合并）
 
@@ -101,9 +101,9 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 ## 发布版本模型
 
-- 日常开发 / 兼容性版本使用 CalVer，由 `make version` 统一 bump。
-- 不要恢复手写的 semver 版本面；CalVer 是唯一版本源，WorkBuddy 制品版本由
-  `scripts/version_projection.py` 从它派生（平台按 semver 解析，拒 4 段）。
+- 内部开发不做版本 bump；发布时用 CalVer 写入唯一源。
+- 不要恢复手写的 semver 版本面；CalVer 是唯一版本源，平台制品版本由
+  `scripts/version_projection.py` 在打包时派生（平台按 semver 解析，拒 4 段）。
 - 完整规则见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)。
 
 ## 推送前检查清单

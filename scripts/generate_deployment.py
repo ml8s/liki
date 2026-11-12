@@ -101,14 +101,8 @@ def runtime_version() -> str:
     return RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip()
 
 
-def validate_profile_tool_catalog(profile: dict, catalog: dict, version: str) -> None:
+def validate_profile_tool_catalog(profile: dict, catalog: dict) -> None:
     """Fail closed when a profile references a tool outside the MCP catalog."""
-    profile_version = profile.get("metadata", {}).get("version", "")
-    if profile_version != version:
-        sys.exit(
-            "profile/runtime version mismatch: "
-            f"profile={profile_version} runtime={version}"
-        )
     servers = catalog.get("servers", {})
     declared_servers: set[str] = set()
     for server in profile.get("mcpServers", []):
@@ -255,7 +249,7 @@ def main() -> int:
     profile = load_profile(args.profile)
     with open(TOOL_CATALOG_PATH, encoding="utf-8") as fh:
         tool_catalog = json.load(fh)
-    validate_profile_tool_catalog(profile, tool_catalog, args.version)
+    validate_profile_tool_catalog(profile, tool_catalog)
     definitions = {
         entry["name"]: load_agent_yaml(entry["name"])
         for entry in profile["agents"]

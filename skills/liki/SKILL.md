@@ -8,7 +8,6 @@ metadata:
   display_name_en: Liki Fortune Master
   description_zh: Liki 命理师覆盖八字、紫微、六爻、奇门、黄历择日、风水与起名；排盘和断语来自确定性引擎，依据可回溯。
   description_en: Liki Fortune Master covers BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, date selection, Feng Shui and naming. Charts and readings come from deterministic engines with traceable evidence.
-  version: 2026.1109.1
   author: Liki
   agent_created: 'true'
   keywords: 八字合婚,婚姻分析,感情走向,事业分析,职业方向,财运分析,投资时机,学业分析,考试运,健康分析,五行体质,怀孕生育时机,新生儿起名,成人改名,八字起名,结婚吉日,开业吉日,搬家吉日,八宅风水,玄空飞星

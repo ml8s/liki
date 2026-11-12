@@ -1,13 +1,8 @@
 # Release model
 
-Liki uses **one date-based version** (`YYYY.MM.DD.SERIAL`) as the source for
-runtime, contracts, and distribution artifacts. Marketplace packages carry a
-**derived** semver projection of that version (see below); because it is derived
-rather than hand-maintained, there is still no parallel version.
-
-Images are built locally by each repository; CI never builds them. The image
-tag is the repository commit sha, and `liki-deploy` assembles, tests, and
-deploys that exact set. Tags are bookkeeping only.
+Liki has **one hand-maintained release version** in `skills/liki/VERSION.txt`.
+Internal package files do not carry release versions. Images are identified by
+commit sha; marketplace-only projections are injected when a package is built.
 
 ## Version format
 
@@ -15,59 +10,34 @@ deploys that exact set. Tags are bookkeeping only.
 YYYY.MM.DD.SERIAL
 ```
 
-Example:
+Example: `2026.10.12.0`.
+
+A release tag adds the conventional Git `v` prefix: `v2026.10.12.0`. The tag is
+a release name only; the version stored in the file has no `v` prefix.
+
+## Generated version surfaces
+
+`make version` writes only `skills/liki/VERSION.txt`. Other consumers derive
+from it:
+
+| Surface | Handling |
+| --- | --- |
+| Engine MCP runtime | build 注入 |
+| Counsel runtime | build 注入 |
+| Marketplace skill metadata | packaging injects semver projection |
+| WorkBuddy plugin metadata | packaging injects semver projection |
+| Agent deployment metadata | generator injects CalVer |
+| Internal Python package files | fixed `0.0.0`; not release identity |
+
+Marketplaces reject four-segment versions, so packaging derives:
 
 ```text
-2026.10.12.0
-```
-
-A release tag adds the conventional Git `v` prefix:
-
-```text
-v2026.10.12.0
-```
-
-The tag is a release name only; the version stored in files has no `v` prefix.
-
-## Distribution artifact version (semver projection)
-
-The marketplace parser rejects 4-segment versions (`版本号 "2026.10.16.2" 格式不合法`),
-so every submitted artifact carries a projection of the release CalVer:
-
-```text
-YYYY.MM.DD.SERIAL  →  YYYY.MMDD.SERIAL      (month/day leading zeros dropped)
+YYYY.MM.DD.SERIAL  →  YYYY.MMDD.SERIAL
 2026.10.16.2       →  2026.1016.2
 ```
 
-The rule is defined once in `scripts/version_projection.py`; `make version` and the
-gates both call it, so the artifact version is never hand-written and never drifts.
-It stays a legal semver, increases strictly (same day via `SERIAL`, next day via
-`MMDD`, next year via `YYYY`), and is reversible (`MINOR` is always 3–4 digits).
-
-Surfaces carrying the projection: `skills/liki/SKILL.md`,
-`distribution/liki-expert/profile.json`,
-`distribution/workbuddy/liki-pro/.codebuddy-plugin/plugin.json`, and the
-generated `liki-pro.zip`.
-
-## Single version surface
-
-`make version` updates all runtime version surfaces together:
-
-| Surface | Location |
-| --- | --- |
-| Runtime skill version | `skills/liki/VERSION.txt` |
-| Engine MCP runtime | build 注入（`-ldflags -X main.Version`） |
-| Counsel runtime | build 注入（`LIKI_VERSION`） |
-| Skill package metadata | `skills/liki/SKILL.md` frontmatter `version`（平台必填字段，顶层；写投影值） |
-| Expert package metadata | `.codebuddy-plugin/plugin.json`（写投影值；zip 内嵌套 `SKILL.md` 由构建器生成） |
-| Deployment profile | `distribution/liki-expert/profile.json` |
-| Root and counsel package metadata | `pyproject.toml`, `counsel/pyproject.toml` |
-
-Rules:
-
-- The serial starts at `0` for each date and increments for additional releases on the same date.
-- Version strings remain dotted integers; tests reject other formats.
-- Use the changelog and release notes to describe compatibility, breaking changes, and migration steps; the date version does not encode semantics.
+The rule is defined once in `scripts/version_projection.py`. It is never
+hand-written in source identity or topology files.
 
 ## Cross-repository dependency
 
