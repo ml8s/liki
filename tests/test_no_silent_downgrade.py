@@ -132,6 +132,8 @@ def test_calibration_docs_do_not_silently_default_birth_hour() -> None:
     text = path.read_text(encoding="utf-8")
     assert "直接走默认时辰" not in text
     assert "建议先走默认时辰" not in text
+    assert "不受时辰影响" not in text
+    assert "紫微命宫主星" not in text
 
 
 def test_skill_has_no_local_pan_archive_contract() -> None:

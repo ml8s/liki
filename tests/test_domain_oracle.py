@@ -100,7 +100,7 @@ def test_domain_oracle_datasets_have_expected_coverage() -> None:
     assert len(ziwei_pattern["pattern_cases"]) == 17
     assert len(liuyao_pattern["tomb_cases"]) == 4
     assert len(liuyao_pattern["selection_cases"]) == 4
-    assert len(liuyao_pattern["pattern_cases"]) == 3
+    assert len(liuyao_pattern["pattern_cases"]) == 6
     assert len(liuyao_pattern["computed_cases"]) == 1
     assert len(liuyao_pattern["whole_gua_cases"]) == 5
     assert len(liuyao_pattern["whole_gua_closure"]["six_clash"]) == 10

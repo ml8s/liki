@@ -106,6 +106,7 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 			LinesZhi              []string `json:"lines_zhi"`
 			ChangedLinesZhi       []string `json:"changed_lines_zhi"`
 			ExpectedSubtype       string   `json:"expected_subtype"`
+			ExpectedType          string   `json:"expected_type"`
 			ExpectedAbsentSubtype string   `json:"expected_absent_subtype"`
 			ExpectedIsTrue        bool     `json:"expected_is_true"`
 		} `json:"pattern_cases"`
@@ -147,8 +148,8 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		t.Fatalf("decode oracle: %v", err)
 	}
-	if len(doc.TombCases) != 4 || len(doc.SelectionCases) != 4 || len(doc.PatternCases) != 3 || len(doc.ComputedCases) != 1 || len(doc.WholeGuaCases) != 5 || len(doc.SanheCases) != 2 {
-		t.Fatalf("cases = %d/%d/%d/%d/%d/%d, want 4/4/3/1/5/2", len(doc.TombCases), len(doc.SelectionCases), len(doc.PatternCases), len(doc.ComputedCases), len(doc.WholeGuaCases), len(doc.SanheCases))
+	if len(doc.TombCases) != 4 || len(doc.SelectionCases) != 4 || len(doc.PatternCases) != 6 || len(doc.ComputedCases) != 1 || len(doc.WholeGuaCases) != 5 || len(doc.SanheCases) != 2 {
+		t.Fatalf("cases = %d/%d/%d/%d/%d/%d, want 4/4/6/1/5/2", len(doc.TombCases), len(doc.SelectionCases), len(doc.PatternCases), len(doc.ComputedCases), len(doc.WholeGuaCases), len(doc.SanheCases))
 	}
 	for _, tc := range doc.TombCases {
 		t.Run(tc.ID, func(t *testing.T) {
@@ -274,7 +275,7 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 				chart.Lines[index] = Line{Position: index + 1, Type: lineType, Zhi: from, LiuQin: parseOracleLiuQin(t, tc.Target)}
 				chart.BianLines[index] = Line{Position: index + 1, Type: changedType, Zhi: to}
 			}
-			patterns := computeFanYin(&chart, typ)
+			patterns := computeFanFuYin(&chart, typ)
 			if tc.ExpectedAbsentSubtype != "" {
 				for _, pattern := range patterns {
 					if pattern.SubType == tc.ExpectedAbsentSubtype {
@@ -285,7 +286,7 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 			}
 			found := false
 			for _, pattern := range patterns {
-				if pattern.SubType == tc.ExpectedSubtype && pattern.IsTrue == tc.ExpectedIsTrue {
+				if pattern.Type == PatternType(tc.ExpectedType) && pattern.SubType == tc.ExpectedSubtype && pattern.IsTrue == tc.ExpectedIsTrue {
 					found = true
 					break
 				}

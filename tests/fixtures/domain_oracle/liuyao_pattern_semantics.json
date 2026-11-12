@@ -1,8 +1,9 @@
 {
-  "basis": "三墓为用爻入日墓、入动墓、动而化墓；用神多现按旺衰、动静、破空、被伤取舍；卦体六冲 / 六合要求一至三爻与四至六爻三组对应支全冲 / 全合；伏吟 / 反吟分全卦与内外卦。",
+  "basis": "三墓为用爻入日墓、入动墓、动而化墓；用神多现按旺衰、动静、破空、被伤取舍；卦体六冲 / 六合要求一至三爻与四至六爻三组对应支全冲 / 全合；伏吟取动爻变支同支，反吟取动爻变支六冲。内卦、外卦、全卦反伏分别要求对应经卦（或两经卦）整段发动，不得用静爻保留的原支补足范围。",
   "sources": [
     "《增删卜易》三墓章",
-    "《增删卜易》用神两现与空破动静取舍"
+    "《增删卜易》用神两现与空破动静取舍",
+    "《增删卜易·反伏章》：内卦反伏内不安，外卦反伏外不宁，内外反伏内外不宁；反吟有冲有克，伏吟主忧郁呻吟"
   ],
   "tomb_cases": [
     {"id": "wood-enters-day-tomb", "target_wuxing": "木", "day_zhi": "未", "expected_types": ["day"]},
@@ -76,7 +77,38 @@
       "moving_positions": [1],
       "lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
       "changed_lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
+      "expected_subtype": "伏吟",
+      "expected_type": "伏吟",
+      "expected_is_true": true
+    },
+    {
+      "id": "inner-scope-fuyin-requires-three-moving-lines",
+      "target": "妻财",
+      "moving_positions": [1, 2, 3],
+      "lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
+      "changed_lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
+      "expected_subtype": "内卦伏吟",
+      "expected_type": "伏吟",
+      "expected_is_true": true
+    },
+    {
+      "id": "outer-scope-fanyin-requires-three-moving-lines",
+      "target": "妻财",
+      "moving_positions": [4, 5, 6],
+      "lines_zhi": ["子", "丑", "寅", "午", "未", "申"],
+      "changed_lines_zhi": ["子", "丑", "寅", "子", "丑", "寅"],
+      "expected_subtype": "外卦反吟",
+      "expected_type": "反吟",
+      "expected_is_true": true
+    },
+    {
+      "id": "full-scope-fuyin-requires-both-trigrams-moving",
+      "target": "妻财",
+      "moving_positions": [1, 2, 3, 4, 5, 6],
+      "lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
+      "changed_lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
       "expected_subtype": "全卦伏吟",
+      "expected_type": "伏吟",
       "expected_is_true": true
     }
   ],
