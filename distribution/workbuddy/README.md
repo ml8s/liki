@@ -22,7 +22,7 @@ Liki 的 WorkBuddy pro 渠道包是 `liki-pro`（Liki 命理师）。它覆盖�
 | `skills/liki/references/*.md` | 构建时从根技能 `skills/liki/references/*.md` 复制 |
 | `.mcp.json` | 指向 liki-mcp 付费网关（`https://mcp.tokflux.com/mcp`） |
 | `.codebuddy-plugin/plugin.json` | 渠道配置投影 |
-| `avatars/expert.svg` / `expert.png` | 品牌资源 |
+| `avatars/expert.svg` / `expert.png` | 品牌资源；PNG 为 WorkBuddy 要求的 512×512 投影 |
 
 包自带 `.mcp.json` 指向付费网关；`plugin.json` 不声明 WorkBuddy 连接器依赖。
 

@@ -140,9 +140,7 @@ def _check_pack(method_names: set[str], errors: list[str]) -> None:
 
 
 def _check_avatar(errors: list[str]) -> None:
-    """头像：`expert.svg` 是 `expert.png` 的栅格化源（`make workbuddy-avatars`），只允许纯图形。
-
-    带字形的源由 `scripts/gen_brand_marks.py` 直接写出路径字形，不允许 `<text>` / 字体依赖。
+    """头像：权威品牌图来自 liki-web C3 资产；SVG 必须自包含，PNG 必须是 512×512。
     """
     pack_dir = packs.PRO_ASSETS_DIR
     svg = pack_dir / "avatars" / "expert.svg"
@@ -158,6 +156,12 @@ def _check_avatar(errors: list[str]) -> None:
     for marker in AVATAR_TEXT_MARKERS:
         if marker in text:
             errors.append(f"{svg.relative_to(ROOT)}: avatar 矢量源只允许路径字形，出现 `{marker}`")
+    with png.open("rb") as fh:
+        header = fh.read(24)
+    if header[:8] != b"\x89PNG\r\n\x1a\n":
+        errors.append(f"{png.relative_to(ROOT)}: avatar is not PNG")
+    elif int.from_bytes(header[16:20], "big") != 512 or int.from_bytes(header[20:24], "big") != 512:
+        errors.append(f"{png.relative_to(ROOT)}: avatar must be 512x512 PNG")
 
 
 def main() -> int:

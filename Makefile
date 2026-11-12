@@ -30,8 +30,6 @@ unexport GOROOT
         test-python-coverage \
         eval-mingli160 golden gate hooks version build-archive build-deployment \
         workbuddy-package skillhub-package distribution-package \
-        workbuddy-avatars \
-        brand-marks \
         sync-domain-language check-domain-language check-actions check-content \
         runtime-validate image image-engine image-counsel image-liki-mcp image-assembly \
         smoke smoke-engine smoke-counsel smoke-liki-mcp
@@ -83,13 +81,6 @@ skillhub-package: ## Build free and pro SkillHub packages
 	python3 scripts/build_channel_package.py --channel skillhub --variant pro
 
 distribution-package: workbuddy-package skillhub-package ## Build all channel packages
-
-workbuddy-avatars: ## 从包内 avatars/expert.svg 重新栅格化专家头像（512×512 PNG）
-	scripts/build-workbuddy-avatars.sh
-
-brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（1 张专家头像矢量源 + 2 个连接器图标），并栅格化专家头像
-	python3 scripts/gen_brand_marks.py
-	scripts/build-workbuddy-avatars.sh
 
 # ── 镜像（本地构建）──
 # 本地 make image 只打 IMAGE_TAG；部署由 liki-deploy 按 sha 组装。
