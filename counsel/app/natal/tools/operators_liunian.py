@@ -19,7 +19,7 @@ def _liu_handler_longevity(op: str, args: list, base: dict, gender: str, chart: 
                          current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '流年长生':
         cs = (chart.get('full', {}) or {}).get('chang_sheng', []) or []
-        nz = ln.get('nian_zhi', '')
+        nz = ln.get('zhi', '')
         for it in cs:
             if it.get('index') == nz:
                 return it.get('name', '') if args and args[0] == FACTOR_WILDCARD else 1 if it.get('name') == args[0] else 0
@@ -37,6 +37,8 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
         return 1 if ss_year in star_keys else 0
 
     if op in ('流年值', '流年合', '流年冲'):
+        if not nz:
+            return 0
         palace_key = const.get('事件宫位', {}).get(target, const['事件宫位默认'])
         ri_zhi = base.get('palace_ri', {}).get('zhi', '')
         pan_chart = (chart or {}).get('chart', {}) or {}
@@ -47,6 +49,8 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
         palace_zhi = pillars_zhi.get(palace_key, ri_zhi)
         if target in const['四柱序号']:
             palace_zhi = _source_zhi(target, ctx)
+        if not palace_zhi:
+            return 0
         if op == '流年值':
             return 1 if nz == palace_zhi else 0
         atomic = _atomic_facts(ctx)
@@ -74,10 +78,10 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
 def _liu_handler_jishen(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '忌神干':
-        return _flow_element_in_selected(base, ln.get('nian_gan', ''), 'gan', const)
+        return _flow_element_in_selected(base, ln.get('gan', ''), 'gan', const)
 
     if op == '忌神支':
-        return _flow_element_in_selected(base, ln.get('nian_zhi', ''), 'zhi', const)
+        return _flow_element_in_selected(base, ln.get('zhi', ''), 'zhi', const)
 
     if op == '财坏印流年':
         return 1 if _atomic_facts(ctx).get('wealth_breaks_seal') else 0
@@ -296,7 +300,7 @@ def _liu_op(op: str, args, gender: str, chart: dict, ctx=None):
     common = dict(
         op=op, args=args, base=base, gender=gender, chart=chart, ctx=ctx,
         current_year=ctx.get("year", 0), const=const,
-        ln=ln, nz=ln.get("nian_zhi", ""),
+        ln=ln, nz=ln.get("zhi", ""),
         ss_year=ln.get("shi_shen", ""),
         star_keys=_target_stars(target, gender, const), target=target,
     )
@@ -356,7 +360,7 @@ def _source_value(src: str, ctx: dict, part: str) -> str:
     source = spec.get("源", "")
     if source == "流年":
         ln = ctx.get("liunian", {})
-        gan, zhi = ln.get("nian_gan", ""), ln.get("nian_zhi", "")
+        gan, zhi = ln.get("gan", ""), ln.get("zhi", "")
     elif source == "大运":
         gz = _current_dayun_gz(ctx)
         gan, zhi = gz[:1], gz[1:]

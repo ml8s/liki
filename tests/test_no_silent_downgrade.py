@@ -29,7 +29,7 @@ def test_evaluate_flow_factors_propagates_operator_errors() -> None:
             factors.evaluate_liunian_factors(
                 "male",
                 _fac(),
-                {"nian_gan": "甲", "nian_zhi": "子"},
+                {"gan": "甲", "zhi": "子"},
                 year=2006,
                 shushi="bazi",
             )

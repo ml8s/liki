@@ -523,6 +523,7 @@ def _base_ctx_from_natal_chart(chart: dict) -> dict:
     if not isinstance(selected_yongshen, dict):
         selected_yongshen = {}
     atomic = _atomic_facts(chart)
+    day_pillar = full.get("ri") or {}
     ctx = {
         "ten_god_states": _ten_god_states_from_natal_chart(chart),
         "element_states": _element_states_from_natal_chart(chart),
@@ -534,8 +535,8 @@ def _base_ctx_from_natal_chart(chart: dict) -> dict:
         "ge_ju": full.get("ge_ju") or {},
         "selected_yongshen": selected_yongshen,
         "day_master_element": atomic.get("day_master_element", ""),
-        "ri_gan": atomic.get("day_master_stem", "") or chart.get("ri_gan", ""),
-        "palace_ri": {"zhi": atomic.get("day_branch", "") or chart.get("palace_ri", {}).get("zhi", "")},
+        "ri_gan": atomic.get("day_master_stem", "") or day_pillar.get("gan", ""),
+        "palace_ri": {"zhi": atomic.get("day_branch", "") or day_pillar.get("zhi", "")},
         "dayun_steps": [
             {"name": s.get("name", ""), "start_year": s.get("start_year", 0),
              "end_year": s.get("end_year", 0), "shi_shen": s.get("shi_shen", ""),

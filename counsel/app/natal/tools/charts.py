@@ -108,4 +108,9 @@ def _liunian_range_items(tool: str, result: object, count: int) -> list[dict]:
         raise RPCError(f"{tool}: engine response expected {count} items, got {actual}")
     if any(not isinstance(item, dict) for item in items):
         raise RPCError(f"{tool}: engine response items must be objects")
+    required = {"gan", "zhi"} if tool == "bazi_liupan" else {"zhi"}
+    for index, item in enumerate(items):
+        if any(not item.get(field) for field in required):
+            missing = sorted(field for field in required if not item.get(field))
+            raise RPCError(f"{tool}: engine item {index} missing {missing}")
     return items

@@ -38,7 +38,7 @@ def _ctx(nian_zhi: str, relation_type: str | None = None) -> dict:
         "year": 2006,
         "chart": _pan(),
         "liunian": {
-            "nian_zhi": nian_zhi,
+            "zhi": nian_zhi,
             "natal_interactions": [{"zhi_rels": relation}],
             "atomic_facts": {
                 "year_branch_relations": {"子": relation_label} if relation_label else {},
@@ -52,6 +52,12 @@ def test_flow_value_uses_extracted_day_palace() -> None:
 
     assert _liu_op("流年值", ["配偶星"], "male", natal_chart, _ctx("子")) == 1
     assert _liu_op("流年值", ["配偶星"], "male", natal_chart, _ctx("丑")) == 0
+
+
+def test_flow_value_does_not_match_missing_sources() -> None:
+    base = {"palace_ri": {"zhi": "子"}}
+    assert _liu_op("流年值", ["配偶星"], "male", base, {"liunian": {}}) == 0
+    assert _liu_op("流年值", ["配偶星"], "male", {}, _ctx("子")) == 0
 
 
 def test_flow_clash_uses_extracted_day_palace() -> None:
