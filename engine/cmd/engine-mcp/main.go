@@ -19,8 +19,8 @@ import (
 	apphttp "liki-engine/internal/http"
 )
 
-// Version is injected at build time via -ldflags from skills/liki/VERSION.txt.
-var Version = "dev"
+// BuildID is the immutable Git short SHA injected by the image build.
+var BuildID = "unknown"
 
 func main() {
 	addr := flag.String("addr", ":8081", "listen address (HTTP mode)")
@@ -43,7 +43,7 @@ func main() {
 
 	if *stdio {
 		slog.Info("engine-mcp stdio mode")
-		if err := runStdio(Version, sdkLogger); err != nil {
+		if err := runStdio(BuildID, sdkLogger); err != nil {
 			slog.Error("stdio", "err", err)
 			os.Exit(1)
 		}
@@ -52,7 +52,7 @@ func main() {
 
 	// MCP Streamable HTTP aggregate endpoint. The single Liki expert discovers
 	// all capabilities once; methodology remains progressively disclosed by skill.
-	mcpServer, err := newMCPServer(Version, sdkLogger)
+	mcpServer, err := newMCPServer(BuildID, sdkLogger)
 	if err != nil {
 		slog.Error("engine: build aggregate MCP server", "err", err)
 		os.Exit(1)
@@ -84,13 +84,6 @@ func main() {
 		}
 		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write([]byte(`{"status":"ok"}`)); err != nil {
-			return
-		}
-	})))
-
-	mux.Handle("GET /version", apphttp.MetricsMiddleware("/version", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		if _, err := w.Write([]byte(`{"version":"` + Version + `"}`)); err != nil {
 			return
 		}
 	})))

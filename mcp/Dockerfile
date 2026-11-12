@@ -1,10 +1,10 @@
-ARG VERSION=dev
+ARG GIT_SHA=unknown
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 
 FROM python:3.12-slim AS runtime
 
-ARG VERSION=dev
+ARG GIT_SHA=unknown
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 
@@ -23,9 +23,8 @@ RUN python -m pip install --no-cache-dir -r /app/requirements.txt \
 COPY app /app/app
 COPY app/expose.json /app/expose.json
 
-ENV LIKI_VERSION="${VERSION}"
-LABEL org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.revision="${COMMIT}" \
+ENV LIKI_GIT_SHA="${GIT_SHA}"
+LABEL org.opencontainers.image.revision="${COMMIT}" \
       org.opencontainers.image.created="${BUILD_TIME}" \
       org.opencontainers.image.title="liki-mcp" \
       org.opencontainers.image.description="Liki product MCP service"

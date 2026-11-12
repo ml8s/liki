@@ -16,7 +16,7 @@ import (
 	apphttp "liki-engine/internal/http"
 )
 
-const testVersion = "test-version"
+const testBuildID = "test-build-id"
 
 var toolNameRe = regexp.MustCompile(`^[a-z0-9_]+$`)
 
@@ -28,7 +28,7 @@ func newTestLogger() *slog.Logger {
 // Streamable HTTP endpoint and returns a connected client session.
 func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 	t.Helper()
-	srv, err := newMCPServer(testVersion, newTestLogger())
+	srv, err := newMCPServer(testBuildID, newTestLogger())
 	if err != nil {
 		t.Fatalf("build MCP server: %v", err)
 	}
@@ -82,8 +82,8 @@ func TestMCPServer_Initialize(t *testing.T) {
 	if got, want := info.Title, serverTitle; got != want {
 		t.Errorf("server title = %q, want %q", got, want)
 	}
-	if got, want := info.Version, testVersion; got != want {
-		t.Errorf("server version = %q, want %q", got, want)
+	if got, want := info.Version, testBuildID; got != want {
+		t.Errorf("server build ID = %q, want %q", got, want)
 	}
 }
 
@@ -300,7 +300,7 @@ func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
 // configured around the stateless 2026 protocol, it must not advertise a
 // version it will subsequently reject in the required protocol header.
 func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
-	srv, err := newMCPServer(testVersion, newTestLogger())
+	srv, err := newMCPServer(testBuildID, newTestLogger())
 	if err != nil {
 		t.Fatalf("build MCP server: %v", err)
 	}
@@ -410,7 +410,7 @@ func TestAggregateServerExposesAllToolsAndEventHints(t *testing.T) {
 // advertise one; if a client asks anyway, the transport rejects it with the
 // protocol-mandated 404 JSON-RPC method error.
 func TestStreamableHTTP_DoesNotAdvertiseChangeStreams(t *testing.T) {
-	srv, err := newMCPServer(testVersion, newTestLogger())
+	srv, err := newMCPServer(testBuildID, newTestLogger())
 	if err != nil {
 		t.Fatalf("build MCP server: %v", err)
 	}

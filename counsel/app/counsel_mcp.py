@@ -16,10 +16,7 @@ from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
 from app import engine_mcp_client  # noqa: E402
-from app.counsel_servers import (  # noqa: E402
-    RUNTIME_VERSION,
-    create_counsel_root_mcp,
-)
+from app.counsel_servers import create_counsel_root_mcp  # noqa: E402
 from app.http_middleware import (
     BodyLimitMiddleware,
     MetricsMiddleware,
@@ -82,10 +79,7 @@ def _make_app():
     )
 
     async def healthz(_request):
-        return JSONResponse({
-            "status": "ok",
-            "version": RUNTIME_VERSION,
-        })
+        return JSONResponse({"status": "ok"})
 
     async def readyz(_request):
         try:
@@ -106,10 +100,7 @@ def _make_app():
                 },
                 status_code=503,
             )
-        return JSONResponse({
-            "status": "ready",
-            "version": RUNTIME_VERSION,
-        })
+        return JSONResponse({"status": "ready"})
 
     async def metrics(_request):
         return Response(

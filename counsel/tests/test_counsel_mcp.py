@@ -249,11 +249,10 @@ def test_counsel_tools_publish_the_contract_schemas_without_downgrading():
     }
 
 
-def test_counsel_servers_advertise_the_distributed_version():
-    from app.version import runtime_version
+def test_counsel_servers_advertise_the_build_identity():
+    from app.build import build_id
 
-    version = runtime_version()
-    assert create_counsel_root_mcp().version == version
+    assert create_counsel_root_mcp().version == build_id()
 
 
 def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(subject):

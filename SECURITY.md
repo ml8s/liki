@@ -3,7 +3,7 @@
 ## Supported runtime
 
 Security fixes are supported on the current `main` release and the newest
-runtime CalVer on active release branches.
+Git commit SHA on main.
 
 ## Reporting a vulnerability
 
@@ -13,7 +13,7 @@ Do not open a public GitHub issue for a suspected vulnerability.
 Include:
 
 - affected endpoint, binary, image digest, or file;
-- runtime version from `/version` or `/healthz`;
+- affected image tag / OCI revision;
 - reproduction steps or request shape;
 - impact assessment;
 - whether the report may be shared with upstream dependencies.

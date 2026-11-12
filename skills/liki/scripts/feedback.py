@@ -29,7 +29,7 @@ SESSION_HASH_PATTERN = r"^sha256:[a-f0-9]{64}$"
 MAX_PAYLOAD_BYTES = 32 * 1024
 
 TOP_LEVEL = {"schema_version", "meta", "agent", "llm", "problem"}
-META_FIELDS = {"source", "skill", "skill_version", "engine_version", "session_hash"}
+META_FIELDS = {"source", "skill", "session_hash"}
 AGENT_FIELDS = {"name", "version"}
 LLM_FIELDS = {"provider", "model", "model_version"}
 PROBLEM_FIELDS = {"type", "severity", "tool", "summary", "expected", "observed"}
@@ -76,12 +76,6 @@ def _load_context(payload: dict) -> dict:
     if skill_name:
         payload["meta"]["skill"] = skill_name
         payload["meta"]["source"] = "skill-agent"
-    skill_version = os.environ.get("LIKI_FEEDBACK_SKILL_VERSION")
-    if skill_version:
-        payload["meta"]["skill_version"] = skill_version
-    engine_version = os.environ.get("LIKI_ENGINE_VERSION")
-    if engine_version:
-        payload["meta"]["engine_version"] = engine_version
     session_hash = os.environ.get("LIKI_FEEDBACK_SESSION_HASH")
     if session_hash:
         payload["meta"]["session_hash"] = session_hash
@@ -94,13 +88,6 @@ def _required_string(group: dict, key: str, label: str, max_length: int = 120) -
         raise FeedbackError(f"{label}.{key} is required and must be a non-empty string")
     if len(value) > max_length:
         raise FeedbackError(f"{label}.{key} exceeds {max_length} characters")
-    return value
-
-
-def _version_string(group: dict, key: str, label: str) -> str:
-    value = _required_string(group, key, label, 32)
-    if not re.fullmatch(r"\d{4}\.\d{2}\.\d{2}(?:\.\d+)?", value):
-        raise FeedbackError(f"{label}.{key} must use CalVer x.y.z or x.y.z.w")
     return value
 
 
@@ -129,8 +116,6 @@ def validate(payload: dict) -> dict:
     skill = _required_string(meta, "skill", "meta", 64)
     if skill != REQUIRED_SKILL:
         raise FeedbackError(f"meta.skill must be {REQUIRED_SKILL}")
-    _version_string(meta, "skill_version", "meta")
-    _version_string(meta, "engine_version", "meta")
     session_hash = meta.get("session_hash")
     if session_hash is not None and not re.fullmatch(SESSION_HASH_PATTERN, session_hash):
         raise FeedbackError("meta.session_hash must match sha256:<64 lowercase hex characters>")

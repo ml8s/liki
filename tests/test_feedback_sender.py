@@ -8,7 +8,7 @@ import urllib.error
 from io import StringIO
 from unittest import mock
 
-from _helpers import SKILL_ROOT, skill_dir, skill_version
+from _helpers import SKILL_ROOT, skill_dir
 
 
 def load_sender(skill="liki"):
@@ -26,8 +26,6 @@ def payload() -> dict:
     return {
         "meta": {
             "skill": "liki",
-            "skill_version": skill_version(),
-            "engine_version": skill_version(),
         },
         "agent": {"name": "codex-cli", "version": "0.21.6"},
         "llm": {"provider": "openai", "model": "gpt-5.1"},
@@ -157,16 +155,12 @@ def test_sender_host_overrides_win_over_payload(monkeypatch, tmp_path):
     monkeypatch.setattr(sender.urllib.request, "urlopen", fake_urlopen)
     monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
     monkeypatch.setenv("LIKI_FEEDBACK_SKILL", "liki")
-    monkeypatch.setenv("LIKI_FEEDBACK_SKILL_VERSION", "2026.01.01.0")
-    monkeypatch.setenv("LIKI_ENGINE_VERSION", "2026.01.01.0")
     monkeypatch.setenv("LIKI_FEEDBACK_SESSION_HASH", "sha256:" + "0" * 64)
     assert sender.main(["--payload-file", str(payload_path)]) == 0
     body = json.loads(sent["request"].data.decode("utf-8"))
     assert body["meta"] == {
         "source": "skill-agent",
         "skill": "liki",
-        "skill_version": "2026.01.01.0",
-        "engine_version": "2026.01.01.0",
         "session_hash": "sha256:" + "0" * 64,
     }
 

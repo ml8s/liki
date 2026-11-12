@@ -15,14 +15,6 @@ if [ ! -f "$SKILL_DIR/SKILL.md" ]; then
     echo "[build-archive] error: $SKILL_DIR/SKILL.md not found" >&2
     exit 1
 fi
-if [ -e "$SKILL_DIR/VERSION" ]; then
-    echo "[build-archive] error: stale $SKILL_DIR/VERSION found; use VERSION.txt" >&2
-    exit 1
-fi
-if [ ! -f "$SKILL_DIR/VERSION.txt" ]; then
-    echo "[build-archive] error: $SKILL_DIR/VERSION.txt not found" >&2
-    exit 1
-fi
 
 ARCHIVE="$DIST_DIR/$SKILL_NAME.tar.gz"
 echo "[build-archive] 打包 $SKILL_NAME..."
@@ -53,14 +45,6 @@ echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
 
 ARCHIVE_LISTING="$(tar -tzf "$ARCHIVE")"
 
-if grep -Fxq 'VERSION' <<<"$ARCHIVE_LISTING"; then
-    echo "[build-archive] error: archive contains unsupported extensionless VERSION" >&2
-    exit 1
-fi
-if ! grep -Fxq 'VERSION.txt' <<<"$ARCHIVE_LISTING"; then
-    echo "[build-archive] error: archive missing VERSION.txt" >&2
-    exit 1
-fi
 if grep -E '\.(cmd|bat|ps1)$' <<<"$ARCHIVE_LISTING" | grep -q .; then
     echo "[build-archive] error: archive contains platform-specific launcher" >&2
     exit 1

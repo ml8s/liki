@@ -2,7 +2,7 @@
 FROM golang:1.26.11-alpine@sha256:ae52b5bc6ed045a9ed26ab03dc19327a802a9cc9aa8b27ed57f5c6b60579b0bb AS build
 WORKDIR /src
 ENV GOPROXY=https://goproxy.cn,direct
-ARG VERSION=local
+ARG GIT_SHA=unknown
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 COPY go.mod go.sum ./
@@ -11,18 +11,17 @@ COPY . .
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 RUN CGO_ENABLED=0 GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" \
-    go build -ldflags "-X main.Version=${VERSION}" -o /out/engine-mcp ./cmd/engine-mcp/
+    go build -ldflags "-X main.BuildID=${GIT_SHA}" -o /out/engine-mcp ./cmd/engine-mcp/
 
 FROM alpine:3.21@sha256:48b0309ca019d89d40f670aa1bc06e426dc0931948452e8491e3d65087abc07d AS certs
 RUN apk add --no-cache ca-certificates
 RUN adduser -D -u 1000 liki
 
 FROM scratch
-ARG VERSION=local
+ARG GIT_SHA=unknown
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
-LABEL org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.revision="${COMMIT}" \
+LABEL org.opencontainers.image.revision="${COMMIT}" \
       org.opencontainers.image.created="${BUILD_TIME}" \
       org.opencontainers.image.title="liki-engine" \
       org.opencontainers.image.description="Liki deterministic metaphysics engine"

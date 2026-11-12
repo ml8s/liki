@@ -24,8 +24,10 @@
 
 import argparse
 import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -37,7 +39,6 @@ AGENTS_DIR = _ROOT / "agents"
 EXPERT_PROFILE = "liki-expert"
 EXPERT_CONFIG_DIR = DISTRIBUTION_DIR / EXPERT_PROFILE
 TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
-RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 CANONICAL_SKILL = _ROOT / "skills" / "liki" / "SKILL.md"
 FREE_CHANNEL_PATTERN = re.compile(
     r"<!-- channel:free -->.*?<!-- /channel:free -->\n?",
@@ -97,8 +98,15 @@ def load_agent_yaml(name: str) -> dict:
         return yaml.safe_load(fh)
 
 
-def runtime_version() -> str:
-    return RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip()
+def git_sha() -> str:
+    """Return the short commit SHA used as the deployment build identity."""
+    configured = os.environ.get("LIKI_GIT_SHA", "").strip()
+    if configured:
+        return configured
+    return subprocess.check_output(
+        ["git", "-C", str(_ROOT), "rev-parse", "--short=12", "HEAD"],
+        text=True,
+    ).strip()
 
 
 def validate_profile_tool_catalog(profile: dict, catalog: dict) -> None:
@@ -239,11 +247,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", required=True, help=f"deployment 名（{EXPERT_PROFILE}）")
     parser.add_argument("--out", default="dist", help="输出目录")
-    parser.add_argument(
-        "--version",
-        default=runtime_version(),
-        help="AgentDeployment runtime CalVer（默认读取 skills/liki/VERSION.txt）",
-    )
     args = parser.parse_args()
 
     profile = load_profile(args.profile)
@@ -260,14 +263,14 @@ def main() -> int:
     }
     validate_profile_graph(profile, definitions)
     metadata = profile["metadata"]
-    metadata["version"] = args.version
+    metadata["version"] = git_sha()
     out_dir = Path(args.out) / args.profile
     shutil.rmtree(out_dir, ignore_errors=True)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     agents = [
         build_agent(
-            profile_agent["name"], profile_agent, args.version, out_dir,
+            profile_agent["name"], profile_agent, git_sha(), out_dir,
             definitions, identities,
         )
         for profile_agent in profile["agents"]

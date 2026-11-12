@@ -28,8 +28,8 @@ class TestDeploymentGeneration(unittest.TestCase):
         return json.loads(self._generate(profile).read_text(encoding="utf-8"))
 
     def test_generates_valid_deployment_for_all_profiles(self):
-        runtime_version = (ROOT / "skills" / "liki" / "VERSION.txt").read_text(
-            encoding="utf-8"
+        build_id = subprocess.check_output(
+            ["git", "-C", str(ROOT), "rev-parse", "--short=12", "HEAD"], text=True
         ).strip()
         for profile in PROFILES:
             with self.subTest(profile=profile):
@@ -38,9 +38,9 @@ class TestDeploymentGeneration(unittest.TestCase):
                 self.assertEqual(deployment["schema_version"], "agent.deployment.v1")
                 self.assertNotIn("kind", deployment)
                 self.assertEqual(deployment["metadata"]["name"], profile)
-                self.assertEqual(deployment["metadata"]["version"], runtime_version)
+                self.assertEqual(deployment["metadata"]["version"], build_id)
                 agents = deployment["spec"]["agents"]
-                self.assertTrue(all(agent["version"] == runtime_version for agent in agents))
+                self.assertTrue(all(agent["version"] == build_id for agent in agents))
 
     def test_single_root_and_reachable_tree(self):
         deployment = self._deployment("liki-expert")

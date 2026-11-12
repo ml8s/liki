@@ -19,8 +19,8 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.error import HTTPError
 
+from app.build import build_id
 from app.metrics import observe_engine_request
-from app.version import runtime_version
 
 MCP_TIMEOUT = int(os.environ.get("LIKI_ENGINE_MCP_TIMEOUT_SECONDS", "30"))
 MAX_RETRIES = int(os.environ.get("LIKI_ENGINE_MCP_MAX_RETRIES", "2"))
@@ -28,7 +28,7 @@ PROTOCOL_VERSION = "2026-07-28"
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 HTTP_IDLE_TIMEOUT = float(os.environ.get("LIKI_HTTP_IDLE_TIMEOUT_SECONDS", "55"))
 
-CLIENT_INFO = {"name": "counsel", "version": runtime_version()}
+CLIENT_INFO = {"name": "counsel", "version": build_id()}
 _HTTP_TRANSPORT: Callable[[urllib.request.Request, int], Any] | None = None
 
 _thread_local = threading.local()

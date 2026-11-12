@@ -19,15 +19,9 @@
 
 1. 同步最新 `main`：`git pull --ff-only`
 2. 安装 git hooks（一次）：`make hooks`
-3. 需要发布时用根 Makefile 更新唯一版本源 `skills/liki/VERSION.txt`：
-
-   ```bash
-   make version
-   ```
-
-4. 有用户可见行为变化时更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
-5. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
-6. 提交时描述清楚改了什么、为什么；不相关的变更保持独立提交
+3. 有用户可见行为变化时更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
+4. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
+5. 提交时描述清楚改了什么、为什么；不相关的变更保持独立提交
 
 ## 代码规范
 
@@ -71,7 +65,8 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 - Python lint 使用 Ruff 0.16.0：`make lint-python`。
 - Go 漏洞扫描使用 `govulncheck`；counsel 哈希锁使用 `pip-audit`。两者在 CI 分别执行。
-- `make version` 只写 `skills/liki/VERSION.txt`；其他发布面由打包或生成器注入。需要生成分发包时运行 `make build-archive` 或 `make distribution-package`
+- 镜像运行时不用发布版本；构建身份是 Git short SHA。需要生成分发包时运行
+  `make build-archive` 或 `make distribution-package`。
 
 ## 有意保留的重复（不要合并）
 
@@ -81,7 +76,6 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 | --- | --- |
 | `engine/**/zz_load_test.go`（12 个） | Go 不能跨包共享 `TestMain`；抽成公共包会把 `testing` 带进非测试构建依赖。9 个调自身 `Load()`，3 个调依赖包的 `Load()`（fengshui→luoshu、tianwen→ganzhi、http→tables）。 |
 | 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
-| 版本面 `skills/liki/VERSION.txt` | 唯一手写源；engine 与 counsel 在构建时注入，不再保留副本。 |
 | 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |
 | `skills/liki/SKILL.md` 与渠道包内 `skills/liki/SKILL.md` 正文同源 | 根 `SKILL.md` 是唯一手写身份源，渠道包内入口由构建器按平台格式渲染（WorkBuddy 另加方法论卡索引）；同源保证市场入口、ADK skill 与部署 instruction 不漂移（`make check` 漂移门）。 |
 | 单文件目录 `tools/` | 目录里只有生成物 `mcp-tool-catalog.json`：保持 `scripts/check_mcp_schema.py --emit` 生成、`make check` 漂移检测，而不是合并目录或手改。 |
@@ -101,10 +95,11 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 ## 发布版本模型
 
-- 内部开发不做版本 bump；发布时用 CalVer 写入唯一源。
-- 不要恢复手写的 semver 版本面；CalVer 是唯一版本源，平台制品版本由
-  `scripts/version_projection.py` 在打包时派生（平台按 semver 解析，拒 4 段）。
-- 完整规则见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)。
+- 内部运行时不用发布版本，构建身份是 Git short SHA；镜像 tag 和 OCI revision
+  同源。
+- 不恢复手工版本文件、`make version` 或内部版本对账。
+- WorkBuddy / SkillHub 平台若强制 semver，由 `scripts/version_projection.py`
+  在打包时从 Git commit 时间派生；这是外部平台兼容层，不是内部 release contract。
 
 ## 推送前检查清单
 

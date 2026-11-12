@@ -2,9 +2,10 @@
 
 from mcp.server import MCPServer
 
+from app.build import build_id  # noqa: E402
+
 # 工具层为 app.* 绝对导入包（无 sys.path 注入）。
 from app.contracts import COUNSEL_TOOLS  # noqa: E402
-from app.contracts import VERSION as RUNTIME_VERSION  # noqa: E402
 from app.mcp_tool_adapter import add_contract_tool as _add_contract_tool  # noqa: E402
 from app.natal.tools import counsel  # noqa: E402
 
@@ -50,7 +51,7 @@ def create_counsel_root_mcp() -> MCPServer:
         name="hk.liki/counsel",
         title="Liki Counsel",
         description="断语引擎：八字/紫微本命、起名、六爻与奇门能力聚合。",
-        version=RUNTIME_VERSION,
+        version=build_id(),
         instructions=(
             "Clients may compose tool arguments from explicit user facts and prior "
             "structured tool outputs; do not invent missing facts. For natal subjects, "

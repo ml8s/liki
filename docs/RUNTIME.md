@@ -57,7 +57,7 @@ any capability that needs it.
 | `LIKI_HTTP_LISTEN_ADDRESS` | `:8081` | Internal listen address |
 | `LIKI_ENGINE_ALLOWED_ORIGINS` | hosted default | Comma-separated browser CORS origins |
 
-`GET /health` and `GET /version` are public process probes. MCP requests are
+`GET /health` is a public process probe. MCP requests are
 public. `GET /metrics` is an internal operations endpoint and must be blocked by
 the public edge. Rate limiting and X-Forwarded-For trust are owned by the edge
 (cloud LB / WAF / Caddy); the service itself does not rate-limit.
@@ -73,7 +73,7 @@ the public edge. Rate limiting and X-Forwarded-For trust are owned by the edge
 | `LIKI_ENGINE_MCP_MAX_RETRIES` | `2` | Engine retry count |
 | `LIKI_HTTP_IDLE_TIMEOUT_SECONDS` | `55` | Idle seconds before a worker closes an outbound engine keep-alive connection |
 | `LIKI_HTTP_MAX_BODY_BYTES` | `1048576` | Maximum HTTP request body |
-| `LIKI_VERSION` | build-injected | Runtime version reported by counsel |
+| `LIKI_GIT_SHA` | build-injected | Git short SHA used as MCP protocol build identity |
 
 `GET /healthz` is counsel liveness and does not contact the engine. `GET /readyz`
 performs one bounded `server/discover` call to the engine; if that dependency is
@@ -91,11 +91,11 @@ not rate-limit.
 | --- | --- | --- |
 | `LIKI_BIND_HOST` / uvicorn port | `127.0.0.1` / `8087` | Gateway bind host and port |
 | `LIKI_BIND_PORT` | `8087` | Gateway listen port (uvicorn) |
+| `LIKI_GIT_SHA` | build-injected | Git short SHA used as MCP protocol build identity |
 | `LIKI_UPSTREAM_ENGINE_URL` | `http://engine-mcp:8081/mcp` | Internal ENGINE MCP endpoint |
 | `LIKI_UPSTREAM_COUNSEL_URL` | `http://counsel-mcp:8086/mcp` | Internal COUNSEL MCP endpoint |
 | `LIKI_UPSTREAM_ENGINE_TIMEOUT_SECONDS` | `35` | ENGINE tools/call timeout |
 | `LIKI_UPSTREAM_COUNSEL_TIMEOUT_SECONDS` | `35` | COUNSEL tools/call timeout |
-| `LIKI_VERSION` | `0.1.0` | Runtime version reported by Liki MCP |
 | `LIKI_MCP_SERVER_NAME` | `hk.liki/liki` | Server name in MCP `initialize` response |
 | `LIKI_MCP_SERVER_TITLE` | `Liki MCP` | Server title in MCP `initialize` response |
 | `LIKI_PAYWALL_ENABLED` | `false` | Enable AI A2M paywall for paid tools |

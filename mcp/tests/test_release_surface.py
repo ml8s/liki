@@ -8,9 +8,9 @@ from httpx2 import ASGITransport, AsyncClient
 from test_gateway import _call
 
 
-def test_healthz_reports_injected_runtime_version(monkeypatch):
+def test_healthz_has_no_release_contract(monkeypatch):
     async def run():
-        monkeypatch.setenv("LIKI_VERSION", "2026.12.01.1")
+        monkeypatch.setenv("LIKI_GIT_SHA", "d2aaecbd0557")
         app = create_app()
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
@@ -19,10 +19,7 @@ def test_healthz_reports_injected_runtime_version(monkeypatch):
 
     response = asyncio.run(run())
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "ok",
-        "version": "2026.12.01.1",
-    }
+    assert response.json() == {"status": "ok"}
 
 
 def test_retired_tools_fail_with_migration_hint():

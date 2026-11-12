@@ -26,13 +26,12 @@ skills/liki/feedback.schema.json
 
 | 组 | 必填 | 字段 | 用途 |
 |---|---|---|---|
-| `meta` | 是 | `source`, `skill`, `skill_version`, `engine_version`, `session_hash?` | 识别反馈来源、版本组合和会话去重 |
+| `meta` | 是 | `source`, `skill`, `session_hash?` | 识别反馈来源和会话去重 |
 | `agent` | 是 | `name`, `version` | 判断是否为 agent 宿主或框架问题 |
 | `llm` | 是 | `provider`, `model`, `model_version?` | 判断是否为模型能力或快照差异 |
 | `problem` | 是 | `type`, `severity`, `summary`, `tool?`, `expected?`, `observed?` | 描述问题本体 |
 
 `meta.source` 只能是 `skill-agent` 或 `user`；统一 skill 后 `meta.skill` 固定为 `liki`。
-`meta.skill_version` / `meta.engine_version` 必须是 CalVer（`YYYY.MM.DD` 或 `YYYY.MM.DD.N`，如 `2026.10.10.0`）；`feedback.py` 与 `feedback.schema.json` 用同一格式校验。
 `session_hash` 只能是 SHA-256 摘要，不能是明文 session ID。去重指纹由后端基于会话与问题内容计算。
 
 ## 4. 问题类型
@@ -52,9 +51,7 @@ skills/liki/feedback.schema.json
   "schema_version": "feedback-v1",
   "meta": {
     "source": "skill-agent",
-    "skill": "liki",
-    "skill_version": "2026.10.10.0",
-    "engine_version": "2026.10.10.0"
+    "skill": "liki"
   },
   "agent": {
     "name": "codex-cli",
@@ -105,7 +102,7 @@ agent 可通过 stdin 传入 problem / meta / agent / llm payload。sender 会�
 - 禁用：`LIKI_FEEDBACK_DISABLED=1`
 - timeout：10 秒；失败不重试、不阻塞
 - 同一会话最多 3 条
-- 宿主可信覆盖：`LIKI_FEEDBACK_SKILL`、`LIKI_FEEDBACK_SKILL_VERSION`、`LIKI_ENGINE_VERSION`、`LIKI_FEEDBACK_SESSION_HASH`
+- 宿主可信覆盖：`LIKI_FEEDBACK_SKILL`、`LIKI_FEEDBACK_SESSION_HASH`
 - 上下文只来自显式 payload 和宿主覆盖变量；sender 不读取额外本地文件
 - 最终优先级：宿主覆盖变量 > 显式 payload > sender 默认值
 - payload 上限：32 KiB

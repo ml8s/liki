@@ -406,7 +406,7 @@ async def mcp_endpoint(request: Request) -> Response:
 
 
 async def healthz(_: Request) -> JSONResponse:
-    return JSONResponse({"status": "ok", "version": load_config().server_version})
+    return JSONResponse({"status": "ok"})
 
 
 async def readyz(_: Request) -> JSONResponse:

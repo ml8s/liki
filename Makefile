@@ -28,7 +28,7 @@ unexport GOROOT
         go-version-check runtime-version-check lint security-engine security-python python-ci-deps lint-md check test test-content test-engine \
         test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp verify-city-data \
         test-python-coverage \
-        eval-mingli160 golden gate hooks version build-archive build-deployment \
+        eval-mingli160 golden gate hooks build-archive build-deployment \
         workbuddy-package skillhub-package distribution-package \
         sync-domain-language check-domain-language check-actions check-content \
         runtime-validate image image-engine image-counsel image-liki-mcp image-assembly \
@@ -87,21 +87,29 @@ distribution-package: workbuddy-package skillhub-package ## Build all channel pa
 
 IMAGE_REGISTRY ?= liki-local
 IMAGE_TAG ?= local
-RUNTIME_VERSION ?= $(shell cat skills/liki/VERSION.txt)
 GIT_COMMIT ?= $(shell git rev-parse HEAD)
+GIT_SHA ?= $(shell git rev-parse --short=12 HEAD)
 BUILD_TIME ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 # 装配镜像的 base：由调用方传入本地 runtime 镜像引用。
 BASE_IMAGE ?=
 
 image-engine: ## Build the local engine development image
-	docker build -f engine/dev/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
+	docker build -f engine/dev/Dockerfile \
+		--build-arg GIT_SHA=$(GIT_SHA) \
+		--build-arg COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_TIME=$(BUILD_TIME) \
+		-t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
 
 image-counsel: ## Build the local counsel development image
-	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
+	docker build -f counsel/Dockerfile \
+		--build-arg GIT_SHA=$(GIT_SHA) \
+		--build-arg COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_TIME=$(BUILD_TIME) \
+		-t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
 image-liki-mcp: ## Build the LIKI product MCP image
 	docker build -f mcp/Dockerfile \
-		--build-arg VERSION=$(RUNTIME_VERSION) \
+		--build-arg GIT_SHA=$(GIT_SHA) \
 		--build-arg COMMIT=$(GIT_COMMIT) \
 		--build-arg BUILD_TIME=$(BUILD_TIME) \
 		-t $(IMAGE_REGISTRY)/liki-mcp:$(IMAGE_TAG) mcp
@@ -110,7 +118,11 @@ image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE
 	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
 	@rm -rf assembly/dist && mkdir -p assembly/dist/deployment && cp -r "dist/$(DEPLOYMENT_PROFILES)" "assembly/dist/deployment/$(DEPLOYMENT_PROFILES)"
 	@cp -r skills assembly/dist/skills
-	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-expert:$(IMAGE_TAG) assembly
+	@docker build -f assembly/Dockerfile \
+		--build-arg BASE_IMAGE=$(BASE_IMAGE) \
+		--build-arg COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_TIME=$(BUILD_TIME) \
+		-t $(IMAGE_REGISTRY)/liki-expert:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 
 image: image-engine image-counsel image-liki-mcp ## Build all liki-owned local images
@@ -258,9 +270,6 @@ check-actions: ## Reject mutable reusable workflow/action references
 
 hooks: ## Install repository git hooks
 	git config core.hooksPath .githooks
-
-version: ## Bump the single release version source
-	@python3 scripts/bump_version.py
 
 python-env: ## Provision the exact CI Python (.python-version) via uv + counsel venv
 	uv python install $$(cat .python-version)

@@ -27,12 +27,11 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from version_projection import workbuddy_version  # noqa: E402
+from version_projection import package_version  # noqa: E402
 
 SKILL_DIR = ROOT / "skills" / "liki"
 REFERENCES_DIR = SKILL_DIR / "references"
 CANONICAL_SKILL = SKILL_DIR / "SKILL.md"
-RUNTIME_VERSION_PATH = ROOT / "skills" / "liki" / "VERSION.txt"
 
 DISTRIBUTION_DIR = ROOT / "distribution"
 VARIANTS_DIR = DISTRIBUTION_DIR / "variants"
@@ -141,7 +140,7 @@ def _frontmatter_block(metadata: dict) -> str:
 
 def skill_doc(variant: str, skill_name: str, *, include_index: bool = False) -> str:
     metadata, body = canonical_identity()
-    version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
+    version = package_version()
     doc_metadata = {
         "name": skill_name,
         "description": metadata["description"],
@@ -182,7 +181,7 @@ def plugin_doc(variant: str) -> dict:
     if variant != "pro":
         raise SystemExit("WorkBuddy plugin packages use the pro variant")
     metadata, _body = canonical_identity(pro=True)
-    version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
+    version = package_version()
     plugin = load_json(PRO_ASSETS_DIR / ".codebuddy-plugin" / "plugin.json", "WorkBuddy plugin template")
     keywords = [item.strip() for item in metadata.get("keywords", "").split(",") if item.strip()]
     skill_name = SKILL_DIR.name

@@ -17,10 +17,6 @@ def skill_dir(name: str = "liki") -> Path:
     return SKILL_ROOT
 
 
-def skill_version(name: str = "liki") -> str:
-    return (skill_dir(name) / "VERSION.txt").read_text(encoding="utf-8").strip()
-
-
 def mock_base_context(**ten_god_states):
     """构造最小因子快照（base）。"""
     base = {

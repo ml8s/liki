@@ -4,7 +4,7 @@ import json
 import re
 import unittest
 
-from _helpers import ROOT, SKILL_ROOT, skill_version
+from _helpers import ROOT, SKILL_ROOT
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
@@ -18,8 +18,6 @@ class TestFeedbackContract(unittest.TestCase):
             "meta": {
                 "source": "skill-agent",
                 "skill": "liki",
-                "skill_version": skill_version(),
-                "engine_version": skill_version(),
             },
             "agent": {"name": "codex-cli", "version": "0.21.6"},
             "llm": {"provider": "openai", "model": "gpt-5.1"},
@@ -44,8 +42,6 @@ class TestFeedbackContract(unittest.TestCase):
             "meta": {
                 "source": "skill-agent",
                 "skill": "liki",
-                "skill_version": skill_version(),
-                "engine_version": skill_version(),
             },
             "agent": {"name": "unknown", "version": "unknown"},
             "llm": {"provider": "unknown", "model": "unknown"},
@@ -64,7 +60,7 @@ class TestFeedbackContract(unittest.TestCase):
         self.assertEqual(set(schema["required"]), {"schema_version", "meta", "agent", "llm", "problem"})
         self.assertEqual(set(schema["properties"]), {"schema_version", "meta", "agent", "llm", "problem"})
         for group, allowed in {
-            "meta": {"source", "skill", "skill_version", "engine_version", "session_hash"},
+            "meta": {"source", "skill", "session_hash"},
             "agent": {"name", "version"},
             "llm": {"provider", "model", "model_version"},
             "problem": {"type", "severity", "tool", "summary", "expected", "observed"},
@@ -79,8 +75,6 @@ class TestFeedbackContract(unittest.TestCase):
             "meta": {
                 "source": "skill-agent",
                 "skill": "liki",
-                "skill_version": skill_version(),
-                "engine_version": skill_version(),
             },
             "agent": {"name": "unknown", "version": "unknown"},
             "llm": {"provider": "unknown", "model": "unknown"},
@@ -98,8 +92,6 @@ class TestFeedbackContract(unittest.TestCase):
             "meta": {
                 "source": "skill-agent",
                 "skill": "liki",
-                "skill_version": skill_version(),
-                "engine_version": skill_version(),
             },
             "agent": {"name": "unknown", "version": "unknown"},
             "llm": {"provider": "unknown", "model": "unknown"},
@@ -166,8 +158,6 @@ class TestFeedbackContract(unittest.TestCase):
                 "meta": {
                     "source": "skill-agent",
                     "skill": "liki",
-                    "skill_version": skill_version(),
-                    "engine_version": skill_version(),
                 },
                 "conversation": "private user text",
                 "problem": {"type": "clarity", "severity": "low", "summary": "valid problem"},

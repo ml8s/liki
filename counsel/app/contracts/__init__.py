@@ -9,9 +9,6 @@ The schemas a client sees come from the MCP server's `tools/list` response.
 from app.contracts.divination import DIVINATION_TOOLS
 from app.contracts.naming import NAMING_TOOLS
 from app.contracts.natal import NATAL_TOOLS
-from app.version import runtime_version
-
-VERSION = runtime_version()
 
 COUNSEL_TOOLS = NATAL_TOOLS + NAMING_TOOLS + DIVINATION_TOOLS
 

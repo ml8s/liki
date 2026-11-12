@@ -21,7 +21,6 @@ EXPERT (agent-runtime) connects directly to ENGINE and COUNSEL.
 | --- | --- |
 | `LIKI_BIND_HOST` | `127.0.0.1` |
 | `LIKI_BIND_PORT` | `8087` |
-| `LIKI_VERSION` | `0.1.0` |
 | `LIKI_UPSTREAM_ENGINE_URL` | `http://engine-mcp:8081/mcp` |
 | `LIKI_UPSTREAM_COUNSEL_URL` | `http://counsel-mcp:8086/mcp` |
 | `LIKI_PAYWALL_ENABLED` | `false` |

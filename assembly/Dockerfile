@@ -11,7 +11,6 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 ARG DEPLOYMENT_DIR=/deployment
-ARG VERSION=local
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 
@@ -22,8 +21,7 @@ COPY dist/deployment/ ${DEPLOYMENT_DIR}/
 # Skill 文件（阶段2 skilltoolset source rootFS）：
 COPY dist/skills/ /skills/
 
-LABEL org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.revision="${COMMIT}" \
+LABEL org.opencontainers.image.revision="${COMMIT}" \
       org.opencontainers.image.created="${BUILD_TIME}" \
       org.opencontainers.image.title="liki-agent-deployment" \
       org.opencontainers.image.description="Single aggregate AgentDeployment assembly image"
