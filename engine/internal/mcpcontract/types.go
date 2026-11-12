@@ -62,7 +62,4 @@ type (
 	LiuyaoTombSchool       string
 	LiuyaoYongShenName     string
 	LiuyaoTimingID         string
-
-	LiuyaoHeadsValue int
-	LiuyaoTailsValue int
 )

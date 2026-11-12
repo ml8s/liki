@@ -105,9 +105,12 @@ func liuyaoQiguaFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, er
 	})
 }
 
-type LiuyaoCoinConventionOutput struct {
-	Heads LiuyaoHeadsValue `json:"正" jsonschema:"正面记 3。"`
-	Tails LiuyaoTailsValue `json:"反" jsonschema:"反面记 2。"`
+type LiuyaoHeadsScore int
+type LiuyaoTailsScore int
+
+type LiuyaoCoinConvention struct {
+	Heads LiuyaoHeadsScore `json:"正" jsonschema:"正面记 3。"`
+	Tails LiuyaoTailsScore `json:"反" jsonschema:"反面记 2。"`
 }
 
 type LiuyaoCoinRoundsOutput []LiuyaoCoinRoundOutput
@@ -124,12 +127,12 @@ type LiuyaoYaoValuesOutput []LiuyaoYaoValue
 type LiuyaoPositions []LiuyaoPosition
 
 type LiuyaoCastingOutput struct {
-	Mode           LiuyaoCastMode              `json:"mode" jsonschema:"实际使用的起卦模式。"`
-	Order          LiuyaoOrderName             `json:"order" jsonschema:"爻序；当前固定为初爻到上爻。"`
-	CoinConvention *LiuyaoCoinConventionOutput `json:"coin_convention,omitempty" jsonschema:"coins 模式的铜钱记分约定。"`
-	Rounds         LiuyaoCoinRoundsOutput      `json:"rounds,omitempty" jsonschema:"coins 模式的六组铜钱记录。"`
-	Yaos           LiuyaoYaoValuesOutput       `json:"yaos" jsonschema:"六个爻值，初爻到上爻。"`
-	DongYao        LiuyaoPositions             `json:"dong_yao" jsonschema:"动爻位置列表，1-6。"`
+	Mode           LiuyaoCastMode         `json:"mode" jsonschema:"实际使用的起卦模式。"`
+	Order          LiuyaoOrderName        `json:"order" jsonschema:"爻序；当前固定为初爻到上爻。"`
+	CoinConvention *LiuyaoCoinConvention  `json:"coin_convention,omitempty" jsonschema:"coins 模式的铜钱记分约定。"`
+	Rounds         LiuyaoCoinRoundsOutput `json:"rounds,omitempty" jsonschema:"coins 模式的六组铜钱记录。"`
+	Yaos           LiuyaoYaoValuesOutput  `json:"yaos" jsonschema:"六个爻值，初爻到上爻。"`
+	DongYao        LiuyaoPositions        `json:"dong_yao" jsonschema:"动爻位置列表，1-6。"`
 }
 
 type LiuyaoQiguaOutput struct {
@@ -381,11 +384,11 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 		if len(request.Rounds) != 6 {
 			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: casting.coins requires exactly 6 rounds, got %d", len(request.Rounds))
 		}
-		rounds := make([][]string, 0, 6)
+		rounds := make([][]liuyao.CoinFace, 0, 6)
 		for _, round := range request.Rounds {
-			coins := make([]string, 0, 3)
+			coins := make([]liuyao.CoinFace, 0, 3)
 			for _, coin := range round.Coins {
-				coins = append(coins, string(coin))
+				coins = append(coins, liuyao.CoinFace(coin))
 			}
 			rounds = append(rounds, coins)
 		}
@@ -461,18 +464,18 @@ func liuyaoCastingDomain(output LiuyaoCastingOutput) (liuyao.Casting, error) {
 		casting.Yaos[i] = int(value)
 	}
 	if output.CoinConvention != nil {
-		casting.CoinConvention = map[string]int{
-			"正": int(output.CoinConvention.Heads),
-			"反": int(output.CoinConvention.Tails),
+		casting.CoinConvention = &liuyao.CoinConvention{
+			Heads: liuyao.CoinScore(output.CoinConvention.Heads),
+			Tails: liuyao.CoinScore(output.CoinConvention.Tails),
 		}
 	}
 	for _, round := range output.Rounds {
-		coins := make([]string, 0, 3)
+		coins := make([]liuyao.CoinFace, 0, 3)
 		for _, coin := range round.Coins {
-			coins = append(coins, string(coin))
+			coins = append(coins, liuyao.CoinFace(coin))
 		}
 		casting.Rounds = append(casting.Rounds, liuyao.CoinRound{
-			Position: int(round.Position), Coins: coins, Value: int(round.Value),
+			Position: int(round.Position), Coins: coins, Value: liuyao.YaoType(round.Value),
 			Label: string(round.Label), Changing: round.Changing,
 		})
 	}
@@ -738,9 +741,9 @@ func liuyaoCastingWire(casting liuyao.Casting) LiuyaoCastingOutput {
 		DongYao: make(LiuyaoPositions, 0, len(casting.DongYao)),
 	}
 	if casting.CoinConvention != nil {
-		output.CoinConvention = &LiuyaoCoinConventionOutput{
-			Heads: LiuyaoHeadsValue(casting.CoinConvention["正"]),
-			Tails: LiuyaoTailsValue(casting.CoinConvention["反"]),
+		output.CoinConvention = &LiuyaoCoinConvention{
+			Heads: LiuyaoHeadsScore(casting.CoinConvention.Heads),
+			Tails: LiuyaoTailsScore(casting.CoinConvention.Tails),
 		}
 	}
 	for _, round := range casting.Rounds {

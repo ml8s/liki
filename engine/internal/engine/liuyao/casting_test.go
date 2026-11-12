@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewCoinsCasting_Normalizes(t *testing.T) {
-	rounds := [][]string{
+	rounds := [][]CoinFace{
 		{"正", "反", "反"}, // 7 少阳
 		{"正", "正", "反"}, // 8 少阴
 		{"正", "正", "正"}, // 9 老阳
@@ -31,23 +31,29 @@ func TestNewCoinsCasting_Normalizes(t *testing.T) {
 	if err := got.Validate(); err != nil {
 		t.Fatalf("Validate() error = %v", err)
 	}
+	if got.CoinConvention == nil || *got.CoinConvention != (CoinConvention{
+		Heads: CoinHeadsScore,
+		Tails: CoinTailsScore,
+	}) {
+		t.Fatalf("CoinConvention = %#v, want fixed 3/2 convention", got.CoinConvention)
+	}
 }
 
 func TestNewCoinsCasting_RejectsBadInput(t *testing.T) {
 	tests := []struct {
 		name   string
-		rounds [][]string
+		rounds [][]CoinFace
 		want   string
 	}{
-		{"too few", make([][]string, 5), "exactly 6"},
+		{"too few", make([][]CoinFace, 5), "exactly 6"},
 		{
 			"bad coin count",
-			[][]string{{"正", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}},
+			[][]CoinFace{{"正", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}},
 			"exactly 3",
 		},
 		{
 			"bad coin",
-			[][]string{{"正", "反", "x"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}},
+			[][]CoinFace{{"正", "反", "x"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"}},
 			"正 or 反",
 		},
 	}
@@ -74,14 +80,14 @@ func TestCastingValidate_RejectsCrossModeFacts(t *testing.T) {
 		t.Fatal(err)
 	}
 	values.Rounds = []CoinRound{{
-		Position: 1, Coins: []string{"正", "反", "反"},
+		Position: 1, Coins: []CoinFace{"正", "反", "反"},
 		Value: 7, Label: "少阳",
 	}}
 	if err := values.Validate(); err == nil || !strings.Contains(err.Error(), "yaos casting") {
 		t.Fatalf("yaos with rounds error = %v", err)
 	}
 
-	coins, err := NewCoinsCasting([][]string{
+	coins, err := NewCoinsCasting([][]CoinFace{
 		{"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"},
 		{"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"},
 	})
@@ -102,5 +108,19 @@ func TestCastingValidate_RejectsDongYaoConflict(t *testing.T) {
 	got.DongYao = []int{2}
 	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "dong_yao mismatch") {
 		t.Fatalf("Validate() error = %v, want dong_yao mismatch", err)
+	}
+}
+
+func TestCastingValidate_RejectsCoinConventionMutation(t *testing.T) {
+	got, err := NewCoinsCasting([][]CoinFace{
+		{"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"},
+		{"正", "反", "反"}, {"正", "反", "反"}, {"正", "反", "反"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got.CoinConvention.Heads = 4
+	if err := got.Validate(); err == nil || !strings.Contains(err.Error(), "coin convention mismatch") {
+		t.Fatalf("mutated convention error = %v, want coin convention mismatch", err)
 	}
 }

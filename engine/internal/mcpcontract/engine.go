@@ -122,8 +122,8 @@ func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
 		reflect.TypeFor[LiuyaoCoinSymbol](): {
 			Type: "string", Enum: []any{"正", "反"},
 		},
-		reflect.TypeFor[LiuyaoHeadsValue](): {Type: "integer", Enum: []any{3}},
-		reflect.TypeFor[LiuyaoTailsValue](): {Type: "integer", Enum: []any{2}},
+		reflect.TypeFor[LiuyaoHeadsScore](): integerConstSchema(int(liuyao.CoinHeadsScore), "正面记 3。"),
+		reflect.TypeFor[LiuyaoTailsScore](): integerConstSchema(int(liuyao.CoinTailsScore), "反面记 2。"),
 		reflect.TypeFor[LiuyaoYaoValue](): {
 			Type: "integer", Minimum: jsonschema.Ptr(float64(6)), Maximum: jsonschema.Ptr(float64(9)),
 		},
@@ -184,6 +184,18 @@ func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
 			MinItems:    jsonschema.Ptr(1),
 			UniqueItems: true,
 		},
+	}
+}
+
+// integerConstSchema expresses an invariant as JSON Schema const, not as a
+// one-value enum. The latter is for real alternatives and caused canonical
+// fast-validator numeric mismatch.
+func integerConstSchema(value int, description string) *jsonschema.Schema {
+	constValue := any(value)
+	return &jsonschema.Schema{
+		Type:        "integer",
+		Const:       &constValue,
+		Description: description,
 	}
 }
 

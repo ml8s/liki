@@ -9,27 +9,54 @@ import (
 // CoinRound is one cast of three coins. Coins keeps the normalized symbols in
 // the order supplied by the caller; only their sum drives Yin/Yang.
 type CoinRound struct {
-	Position int      `json:"position"`
-	Coins    []string `json:"coins"`
-	Value    int      `json:"yao_value"`
-	Label    string   `json:"yao_label"`
-	Changing bool     `json:"is_dong_yao"`
+	Position int        `json:"position"`
+	Coins    []CoinFace `json:"coins"`
+	Value    YaoType    `json:"yao_value"`
+	Label    string     `json:"yao_label"`
+	Changing bool       `json:"is_dong_yao"`
 }
 
 // Casting is the complete source-fact input to one divination.
 type Casting struct {
-	Mode           string         `json:"mode"`
-	Order          string         `json:"order"`
-	CoinConvention map[string]int `json:"coin_convention,omitempty"`
-	Rounds         []CoinRound    `json:"rounds,omitempty"`
-	Yaos           [6]int         `json:"yaos"`
-	DongYao        []int          `json:"dong_yao"`
+	Mode           string          `json:"mode"`
+	Order          string          `json:"order"`
+	CoinConvention *CoinConvention `json:"coin_convention,omitempty"`
+	Rounds         []CoinRound     `json:"rounds,omitempty"`
+	Yaos           [6]int          `json:"yaos"`
+	DongYao        []int           `json:"dong_yao"`
 }
 
+// CoinFace is a physical coin outcome; CoinScore is its fixed counting value.
+type CoinFace string
+type CoinScore int
+
 const (
-	coinHeads = "正"
-	coinTails = "反"
+	CoinFaceHeads  CoinFace  = "正"
+	CoinFaceTails  CoinFace  = "反"
+	CoinHeadsScore CoinScore = 3
+	CoinTailsScore CoinScore = 2
 )
+
+// CoinConvention records the counting convention as an auditable casting fact.
+type CoinConvention struct {
+	Heads CoinScore `json:"正"`
+	Tails CoinScore `json:"反"`
+}
+
+func defaultCoinConvention() *CoinConvention {
+	return &CoinConvention{Heads: CoinHeadsScore, Tails: CoinTailsScore}
+}
+
+func coinValue(symbol CoinFace) (CoinScore, error) {
+	switch symbol {
+	case CoinFaceHeads:
+		return CoinHeadsScore, nil
+	case CoinFaceTails:
+		return CoinTailsScore, nil
+	default:
+		return 0, fmt.Errorf("invalid coin %q: must be 正 or 反", string(symbol))
+	}
+}
 
 func yaoLabel(v YaoType) string {
 	switch v {
@@ -46,34 +73,23 @@ func yaoLabel(v YaoType) string {
 	}
 }
 
-func coinValue(symbol string) (int, error) {
-	switch symbol {
-	case coinHeads:
-		return 3, nil
-	case coinTails:
-		return 2, nil
-	default:
-		return 0, fmt.Errorf("invalid coin %q: must be 正 or 反", symbol)
-	}
-}
-
 // NewCoinsCasting normalizes six three-coin rounds, bottom line first.
-func NewCoinsCasting(rounds [][]string) (Casting, error) {
+func NewCoinsCasting(rounds [][]CoinFace) (Casting, error) {
 	if len(rounds) != 6 {
 		return Casting{}, fmt.Errorf("coins requires exactly 6 rounds, got %d", len(rounds))
 	}
 	receipt := Casting{
 		Mode:           "coins",
 		Order:          "bottom_up",
-		CoinConvention: map[string]int{coinHeads: 3, coinTails: 2},
+		CoinConvention: defaultCoinConvention(),
 	}
 	values := [6]YaoType{}
 	for i, coins := range rounds {
 		if len(coins) != 3 {
 			return Casting{}, fmt.Errorf("round %d requires exactly 3 coins, got %d", i+1, len(coins))
 		}
-		sum := 0
-		normalized := make([]string, 3)
+		var sum CoinScore
+		normalized := make([]CoinFace, 3)
 		for j, coin := range coins {
 			value, err := coinValue(coin)
 			if err != nil {
@@ -82,12 +98,12 @@ func NewCoinsCasting(rounds [][]string) (Casting, error) {
 			sum += value
 			normalized[j] = coin
 		}
-		value := YaoType(sum)
+		value := YaoType(int(sum))
 		values[i] = value
 		receipt.Rounds = append(receipt.Rounds, CoinRound{
 			Position: i + 1,
 			Coins:    normalized,
-			Value:    int(value),
+			Value:    value,
 			Label:    yaoLabel(value),
 			Changing: value.IsChanging(),
 		})
@@ -139,8 +155,10 @@ func (c Casting) Validate() error {
 		if len(c.Rounds) != 6 {
 			return fmt.Errorf("coins casting requires exactly 6 rounds, got %d", len(c.Rounds))
 		}
-		if len(c.CoinConvention) != 2 ||
-			c.CoinConvention[coinHeads] != 3 || c.CoinConvention[coinTails] != 2 {
+		if c.CoinConvention == nil || *c.CoinConvention != (CoinConvention{
+			Heads: CoinHeadsScore,
+			Tails: CoinTailsScore,
+		}) {
 			return fmt.Errorf("casting coin convention mismatch")
 		}
 		for i, round := range c.Rounds {
@@ -150,7 +168,7 @@ func (c Casting) Validate() error {
 			if len(round.Coins) != 3 {
 				return fmt.Errorf("casting round %d requires exactly 3 coins, got %d", i+1, len(round.Coins))
 			}
-			sum := 0
+			var sum CoinScore
 			for _, coin := range round.Coins {
 				value, err := coinValue(coin)
 				if err != nil {
@@ -158,7 +176,7 @@ func (c Casting) Validate() error {
 				}
 				sum += value
 			}
-			if round.Value != sum || int(yts[i]) != sum {
+			if round.Value != YaoType(sum) || yts[i] != YaoType(sum) {
 				return fmt.Errorf("casting round %d conflicts with yaos", i+1)
 			}
 			if round.Label != yaoLabel(yts[i]) || round.Changing != yts[i].IsChanging() {
@@ -166,7 +184,7 @@ func (c Casting) Validate() error {
 			}
 		}
 	case "yaos":
-		if len(c.Rounds) != 0 || len(c.CoinConvention) != 0 {
+		if len(c.Rounds) != 0 || c.CoinConvention != nil {
 			return fmt.Errorf("yaos casting must not contain coin rounds")
 		}
 	}
@@ -193,17 +211,17 @@ func randomCoinBit() (bool, error) {
 }
 
 // secureCoins generates three fair coin symbols.
-func secureCoins() ([]string, error) {
-	coins := make([]string, 3)
+func secureCoins() ([]CoinFace, error) {
+	coins := make([]CoinFace, 3)
 	for i := range coins {
 		head, err := randomCoinBit()
 		if err != nil {
 			return nil, fmt.Errorf("secure coin generation: %w", err)
 		}
 		if head {
-			coins[i] = coinHeads
+			coins[i] = CoinFaceHeads
 		} else {
-			coins[i] = coinTails
+			coins[i] = CoinFaceTails
 		}
 	}
 	return coins, nil
@@ -211,7 +229,7 @@ func secureCoins() ([]string, error) {
 
 // SecureQigua casts six rounds using crypto/rand.
 func SecureQigua() (Casting, error) {
-	rounds := make([][]string, 6)
+	rounds := make([][]CoinFace, 6)
 	for i := range rounds {
 		coins, err := secureCoins()
 		if err != nil {
