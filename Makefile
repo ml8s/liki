@@ -97,6 +97,8 @@ brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（1 张专家头像�
 IMAGE_REGISTRY ?= liki-local
 IMAGE_TAG ?= local
 RUNTIME_VERSION ?= $(shell cat skills/liki/VERSION.txt)
+GIT_COMMIT ?= $(shell git rev-parse HEAD)
+BUILD_TIME ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 # 装配镜像的 base：由调用方传入本地 runtime 镜像引用。
 BASE_IMAGE ?=
 
@@ -107,7 +109,11 @@ image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
 image-liki-mcp: ## Build the LIKI product MCP gateway image
-	docker build -f liki-mcp/Dockerfile -t $(IMAGE_REGISTRY)/liki-mcp:$(IMAGE_TAG) liki-mcp
+	docker build -f liki-mcp/Dockerfile \
+		--build-arg VERSION=$(RUNTIME_VERSION) \
+		--build-arg COMMIT=$(GIT_COMMIT) \
+		--build-arg BUILD_TIME=$(BUILD_TIME) \
+		-t $(IMAGE_REGISTRY)/liki-mcp:$(IMAGE_TAG) liki-mcp
 
 image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE=<local runtime ref> required)
 	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
