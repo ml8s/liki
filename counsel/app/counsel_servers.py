@@ -47,8 +47,8 @@ def _add_natal_tools(server: MCPServer) -> None:
 def create_counsel_root_mcp() -> MCPServer:
     """Create the single aggregate counsel surface used by the Liki expert."""
     server = MCPServer(
-        name="counsel",
-        title="Liki Reading Engine",
+        name="hk.liki/counsel",
+        title="Liki Counsel",
         description="断语引擎：八字/紫微本命、起名、六爻与奇门能力聚合。",
         version=RUNTIME_VERSION,
         instructions=(

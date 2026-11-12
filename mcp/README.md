@@ -1,6 +1,6 @@
-# LIKI-MCP
+# Liki MCP
 
-Product-facing MCP gateway for SKILL with SkillPay paywall.
+Product-facing aggregate MCP service for SKILL with SkillPay paywall.
 EXPERT (agent-runtime) connects directly to ENGINE and COUNSEL.
 
 ## Contract
@@ -12,7 +12,7 @@ EXPERT (agent-runtime) connects directly to ENGINE and COUNSEL.
 - Upstream errors are passed through.
 - Calls are never retried.
 - Paid tools (default: `subject_candidates`) require Payment-Proof.
-  Without proof, the gateway returns HTTP 402 + Payment-Needed (SkillPay A2M protocol).
+  Without proof, the service returns HTTP 402 + Payment-Needed (SkillPay A2M protocol).
   The agent runtime delegates to alipay-payment-skill for payment.
 
 ## Configuration
@@ -39,7 +39,7 @@ EXPERT (agent-runtime) connects directly to ENGINE and COUNSEL.
 ## Payment
 
 When `LIKI_PAYWALL_ENABLED=true`, paid tools require a valid Payment-Proof
-header. The gateway uses the official `alipay-sdk-python` SDK for
+header. The service uses the official `alipay-sdk-python` SDK for
 A2M (Agent-to-Merchant) protocol: order creation, proof verification,
 and fulfillment confirmation. Order state is persisted in SQLite.
 
@@ -66,5 +66,5 @@ LIKI-MCP only reads a sandbox profile when `LIKI_ALIPAY_SANDBOX_CONFIG` is set
 to its absolute path. It never falls back to an implicit local
 `.alipay-sandbox.json`.
 
-With `LIKI_PAYWALL_ENABLED=false` (expert deployment), the gateway is
+With `LIKI_PAYWALL_ENABLED=false` (expert deployment), the service is
 a pure passthrough and the alipay SDK is never loaded.

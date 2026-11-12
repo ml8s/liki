@@ -162,7 +162,7 @@ def test_root_skill_references_no_expert_pack_ids():
 def test_root_mcp_declares_manual_install_surface():
     """Embedded and manual clients connect to the free ENGINE + COUNSEL endpoints.
 
-    The free version bypasses the liki-mcp paywall gateway and talks directly
+    The free version bypasses the liki-mcp paywall service and talks directly
     to ENGINE and COUNSEL. Expert packs do not ship their own MCP manifest.
     """
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))

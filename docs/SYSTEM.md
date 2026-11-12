@@ -10,7 +10,7 @@
                               ├─MCP→ engine-mcp（免费，直连）
                               └─MCP→ counsel-mcp（免费，直连）
 
-外部 Skill → Caddy → liki-mcp（付费网关，SkillPay）
+外部 Skill → Caddy → liki-mcp（产品 MCP，SkillPay）
                          ├─→ engine-mcp
                          └─→ counsel-mcp
 ```

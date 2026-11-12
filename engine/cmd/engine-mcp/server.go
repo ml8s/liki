@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	serverName = "engine"
-	serverDesc = "Liki Chart Engine — deterministic metaphysics computation and auditable divination events: bazi, ziwei, liuyao, qimen, huangli, fengshui."
+	serverName  = "hk.liki/engine"
+	serverTitle = "Liki Engine"
+	serverDesc  = "Liki Engine — deterministic metaphysics computation and auditable divination events: bazi, ziwei, liuyao, qimen, huangli, fengshui."
 )
 
 // engineContracts owns every engine tool contract; the legacy raw-JSON
@@ -28,7 +29,7 @@ var engineContracts = mcpcontract.NewEngine()
 func newMCPServer(version string, logger *slog.Logger) (*mcp.Server, error) {
 	impl := &mcp.Implementation{
 		Name:        serverName,
-		Title:       "Liki Chart Engine",
+		Title:       serverTitle,
 		Description: serverDesc,
 		Version:     version,
 		WebsiteURL:  "https://liki.hk",

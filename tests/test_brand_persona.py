@@ -12,7 +12,7 @@ PLUGIN_JSON = (
     / "distribution/workbuddy/liki-pro/.codebuddy-plugin/plugin.json"
 )
 PRO_README = ROOT / "distribution/workbuddy/liki-pro/README.md"
-GATEWAY_CONFIG = ROOT / "liki-mcp/app/config.py"
+PRODUCT_MCP_CONFIG = ROOT / "mcp/app/config.py"
 
 FORBIDDEN_IDENTITY = (
     "AI 命理师",
@@ -53,7 +53,7 @@ def test_active_surfaces_do_not_use_retired_ai_identity():
         PLUGIN_JSON,
         ROOT / "README.md",
         ROOT / "README.en.md",
-        GATEWAY_CONFIG,
+        PRODUCT_MCP_CONFIG,
     }
     for path in surfaces:
         text = path.read_text(encoding="utf-8")
@@ -72,7 +72,7 @@ def test_workbuddy_plugin_uses_astrologer_persona():
         assert "我是 Liki Skill" not in prompt["zh"]
 
 
-def test_gateway_default_title_is_astrologer_service():
-    text = GATEWAY_CONFIG.read_text(encoding="utf-8")
-    assert 'server_title=_env("LIKI_MCP_SERVER_TITLE", "Liki 命理师 MCP")' in text
+def test_product_mcp_default_title_is_liki_mcp():
+    text = PRODUCT_MCP_CONFIG.read_text(encoding="utf-8")
+    assert 'server_title=_env("LIKI_MCP_SERVER_TITLE", "Liki MCP")' in text
     assert "Professional AI Astrologer" not in text

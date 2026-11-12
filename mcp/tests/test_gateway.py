@@ -168,6 +168,7 @@ def test_initialize_passthrough_identity(monkeypatch):
     result = response.json()["result"]
     assert result["protocolVersion"] == "2025-06-18"
     assert result["serverInfo"]["name"] == "hk.liki/liki"
+    assert result["serverInfo"]["title"] == "Liki MCP"
 
 
 def test_unsupported_modern_method_is_transport_not_found():

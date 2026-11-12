@@ -136,6 +136,8 @@ def subject():
 
 def test_counsel_mcp_tools():
     srv = create_counsel_root_mcp()
+    assert srv.name == "hk.liki/counsel"
+    assert srv.title == "Liki Counsel"
     names = asyncio.run(srv.list_tools())
     assert [tool.name for tool in names] == [
         contract.name for contract in COUNSEL_TOOLS
@@ -469,7 +471,7 @@ def test_readyz_reports_engine_dependency(monkeypatch):
     def available(retries=0, timeout=None):
         assert retries == 0
         assert 0 < timeout <= 1
-        return {"name": "engine", "version": "test"}
+        return {"name": "hk.liki/engine", "version": "test"}
 
     monkeypatch.setattr(engine_mcp_client, "server_info", available)
     status, raw = _http_request("/readyz")
@@ -559,7 +561,7 @@ def test_engine_mcp_client_sends_protocol_headers_only(monkeypatch):
 
         @staticmethod
         def read():
-            return b'{"result":{"_meta":{"io.modelcontextprotocol/serverInfo":{"name":"engine","version":"2026.09.26.0"}}}}'
+            return b'{"result":{"_meta":{"io.modelcontextprotocol/serverInfo":{"name":"hk.liki/engine","version":"2026.09.26.0"}}}}'
 
     def urlopen(request, timeout):
         requests.append(request)
@@ -597,7 +599,7 @@ def test_engine_client_records_terminal_status_metrics(monkeypatch):
                 "result": {
                     "_meta": {
                         "io.modelcontextprotocol/serverInfo": {
-                            "name": "engine",
+                            "name": "hk.liki/engine",
                             "version": "test",
                         }
                     }

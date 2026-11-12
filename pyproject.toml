@@ -14,6 +14,11 @@ addopts = "-q"
 target-version = "py312"
 line-length = 120
 
+[tool.ruff.lint.isort]
+# The repository source directory is `mcp/`; the import named `mcp` is the
+# third-party Model Context Protocol SDK.
+known-third-party = ["mcp"]
+
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 ignore = ["E501"]

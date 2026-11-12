@@ -28,7 +28,7 @@ LABEL org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${COMMIT}" \
       org.opencontainers.image.created="${BUILD_TIME}" \
       org.opencontainers.image.title="liki-mcp" \
-      org.opencontainers.image.description="Liki product MCP gateway"
+      org.opencontainers.image.description="Liki product MCP service"
 
 RUN useradd --uid 10001 --no-create-home liki
 USER 10001

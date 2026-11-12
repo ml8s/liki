@@ -64,9 +64,9 @@ Never use raw paths, query strings, IDs, or user input as labels.
 liki_upstream_requests_total
 ```
 
-The gateway exposes a Prometheus-compatible `/metrics` endpoint. Upstream
-request counters follow the `liki_upstream_requests` naming convention. The
-gateway is a thin passthrough and does not instrument per-tool outcomes.
+The product MCP exposes a Prometheus-compatible `/metrics` endpoint. Upstream
+request counters follow the `liki_upstream_requests` naming convention. It is a
+thin passthrough and does not instrument per-tool outcomes.
 
 ### engine
 

@@ -10,7 +10,7 @@ This is the canonical vocabulary for repository, image, service, and artifact na
 | Engine MCP service | `engine-mcp` | Streamable MCP compute service. |
 | Counsel judgment | `liki-counsel` | Judgment image. |
 | Counsel MCP service | `counsel-mcp` | Streamable MCP judgment service. |
-| LIKI gateway | `liki-mcp` | Product-facing MCP gateway over selected ENGINE + COUNSEL tools. |
+| Liki product MCP | `liki-mcp` | Product-facing aggregate MCP over selected ENGINE + COUNSEL tools; MCP identity `hk.liki/liki`. |
 | Agent runtime | `liki-agent-runtime` | Generic ADK runtime base image. |
 | Expert assembly | `liki-expert` | Production single-expert aggregate image. |
 | Expert service | `expert` | Compose service running `liki-expert`. |

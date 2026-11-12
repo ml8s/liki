@@ -79,6 +79,9 @@ func TestMCPServer_Initialize(t *testing.T) {
 	if got, want := info.Name, serverName; got != want {
 		t.Errorf("server name = %q, want %q", got, want)
 	}
+	if got, want := info.Title, serverTitle; got != want {
+		t.Errorf("server title = %q, want %q", got, want)
+	}
 	if got, want := info.Version, testVersion; got != want {
 		t.Errorf("server version = %q, want %q", got, want)
 	}

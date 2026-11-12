@@ -99,12 +99,12 @@ image-engine: ## Build the local engine development image
 image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
-image-liki-mcp: ## Build the LIKI product MCP gateway image
-	docker build -f liki-mcp/Dockerfile \
+image-liki-mcp: ## Build the LIKI product MCP image
+	docker build -f mcp/Dockerfile \
 		--build-arg VERSION=$(RUNTIME_VERSION) \
 		--build-arg COMMIT=$(GIT_COMMIT) \
 		--build-arg BUILD_TIME=$(BUILD_TIME) \
-		-t $(IMAGE_REGISTRY)/liki-mcp:$(IMAGE_TAG) liki-mcp
+		-t $(IMAGE_REGISTRY)/liki-mcp:$(IMAGE_TAG) mcp
 
 image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE=<local runtime ref> required)
 	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
