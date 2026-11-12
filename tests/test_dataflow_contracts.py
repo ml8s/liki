@@ -87,7 +87,7 @@ def test_flow_evaluation_reuses_prepared_natal_base():
 
 def test_flow_snapshot_is_readonly_and_typed():
     natal_chart = _pan()
-    liunian_pan = {"bazi": {"nian_gan": "丙"}, "ziwei": {"nian_gan": "丙"}}
+    liunian_pan = {"bazi": {"gan": "丙"}, "ziwei": {"gan": "丙"}}
     pan_copy = copy.deepcopy(natal_chart)
     flow_copy = copy.deepcopy(liunian_pan)
     snap = factors.evaluate_liunian_snap_from_natal_chart(natal_chart, liunian_pan, year=2026)

@@ -41,8 +41,8 @@
         },
         "ctx": {
           "liunian": {
-            "nian_gan": "壬",
-            "nian_zhi": "戌"
+            "gan": "壬",
+            "zhi": "戌"
           }
         }
       },
@@ -89,8 +89,8 @@
         },
         "ctx": {
           "liunian": {
-            "nian_gan": "壬",
-            "nian_zhi": "申"
+            "gan": "壬",
+            "zhi": "申"
           }
         }
       },
@@ -137,8 +137,8 @@
         },
         "ctx": {
           "liunian": {
-            "nian_gan": "壬",
-            "nian_zhi": "戌"
+            "gan": "壬",
+            "zhi": "戌"
           }
         }
       },
@@ -235,7 +235,7 @@
         },
         "ctx": {
           "liunian": {
-            "nian_zhi": "申",
+            "zhi": "申",
             "natal_interactions": [
               {
                 "zhi_rels": [
@@ -307,7 +307,7 @@
         },
         "ctx": {
           "liunian": {
-            "nian_zhi": "申",
+            "zhi": "申",
             "natal_interactions": [
               {
                 "zhi_rels": [
@@ -365,7 +365,7 @@
         },
         "ctx": {
           "liunian": {
-            "nian_zhi": "申",
+            "zhi": "申",
             "natal_interactions": [
               {
                 "zhi_rels": [
@@ -437,7 +437,7 @@
         },
         "ctx": {
           "liunian": {
-            "nian_zhi": "申",
+            "zhi": "申",
             "natal_interactions": [
               {
                 "zhi_rels": [
@@ -772,8 +772,8 @@
         "chart": {},
         "ctx": {
           "liunian": {
-            "nian_gan": "甲",
-            "nian_zhi": "寅",
+            "gan": "甲",
+            "zhi": "寅",
             "atomic_facts": {
               "controls_elements": [
                 "土"

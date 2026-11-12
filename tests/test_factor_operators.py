@@ -98,7 +98,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
         return f
 
     def test_大运窗口流年_年份段内(self):
-        ctx = {"year": 2005, "liunian": {"nian_zhi": "酉", "nian_gan": "乙", "shi_shen": "偏财"}}
+        ctx = {"year": 2005, "liunian": {"zhi": "酉", "gan": "乙", "shi_shen": "偏财"}}
         self.assertEqual(_liu_op("大运窗口流年", ["配偶星"], "male", self._fac(), ctx), 1)
 
     def test_大运窗口流年_窗口外(self):
@@ -159,7 +159,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
 
     @staticmethod
     def _xing_ctx(*branches):
-        return {"liunian": {"nian_zhi": branches[0], "atomic_facts": {"combinations": [
+        return {"liunian": {"zhi": branches[0], "atomic_facts": {"combinations": [
             {"kind": "xing", "group": "三刑", "branches": list(branches), "includes_year": True},
         ]}}}
 
@@ -172,7 +172,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
 
     def test_三刑_缺一组支(self):
         # 命局丑戌、流年寅——丑戌未缺未，引擎不产出该组合 → 0。
-        ctx = {"liunian": {"nian_zhi": "寅"}}
+        ctx = {"liunian": {"zhi": "寅"}}
         ch = self._chart("戌", "丑", "子", "午")
         self.assertEqual(_liu_op("三刑", ["流年支", "丑戌未"], "male", ch, ctx), 0)
 
@@ -196,19 +196,19 @@ class TestDaYunOps_YearRange(unittest.TestCase):
 
     def test_三刑_自刑单字(self):
         # 仅一个辰（无同字成双）→ 0；自刑不成立。
-        ctx = {"liunian": {"nian_zhi": "午"}}
+        ctx = {"liunian": {"zhi": "午"}}
         ch = self._chart("辰", "丑", "寅", "巳")
         self.assertEqual(_liu_op("三刑", ["流年支", "午午"], "male", ch, ctx), 0)
 
     def test_三刑_无刑(self):
         # 寅午辰戌 + 流年亥——丑戌未缺丑/未、寅巳申缺巳/申、辰午酉亥无同字成双 → 0
-        ctx = {"liunian": {"nian_zhi": "亥"}}
+        ctx = {"liunian": {"zhi": "亥"}}
         ch = self._chart("寅", "午", "辰", "戌")
         self.assertEqual(_liu_op("三刑", ["流年支", "丑戌未"], "male", ch, ctx), 0)
 
     def test_三刑_本命齐备而流年无关不触发(self):
         # 命局已自带丑戌未、流年午不入组；流年三刑不得逐年重复命中。
-        ctx = {"liunian": {"nian_zhi": "午", "atomic_facts": {"combinations": [
+        ctx = {"liunian": {"zhi": "午", "atomic_facts": {"combinations": [
             {"kind": "xing", "group": "三刑丑戌未", "branches": ["丑", "戌", "未"], "includes_year": False},
         ]}}}
         ch = self._chart("丑", "戌", "未", "子")
@@ -236,7 +236,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
             "辰辰": ("辰",), "午午": ("午",), "酉酉": ("酉",), "亥亥": ("亥",),
         }
         for branches, label in zip(groups, labels):
-            ctx = {"liunian": {"nian_zhi": "午", "atomic_facts": {"combinations": [
+            ctx = {"liunian": {"zhi": "午", "atomic_facts": {"combinations": [
                 {"kind": "xing", "group": f"三刑{label}", "branches": branches,
                  "includes_year": False},
             ]}}}
@@ -253,7 +253,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
 
     def test_三刑_流年命中必须显式标记includes_year(self):
         # 流年支作为来源时，不得消费本命-only 组合，即使支字相同。
-        ctx = {"liunian": {"nian_zhi": "午", "atomic_facts": {"combinations": [
+        ctx = {"liunian": {"zhi": "午", "atomic_facts": {"combinations": [
             {"kind": "xing", "group": "三刑午午", "branches": ["午", "午"],
              "includes_year": False},
         ]}}}
@@ -262,14 +262,14 @@ class TestDaYunOps_YearRange(unittest.TestCase):
 
     def test_三刑_缺维报错(self):
         # 单参不再被容忍——静默降级会复活隐式维度。
-        ctx = {"liunian": {"nian_zhi": "申"}}
+        ctx = {"liunian": {"zhi": "申"}}
         ch = self._chart("寅", "巳", "子", "午")
         with self.assertRaises(FactorEvaluateError):
             _liu_op("三刑", ["流年支"], "male", ch, ctx)
 
     def test_三刑_刑组名不自洽报错(self):
         # 寅巳不成组、辰不写双字、重复字符、任意非具体组 → fail closed。
-        ctx = {"liunian": {"nian_zhi": "申"}}
+        ctx = {"liunian": {"zhi": "申"}}
         ch = self._chart("寅", "巳", "子", "午")
         for bad_group in ("寅巳", "辰", "子午", "任意", "子卯子", "寅巳申寅", "丑戌未丑"):
             with self.assertRaises(FactorEvaluateError):
@@ -277,7 +277,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
 
     def test_三刑_来源仅支持流年支(self):
         # 当前流年三刑契约只使用流年支；其他来源不得隐式开放。
-        ctx = {"liunian": {"nian_zhi": "申"}}
+        ctx = {"liunian": {"zhi": "申"}}
         ch = self._chart("寅", "巳", "子", "午")
         for bad_source in ("日干", "流年干", "日支", "时支", "大运支", "不存在", FACTOR_WILDCARD):
             with self.assertRaises(FactorEvaluateError):
@@ -292,7 +292,7 @@ class TestTianKeDiChongFactor(unittest.TestCase):
             "full": {"ri": {"gan": "庚", "zhi": "午"}},
             "chart": {"ri": {"gan": "庚", "zhi": "午"}},
         }
-        liunian = {"nian_gan": nian_gan, "nian_zhi": nian_zhi, "atomic_facts": {
+        liunian = {"gan": nian_gan, "zhi": nian_zhi, "atomic_facts": {
             "year_gan_controls_day_gan": nian_gan == "丙",
             "year_branch_relations": {"午": "liu_chong"} if nian_zhi == "子" else {},
         }}
@@ -333,51 +333,51 @@ class TestLiuNianOps(unittest.TestCase):
     def test_流年值_命中与不命中(self):
         # 配偶星宫位=日支（palace_ri.zhi=子）——流年支=子 → 1；丑 → 0
         chart = self._chart()
-        ctx = {"liunian": {"nian_zhi": "子"}, "chart": chart}
+        ctx = {"liunian": {"zhi": "子"}, "chart": chart}
         self.assertEqual(_liu_op("流年值", ["配偶星"], "male", chart, ctx), 1)
-        ctx2 = {"liunian": {"nian_zhi": "丑"}, "chart": chart}
+        ctx2 = {"liunian": {"zhi": "丑"}, "chart": chart}
         self.assertEqual(_liu_op("流年值", ["配偶星"], "male", chart, ctx2), 0)
 
     def test_流年克_五行相克与不克(self):
         # 男命配偶星=正财（土）——流年支寅（木克土）→ 1；子（水不克土）→ 0
         base = self._fac(ten_god_states={"正财": {"wuxing": "土"}})
-        ctx = {"liunian": {"nian_gan": "庚", "nian_zhi": "寅", "atomic_facts": {"controls_elements": ["土"], "controls_targets": {"wealth_star": True}}}}
+        ctx = {"liunian": {"gan": "庚", "zhi": "寅", "atomic_facts": {"controls_elements": ["土"], "controls_targets": {"wealth_star": True}}}}
         self.assertEqual(_liu_op("流年克", ["配偶星"], "male", base, ctx), 1)
-        ctx2 = {"liunian": {"nian_gan": "庚", "nian_zhi": "子", "atomic_facts": {"controls_elements": ["火"], "controls_targets": {"wealth_star": False}}}}
+        ctx2 = {"liunian": {"gan": "庚", "zhi": "子", "atomic_facts": {"controls_elements": ["火"], "controls_targets": {"wealth_star": False}}}}
         self.assertEqual(_liu_op("流年克", ["配偶星"], "male", base, ctx2), 0)
 
     def test_流年克_本命星不现仍可推导目标五行(self):
         # 甲男配偶星=财星土；本命财星虽不现，流年木仍克财星土。
-        ctx = {"liunian": {"nian_gan": "甲", "nian_zhi": "寅", "atomic_facts": {"controls_elements": ["土"], "controls_targets": {"wealth_star": True}}}}
+        ctx = {"liunian": {"gan": "甲", "zhi": "寅", "atomic_facts": {"controls_elements": ["土"], "controls_targets": {"wealth_star": True}}}}
         self.assertEqual(_liu_op("流年克", ["配偶星"], "male", self._fac(), ctx), 1)
 
     def test_旬空_空亡支命中与不命中(self):
         # 日柱甲子（甲子旬空戌亥）——流年支戌 → 1；午 → 0
         chart = self._chart(ri_gan="甲", ri_zhi="子")
-        ctx = {"liunian": {"nian_zhi": "戌", "atomic_facts": {"day_void_branches": ["戌", "亥"]}}, "chart": chart}
+        ctx = {"liunian": {"zhi": "戌", "atomic_facts": {"day_void_branches": ["戌", "亥"]}}, "chart": chart}
         self.assertEqual(_liu_op("旬空", ["日柱", "流年支"], "male", chart, ctx), 1)
-        ctx2 = {"liunian": {"nian_zhi": "午", "atomic_facts": {"day_void_branches": ["戌", "亥"]}}, "chart": chart}
+        ctx2 = {"liunian": {"zhi": "午", "atomic_facts": {"day_void_branches": ["戌", "亥"]}}, "chart": chart}
         self.assertEqual(_liu_op("旬空", ["日柱", "流年支"], "male", chart, ctx2), 0)
 
     def test_旬空_非零偏移日柱(self):
         # 己亥日（甲午旬，空亡辰巳）——流年支辰填实旬空 → 1。
         chart = self._chart(ri_gan="己", ri_zhi="亥")
-        ctx = {"liunian": {"nian_zhi": "辰", "atomic_facts": {"day_void_branches": ["辰", "巳"]}}, "chart": chart}
+        ctx = {"liunian": {"zhi": "辰", "atomic_facts": {"day_void_branches": ["辰", "巳"]}}, "chart": chart}
         self.assertEqual(_liu_op("旬空", ["日柱", "流年支"], "male", chart, ctx), 1)
-        ctx2 = {"liunian": {"nian_zhi": "午", "atomic_facts": {"day_void_branches": ["戌", "亥"]}}, "chart": chart}
+        ctx2 = {"liunian": {"zhi": "午", "atomic_facts": {"day_void_branches": ["戌", "亥"]}}, "chart": chart}
         self.assertEqual(_liu_op("旬空", ["日柱", "流年支"], "male", chart, ctx2), 0)
         # 甲戌日（甲戌旬，空亡申酉）——流年支申 → 1
         chart3 = self._chart(ri_gan="甲", ri_zhi="戌")
-        ctx3 = {"liunian": {"nian_zhi": "申", "atomic_facts": {"day_void_branches": ["申", "酉"]}}, "chart": chart3}
+        ctx3 = {"liunian": {"zhi": "申", "atomic_facts": {"day_void_branches": ["申", "酉"]}}, "chart": chart3}
         self.assertEqual(_liu_op("旬空", ["日柱", "流年支"], "male", chart3, ctx3), 1)
 
     def test_干支相等_相同与不同(self):
         # 流年甲子 == 日柱甲子 → 1；日柱乙丑 → 0
         chart = self._chart(ri_gan="甲", ri_zhi="子")
-        ctx = {"liunian": {"nian_gan": "甲", "nian_zhi": "子", "atomic_facts": {"year_equals_day_pillar": True}}, "chart": chart}
+        ctx = {"liunian": {"gan": "甲", "zhi": "子", "atomic_facts": {"year_equals_day_pillar": True}}, "chart": chart}
         self.assertEqual(_liu_op("干支相等", ["流年", "日柱"], "male", chart, ctx), 1)
         chart2 = self._chart(ri_gan="乙", ri_zhi="丑")
-        ctx2 = {"liunian": {"nian_gan": "甲", "nian_zhi": "子", "atomic_facts": {"year_equals_day_pillar": False}}, "chart": chart2}
+        ctx2 = {"liunian": {"gan": "甲", "zhi": "子", "atomic_facts": {"year_equals_day_pillar": False}}, "chart": chart2}
         self.assertEqual(_liu_op("干支相等", ["流年", "日柱"], "male", chart2, ctx2), 0)
 
     def test_引用本命_支持键与未知键(self):
@@ -423,7 +423,7 @@ class TestLiuNianOps(unittest.TestCase):
     def test_半合_缺参数报错(self):
         # 半合至少需要两个来源/地支；单参不足以表达半合命题。
         with self.assertRaises(FactorEvaluateError):
-            _liu_op("半合", ["子"], "male", {}, {"liunian": {"nian_zhi": "子"}})
+            _liu_op("半合", ["子"], "male", {}, {"liunian": {"zhi": "子"}})
 
     def test_流年透_配偶星透与不透(self):
         # 男命配偶星=正财/偏财——流年十神为正财 → 1；比肩 → 0
@@ -440,28 +440,28 @@ class TestLiuNianOps(unittest.TestCase):
 
     def test_年柱干伏吟_相同与不同(self):
         chart = self._chart()  # 年柱庚
-        ctx = {"liunian": {"nian_gan": "庚", "atomic_facts": {"year_gan_equals_natal_year_gan": True}}, "chart": chart}
+        ctx = {"liunian": {"gan": "庚", "atomic_facts": {"year_gan_equals_natal_year_gan": True}}, "chart": chart}
         self.assertEqual(_liu_op("年柱干伏吟", [], "male", chart, ctx), 1)
-        ctx2 = {"liunian": {"nian_gan": "甲", "atomic_facts": {"year_gan_equals_natal_year_gan": False}}, "chart": chart}
+        ctx2 = {"liunian": {"gan": "甲", "atomic_facts": {"year_gan_equals_natal_year_gan": False}}, "chart": chart}
         self.assertEqual(_liu_op("年柱干伏吟", [], "male", chart, ctx2), 0)
 
     def test_忌神干_命中与不命中(self):
         # 忌神只读 selected_yongshen——流年干丙（火）→ 1；庚（金）→ 0
         base = self._fac()
         base["selected_yongshen"] = {"status": "resolved", "selected": {"ji": ["火"]}}
-        ctx = {"liunian": {"nian_gan": "丙"}}
+        ctx = {"liunian": {"gan": "丙"}}
         self.assertEqual(_liu_op("忌神干", [], "male", base, ctx), 1)
-        ctx2 = {"liunian": {"nian_gan": "庚"}}
+        ctx2 = {"liunian": {"gan": "庚"}}
         self.assertEqual(_liu_op("忌神干", [], "male", base, ctx2), 0)
 
     def test_财坏印流年_印年被克(self):
         # 流年干为印（正印）+ 流年支五行克印干五行 → 1
         base = self._fac(ten_god_states={"正财": {"wuxing": "土"}})
         # 日主甲木，印=水（壬/癸），流年干壬（水=印），流年支寅（木）——木不克水 → 0
-        ctx = {"liunian": {"nian_gan": "壬", "nian_zhi": "寅", "shi_shen": "正印", "atomic_facts": {"wealth_breaks_seal": False}}}
+        ctx = {"liunian": {"gan": "壬", "zhi": "寅", "shi_shen": "正印", "atomic_facts": {"wealth_breaks_seal": False}}}
         self.assertEqual(_liu_op("财坏印流年", [], "male", base, ctx), 0)
         # 流年支戌（土）——土克水 → 1（流年干为印被流年支所克）
-        ctx2 = {"liunian": {"nian_gan": "壬", "nian_zhi": "戌", "shi_shen": "正印", "atomic_facts": {"wealth_breaks_seal": True}}}
+        ctx2 = {"liunian": {"gan": "壬", "zhi": "戌", "shi_shen": "正印", "atomic_facts": {"wealth_breaks_seal": True}}}
         self.assertEqual(_liu_op("财坏印流年", [], "male", base, ctx2), 1)
 
 

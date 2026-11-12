@@ -127,11 +127,11 @@ def test_flow克_derives_target_wuxing_from_day_master() -> None:
     base = mock_base_context()
     base["ri_gan"] = "甲"  # 甲木以土为财；庚/申金克土。
 
-    ctx = {"liunian": {"nian_gan": "甲", "nian_zhi": "寅", "atomic_facts": {"controls_elements": ["土"], "controls_targets": {"wealth_star": True}}}}
+    ctx = {"liunian": {"gan": "甲", "zhi": "寅", "atomic_facts": {"controls_elements": ["土"], "controls_targets": {"wealth_star": True}}}}
     assert _liu_op("流年克", ["财星"], "male", base, ctx) == 1
     assert _liu_op("流年克", ["配偶星"], "male", base, ctx) == 1
 
-    ctx_water = {"liunian": {"nian_gan": "壬", "nian_zhi": "子", "atomic_facts": {"controls_elements": ["火"], "controls_targets": {"wealth_star": False}}}}
+    ctx_water = {"liunian": {"gan": "壬", "zhi": "子", "atomic_facts": {"controls_elements": ["火"], "controls_targets": {"wealth_star": False}}}}
     assert _liu_op("流年克", ["财星"], "male", base, ctx_water) == 0
 
 
@@ -146,7 +146,7 @@ def test_parent_palace_is_year_pillar() -> None:
             "shi": {"gan": "甲", "zhi": "子"},
         },
     }
-    ctx = {"liunian": {"nian_gan": "壬", "nian_zhi": "戌"}}
+    ctx = {"liunian": {"gan": "壬", "zhi": "戌"}}
 
     # 父宫/母宫在年支；流年值年支戌必须命中，而不是错读月支申。
     assert _liu_op("流年值", ["父星"], "male", {**base, **chart}, ctx) == 1
@@ -176,7 +176,7 @@ def test_flow_sanhe_requires_all_three_branches() -> None:
 
     ctx = {
         "liunian": {
-            "nian_zhi": "申",
+            "zhi": "申",
             "natal_interactions": [
                 {
                     "zhi_rels": [

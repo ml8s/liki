@@ -132,7 +132,7 @@ def test_half_sanhe_requires_imperial_branch():
     assert operators_liunian._liu_op("半合", ["子", "辰"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("半合", ["亥", "未"], "male", {}, ctx) == 0
     source_ctx = {
-        "liunian": {"nian_zhi": "辰", "atomic_facts": {"combinations": [{"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}]}},
+        "liunian": {"zhi": "辰", "atomic_facts": {"combinations": [{"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}]}},
         "zw_liunian": {},
         "year": 2026,
         "chart": {"chart": {"ri": {"zhi": "子"}}},
@@ -144,7 +144,7 @@ def test_half_sanhe_requires_imperial_branch():
 
 def test_pillar_sources_cover_all_four_pillars():
     ctx = {
-        "liunian": {"nian_zhi": "午"},
+        "liunian": {"zhi": "午"},
         "zw_liunian": {},
         "year": 2026,
         "chart": {"chart": {
@@ -236,7 +236,7 @@ def test_flow_si_hua_uses_complete_engine_facts():
 
 def test_explicit_pillar_clash_uses_requested_pillar():
     ctx = {
-        "liunian": {"nian_zhi": "午", "natal_interactions": [{
+        "liunian": {"zhi": "午", "natal_interactions": [{
             "zhi_rels": [{"zhi_a": "午", "zhi_b": "子", "type": "六冲"}]
         }], "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}}},
         "zw_liunian": {},
@@ -245,7 +245,7 @@ def test_explicit_pillar_clash_uses_requested_pillar():
     assert operators_liunian._liu_op("流年冲", ["年支"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("流年冲", ["日支"], "male", {}, ctx) == 0
     direct_ctx = {**ctx, "liunian": {
-        "nian_zhi": "午", "natal_interactions": [],
+        "zhi": "午", "natal_interactions": [],
         "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}},
     }}
     assert operators_liunian._liu_op("流年冲", ["年支"], "male", {}, direct_ctx) == 1

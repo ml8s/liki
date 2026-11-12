@@ -46,7 +46,7 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
         "紫微": {},
         "context": {},
     }
-    liunian_pan = {"bazi": {"nian_gan": "丙"}, "ziwei": {}}
+    liunian_pan = {"bazi": {"gan": "丙"}, "ziwei": {}}
 
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
          mock.patch.object(
