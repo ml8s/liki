@@ -56,6 +56,25 @@ func appendBranchTrigger(
 	})
 }
 
+// staticHarmonySources names the actual sources that can lift a static line.
+// A six-harmony relation alone is insufficient: 《增删卜易·六合章》 defines
+// 静而逢合 as 合起 when the partner comes from the day, month, or a moving line.
+func staticHarmonySources(p *Chart, partner ganzhi.Zhi) []string {
+	var sources []string
+	if partner == p.RiZhi {
+		sources = append(sources, "day_branch")
+	}
+	if partner == p.YueZhi {
+		sources = append(sources, "month_branch")
+	}
+	for _, pos := range p.DongYao {
+		if pos >= 1 && pos <= len(p.Lines) && p.Lines[pos-1].Zhi == partner {
+			sources = append(sources, fmt.Sprintf("moving_yao.position=%d", pos))
+		}
+	}
+	return sources
+}
+
 // computeTimingCandidates derives trigger hypotheses from the already computed
 // YongShen state. It intentionally does not assign a probability or a final
 // date; the caller must judge which candidates apply to the concrete question.
@@ -160,6 +179,31 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 			chongZhi(yao.Zhi),
 			[]string{"yong_shen.position=" + fmt.Sprint(yongPos), "line.dong_self=false"},
 		)
+	}
+
+	// Keep this separate from void/break handling. Those states already have
+	// dedicated release paths, and a weak static line still can be lifted by
+	// harmony when a day/month/moving source actually hits it.
+	if !moving && !yong.XunKong && !yong.YuePo {
+		if partner := zhiHePartner(yao.Zhi); partner != 0 {
+			sources := staticHarmonySources(p, partner)
+			if len(sources) > 0 {
+				basis := append([]string{
+					"yong_shen.position=" + fmt.Sprint(yongPos),
+					"line.dong_self=false",
+					"branch_relation=六合",
+					"classical_scope=静而逢合谓之合起",
+				}, sources...)
+				candidates = appendBranchTrigger(
+					candidates,
+					"static-harmony",
+					"静爻逢合",
+					yongPos,
+					partner,
+					basis,
+				)
+			}
+		}
 	}
 
 	return candidates

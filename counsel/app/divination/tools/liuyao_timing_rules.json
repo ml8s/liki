@@ -15,6 +15,7 @@
     "冲飞出伏": 66,
     "动爻逢值": 70,
     "动爻逢合": 62,
+    "静爻逢合": 60,
     "静爻逢冲": 58,
     "月破逢值": 54,
     "月破逢合": 46,
@@ -36,6 +37,9 @@
     ],
     "moving-harmony": [
       "moving-harmony"
+    ],
+    "static-harmony": [
+      "static-harmony"
     ],
     "void-fill": [
       "void-fill"
