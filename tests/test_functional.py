@@ -7,20 +7,20 @@ import json
 from pathlib import Path
 from unittest import mock
 
+import app.domain.natal.duanyu as duanyu
 import app.domain.natal.duanyu.assertion_query as assertion_query
-import app.natal.tools.duanyu as duanyu
 import pytest
-from app.natal.tools.duanyu import (
+from app.domain.natal.duanyu import (
     SCENE_ALIASES,
     YEARLY_RULES,
     default_scene_domains,
-    load_rule_table,
     load_rule_tables,
     match_table,
-    resolve_rules,
 )
+from app.natal.tools.assertion_store import load_rule_table
 from app.natal.tools.errors import AssertionRuleError, FactorEvaluateError
 from app.natal.tools.factors import evaluate_factors, evaluate_operator
+from app.natal.tools.yearly_eval import resolve_rules
 
 ROOT = Path(__file__).resolve().parents[1]
 FUNCTIONAL = ROOT / "tests" / "functional"

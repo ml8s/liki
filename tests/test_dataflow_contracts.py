@@ -1,9 +1,10 @@
 """数据流契约：算子正交、求值复用、快照隔离与表结构闭包。"""
+
 import copy
 from unittest import mock
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
-import app.natal.tools.duanyu as duanyu
+import app.domain.natal.duanyu as duanyu
 import app.natal.tools.factors as factors
 import app.natal.tools.operators_liunian as operators_liunian
 import app.natal.tools.operators_natal as operators_natal
@@ -27,6 +28,7 @@ def test_truth_table_evaluates_repeated_atomic_expression_once():
         return PredicateState.HIT
 
     from factor_oracle import oracle_evaluate_truth_table
+
     result = oracle_evaluate_truth_table(rows, atomic)
     assert result == {"印现": "命中", "印旺": "命中"}
     assert calls == ["现[印星]"]
@@ -57,14 +59,18 @@ def _pan() -> dict:
         "bazi": {
             **{
                 pillar: {
-                    "gan": "甲", "zhi": "子",
+                    "gan": "甲",
+                    "zhi": "子",
                     "shi_shens": [{"shi_shen": "比肩", "gan": "甲", "source": "gan"}],
-                } for pillar in pillars
+                }
+                for pillar in pillars
             },
             **_helpers.mock_engine_facts(),
             **_helpers.mock_yongshen_fields(),
         },
-        "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
+        "fu_yi": {},
+        "tiao_hou": {},
+        "ge_ju": {},
         "ziwei": _helpers.mock_ziwei(),
         "ziwei_daxian": _helpers.valid_daxian(),
     }
@@ -78,7 +84,11 @@ def test_flow_evaluation_reuses_prepared_natal_base():
     ) as build_base:
         for side in ("bazi", "ziwei"):
             result = factors.evaluate_liunian_factors(
-                natal_chart["gender"], natal.evaluation, {}, year=2026, shushi=side,
+                natal_chart["gender"],
+                natal.evaluation,
+                {},
+                year=2026,
+                shushi=side,
                 natal_snapshot=natal.snapshot,
             )
             assert result

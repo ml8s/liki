@@ -3,8 +3,8 @@
 from unittest import mock
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
+import app.domain.natal.duanyu as duanyu
 import app.domain.natal.duanyu.assertion_query as assertion_query
-import app.natal.tools.duanyu as duanyu
 import app.natal.tools.factors as factors
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 

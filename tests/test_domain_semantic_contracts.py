@@ -1,13 +1,15 @@
 """当前命理数据与机械算子的领域契约。"""
+
 import ast
 import csv
 from pathlib import Path
 
 import _helpers  # noqa: F401
-import app.natal.tools.duanyu as duanyu
+import app.domain.natal.duanyu as duanyu
 import app.natal.tools.factors as factors
 import app.natal.tools.operators_liunian as operators_liunian
 import app.natal.tools.operators_natal as operators_natal
+from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
 from app.natal.tools.natal_projection import load_contract
 
@@ -15,20 +17,24 @@ from app.natal.tools.natal_projection import load_contract
 def test_financial_star_damages_resource_requires_real_target():
     rows = [r for r in load_factor_rows() if r["因子"] == "财坏印"]
     assert rows
-    assert [r["conds"] for r in rows] == [{
-        "透[财星]": "命中",
-        "现[印星]": "命中",
-        "克[财星,印星]": "命中",
-        "财星旺": "命中",
-    }]
+    assert [r["conds"] for r in rows] == [
+        {
+            "透[财星]": "命中",
+            "现[印星]": "命中",
+            "克[财星,印星]": "命中",
+            "财星旺": "命中",
+        }
+    ]
 
 
 def test_tian_ke_di_chong_requires_both_gan_ke_and_zhi_chong():
     rows = [r for r in load_liunian_rows() if r["因子"] == "天克地冲日柱"]
-    assert [r["conds"] for r in rows] == [{
-        "干克[流年干,日干]": "命中",
-        "支冲[流年支,日支]": "命中",
-    }]
+    assert [r["conds"] for r in rows] == [
+        {
+            "干克[流年干,日干]": "命中",
+            "支冲[流年支,日支]": "命中",
+        }
+    ]
 
 
 def test_family_wealth_loss_requires_unfavorable_peers():
@@ -68,8 +74,13 @@ def test_female_specific_child_loss_is_gender_gated():
     assert list(groups.values()) == [
         {xing: "1", "本命食伤旺": "1", "性别": "female"}
         for xing in (
-            "流年地支相刑寅巳申", "流年地支相刑丑戌未", "流年地支相刑子卯",
-            "流年地支自刑辰辰", "流年地支自刑午午", "流年地支自刑酉酉", "流年地支自刑亥亥",
+            "流年地支相刑寅巳申",
+            "流年地支相刑丑戌未",
+            "流年地支相刑子卯",
+            "流年地支自刑辰辰",
+            "流年地支自刑午午",
+            "流年地支自刑酉酉",
+            "流年地支自刑亥亥",
         )
     ]
 
@@ -84,10 +95,7 @@ def test_factor_groups_do_not_duplicate_definitions():
             groups.setdefault((row["factor_id"], row["group_id"]), []).append(row)
         signatures: dict[tuple, list[tuple[str, str]]] = {}
         for key, terms in groups.items():
-            signature = tuple(sorted(
-                (row["kind"], row["expression"], row["expected"])
-                for row in terms
-            ))
+            signature = tuple(sorted((row["kind"], row["expression"], row["expected"]) for row in terms))
             signatures.setdefault(signature, []).append(key)
         duplicates = [keys for keys in signatures.values() if len(keys) > 1]
         assert not duplicates, f"{name}: {duplicates}"
@@ -97,9 +105,7 @@ def test_factor_model_preserves_assertion_unconsumed_domain_fact():
     root = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools"
     with (root / "factors/factors.csv").open(encoding="utf-8", newline="") as source:
         factor_ids = {row["factor_id"] for row in csv.DictReader(source)}
-    with (root / "assertions/assertion_conditions.csv").open(
-        encoding="utf-8", newline=""
-    ) as source:
+    with (root / "assertions/assertion_conditions.csv").open(encoding="utf-8", newline="") as source:
         asserted = {row["factor"] for row in csv.DictReader(source)}
     assert "身弱" in factor_ids
     assert "身弱" not in asserted
@@ -128,18 +134,33 @@ def test_factor_rows_require_declared_side(tmp_path):
 
 
 def test_half_sanhe_requires_imperial_branch():
-    ctx = {"liunian": {"atomic_facts": {"combinations": [{"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}]}}, "zw_liunian": {}, "year": 2026}
+    ctx = {
+        "liunian": {
+            "atomic_facts": {
+                "combinations": [
+                    {"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}
+                ]
+            }
+        },
+        "zw_liunian": {},
+        "year": 2026,
+    }
     assert operators_liunian._liu_op("半合", ["子", "辰"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("半合", ["亥", "未"], "male", {}, ctx) == 0
     source_ctx = {
-        "liunian": {"zhi": "辰", "atomic_facts": {"combinations": [{"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}]}},
+        "liunian": {
+            "zhi": "辰",
+            "atomic_facts": {
+                "combinations": [
+                    {"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}
+                ]
+            },
+        },
         "zw_liunian": {},
         "year": 2026,
         "chart": {"chart": {"ri": {"zhi": "子"}}},
     }
-    assert operators_liunian._liu_op(
-        "半合", ["日支", "流年支"], "male", {}, source_ctx
-    ) == 1
+    assert operators_liunian._liu_op("半合", ["日支", "流年支"], "male", {}, source_ctx) == 1
 
 
 def test_pillar_sources_cover_all_four_pillars():
@@ -147,12 +168,14 @@ def test_pillar_sources_cover_all_four_pillars():
         "liunian": {"zhi": "午"},
         "zw_liunian": {},
         "year": 2026,
-        "chart": {"chart": {
-            "nian": {"gan": "甲", "zhi": "子"},
-            "yue": {"gan": "乙", "zhi": "丑"},
-            "ri": {"gan": "丙", "zhi": "寅"},
-            "shi": {"gan": "丁", "zhi": "卯"},
-        }},
+        "chart": {
+            "chart": {
+                "nian": {"gan": "甲", "zhi": "子"},
+                "yue": {"gan": "乙", "zhi": "丑"},
+                "ri": {"gan": "丙", "zhi": "寅"},
+                "shi": {"gan": "丁", "zhi": "卯"},
+            }
+        },
     }
     assert operators_liunian._source_zhi("年支", ctx) == "子"
     assert operators_liunian._source_zhi("月支", ctx) == "丑"
@@ -161,11 +184,16 @@ def test_pillar_sources_cover_all_four_pillars():
 
 
 def test_flow_control_targets_cover_all_ten_god_classes():
-    const = duanyu.load_constants()
+    const = load_constants()
     assert set(const["流年克目标"]) == {"日主", *const["十神大类"]}
     assert set(const["流年克目标"].values()) == {
-        "day_master", "wealth_star", "officer_killing", "seal_star", "food_injury"
+        "day_master",
+        "wealth_star",
+        "officer_killing",
+        "seal_star",
+        "food_injury",
     }
+
 
 def test_current_limit_does_not_pollute_natal_layers():
     assert duanyu.CURRENT_LIMIT_RULES == frozenset({"大运", "大限"})
@@ -184,36 +212,53 @@ def test_brief_keeps_assertion_id_for_cauijue_traceability():
 
 
 def test_brief_keeps_controlled_event_taxonomy():
-    source = [{
-        "id": "ymar_101", "领域": "婚姻", "事件类型": "引动",
-        "时间层": "流年", "事件": "流年婚动", "结论": "婚动",
-    }]
+    source = [
+        {
+            "id": "ymar_101",
+            "领域": "婚姻",
+            "事件类型": "引动",
+            "时间层": "流年",
+            "事件": "流年婚动",
+            "结论": "婚动",
+        }
+    ]
     assert duanyu.brief(source) == source
 
 
 def test_current_daxian_palace_is_mechanical():
-    chart = {"standard_time": "1990-05-20T12:00:00", "ziwei_daxian": [
-        {"gong": "命宫", "start_year": 1990, "end_year": 1999},
-        {"gong": "兄弟", "start_year": 2000, "end_year": 2009},
-    ]}
+    chart = {
+        "standard_time": "1990-05-20T12:00:00",
+        "ziwei_daxian": [
+            {"gong": "命宫", "start_year": 1990, "end_year": 1999},
+            {"gong": "兄弟", "start_year": 2000, "end_year": 2009},
+        ],
+    }
     from app.natal.tools.operators_natal import _op
+
     assert _op("大限宫位", ["当前", "任意"], "male", chart, 2005) == "兄弟"
     assert _op("大限宫位", ["当前", "夫妻"], "male", chart, 2005) == 0
 
 
 def test_current_daxian_requires_explicit_or_server_year():
     from app.natal.tools.operators_natal import _op
+
     chart = {"ziwei_daxian": _helpers.valid_daxian()}
     from app.natal.tools.factor_semantics import PredicateState
+
     assert _op("大限宫位", ["当前", "任意"], "male", chart, 0) == PredicateState.UNKNOWN
     assert _op("大限宫位", ["当前", "命宫"], "male", chart, 0) == PredicateState.UNKNOWN
 
 
 def test_flow_star_palace_is_mechanical():
-    ctx = {"liunian": {}, "zw_liunian": {"gong_wei": [
-        {"name": "子女", "stars": ["流羊"]},
-        {"name": "夫妻", "stars": ["流鸾"]},
-    ]}}
+    ctx = {
+        "liunian": {},
+        "zw_liunian": {
+            "gong_wei": [
+                {"name": "子女", "stars": ["流羊"]},
+                {"name": "夫妻", "stars": ["流鸾"]},
+            ]
+        },
+    }
     assert operators_liunian._liu_op("流曜入宫", ["流羊", "子女"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("流曜入宫", ["流鸾", "子女"], "male", {}, ctx) == 0
     assert operators_liunian._liu_op("流曜入宫", ["流羊", "子女宫"], "male", {}, ctx) == 0
@@ -236,47 +281,65 @@ def test_flow_si_hua_uses_complete_engine_facts():
 
 def test_explicit_pillar_clash_uses_requested_pillar():
     ctx = {
-        "liunian": {"zhi": "午", "natal_interactions": [{
-            "zhi_rels": [{"zhi_a": "午", "zhi_b": "子", "type": "六冲"}]
-        }], "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}}},
+        "liunian": {
+            "zhi": "午",
+            "natal_interactions": [{"zhi_rels": [{"zhi_a": "午", "zhi_b": "子", "type": "六冲"}]}],
+            "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}},
+        },
         "zw_liunian": {},
         "chart": {"chart": {"nian": {"zhi": "子"}, "ri": {"zhi": "卯"}}},
     }
     assert operators_liunian._liu_op("流年冲", ["年支"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("流年冲", ["日支"], "male", {}, ctx) == 0
-    direct_ctx = {**ctx, "liunian": {
-        "zhi": "午", "natal_interactions": [],
-        "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}},
-    }}
+    direct_ctx = {
+        **ctx,
+        "liunian": {
+            "zhi": "午",
+            "natal_interactions": [],
+            "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}},
+        },
+    }
     assert operators_liunian._liu_op("流年冲", ["年支"], "male", {}, direct_ctx) == 1
 
 
 def test_query_year_is_rejected_for_pure_natal_rules():
     import pytest
+
     with pytest.raises(ValueError, match="纯本命域"):
-        duanyu.query("十神", {
-            "standard_time": "1990-05-20T12:00:00",
+        duanyu.query(
+            "十神",
+            {
+                "standard_time": "1990-05-20T12:00:00",
                 "gender": "male",
-            "chart": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
-            "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
-            "fu_yi": {}, "tiao_hou": {}, "ge_ju": {}, "ziwei": _helpers.mock_ziwei(), "ziwei_daxian": _helpers.valid_daxian(),
-        }, year=2005)
+                "chart": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
+                "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
+                "fu_yi": {},
+                "tiao_hou": {},
+                "ge_ju": {},
+                "ziwei": _helpers.mock_ziwei(),
+                "ziwei_daxian": _helpers.valid_daxian(),
+            },
+            year=2005,
+        )
 
 
 def test_required_natal_factors_include_reference_closure():
-    tables = [[{
-        "id": "test",
-        "约束组": [{"比劫夺财": 1}],
-    }]]
+    tables = [
+        [
+            {
+                "id": "test",
+                "约束组": [{"比劫夺财": 1}],
+            }
+        ]
+    ]
     # `现[财星]` 是 `比劫夺财` 内部原子条件，不是外层因子引用。
-    assert duanyu.required_natal_factors(tables) >= {
-        "比劫夺财", "比劫旺"
-    }
+    assert duanyu.required_natal_factors(tables) >= {"比劫夺财", "比劫旺"}
 
 
 def test_domain_docs_do_not_expose_legacy_query_tool():
     import re
     from pathlib import Path
+
     root = Path(__file__).resolve().parents[1] / "skills/liki/references"
     offenders = []
     for path in sorted(root.glob("natal-*.md")):
@@ -289,21 +352,23 @@ def test_domain_docs_do_not_expose_legacy_query_tool():
 
 
 def test_required_flow_factors_use_assertion_conditions():
-    tables = [[{
-        "id": "test",
-        "约束组": [{"流年配偶星透": 1}],
-    }]]
+    tables = [
+        [
+            {
+                "id": "test",
+                "约束组": [{"流年配偶星透": 1}],
+            }
+        ]
+    ]
     assert duanyu.required_flow_factors(tables) == {"流年配偶星透"}
 
 
 def test_dayun_spouse_star_uses_evaluation_gender():
     from app.natal.tools.operators_natal import _op
+
     base = {
         "ten_god_states": {},
-        "dayun_steps": [
-            {"name": "戊辰", "shi_shen": "正财运",
-             "start_year": 2011, "end_year": 2020}
-        ],
+        "dayun_steps": [{"name": "戊辰", "shi_shen": "正财运", "start_year": 2011, "end_year": 2020}],
     }
     assert _op("大运十神", ["当前", "配偶星"], "male", base, 2015) == 1
     assert _op("大运十神", ["当前", "配偶星"], "female", base, 2015) == 0
@@ -317,7 +382,7 @@ def test_natal_factors_for_flow_cover_explicit_and_implicit_references():
 
 
 def test_domain_configuration_covers_mechanical_operator_contracts():
-    const = duanyu.load_constants()
+    const = load_constants()
     assert set(const["十神大类日主关系"]) == set(const["十神大类"])
     for relation in const["十神大类日主关系"].values():
         assert relation["关系"] in {"同", "生", "克"}
@@ -330,13 +395,20 @@ def test_domain_configuration_covers_mechanical_operator_contracts():
     assert set(const["关系取合类型"]) == {"六合", "三合", "三会"}
     assert const["关系取冲类型"] == "六冲"
     assert set(const["干支来源"]) == {
-        "流年", "大运", "日柱", "流年干", "大运干", "日干",
-        "流年支", "大运支", "年支", "月支", "日支", "时支",
+        "流年",
+        "大运",
+        "日柱",
+        "流年干",
+        "大运干",
+        "日干",
+        "流年支",
+        "大运支",
+        "年支",
+        "月支",
+        "日支",
+        "时支",
     }
-    pillar_sources = {
-        spec["柱"] for spec in const["干支来源"].values()
-        if spec["源"] == "四柱"
-    }
+    pillar_sources = {spec["柱"] for spec in const["干支来源"].values() if spec["源"] == "四柱"}
     assert pillar_sources == set(const["四柱"])
     assert {"算子柱位", "柱刑关系字段", "格局十神"}.isdisjoint(const)
     assert load_contract()["柱字段后缀"] == "柱"
@@ -353,7 +425,7 @@ def test_domain_configuration_covers_mechanical_operator_contracts():
 
 
 def test_operator_code_contains_no_domain_member_literals():
-    const = duanyu.load_constants()
+    const = load_constants()
     operator_names = operators_natal._OP_NAMES | operators_liunian._LIU_OP_NAMES
     domain_members = set(const["十神"])
     domain_members.update(const["五行"])
@@ -427,8 +499,5 @@ def test_yearly_scene_aliases_have_matchable_domain_assertions():
             continue
         allowed = set(duanyu.SCENE_DOMAIN_FILTERS[scene])
         for rule in rules:
-            matchable = any(
-                row["rule"] == rule and row["领域"] in allowed
-                for row in rows
-            )
+            matchable = any(row["rule"] == rule and row["领域"] in allowed for row in rows)
             assert matchable, f"{scene}/{rule} 没有可通过领域过滤的断语"

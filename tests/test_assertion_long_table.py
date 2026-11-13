@@ -1,9 +1,10 @@
 """断语长表契约：元数据、条件、唯一性和 loader 聚合。"""
+
 import csv
 from pathlib import Path
 
 import pytest
-from app.natal.tools.duanyu import load_rule_table
+from app.natal.tools.assertion_store import load_rule_table
 
 ROOT = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools/assertions"
 
@@ -37,13 +38,25 @@ def test_all_conditions_reference_known_assertions_and_have_expected():
 def test_loader_returns_metadata_and_typed_constraints():
     rows = load_rule_table("bazi_十神.csv")
     assert rows
-    assert all({
-        "id", "领域", "事件类型", "时间层", "事件", "约束组",
-        "结论", "依据", "经典依据",
-    } <= set(row) for row in rows)
+    assert all(
+        {
+            "id",
+            "领域",
+            "事件类型",
+            "时间层",
+            "事件",
+            "约束组",
+            "结论",
+            "依据",
+            "经典依据",
+        }
+        <= set(row)
+        for row in rows
+    )
     assert any(row["约束组"] for row in rows)
     typed = [value for row in rows for group in row["约束组"] for value in group.values()]
     from app.natal.tools.factor_semantics import PredicateState
+
     assert any(isinstance(value, PredicateState) for value in typed)
     assert any(isinstance(value, str) and value not in ("0", "1") for value in typed)
 

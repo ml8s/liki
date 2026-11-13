@@ -11,7 +11,7 @@ import json
 import os
 from functools import lru_cache
 
-from app.natal.tools.duanyu import yearly_range
+from app.domain.natal.duanyu import yearly_range
 from app.natal.tools.errors import LikiToolError
 from app.natal.tools.factor_constants import load_constants
 
@@ -45,25 +45,24 @@ def _require_life_topics(life_topics: list[str]) -> list[tuple[str, dict]]:
         raise TopicRouteError("life_topics 每项必须是非空字符串")
     unknown = [topic for topic in life_topics if topic not in configured]
     if unknown:
-        raise TopicRouteError(
-            f"life_topics 含无效值: {unknown}。有效 life_topics: {sorted(configured)}"
-        )
+        raise TopicRouteError(f"life_topics 含无效值: {unknown}。有效 life_topics: {sorted(configured)}")
     return [(topic, configured[topic]) for topic in life_topics]
 
 
-def _life_topics_for_row(row: dict, selected: list[tuple[str, dict]],
-                    cross_cutting: frozenset[str] = frozenset()) -> list[str]:
+def _life_topics_for_row(
+    row: dict, selected: list[tuple[str, dict]], cross_cutting: frozenset[str] = frozenset()
+) -> list[str]:
     """把断语行路由到所有命中的 topic；跨切域可同时归属多个已选 topic。"""
     domain = row.get("领域")
     is_cross = domain in cross_cutting
-    return [
-        topic_id for topic_id, route in selected
-        if is_cross or domain in route["domains"]
-    ]
+    return [topic_id for topic_id, route in selected if is_cross or domain in route["domains"]]
 
 
 def _normalize_row(
-    row: dict, *, life_topics: list[str], rule_id: str,
+    row: dict,
+    *,
+    life_topics: list[str],
+    rule_id: str,
     year: int | None = None,
 ) -> dict:
     result = {
@@ -104,7 +103,9 @@ def _normalize_row(
 
 
 def _flatten_side_result(
-    result: dict, selected: list[tuple[str, dict]], routes: dict,
+    result: dict,
+    selected: list[tuple[str, dict]],
+    routes: dict,
     year: int | None = None,
 ) -> tuple[dict[str, list[dict]], dict[str, dict[str, int]]]:
     assertions: dict[str, list[dict]] = {}
@@ -122,19 +123,19 @@ def _flatten_side_result(
                 counts[technique]["topic_not_selected"] += 1
                 continue
             source_rule = row.get("rule") or result.get("_rule", "")
-            assertions[technique].append(_normalize_row(
-                row, life_topics=life_topics,
-                rule_id=routes["method_ids"].get(source_rule, source_rule),
-                year=year,
-            ))
+            assertions[technique].append(
+                _normalize_row(
+                    row,
+                    life_topics=life_topics,
+                    rule_id=routes["method_ids"].get(source_rule, source_rule),
+                    year=year,
+                )
+            )
     return assertions, counts
 
 
 def _empty_source_counts() -> dict[str, dict[str, int]]:
-    return {
-        technique: {"matched": 0, "topic_not_selected": 0}
-        for technique in ("bazi", "ziwei")
-    }
+    return {technique: {"matched": 0, "topic_not_selected": 0} for technique in ("bazi", "ziwei")}
 
 
 def _add_source_counts(total: dict[str, dict[str, int]], part: dict[str, dict[str, int]]) -> None:
@@ -144,7 +145,9 @@ def _add_source_counts(total: dict[str, dict[str, int]], part: dict[str, dict[st
 
 
 def _public_counts(
-    matched: int, topic_not_selected: int, returned: int,
+    matched: int,
+    topic_not_selected: int,
+    returned: int,
 ) -> dict:
     return {
         "matched": matched,
@@ -155,7 +158,6 @@ def _public_counts(
             "deduplicated": matched - topic_not_selected - returned,
         },
     }
-
 
 
 def _deduplicate(items: list[dict]) -> list[dict]:
@@ -180,8 +182,7 @@ def _analyze_liunian(natal_chart: dict, args: dict, validate_pan: bool = True) -
     start, count = args["start_year"], args["year_count"]
     if not isinstance(start, int) or isinstance(start, bool) or start <= 0:
         raise TopicRouteError("start_year 必须是正整数")
-    if (not isinstance(count, int) or isinstance(count, bool)
-            or not 1 <= count <= 50):
+    if not isinstance(count, int) or isinstance(count, bool) or not 1 <= count <= 50:
         raise TopicRouteError("year_count 必须在 1-50 之间")
 
     rule_order: list[str] = []
@@ -193,7 +194,11 @@ def _analyze_liunian(natal_chart: dict, args: dict, validate_pan: bool = True) -
         raise TopicRouteError("所选 topic 没有流年规则")
 
     raw = yearly_range(
-        natal_chart, start, count, rules=rule_order, detail=True,
+        natal_chart,
+        start,
+        count,
+        rules=rule_order,
+        detail=True,
         validate_pan=validate_pan,
     )
     years = raw.get("years", {})
@@ -201,27 +206,24 @@ def _analyze_liunian(natal_chart: dict, args: dict, validate_pan: bool = True) -
     for year in range(start, start + count):
         result = years.get(str(year), {})
         if "error" in result:
-            output_scopes.append({
-                "year": year,
-                "error": {"code": "ENGINE_UNAVAILABLE", "message": result["error"]},
-            })
+            output_scopes.append(
+                {
+                    "year": year,
+                    "error": {"code": "ENGINE_UNAVAILABLE", "message": result["error"]},
+                }
+            )
             continue
         grouped: dict[str, list[dict]] = {}
         source_counts = _empty_source_counts()
         for rule, rule_result in result.items():
             rule_result["_rule"] = rule
-            part, matched_count = _flatten_side_result(
-                rule_result, selected_pairs, routes, year
-            )
+            part, matched_count = _flatten_side_result(rule_result, selected_pairs, routes, year)
             _add_source_counts(source_counts, matched_count)
             for technique in ("bazi", "ziwei"):
                 grouped.setdefault(technique, []).extend(part[technique])
         side_results = {}
         for technique in ("bazi", "ziwei"):
-            unique = [
-                _public_assertion(item)
-                for item in _deduplicate(grouped.get(technique, []))
-            ]
+            unique = [_public_assertion(item) for item in _deduplicate(grouped.get(technique, []))]
             side_results[technique] = {
                 "assertions": unique,
                 "counts": _public_counts(
@@ -230,10 +232,12 @@ def _analyze_liunian(natal_chart: dict, args: dict, validate_pan: bool = True) -
                     len(unique),
                 ),
             }
-        output_scopes.append({
-            "year": year,
-            **side_results,
-        })
+        output_scopes.append(
+            {
+                "year": year,
+                **side_results,
+            }
+        )
 
     return {
         "natal_chart_digest": natal_chart["natal_chart_digest"],

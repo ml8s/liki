@@ -10,6 +10,7 @@
 用法：python3 scripts/eval_hybrid.py
 输出：stdout（断语覆盖统计——非正确率）；需要留档时显式传 --output FILE
 """
+
 import argparse
 import json
 import os
@@ -19,12 +20,13 @@ from pathlib import Path
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the unified Liki bazi domain.
 _COUNSEL = os.path.join(_ROOT, "counsel")
-_LOCAL = os.path.dirname(os.path.abspath(__file__))   # scripts/birth.py 在此
+_LOCAL = os.path.dirname(os.path.abspath(__file__))  # scripts/birth.py 在此
 _BENCHMARK = os.path.join(_ROOT, "evals", "mingli160")
 for _p in (_COUNSEL, _LOCAL):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from app.domain.natal.duanyu import NATAL_RULES, YEARLY_RULES, match_rule, query_yearly, resolve_current_year
 from app.engine_mcp_client import call
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
@@ -32,7 +34,6 @@ from app.natal.tools.charts import (
     _bazi_chart,
     _ziwei_chart,
 )
-from app.natal.tools.duanyu import NATAL_RULES, YEARLY_RULES, match_rule, query_yearly, resolve_current_year
 from app.natal.tools.factors import evaluate_liunian_snap_from_natal_chart, evaluate_snap_from_natal_chart
 from birth import parse_birth
 
@@ -46,34 +47,51 @@ with open(os.path.join(BENCHMARK, "births.json"), encoding="utf-8") as _file:
 def build_natal_chart(civil_time: str, gender: str, longitude: float) -> dict:
     """Evaluation-only orchestration: normalize civil time, then chart both sides."""
     date, clock = civil_time[:19].split("T", 1)
-    resolved = call("subject_candidates", {
-        "calendar_kind": "solar", "recorded_date": date, "recorded_time": clock,
-        "record_timezone": "Asia/Shanghai", "longitude": longitude,
-        "subject_gender": gender,
-    })["data"]
+    resolved = call(
+        "subject_candidates",
+        {
+            "calendar_kind": "solar",
+            "recorded_date": date,
+            "recorded_time": clock,
+            "record_timezone": "Asia/Shanghai",
+            "longitude": longitude,
+            "subject_gender": gender,
+        },
+    )["data"]
     candidates = resolved.get("candidates") or []
     if not candidates:
         raise ValueError("subject_candidates returned no candidates")
     candidate = next(
-        (item for item in candidates
-         if any(reason.get("reason_kind") == "input" for reason in item.get("reasons", []))),
+        (
+            item
+            for item in candidates
+            if any(reason.get("reason_kind") == "input" for reason in item.get("reasons", []))
+        ),
         candidates[0],
     )
     subject = candidate["subject"]
-    natal_chart = with_natal_chart_digest({
-        "subject": subject,
-        "bazi": _bazi_chart(subject),
-        "ziwei": _ziwei_chart(subject),
-        "ziwei_daxian": _ziwei_chart(subject).get("da_xian", []),
-    })
+    natal_chart = with_natal_chart_digest(
+        {
+            "subject": subject,
+            "bazi": _bazi_chart(subject),
+            "ziwei": _ziwei_chart(subject),
+            "ziwei_daxian": _ziwei_chart(subject).get("da_xian", []),
+        }
+    )
     validate_natal_chart(natal_chart, action="eval_hybrid natal_chart")
     return natal_chart
 
 
 def _bazi_liupan(subject: dict, scope: str, standard_time: str, count: int = 1) -> list[dict]:
-    result = call("bazi_liupan", {
-        "subject": subject, "scope": scope, "standard_time": standard_time, "count": count,
-    })
+    result = call(
+        "bazi_liupan",
+        {
+            "subject": subject,
+            "scope": scope,
+            "standard_time": standard_time,
+            "count": count,
+        },
+    )
     root = next((key for key, value in result["data"].items() if isinstance(value, list)), None)
     if root is None:
         raise ValueError("bazi_liupan returned no domain series")
@@ -81,9 +99,15 @@ def _bazi_liupan(subject: dict, scope: str, standard_time: str, count: int = 1) 
 
 
 def _ziwei_liupan(subject: dict, scope: str, standard_time: str, count: int = 1) -> list[dict]:
-    result = call("ziwei_liupan", {
-        "subject": subject, "scope": scope, "standard_time": standard_time, "count": count,
-    })
+    result = call(
+        "ziwei_liupan",
+        {
+            "subject": subject,
+            "scope": scope,
+            "standard_time": standard_time,
+            "count": count,
+        },
+    )
     root = next((key for key, value in result["data"].items() if isinstance(value, list)), None)
     if root is None:
         raise ValueError("ziwei_liupan returned no domain series")
@@ -137,8 +161,8 @@ def main() -> int:
     args = parser.parse_args()
 
     total = 0
-    zero = []                       # 全断语域零命中的题
-    dom_hits = {}                   # 域 → 命中次数（覆盖）
+    zero = []  # 全断语域零命中的题
+    dom_hits = {}  # 域 → 命中次数（覆盖）
     cache = {}
     for case_id, qids in sorted(GROUPS.items()):
         birth = load_case_birth(case_id)
@@ -148,7 +172,8 @@ def main() -> int:
             civil_time, gender, lon, _corr = parse_birth(birth)
             # 经度未知时用北京默认（与产品默认一致）；题干时间即 Gregorian time事实。
             natal_chart = build_natal_chart(
-                civil_time[:19], gender,
+                civil_time[:19],
+                gender,
                 lon if lon is not None else 116.4,
             )
             cache[case_id] = query_all(natal_chart)

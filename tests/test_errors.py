@@ -1,6 +1,6 @@
 """错误契约：专用错误可捕获，且保持 LikiToolError 的 ValueError 兼容行为。"""
 
-import app.natal.tools.duanyu as duanyu
+import app.domain.natal.duanyu as duanyu
 from app.natal.tools.chart_schema import validate_natal_chart
 from app.natal.tools.errors import (
     AssertionRuleError,
@@ -15,8 +15,11 @@ from app.natal.tools.factors import evaluate_operator
 
 def test_error_hierarchy_is_valueerror_compatible():
     for error_type in (
-        ChartSchemaError, AssertionRuleError, YearRangeError,
-        FactorEvaluateError, FactorTableError,
+        ChartSchemaError,
+        AssertionRuleError,
+        YearRangeError,
+        FactorEvaluateError,
+        FactorTableError,
     ):
         assert issubclass(error_type, LikiToolError)
         assert issubclass(error_type, ValueError)

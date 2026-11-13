@@ -3,8 +3,8 @@
 import unittest
 from unittest import mock
 
+import app.domain.natal.duanyu as duanyu
 import app.domain.natal.duanyu.assertion_query as assertion_query
-import app.natal.tools.duanyu as duanyu
 import app.natal.tools.factors as factors
 from _helpers import (
     mock_base_context,
@@ -289,7 +289,7 @@ class TestYueLingGe(unittest.TestCase):
         # 正财格 + 身弱 → ge_302（正财格身弱分支）
         base = mock_base_context(正财={"wuxing": "土", "timely": True, "count": 3})
         base["ge_ju"] = {"ge_ju": "正财格"}
-        from app.natal.tools.duanyu import load_rule_table, match_table
+        from app.domain.natal.duanyu import load_rule_table, match_table
 
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         # 手动构造断语表查询依赖的最小快照（身弱/从杀格）

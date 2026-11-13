@@ -7,10 +7,10 @@ back from the caller as a substitute for that subject.
 
 from concurrent.futures import ThreadPoolExecutor
 
+from app.domain.natal.duanyu import match_rule
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
 from app.natal.tools.charts import _bazi_chart, _ziwei_chart
-from app.natal.tools.duanyu import match_rule
 from app.natal.tools.factors import evaluate_factors
 from app.natal.tools.yongshen import published_yongshen, resolve_yongshen
 
@@ -31,12 +31,14 @@ def _build_natal_chart(subject: dict) -> dict:
         ziwei_future = executor.submit(_ziwei_chart, subject)
         bazi = bazi_future.result()
         ziwei = ziwei_future.result()
-    natal_chart = with_natal_chart_digest({
-        "subject": subject,
-        "bazi": bazi,
-        "ziwei": ziwei,
-        "ziwei_daxian": ziwei.get("da_xian"),
-    })
+    natal_chart = with_natal_chart_digest(
+        {
+            "subject": subject,
+            "bazi": bazi,
+            "ziwei": ziwei,
+            "ziwei_daxian": ziwei.get("da_xian"),
+        }
+    )
     validate_natal_chart(natal_chart, action="internal factor snapshot")
     return natal_chart
 
@@ -71,9 +73,11 @@ def _factor_snapshots(subject: dict) -> dict[str, dict]:
                 "selected_yongshen": selected_yongshen["selected_yongshen"],
                 "status": selected_yongshen["status"],
             }
-            factor_snapshot["provenance"].update({
-                "policy_id": selected_yongshen["policy_id"],
-            })
+            factor_snapshot["provenance"].update(
+                {
+                    "policy_id": selected_yongshen["policy_id"],
+                }
+            )
         snapshots[technique] = factor_snapshot
     return snapshots
 
@@ -115,10 +119,7 @@ def natal_query(subject: dict, life_topics: list[str]) -> dict:
 
     side_results = {}
     for technique in ("bazi", "ziwei"):
-        assertions = [
-            _public_assertion(item)
-            for item in _deduplicate(grouped[technique])
-        ]
+        assertions = [_public_assertion(item) for item in _deduplicate(grouped[technique])]
         side_results[technique] = {
             "assertions": assertions,
             "counts": _public_counts(
@@ -133,8 +134,7 @@ def natal_query(subject: dict, life_topics: list[str]) -> dict:
     }
 
 
-def natal_liunian_query(subject: dict, start_year: int,
-                        year_count: int, life_topics: list[str]) -> dict:
+def natal_liunian_query(subject: dict, start_year: int, year_count: int, life_topics: list[str]) -> dict:
     """Subject + start/count -> combined Bazi and Ziwei annual assertions."""
     from app.natal.tools.analytics import _analyze_liunian
 

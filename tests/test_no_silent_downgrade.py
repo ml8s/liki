@@ -5,8 +5,9 @@ from unittest import mock
 import app.domain.natal.duanyu.cache as duanyu_cache
 import app.natal.tools.factors as factors
 import pytest
+from app.domain.natal.duanyu import resolve_current_year
+from app.natal.tools.assertion_store import load_rule_table
 from app.natal.tools.charts import RPCError
-from app.natal.tools.duanyu import load_rule_table, resolve_current_year
 
 
 def _fac() -> dict:
