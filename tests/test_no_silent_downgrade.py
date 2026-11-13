@@ -1,7 +1,8 @@
 """禁止静默降级契约：计算错误必须传播，不得转成因子 0。"""
+
 from unittest import mock
 
-import app.natal.tools.duanyu as duanyu
+import app.domain.natal.duanyu.cache as duanyu_cache
 import app.natal.tools.factors as factors
 import pytest
 from app.natal.tools.charts import RPCError
@@ -12,7 +13,9 @@ def _fac() -> dict:
     return {
         "ten_god_states": {},
         "wuxing": {"wang_shuai": {}, "count": {}},
-        "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
+        "fu_yi": {},
+        "tiao_hou": {},
+        "ge_ju": {},
         "ri_gan": "甲",
     }
 
@@ -42,20 +45,24 @@ def test_current_year_does_not_fall_back_to_local_time() -> None:
 
 
 def _reset_year_cache() -> None:
-    duanyu.reset_current_year_cache()
+    duanyu_cache.reset_current_year_cache()
 
 
 def _year_call(cst: str):
     def fake(name, params):
         if name == "time_now":
-            return {"data": {
-                "local_standard_time": cst + "T12:00:00+08:00", "offset_seconds": 28800,
-            }}
+            return {
+                "data": {
+                    "local_standard_time": cst + "T12:00:00+08:00",
+                    "offset_seconds": 28800,
+                }
+            }
         if name == "bazi_liupan":
             return {"data": {"liu_nian": [{"year": 2026, "nian_jie": {"lichun_year": 2026}}]}}
         if name == "ziwei_liupan":
             return {"data": {"liu_nian": [{"year": 2026, "nian_jie": {"lunar_year": 2026}}]}}
         raise AssertionError(f"unexpected tool {name}")
+
     return fake
 
 
@@ -75,24 +82,28 @@ def test_current_year_caches_success_within_ttl() -> None:
 
 def test_current_year_cache_expires_and_refetches() -> None:
     _reset_year_cache()
-    with mock.patch("app.natal.tools.charts.call", side_effect=_year_call("2026-12-31T23:00:00")) as call_mock, \
-         mock.patch("app.natal.tools.duanyu.time.monotonic", side_effect=[0.0, 30.0, 61.0]):
-        resolve_current_year("Asia/Shanghai")          # 首次：发 RPC
-        resolve_current_year("Asia/Shanghai")          # +30s：仍命中
+    with (
+        mock.patch("app.natal.tools.charts.call", side_effect=_year_call("2026-12-31T23:00:00")) as call_mock,
+        mock.patch("app.domain.natal.duanyu.cache.time.monotonic", side_effect=[0.0, 30.0, 61.0]),
+    ):
+        resolve_current_year("Asia/Shanghai")  # 首次：发 RPC
+        resolve_current_year("Asia/Shanghai")  # +30s：仍命中
         assert _time_now_calls(call_mock) == 1
-        resolve_current_year("Asia/Shanghai")          # +61s：过期，重发 RPC
+        resolve_current_year("Asia/Shanghai")  # +61s：过期，重发 RPC
         assert _time_now_calls(call_mock) == 2
     _reset_year_cache()
 
 
 def test_current_year_failure_not_cached() -> None:
     _reset_year_cache()
-    with mock.patch("app.natal.tools.charts.call", side_effect=RPCError("time.now failed")), \
-         mock.patch("app.natal.tools.duanyu.time.monotonic", return_value=0.0):
+    with (
+        mock.patch("app.natal.tools.charts.call", side_effect=RPCError("time.now failed")),
+        mock.patch("app.domain.natal.duanyu.cache.time.monotonic", return_value=0.0),
+    ):
         with pytest.raises(RPCError):
             resolve_current_year("Asia/Shanghai")
         # 失败不写入缓存——下一次仍会再试（不把错误当时间基准缓存）
-        assert duanyu._year_cache._data is None
+        assert duanyu_cache.year_cache._data is None
     _reset_year_cache()
 
 
@@ -101,7 +112,7 @@ def test_current_year_rejects_missing_cst_and_does_not_cache() -> None:
     with mock.patch("app.natal.tools.charts.call", return_value={"data": {}}):
         with pytest.raises(ValueError, match="standard_time|local_time"):
             resolve_current_year("Asia/Shanghai")
-    assert duanyu._year_cache._data is None
+    assert duanyu_cache.year_cache._data is None
 
 
 def test_load_rule_table_missing_required_file_raises() -> None:
@@ -124,11 +135,7 @@ def test_skill_does_not_silently_default_birth_hour() -> None:
 def test_calibration_docs_do_not_silently_default_birth_hour() -> None:
     from pathlib import Path
 
-    path = (
-        Path(__file__).resolve().parents[1]
-        / "skills" / "liki" / "references"
-        / "natal-app-calibration.md"
-    )
+    path = Path(__file__).resolve().parents[1] / "skills" / "liki" / "references" / "natal-app-calibration.md"
     text = path.read_text(encoding="utf-8")
     assert "直接走默认时辰" not in text
     assert "建议先走默认时辰" not in text

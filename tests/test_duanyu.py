@@ -1,7 +1,9 @@
 """单元测试：factors 因子求值 + duanyu 断语查询 / yearly 隔离。"""
+
 import unittest
 from unittest import mock
 
+import app.domain.natal.duanyu.assertion_query as assertion_query
 import app.natal.tools.duanyu as duanyu
 import app.natal.tools.factors as factors
 from _helpers import (
@@ -16,23 +18,25 @@ from app.natal.tools.chart_integrity import with_natal_chart_digest
 
 def _valid_query_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
-    return with_natal_chart_digest({
-        "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "male"},
-        "standard_time": "1990-05-20T12:00:00+08:00",
-        "gender": "male",
-        "chart": {
-            **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
-            "da_yun": {"steps": [], "current_step_index": -1},
-        },
-        "bazi": {
-            **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
-            **mock_engine_facts(),
-            **mock_yongshen_fields(),
-        },
-        "ziwei": mock_ziwei(),
-        "ziwei_chart": {},
-        "ziwei_daxian": valid_daxian(),
-    })
+    return with_natal_chart_digest(
+        {
+            "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "male"},
+            "standard_time": "1990-05-20T12:00:00+08:00",
+            "gender": "male",
+            "chart": {
+                **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
+                "da_yun": {"steps": [], "current_step_index": -1},
+            },
+            "bazi": {
+                **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
+                **mock_engine_facts(),
+                **mock_yongshen_fields(),
+            },
+            "ziwei": mock_ziwei(),
+            "ziwei_chart": {},
+            "ziwei_daxian": valid_daxian(),
+        }
+    )
 
 
 class TestEvaluateFactors(unittest.TestCase):
@@ -40,8 +44,10 @@ class TestEvaluateFactors(unittest.TestCase):
 
     def _fac(self, **ten_god_states):
         f = mock_base_context(**ten_god_states)
-        f["wuxing"] = {"wang_shuai": {"木": "旺", "火": "相", "土": "休", "金": "囚", "水": "死"},
-                       "count": {"木": 2, "火": 1, "土": 1, "金": 1, "水": 0}}
+        f["wuxing"] = {
+            "wang_shuai": {"木": "旺", "火": "相", "土": "休", "金": "囚", "水": "死"},
+            "count": {"木": 2, "火": 1, "土": 1, "金": 1, "水": 0},
+        }
         f["fu_yi"] = {"qiang_ruo": "身强", "yong": "金", "xi": "土", "ji": "木"}
         f["tiao_hou"] = {}
         f["ge_ju"] = {}
@@ -49,7 +55,9 @@ class TestEvaluateFactors(unittest.TestCase):
 
     def test_快照含关键因子(self):
         # 正印 2 个且得令 → 「印星现」(现[正印,偏印]) 与「正印旺」(得令[正印]) 命中
-        base = self._fac(正印={"count": 2, "transparent": True, "hidden": True, "timely": True, "rooted": True, "wuxing": "水"})
+        base = self._fac(
+            正印={"count": 2, "transparent": True, "hidden": True, "timely": True, "rooted": True, "wuxing": "水"}
+        )
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         self.assertEqual(snap.get("印星现"), "命中")
         self.assertEqual(snap.get("正印旺"), "命中")
@@ -103,7 +111,15 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def test_性别是排盘上下文而非因子(self):
         base = self._fac()
-        natal_chart = {"natal_chart_digest": "a" * 64, "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "female"}, "base": base, "gender": "female", "bazi": {}, "chart": {}, "ziwei": {}}
+        natal_chart = {
+            "natal_chart_digest": "a" * 64,
+            "subject": {"standard_time": "1990-05-20T12:00:00+08:00", "longitude": 116.4, "gender": "female"},
+            "base": base,
+            "gender": "female",
+            "bazi": {},
+            "chart": {},
+            "ziwei": {},
+        }
         result = factors.evaluate_snap_from_natal_chart(natal_chart)
         self.assertEqual(result["context"], {"性别": "female"})
         self.assertNotIn("性别", result["八字"])
@@ -120,8 +136,10 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def test_数量程度词有区分(self):
         base = self._fac(
-            正印={"count": 3, "wuxing": "水"}, 偏印={"count": 0, "wuxing": "水"},
-            比肩={"count": 2, "wuxing": "木"}, 劫财={"count": 2, "wuxing": "木"},
+            正印={"count": 3, "wuxing": "水"},
+            偏印={"count": 0, "wuxing": "水"},
+            比肩={"count": 2, "wuxing": "木"},
+            劫财={"count": 2, "wuxing": "木"},
         )
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         self.assertEqual(snap["印多"], "命中")
@@ -169,7 +187,7 @@ class TestYearlyIsolation(unittest.TestCase):
             "紫微": {factor: "没命中" for factor in required},
             "context": {"性别": "male"},
         }
-        res = duanyu.query_yearly("年十神", liu)   # yliu_104(财坏印)归入年十神域
+        res = duanyu.query_yearly("年十神", liu)  # yliu_104(财坏印)归入年十神域
         self.assertTrue(any(r.get("id") == "yliu_104" for r in res["八字"]))
 
 
@@ -192,12 +210,17 @@ class TestYongShenQueryContext(unittest.TestCase):
             "紫微": {factor: "没命中" for factor in required_factors},
             "context": {"性别": "male"},
         }
-        with mock.patch.object(
-            duanyu, "evaluate_snap_from_natal_chart", return_value=snapshots,
-        ), mock.patch.object(
-            duanyu,
-            "match_rule",
-            return_value={"八字": [], "紫微": []},
+        with (
+            mock.patch.object(
+                assertion_query,
+                "evaluate_snap_from_natal_chart",
+                return_value=snapshots,
+            ),
+            mock.patch.object(
+                assertion_query,
+                "match_rule",
+                return_value={"八字": [], "紫微": []},
+            ),
         ):
             result = duanyu.query("用神", natal_chart)
             other = duanyu.query("旺衰", natal_chart)
@@ -219,9 +242,9 @@ class TestRiZhuWuXing(unittest.TestCase):
         base = mock_base_context()
         base["ri_gan"] = "己"
         base["day_master_element"] = "土"
-        self.assertEqual(__import__('factor_oracle').oracle_atomic("直读[ri_gan_wx,任意]", "male", base), "土")
+        self.assertEqual(__import__("factor_oracle").oracle_atomic("直读[ri_gan_wx,任意]", "male", base), "土")
         # 期望值模式不受影响（直读[ri_gan_wx,木] 对土日主 = 0）
-        self.assertEqual(__import__('factor_oracle').oracle_atomic("直读[ri_gan_wx,木]", "male", base), "没命中")
+        self.assertEqual(__import__("factor_oracle").oracle_atomic("直读[ri_gan_wx,木]", "male", base), "没命中")
 
     def test_日主五行因子为五行字符串(self):
         base = mock_base_context()
@@ -267,6 +290,7 @@ class TestYueLingGe(unittest.TestCase):
         base = mock_base_context(正财={"wuxing": "土", "timely": True, "count": 3})
         base["ge_ju"] = {"ge_ju": "正财格"}
         from app.natal.tools.duanyu import load_rule_table, match_table
+
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         # 手动构造断语表查询依赖的最小快照（身弱/从杀格）
         snap["身强弱"] = "身弱"
@@ -278,8 +302,16 @@ class TestStudySealFactorContract(unittest.TestCase):
     """xue_201 要求印星旺与官杀得令同时成立。"""
 
     def _hits(self, yin_wang, guan_sha_timely):
-        out = duanyu.match_rule("十神", {"八字": {"印星旺": "命中" if yin_wang else "没命中", "官杀得令": "命中" if guan_sha_timely else "没命中"},
-                                          "紫微": {}})
+        out = duanyu.match_rule(
+            "十神",
+            {
+                "八字": {
+                    "印星旺": "命中" if yin_wang else "没命中",
+                    "官杀得令": "命中" if guan_sha_timely else "没命中",
+                },
+                "紫微": {},
+            },
+        )
         return [e["id"] for e in out["八字"]]
 
     def test_印弱盘不命中科甲至顶(self):
@@ -296,6 +328,7 @@ class TestStudySealFactorContract(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
 def test_normalize_row_marks_gender_specific_factor_scope():
     """性别专属因子（女命/男命前缀）在证据里标注 gender_scope，避免异性命盘误读。"""

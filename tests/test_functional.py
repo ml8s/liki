@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from unittest import mock
 
+import app.domain.natal.duanyu.assertion_query as assertion_query
 import app.natal.tools.duanyu as duanyu
 import pytest
 from app.natal.tools.duanyu import (
@@ -31,35 +32,18 @@ DATA_FILES = {
     "scenario": FUNCTIONAL / "scenarios" / "cases.json",
     "conflict": FUNCTIONAL / "conflicts" / "cases.json",
 }
-DATA = {
-    level: json.loads(path.read_text(encoding="utf-8"))
-    for level, path in DATA_FILES.items()
-}
-CASES = {
-    level: payload["cases"]
-    for level, payload in DATA.items()
-}
+DATA = {level: json.loads(path.read_text(encoding="utf-8")) for level, path in DATA_FILES.items()}
+CASES = {level: payload["cases"] for level, payload in DATA.items()}
 ALL_CASES = [case for cases in CASES.values() for case in cases]
 ASSERTION_TABLE_ROWS = {
-    case["id"]: [
-        load_rule_table(f"{case['side']}_{domain_rule}.csv")
-        for domain_rule in case["domain_rules"]
-    ]
+    case["id"]: [load_rule_table(f"{case['side']}_{domain_rule}.csv") for domain_rule in case["domain_rules"]]
     for case in CASES["assertion"]
 }
 CONFLICT_TABLE_ROWS = {
-    case["id"]: [
-        load_rule_table(f"{case['side']}_{domain_rule}.csv")
-        for domain_rule in case["domain_rules"]
-    ]
+    case["id"]: [load_rule_table(f"{case['side']}_{domain_rule}.csv") for domain_rule in case["domain_rules"]]
     for case in CASES["conflict"]
 }
-ASSERTION_ROWS_BY_ID = {
-    row["id"]: row
-    for tables in ASSERTION_TABLE_ROWS.values()
-    for table in tables
-    for row in table
-}
+ASSERTION_ROWS_BY_ID = {row["id"]: row for tables in ASSERTION_TABLE_ROWS.values() for table in tables for row in table}
 ALLOWED_KINDS = {"positive", "negative", "boundary"}
 MANIFEST_LEVELS = {
     "factor": "factors",
@@ -80,9 +64,7 @@ def _case(level: str, case_id: str) -> dict:
 def test_functional_manifest_contract() -> None:
     assert MANIFEST["version"] == 1
     assert MANIFEST["name"] == "liki-rule-functional-suite"
-    assert set(MANIFEST["sources"]) == {
-        "domain_truth_tables", "factors", "assertions", "scenarios", "conflicts"
-    }
+    assert set(MANIFEST["sources"]) == {"domain_truth_tables", "factors", "assertions", "scenarios", "conflicts"}
     for key, path in MANIFEST["sources"].items():
         assert (FUNCTIONAL / path).resolve().exists(), (key, path)
 
@@ -113,6 +95,7 @@ def test_factor_cases_target_low_level_behavior_only() -> None:
             assert case.get("expect_factors"), case["id"]
         else:
             assert case.get("expect") is not None, case["id"]
+
 
 def _matcher_row(rule_id: str, *groups: dict) -> dict:
     return {"id": rule_id, "约束组": list(groups)}
@@ -195,9 +178,7 @@ def test_duanyu_public_api_has_no_private_symbols() -> None:
 
 def test_three_xing_trace_preserves_exact_group_factor() -> None:
     """evidence 旁路删除后，命中依据必须仍能精确指出是哪一组流年三刑。"""
-    row = next(
-        item for item in load_rule_table("bazi_年合会.csv") if item["id"] == "ying_h09"
-    )
+    row = next(item for item in load_rule_table("bazi_年合会.csv") if item["id"] == "ying_h09")
     snapshot = {
         factor: ("命中" if factor == "流年地支相刑寅巳申" else "没命中")
         for factor in (
@@ -225,11 +206,7 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
     rule = "大运"
     query_tables = list(duanyu.load_rule_tables(rule).values())
     required_factors = {
-        factor
-        for table in query_tables
-        for row in table
-        for group in row.get("约束组") or []
-        for factor in group
+        factor for table in query_tables for row in table for group in row.get("约束组") or [] for factor in group
     }
     matched = {
         "八字": [
@@ -239,17 +216,19 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
         "紫微": [{"id": "zs_301", "领域": "事业"}],
     }
 
-    with mock.patch.object(duanyu, "validate_natal_chart"), \
-         mock.patch.object(
-             duanyu,
-             "evaluate_snap_from_natal_chart",
-             return_value={
-                 "八字": {factor: "没命中" for factor in required_factors},
-                 "紫微": {factor: "没命中" for factor in required_factors},
-                 "context": {"性别": "male"},
-             },
-         ), \
-         mock.patch.object(duanyu, "match_rule", return_value=matched):
+    with (
+        mock.patch.object(assertion_query, "validate_natal_chart"),
+        mock.patch.object(
+            assertion_query,
+            "evaluate_snap_from_natal_chart",
+            return_value={
+                "八字": {factor: "没命中" for factor in required_factors},
+                "紫微": {factor: "没命中" for factor in required_factors},
+                "context": {"性别": "male"},
+            },
+        ),
+        mock.patch.object(assertion_query, "match_rule", return_value=matched),
+    ):
         result = duanyu.query(rule, natal_chart, year=2020, domains=["财运"])
 
     assert [row["id"] for row in result["八字"]] == ["cai_110"]
@@ -259,9 +238,11 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
 
 def test_query_domain_filter_rejects_unknown_life_domain() -> None:
     natal_chart = {"gender": "male"}
-    with mock.patch.object(duanyu, "validate_natal_chart"), \
-         mock.patch.object(duanyu, "evaluate_snap_from_natal_chart"), \
-         mock.patch.object(duanyu, "match_rule") as match_rule:
+    with (
+        mock.patch.object(assertion_query, "validate_natal_chart"),
+        mock.patch.object(assertion_query, "evaluate_snap_from_natal_chart"),
+        mock.patch.object(assertion_query, "match_rule") as match_rule,
+    ):
         with pytest.raises(ValueError, match="domains 含无效领域"):
             duanyu.query("大运", natal_chart, year=2020, domains=["不存在"])
 
@@ -287,12 +268,14 @@ def test_filter_domains_keeps_only_side_keys() -> None:
 def test_query_missing_required_factor_fails_closed() -> None:
     """公共 query 边界不得把缺失因子静默当作 0。"""
     rule = "十神"
-    with mock.patch.object(duanyu, "validate_natal_chart"), \
-         mock.patch.object(
-             duanyu,
-             "evaluate_snap_from_natal_chart",
-             return_value={"八字": {}, "紫微": {}, "context": {}},
-         ):
+    with (
+        mock.patch.object(assertion_query, "validate_natal_chart"),
+        mock.patch.object(
+            assertion_query,
+            "evaluate_snap_from_natal_chart",
+            return_value={"八字": {}, "紫微": {}, "context": {}},
+        ),
+    ):
         with pytest.raises(AssertionRuleError, match="断语因子缺失"):
             duanyu.query(rule, {"gender": "male"})
 
@@ -354,11 +337,7 @@ def test_assertion_and_conflict_expectations_resolve_to_declared_tables() -> Non
     }
     for level, table_rows in tables.items():
         for case in CASES[level]:
-            ids = {
-                row["id"]
-                for table in table_rows[case["id"]]
-                for row in table
-            }
+            ids = {row["id"] for table in table_rows[case["id"]] for row in table}
             expected = case["expect_assertions"]
             forbidden = case["forbidden_assertions"]
             assert set(expected) <= ids, (case["id"], sorted(set(expected) - ids))
@@ -393,21 +372,13 @@ def test_functional_covers_required_assertion_sides_and_rules() -> None:
     missing_sides = set(MANIFEST["coverage"]["assertion_sides"]) - covered_sides
     assert not missing_sides, f"assertion functional cases 缺少命理侧: {sorted(missing_sides)}"
 
-    covered_rules = {
-        domain_rule
-        for case in CASES["assertion"]
-        for domain_rule in case["domain_rules"]
-    }
+    covered_rules = {domain_rule for case in CASES["assertion"] for domain_rule in case["domain_rules"]}
     missing_rules = set(MANIFEST["coverage"]["assertion_rules"]) - covered_rules
     assert not missing_rules, f"assertion functional cases 缺少规则域: {sorted(missing_rules)}"
 
 
 def test_functional_covers_every_scenario_alias() -> None:
-    covered = {
-        rule
-        for case in CASES["scenario"]
-        for rule in case["input"]["rules"]
-    }
+    covered = {rule for case in CASES["scenario"] for rule in case["input"]["rules"]}
     missing = set(SCENE_ALIASES) - covered
     assert not missing, f"scenario functional cases 缺少场景别名: {sorted(missing)}"
 
@@ -447,31 +418,21 @@ def test_functional_factor(case_id: str) -> None:
         current_year=input_data.get("current_year", 0),
     )
 
-    assert actual == case["expect"], (
-        f"{case_id}: {op}={actual!r}, want {case['expect']!r}; {case['basis']}"
-    )
+    assert actual == case["expect"], f"{case_id}: {op}={actual!r}, want {case['expect']!r}; {case['basis']}"
 
 
 @pytest.mark.parametrize("case_id", _ids("assertion"))
 def test_functional_assertion(case_id: str) -> None:
     case = _case("assertion", case_id)
-    hits = [
-        row
-        for table in ASSERTION_TABLE_ROWS[case_id]
-        for row in match_table(table, case["input"]["snapshot"])
-    ]
+    hits = [row for table in ASSERTION_TABLE_ROWS[case_id] for row in match_table(table, case["input"]["snapshot"])]
     actual = [row["id"] for row in hits]
     expected = case["expect_assertions"]
     forbidden = case["forbidden_assertions"]
 
     missing = [item for item in expected if item not in actual]
     leaked = [item for item in forbidden if item in actual]
-    assert not missing, (
-        f"{case_id}: 缺少断语 {missing}; actual={actual}; {case['basis']}"
-    )
-    assert not leaked, (
-        f"{case_id}: 禁止断语出现 {leaked}; actual={actual}; {case['basis']}"
-    )
+    assert not missing, f"{case_id}: 缺少断语 {missing}; actual={actual}; {case['basis']}"
+    assert not leaked, f"{case_id}: 禁止断语出现 {leaked}; actual={actual}; {case['basis']}"
 
 
 @pytest.mark.parametrize("case_id", _ids("scenario"))
@@ -491,20 +452,15 @@ def test_functional_scenario(case_id: str) -> None:
     )
 
     if case["expect_filter"]:
-        assert actual_domains is not None, (
-            f"{case_id}: 专题场景缺少默认领域过滤; {case['basis']}"
-        )
+        assert actual_domains is not None, f"{case_id}: 专题场景缺少默认领域过滤; {case['basis']}"
         assert set(actual_domains or []) == set(case["expect_domains"]), (
-            f"{case_id}: 领域过滤={actual_domains}, want={case['expect_domains']}; "
-            f"{case['basis']}"
+            f"{case_id}: 领域过滤={actual_domains}, want={case['expect_domains']}; {case['basis']}"
         )
         assert not set(actual_domains or []) & set(case["forbidden_domains"]), (
             f"{case_id}: 禁止领域出现; actual={actual_domains}; {case['basis']}"
         )
     else:
-        assert actual_domains is None, (
-            f"{case_id}: 总览场景不应默认收窄领域; actual={actual_domains}; {case['basis']}"
-        )
+        assert actual_domains is None, f"{case_id}: 总览场景不应默认收窄领域; actual={actual_domains}; {case['basis']}"
 
     if case.get("required_assertions"):
         available: dict[str, dict] = {}
@@ -516,30 +472,18 @@ def test_functional_scenario(case_id: str) -> None:
         missing = [
             assertion_id
             for assertion_id in case["required_assertions"]
-            if assertion_id not in available
-            or available[assertion_id]["领域"] not in case["expect_domains"]
+            if assertion_id not in available or available[assertion_id]["领域"] not in case["expect_domains"]
         ]
-        assert not missing, (
-            f"{case_id}: 场景缺少专属断语 {missing}; "
-            f"domains={case['expect_domains']}; {case['basis']}"
-        )
+        assert not missing, f"{case_id}: 场景缺少专属断语 {missing}; domains={case['expect_domains']}; {case['basis']}"
 
 
 @pytest.mark.parametrize("case_id", _ids("conflict"))
 def test_functional_conflict(case_id: str) -> None:
     case = _case("conflict", case_id)
-    hits = [
-        row
-        for table in CONFLICT_TABLE_ROWS[case_id]
-        for row in match_table(table, case["input"]["snapshot"])
-    ]
+    hits = [row for table in CONFLICT_TABLE_ROWS[case_id] for row in match_table(table, case["input"]["snapshot"])]
     actual = [row["id"] for row in hits]
 
     missing = [item for item in case["expect_assertions"] if item not in actual]
     leaked = [item for item in case["forbidden_assertions"] if item in actual]
-    assert not missing, (
-        f"{case_id}: 冲突裁决缺少断语 {missing}; actual={actual}; {case['basis']}"
-    )
-    assert not leaked, (
-        f"{case_id}: 冲突裁决禁止断语出现 {leaked}; actual={actual}; {case['basis']}"
-    )
+    assert not missing, f"{case_id}: 冲突裁决缺少断语 {missing}; actual={actual}; {case['basis']}"
+    assert not leaked, f"{case_id}: 冲突裁决禁止断语出现 {leaked}; actual={actual}; {case['basis']}"
