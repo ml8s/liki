@@ -1,5 +1,6 @@
 """本命因子算子与 natal_chart 基础上下文聚合。"""
 
+from dataclasses import dataclass
 from typing import Optional
 
 from app.natal.tools.errors import FactorEvaluateError
@@ -139,197 +140,243 @@ def _resolve_tens(tens, gender):
 
 
 def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
-                      current_year: int = 0) -> "int | str":
-    """执行单个算子子句，返回 0/1（或事实值字符串）。args 为参数（列表或标量）。"""
-    const = load_constants()
+                   current_year: int = 0) -> "int | str":
+    """执行单个算子子句；实际语义由 NATAL_OPERATION_HANDLERS 显式注册。"""
     if not isinstance(args, list):
         args = [args]
+    context = NatalOperationContext(
+        op=op, args=args, base=base, gender=gender,
+        chart=chart, current_year=current_year,
+    )
+    handler = NATAL_OPERATION_HANDLERS.get(op)
+    if handler is None:
+        # 流年算子（流年透/值/合/冲/克/忌神/财坏印/大运窗口/换运/岁运并临/干合等）由 _liu_op 处理。
+        raise FactorEvaluateError(f"未知算子: {op}")
+    return handler(context)
 
-    if op == "现":
-        tens = _resolve_tens(args, gender)
-        return 1 if any((_ten_god_state(base, t) or {}).get("count", 0) >= 1 for t in tens) else 0
-    if op == "透":
-        tens = _resolve_tens(args, gender)
-        return 1 if any((_ten_god_state(base, t) or {}).get("transparent") for t in tens) else 0
-    if op == "藏":
-        tens = _resolve_tens(args, gender)
-        return 1 if any((_ten_god_state(base, t) or {}).get("hidden") for t in tens) else 0
-    if op == "得令":
-        tens = _resolve_tens(args, gender)
-        return 1 if any((_ten_god_state(base, t) or {}).get("timely") for t in tens) else 0
-    if op == "有根":
-        tens = _resolve_tens(args, gender)
-        return 1 if any((_ten_god_state(base, t) or {}).get("rooted") for t in tens) else 0
-    if op in ("旺", "弱"):
-        tens = args
-        # 五行名读取季节旺弱；十神/大类/六亲读取 engine 组合旺弱。
-        if tens and tens[0] in const["五行"]:
-            wx = tens[0]
-            expected = "strong" if op == "旺" else "weak"
-            return 1 if _element_state(base, wx).get("season_strength") == expected else 0
-        resolved = _resolve_tens(tens, gender)
-        expected = "strong" if op == "旺" else "weak"
-        return 1 if any(
-            (_ten_god_state(base, t) or {}).get("strength") == expected for t in resolved
-        ) else 0
-    if op == "缺":
-        count = base.get("wuxing", {}).get("count", {}) or {}
-        return 1 if args and count.get(args[0], 0) == 0 else 0
-    if op == "克":
-        # 克(A,B)：读取 engine 五行生克方向。
-        a, b = args[0], args[1]
-        wx_a = _resolve_wx(base, gender, a)
-        wx_b = _resolve_wx(base, gender, b)
-        if not wx_a or not wx_b:
-            return 0
-        return 1 if _element_state(base, wx_a).get("controls") == wx_b else 0
-    if op == "直读":
-        path, expect = args[0], args[1]
-        if path == "gender":
-            # gender 是求值上下文；mock/单元测试可只传 gender 参数而无完整 natal_chart。
-            val = gender
-            if expect == FACTOR_WILDCARD:
-                return val if val else 0
-            return 1 if str(val) == str(expect) else 0
-        if path == "ri_gan_wx":
-            val = base.get("day_master_element", "")
-            if expect == FACTOR_WILDCARD:
-                return val if val else 0     # 日主五行返回五行字符串（断语约束 `日主五行: 木` 匹配）
-            return 1 if str(val) == str(expect) else 0
-        val = _path_get(base, chart, path)
-        if expect == FACTOR_WILDCARD:
-            # 返回字符串原值，供断语表做标量等值匹配（如 `月令格: 正财格`）。
-            return val if val else 0
-        if expect.startswith("含"):
-            target = expect[1:].strip()
-            if "或" in target:
-                return 1 if val is not None and any(t in str(val) for t in target.split("或")) else 0
-            return 1 if val is not None and target in str(val) else 0
-        return 1 if str(val) == str(expect) else 0
-    if op == "含":
-        # 含(shen_sha, 桃花) —— 神煞分布四柱（full.nian/yue/ri/shi），需聚合
-        field, value = args[0], args[1]
-        if field == "shen_sha":
-            names = []
-            full = chart.get("bazi", {}) or {}
-            for zhu in const["四柱"]:
-                for it in (full.get(zhu) or {}).get("shen_sha", []) or []:
-                    names.append(it.get("name") or it.get("xing"))
-        elif field == "ge_ju":
-            # 含(patterns, 府相朝垣) —— 紫微特殊格局（ziwei.ge_ju）
-            zw = chart.get("ziwei", {}) or {}
-            names = [p.get("name") for p in (zw.get("ge_ju", []) or []) if p.get("name")]
-        else:
-            items = _path_get(base, chart, field) or []
-            names = [it.get("name") or it.get("xing") for it in items] if isinstance(items, list) else []
-        if "或" in value:
-            return 1 if any(v in names for v in value.replace("或", "|").split("|")) else 0
-        return 1 if value in names else 0
-    if op == "宫含":
-        # 宫含(宫位, 星, 条件) —— ziwei gong_wei
-        return _zw_gong_op(base, chart, args)
-    if op == "大运十神":
-        return _dayun_op(base, chart, args, current_year, gender)
-    if op == "大运十神有根":
-        return _dayun_root_op(base, chart, args, current_year, gender)
-    if op == "数量至少":
-        # 数量至少(N, 十神...)：十神出现总数 ≥ N（事实计数——印杂等"多"的定量）
-        n = int(args[0])
-        tens = _resolve_tens(args[1:], gender)
-        total = sum((_ten_god_state(base, t) or {}).get("count", 0) for t in tens)
-        return 1 if total >= n else 0
-    if op == "关系":
-        # 关系[relation_kind, group]——读取引擎 canonical guan_xi facts。
-        field, group = args[0], args[1]
-        guan_xi_items = (chart.get("bazi", {}) or {}).get("guan_xi", [])
-        return 1 if any(
-            item.get("relation_kind") == field and item.get("group") == group
-            for item in guan_xi_items
-            if isinstance(item, dict)
-        ) else 0
-    if op == "柱刑":
-        # 读取 engine 柱位刑伤事实；日支由夫妻宫状态专管。
-        pillar = _pillar_key(args[0] if args else "")
-        return 1 if _atomic_facts(chart).get("pillar_punishments", {}).get(pillar) else 0
-    if op == "五行数量至少":
-        # 五行数量至少(N, 五行)：四柱五行计数 ≥ N（数量事实，阈值在因子表）
-        n = int(args[0])
-        count = base.get("wuxing", {}).get("count", {}).get(args[1], 0)
-        return 1 if count >= n else 0
-    if op == "官杀取清":
-        # Engine atomic fact: 官杀混杂且七杀柱被合/冲后取清。
-        return 1 if _atomic_facts(chart).get("officer_killing_cleaned") else 0
-    if op in ("为用", "为忌"):
-        # 为用(十神类)：该十神五行 ∈ selected {用, 喜}；为忌：∈ selected 忌。
-        # selected 是唯一裁决出口；fu_yi 只保留为候选与证据。
-        selected = base.get("selected_yongshen") or {}
-        if selected.get("status") in ("needs_review", "unresolved"):
-            return PredicateState.UNKNOWN
-        values = selected.get("selected") or {}
-        favorable_fields = const["用忌映射"][op]
-        tens = _resolve_tens(args, gender)
-        wx = _ten_to_wx(base, tens)
-        if not wx:
-            return PredicateState.UNKNOWN
-        favorable: set[str] = set()
-        for field in favorable_fields:
-            value = values.get(field, "")
-            if isinstance(value, list):
-                favorable.update(item for item in value if item)
-            elif value:
-                favorable.add(value)
-        if not favorable:
-            return PredicateState.UNKNOWN
-        return 1 if wx in favorable else 0
-    if op == "月支长生":
-        value = _atomic_facts(chart).get("month_longevity", "")
-        return value if args and args[0] == FACTOR_WILDCARD else 1 if value == args[0] else 0
-    if op == "夫妻宫状态":
-        # Engine atomic fact: 日支按冲、合、刑、害优先级归并夫妻宫状态。
-        value = _atomic_facts(chart).get("spouse_palace_state", "")
-        return value if args and args[0] == FACTOR_WILDCARD else 1 if value == args[0] else 0
-    if op == "日支类型":
-        value = _atomic_facts(chart).get("day_branch_type", "")
-        return value if args and args[0] == FACTOR_WILDCARD else 1 if value == args[0] else 0
-    if op == "财库现":
-        return 1 if _atomic_facts(chart).get("wealth_tomb_present") else 0
-    if op == "财星入墓":
-        return 1 if _atomic_facts(chart).get("wealth_star_in_tomb") else 0
-    if op == "克者旺":
-        # A 的五行被克，且克者五行得令而旺。
-        resolved = _resolve_tens(args, gender)
-        wx = _ten_to_wx(base, resolved)
-        if not wx:
-            return 0
-        return 1 if _element_state(base, wx).get("controller_strength") == "strong" else 0
-    if op == "格神透":
-        return 1 if _atomic_facts(chart).get("pattern_god_transparent") else 0
-    if op == "月令本气":
-        value = _atomic_facts(chart).get("month_main_ten_god", "")
-        if args and args[0] == FACTOR_WILDCARD:
-            return value
-        return 1 if value == args[0] else 0
-    if op == "时柱十神":
-        value = _atomic_facts(chart).get("hour_stem_ten_god", "")
-        if args and args[0] == FACTOR_WILDCARD:
-            return value
-        return 1 if value == args[0] else 0
-    if op == "年柱十神":
-        value = _atomic_facts(chart).get("year_stem_ten_god", "")
-        if args and args[0] == FACTOR_WILDCARD:
-            return value
-        return 1 if value == args[0] else 0
-    if op == "禄根":
-        # engine lu_roots 只记录已经落在四柱的十干禄。
-        tens = _resolve_tens(args, gender)
-        lu_branches = _target_lu_branches(chart, tens)
-        return 1 if lu_branches else 0
-    if op == "年柱官杀":
-        return 1 if _atomic_facts(chart).get("year_officer_killing") else 0
-    if op == "大限宫位":
-        return _daxian_op(chart, current_year, args)
-    # 流年算子（流年透/值/合/冲/克/忌神/财坏印/大运窗口/换运/岁运并临/干合等）由 _liu_op 处理
-    raise FactorEvaluateError(f"未知算子: {op}")
+
+@dataclass(frozen=True, slots=True)
+class NatalOperationContext:
+    op: str
+    args: list
+    base: dict
+    gender: str
+    chart: dict
+    current_year: int = 0
+
+
+def _op_present(ctx):
+    tens = _resolve_tens(ctx.args, ctx.gender)
+    return 1 if any((_ten_god_state(ctx.base, t) or {}).get("count", 0) >= 1 for t in tens) else 0
+
+
+def _op_transparent(ctx):
+    tens = _resolve_tens(ctx.args, ctx.gender)
+    return 1 if any((_ten_god_state(ctx.base, t) or {}).get("transparent") for t in tens) else 0
+
+
+def _op_hidden(ctx):
+    tens = _resolve_tens(ctx.args, ctx.gender)
+    return 1 if any((_ten_god_state(ctx.base, t) or {}).get("hidden") for t in tens) else 0
+
+
+def _op_timely(ctx):
+    tens = _resolve_tens(ctx.args, ctx.gender)
+    return 1 if any((_ten_god_state(ctx.base, t) or {}).get("timely") for t in tens) else 0
+
+
+def _op_rooted(ctx):
+    tens = _resolve_tens(ctx.args, ctx.gender)
+    return 1 if any((_ten_god_state(ctx.base, t) or {}).get("rooted") for t in tens) else 0
+
+
+def _op_strength(ctx):
+    tens = ctx.args
+    const = load_constants()
+    expected = "strong" if ctx.op == "旺" else "weak"
+    if tens and tens[0] in const["五行"]:
+        return 1 if _element_state(ctx.base, tens[0]).get("season_strength") == expected else 0
+    resolved = _resolve_tens(tens, ctx.gender)
+    return 1 if any(
+        (_ten_god_state(ctx.base, t) or {}).get("strength") == expected for t in resolved
+    ) else 0
+
+
+def _op_missing(ctx):
+    count = ctx.base.get("wuxing", {}).get("count", {}) or {}
+    return 1 if ctx.args and count.get(ctx.args[0], 0) == 0 else 0
+
+
+def _op_control(ctx):
+    first, second = ctx.args[0], ctx.args[1]
+    wx_first = _resolve_wx(ctx.base, ctx.gender, first)
+    wx_second = _resolve_wx(ctx.base, ctx.gender, second)
+    if not wx_first or not wx_second:
+        return 0
+    return 1 if _element_state(ctx.base, wx_first).get("controls") == wx_second else 0
+
+
+def _op_direct_read(ctx):
+    path, expected = ctx.args[0], ctx.args[1]
+    if path == "gender":
+        value = ctx.gender
+        if expected == FACTOR_WILDCARD:
+            return value if value else 0
+        return 1 if str(value) == str(expected) else 0
+    if path == "ri_gan_wx":
+        value = ctx.base.get("day_master_element", "")
+    else:
+        value = _path_get(ctx.base, ctx.chart, path)
+    if expected == FACTOR_WILDCARD:
+        return value if value else 0
+    if expected.startswith("含"):
+        target = expected[1:].strip()
+        if "或" in target:
+            return 1 if value is not None and any(t in str(value) for t in target.split("或")) else 0
+        return 1 if value is not None and target in str(value) else 0
+    return 1 if str(value) == str(expected) else 0
+
+
+def _op_contains(ctx):
+    field, value = ctx.args[0], ctx.args[1]
+    const = load_constants()
+    if field == "shen_sha":
+        names = []
+        full = ctx.chart.get("bazi", {}) or {}
+        for pillar in const["四柱"]:
+            for item in (full.get(pillar) or {}).get("shen_sha", []) or []:
+                names.append(item.get("name") or item.get("xing"))
+    elif field == "ge_ju":
+        zw = ctx.chart.get("ziwei", {}) or {}
+        names = [item.get("name") for item in (zw.get("ge_ju", []) or []) if item.get("name")]
+    else:
+        items = _path_get(ctx.base, ctx.chart, field) or []
+        names = [item.get("name") or item.get("xing") for item in items] if isinstance(items, list) else []
+    if "或" in value:
+        return 1 if any(candidate in names for candidate in value.replace("或", "|").split("|")) else 0
+    return 1 if value in names else 0
+
+
+def _op_min_count(ctx):
+    threshold = int(ctx.args[0])
+    tens = _resolve_tens(ctx.args[1:], ctx.gender)
+    total = sum((_ten_god_state(ctx.base, t) or {}).get("count", 0) for t in tens)
+    return 1 if total >= threshold else 0
+
+
+def _op_relation(ctx):
+    relation_kind, group = ctx.args[0], ctx.args[1]
+    guan_xi_items = (ctx.chart.get("bazi", {}) or {}).get("guan_xi", [])
+    return 1 if any(
+        item.get("relation_kind") == relation_kind and item.get("group") == group
+        for item in guan_xi_items if isinstance(item, dict)
+    ) else 0
+
+
+def _op_pillar_punishment(ctx):
+    pillar = _pillar_key(ctx.args[0] if ctx.args else "")
+    return 1 if _atomic_facts(ctx.chart).get("pillar_punishments", {}).get(pillar) else 0
+
+
+def _op_min_element_count(ctx):
+    threshold = int(ctx.args[0])
+    count = ctx.base.get("wuxing", {}).get("count", {}).get(ctx.args[1], 0)
+    return 1 if count >= threshold else 0
+
+
+def _op_officer_killing_cleaned(ctx):
+    return 1 if _atomic_facts(ctx.chart).get("officer_killing_cleaned") else 0
+
+
+def _op_yong_or_ji(ctx):
+    selected = ctx.base.get("selected_yongshen") or {}
+    if selected.get("status") in ("needs_review", "unresolved"):
+        return PredicateState.UNKNOWN
+    values = selected.get("selected") or {}
+    favorable_fields = load_constants()["用忌映射"][ctx.op]
+    resolved = _resolve_tens(ctx.args, ctx.gender)
+    element = _ten_to_wx(ctx.base, resolved)
+    if not element:
+        return PredicateState.UNKNOWN
+    favorable: set[str] = set()
+    for field in favorable_fields:
+        value = values.get(field, "")
+        if isinstance(value, list):
+            favorable.update(item for item in value if item)
+        elif value:
+            favorable.add(value)
+    if not favorable:
+        return PredicateState.UNKNOWN
+    return 1 if element in favorable else 0
+
+
+def _op_atomic_equal(ctx):
+    field = {"月支长生": "month_longevity", "夫妻宫状态": "spouse_palace_state",
+             "日支类型": "day_branch_type", "月令本气": "month_main_ten_god",
+             "时柱十神": "hour_stem_ten_god",
+             "年柱十神": "year_stem_ten_god"}[ctx.op]
+    value = _atomic_facts(ctx.chart).get(field, "")
+    if ctx.args and ctx.args[0] == FACTOR_WILDCARD:
+        return value
+    return 1 if value == ctx.args[0] else 0
+
+
+def _op_atomic_true(ctx):
+    field = {"财库现": "wealth_tomb_present", "财星入墓": "wealth_star_in_tomb",
+             "官杀取清": "officer_killing_cleaned", "格神透": "pattern_god_transparent",
+             "年柱官杀": "year_officer_killing"}[ctx.op]
+    return 1 if _atomic_facts(ctx.chart).get(field) else 0
+
+
+def _op_controller_strong(ctx):
+    resolved = _resolve_tens(ctx.args, ctx.gender)
+    element = _ten_to_wx(ctx.base, resolved)
+    if not element:
+        return 0
+    return 1 if _element_state(ctx.base, element).get("controller_strength") == "strong" else 0
+
+
+def _op_lu_root(ctx):
+    tens = _resolve_tens(ctx.args, ctx.gender)
+    return 1 if _target_lu_branches(ctx.chart, tens) else 0
+
+
+NATAL_OPERATION_HANDLERS = {
+    "现": _op_present,
+    "透": _op_transparent,
+    "藏": _op_hidden,
+    "得令": _op_timely,
+    "有根": _op_rooted,
+    "旺": _op_strength,
+    "弱": _op_strength,
+    "缺": _op_missing,
+    "克": _op_control,
+    "直读": _op_direct_read,
+    "含": _op_contains,
+    "宫含": lambda ctx: _zw_gong_op(ctx.base, ctx.chart, ctx.args),
+    "大运十神": lambda ctx: _dayun_op(ctx.base, ctx.chart, ctx.args, ctx.current_year, ctx.gender),
+    "大运十神有根": lambda ctx: _dayun_root_op(ctx.base, ctx.chart, ctx.args, ctx.current_year, ctx.gender),
+    "数量至少": _op_min_count,
+    "关系": _op_relation,
+    "柱刑": _op_pillar_punishment,
+    "五行数量至少": _op_min_element_count,
+    "官杀取清": _op_atomic_true,
+    "为用": _op_yong_or_ji,
+    "为忌": _op_yong_or_ji,
+    "月支长生": _op_atomic_equal,
+    "夫妻宫状态": _op_atomic_equal,
+    "日支类型": _op_atomic_equal,
+    "财库现": _op_atomic_true,
+    "财星入墓": _op_atomic_true,
+    "克者旺": _op_controller_strong,
+    "格神透": _op_atomic_true,
+    "月令本气": _op_atomic_equal,
+    "时柱十神": _op_atomic_equal,
+    "年柱十神": _op_atomic_equal,
+    "禄根": _op_lu_root,
+    "年柱官杀": _op_atomic_true,
+    "大限宫位": lambda ctx: _daxian_op(ctx.chart, ctx.current_year, ctx.args),
+}
 
 def _resolve_wx(base, gender, arg):
     """解析任意参数为五行：具体五行名原样；十神/大类 → 五行。"""
