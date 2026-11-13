@@ -97,7 +97,7 @@ def _evaluate_name(
         return NamingEvaluation(
             given_name=given_name,
             valid=False,
-            errors=(NamingError("invalid_name_length", ""),),
+            errors=(NamingError("invalid_name_length", None),),
         )
 
     errors = tuple(_constraint_errors(given_name, constraints))

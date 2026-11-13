@@ -4,7 +4,6 @@
 （data/naming_characters.csv）的输出，防止字库或算法漂移。
 """
 
-
 import pytest
 from app.naming import naming  # noqa: E402
 
@@ -20,7 +19,8 @@ def test_pick_yong_yong():
     plan = selected_yongshen("木")
     r = naming.pick_chars_by_selected_yongshen(plan, "yong", "yong")
     assert [(p["char_position"], p["role"], p["wuxing"]) for p in r["pools"]] == [
-        ("first", "yong", "木"), ("second", "yong", "木"),
+        ("first", "yong", "木"),
+        ("second", "yong", "木"),
     ]
     assert len(r["pools"][0]["chars"]) == 1969
     assert r["pools"][0]["chars"][0] == {"char": "㭎", "frequency": "rare"}
@@ -34,9 +34,7 @@ def test_pick_single_yong():
 
 
 def test_pick_multiple_xi_pools():
-    r = naming.pick_chars_by_selected_yongshen(
-        selected_yongshen("金", ["水", "木"]), "yong", "xi"
-    )
+    r = naming.pick_chars_by_selected_yongshen(selected_yongshen("金", ["水", "木"]), "yong", "xi")
     assert [(p["char_position"], p["role"], p["wuxing"]) for p in r["pools"]] == [
         ("first", "yong", "金"),
         ("second", "xi", "水"),
@@ -47,17 +45,11 @@ def test_pick_multiple_xi_pools():
 
 def test_pick_errors():
     with pytest.raises(ValueError, match="只支持 yong/xi"):
-        naming.pick_chars_by_selected_yongshen(
-            selected_yongshen("木", [], ["金"]), "ji"
-        )
+        naming.pick_chars_by_selected_yongshen(selected_yongshen("木", [], ["金"]), "ji")
     with pytest.raises(ValueError, match="单名 first_role 只能是 yong"):
-        naming.pick_chars_by_selected_yongshen(
-            selected_yongshen("木", ["水"]), "xi"
-        )
+        naming.pick_chars_by_selected_yongshen(selected_yongshen("木", ["水"]), "xi")
     with pytest.raises(ValueError, match="至少一个字位必须是 yong"):
-        naming.pick_chars_by_selected_yongshen(
-            selected_yongshen("木", ["水", "火"]), "xi", "xi"
-        )
+        naming.pick_chars_by_selected_yongshen(selected_yongshen("木", ["水", "火"]), "xi", "xi")
 
 
 def test_compose_double():
@@ -89,11 +81,23 @@ def test_evaluate_zixuan():
     assert e[1]["characters"][0]["wuxing_role"] == "neutral"
 
 
+def test_evaluate_invalid_length():
+    e = naming.evaluate_names([""], selected_yongshen("木"))
+    assert e == [
+        {
+            "given_name": "",
+            "valid": False,
+            "errors": [{"code": "invalid_name_length", "char": None}],
+        }
+    ]
+
+
 def test_evaluate_invalid():
     e = naming.evaluate_names(["子轩", "死", "x", "子"], selected_yongshen("木"))
     assert e[0]["valid"] is True
     assert e[1] == {
-        "given_name": "死", "valid": False,
+        "given_name": "死",
+        "valid": False,
         "errors": [{"code": "negative_character_forbidden", "char": "死"}],
     }
     assert e[2]["errors"] == [{"code": "character_not_found", "char": "x"}]
@@ -107,26 +111,16 @@ def test_evaluate_no_constraint():
 
 
 def test_evaluate_user_constraints():
-    forbidden = naming.evaluate_names(
-        ["梓涵"], selected_yongshen("木"), {"forbidden_chars": ["涵"]}
-    )
+    forbidden = naming.evaluate_names(["梓涵"], selected_yongshen("木"), {"forbidden_chars": ["涵"]})
     assert forbidden[0]["valid"] is False
-    assert forbidden[0]["errors"] == [
-        {"code": "forbidden_character", "char": "涵"}
-    ]
+    assert forbidden[0]["errors"] == [{"code": "forbidden_character", "char": "涵"}]
 
-    required = naming.evaluate_names(
-        ["梓涵"], selected_yongshen("木"), {"required_chars": ["梓"]}
-    )
+    required = naming.evaluate_names(["梓涵"], selected_yongshen("木"), {"required_chars": ["梓"]})
     assert required[0]["valid"] is True
 
-    missing = naming.evaluate_names(
-        ["梓涵"], selected_yongshen("木"), {"required_chars": ["林"]}
-    )
+    missing = naming.evaluate_names(["梓涵"], selected_yongshen("木"), {"required_chars": ["林"]})
     assert missing[0]["valid"] is False
-    assert missing[0]["errors"] == [
-        {"code": "required_character_missing", "char": "林"}
-    ]
+    assert missing[0]["errors"] == [{"code": "required_character_missing", "char": "林"}]
 
 
 def test_evaluate_constraint_errors():
@@ -137,9 +131,7 @@ def test_evaluate_constraint_errors():
             {"forbidden_chars": ["梓"], "required_chars": ["梓"]},
         )
     with pytest.raises(ValueError, match="invalid constraints.forbidden_chars"):
-        naming.evaluate_names(
-            ["梓"], selected_yongshen("木"), {"forbidden_chars": ["金木"]}
-        )
+        naming.evaluate_names(["梓"], selected_yongshen("木"), {"forbidden_chars": ["金木"]})
 
 
 def test_evaluate_errors():
@@ -152,7 +144,9 @@ def test_surname_zhang():
     assert "strategy" not in r
     assert [c["surname"] for c in r["candidates"]] == ["张", "章", "赵"]
     assert [c["match_kind"] for c in r["candidates"]] == [
-        "pinyin_exact", "pinyin_exact", "phonetic_close",
+        "pinyin_exact",
+        "pinyin_exact",
+        "phonetic_close",
     ]
     assert [c["tone"] for c in r["candidates"]] == [1, 1, 4]
 
@@ -161,7 +155,10 @@ def test_surname_liu():
     r = naming.match_surnames("liu", 4)
     assert [c["surname"] for c in r["candidates"]] == ["柳", "刘", "廖", "李"]
     assert [c["match_kind"] for c in r["candidates"]] == [
-        "pinyin_exact", "pinyin_exact", "romanization_exact", "phonetic_close",
+        "pinyin_exact",
+        "pinyin_exact",
+        "romanization_exact",
+        "phonetic_close",
     ]
 
 

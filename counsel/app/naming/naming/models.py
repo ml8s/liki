@@ -63,7 +63,7 @@ class NamingConstraints:
 @dataclass(frozen=True, slots=True)
 class NamingError:
     code: str
-    char: str
+    char: str | None
 
     def to_dict(self) -> dict[str, str]:
         return {"code": self.code, "char": self.char}
