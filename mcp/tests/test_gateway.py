@@ -82,7 +82,7 @@ def test_tools_list_filters_raw_divination(monkeypatch):
     async def fake_upstream_session(config, **kwargs):
         yield FakeSession(config.name)
 
-    monkeypatch.setattr("app.gateway.upstream_session", fake_upstream_session)
+    monkeypatch.setattr("app.tool_router.upstream_session", fake_upstream_session)
     response = _call({"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}})
 
     assert response.status_code == 200
@@ -128,7 +128,7 @@ def test_tools_call_routes_without_retry_or_schema_change(monkeypatch):
 
     fake_upstream_session = asynccontextmanager(fake_upstream_session)
 
-    monkeypatch.setattr("app.gateway.upstream_session", fake_upstream_session)
+    monkeypatch.setattr("app.tool_router.upstream_session", fake_upstream_session)
     arguments = {"life_topics": ["career"]}
     response = _call({
         "jsonrpc": "2.0",
@@ -146,7 +146,7 @@ def test_tools_call_denies_raw_divination(monkeypatch):
     async def fail_upstream_session(config, **kwargs):
         raise AssertionError("raw divination tools must not be routed")
 
-    monkeypatch.setattr("app.gateway.upstream_session", fail_upstream_session)
+    monkeypatch.setattr("app.tool_router.upstream_session", fail_upstream_session)
     response = _call({
         "jsonrpc": "2.0",
         "id": 3,

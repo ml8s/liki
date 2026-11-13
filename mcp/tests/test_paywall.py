@@ -59,7 +59,7 @@ def _gateway_config(aipay: AipayConfig) -> GatewayConfig:
 
 
 def _pending(service: PaymentService) -> str:
-    with patch("app.payment._seller_signature", return_value="seller-signature"):
+    with patch("app.payment.service._seller_signature", return_value="seller-signature"):
         response = service.build_402_response("subject_candidates")
     assert response.status_code == 402
     encoded = response.headers["Payment-Needed"]
@@ -176,7 +176,7 @@ class TestPaymentService:
         assert service.authorize_paid_call("subject_candidates", None) is None
 
     def test_paid_tool_no_proof_returns_official_402(self, service):
-        with patch("app.payment._seller_signature", return_value="seller-signature"):
+        with patch("app.payment.service._seller_signature", return_value="seller-signature"):
             response = service.authorize_paid_call("subject_candidates", None)
         assert response is not None
         assert response.status_code == 402
@@ -236,7 +236,7 @@ class TestPaymentService:
             out_trade_no=order,
             amount="9.90",
         )
-        with patch("app.payment._seller_signature", return_value="seller-signature"):
+        with patch("app.payment.service._seller_signature", return_value="seller-signature"):
             response = service.authorize_paid_call(
                 "subject_candidates",
                 _proof(order),
@@ -267,6 +267,7 @@ class TestGatewayPaywall:
         proof = _proof(order)
 
         import app.gateway as gateway_module
+        import app.tool_router as tool_router_module
         monkeypatch.setattr(gateway_module, "load_config", lambda: config)
         monkeypatch.setattr(gateway_module, "_payment_service", service)
         monkeypatch.setattr(gateway_module, "_payment_config", config.aipay)
@@ -282,7 +283,7 @@ class TestGatewayPaywall:
         async def fake_upstream_session(upstream_config, **kwargs):
             yield FakeSession()
 
-        monkeypatch.setattr(gateway_module, "upstream_session", fake_upstream_session)
+        monkeypatch.setattr(tool_router_module, "upstream_session", fake_upstream_session)
         with patch.object(service, "confirm_fulfillment", return_value=True):
             async def run():
                 app = create_app()
@@ -322,6 +323,7 @@ class TestGatewayPaywall:
     def test_batch_with_paid_tool_is_fail_closed(self, monkeypatch):
         config = _gateway_config(_aipay_config())
         import app.gateway as gateway_module
+        import app.tool_router as tool_router_module
         monkeypatch.setattr(gateway_module, "load_config", lambda: config)
         monkeypatch.setattr(gateway_module, "_payment_service", None)
         monkeypatch.setattr(gateway_module, "_payment_config", config.aipay)

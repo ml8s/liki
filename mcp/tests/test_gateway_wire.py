@@ -19,7 +19,7 @@ async def fake_upstream_session(config, **kwargs):
 
 
 def test_tools_list_wire_has_no_null_fields(monkeypatch):
-    monkeypatch.setattr("app.gateway.upstream_session", fake_upstream_session)
+    monkeypatch.setattr("app.tool_router.upstream_session", fake_upstream_session)
     response = _call({"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}})
     assert response.status_code == 200
 
