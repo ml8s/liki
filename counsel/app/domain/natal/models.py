@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any
 
+from app.natal.tools.errors import AssertionRuleError
 from app.natal.tools.factor_semantics import FactorValue
 
 __all__ = [
@@ -83,13 +84,19 @@ class Rule:
 
     @classmethod
     def from_row(cls, row: Mapping[str, Any]) -> Rule:
-        groups = tuple(
-            ConditionGroup.from_mapping(conditions)
-            for conditions in (row.get("约束组") or [])
-            if isinstance(conditions, Mapping)
-        )
+        rule_id = str(row.get("id", ""))
+        if not rule_id:
+            raise AssertionRuleError("断语规则缺少 id")
+        raw_groups = row.get("约束组")
+        if raw_groups is None:
+            raw_groups = []
+        if not isinstance(raw_groups, list):
+            raise AssertionRuleError(f"断语 {rule_id} 约束组必须是数组")
+        if any(not isinstance(conditions, Mapping) for conditions in raw_groups):
+            raise AssertionRuleError(f"断语 {rule_id} 存在非法条件组")
+        groups = tuple(ConditionGroup.from_mapping(conditions) for conditions in raw_groups)
         return cls(
-            id=str(row.get("id", "")),
+            id=rule_id,
             domain=str(row.get("领域", "")),
             event_type=str(row.get("事件类型", "")),
             time_layer=str(row.get("时间层", "")),

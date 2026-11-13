@@ -1,5 +1,6 @@
 """Rule-table and domain configuration loading for natal assertions."""
 
+from app.domain.natal.models import Rule
 from app.natal.tools.assertion_store import load_rule_table
 from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.yearly_eval import resolve_rules
@@ -12,6 +13,21 @@ SCENE_DOMAIN_FILTERS = {alias: tuple(domains) for alias, domains in DOMAIN_CONFI
 BAZI_ONLY_RULES = frozenset(DOMAIN_CONFIG["八字专属域"])
 ZIWEI_ONLY_RULES = frozenset(DOMAIN_CONFIG["紫微专属域"])
 CURRENT_LIMIT_RULES = frozenset(DOMAIN_CONFIG["当前限运规则"])
+
+
+_RULE_MODEL_CACHE: dict[tuple[str, str], tuple[Rule, ...]] = {}
+
+
+def load_rule_models(rule: str) -> dict[str, tuple[Rule, ...]]:
+    """Load immutable rule models once per process and side."""
+    return {side: _rule_models(rule, side, rows) for side, rows in load_rule_tables(rule).items()}
+
+
+def _rule_models(rule: str, side: str, rows: list[dict]) -> tuple[Rule, ...]:
+    key = (rule, side)
+    if key not in _RULE_MODEL_CACHE:
+        _RULE_MODEL_CACHE[key] = tuple(Rule.from_row(row) for row in rows)
+    return _RULE_MODEL_CACHE[key]
 
 
 def load_rule_tables(rule: str) -> dict[str, list[dict]]:

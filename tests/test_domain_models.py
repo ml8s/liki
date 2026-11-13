@@ -1,7 +1,9 @@
 """Natal immutable domain model contracts."""
 
 import pytest
+from app.domain.natal.duanyu.rule_loader import load_rule_models
 from app.domain.natal.models import Assertion, AssertionSnapshot, Condition, ConditionGroup, Rule
+from app.natal.tools.errors import AssertionRuleError
 
 
 def _rule() -> Rule:
@@ -71,3 +73,26 @@ def test_rule_is_immutable():
     rule = _rule()
     with pytest.raises(AttributeError):
         rule.id = "changed"
+
+
+def test_rule_model_loader_reuses_cached_models():
+    first = load_rule_models("十神")
+    second = load_rule_models("十神")
+
+    assert first["bazi"] is second["bazi"]
+    assert first["ziwei"] is second["ziwei"]
+
+
+def test_rule_from_row_requires_id():
+    with pytest.raises(AssertionRuleError, match="缺少 id"):
+        Rule.from_row({"约束组": []})
+
+
+def test_rule_from_row_requires_condition_group_list():
+    with pytest.raises(AssertionRuleError, match="约束组必须是数组"):
+        Rule.from_row({"id": "test", "约束组": {"财星透": "命中"}})
+
+
+def test_rule_from_row_requires_mapping_condition_groups():
+    with pytest.raises(AssertionRuleError, match="非法条件组"):
+        Rule.from_row({"id": "test", "约束组": ["not-a-group"]})

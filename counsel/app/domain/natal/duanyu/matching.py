@@ -14,8 +14,9 @@ from app.natal.tools.factor_semantics import PredicateState, validate_published_
 
 __all__ = ["assert_snapshot_factors", "match_rule", "match_table"]
 
-SideTable: TypeAlias = list[Mapping]
 RuleTable: TypeAlias = list[Rule]
+TableRow: TypeAlias = Mapping | Rule
+RuleInput: TypeAlias = list[TableRow]
 
 
 def _value_matches(cond, actual):
@@ -37,8 +38,8 @@ def _assert_factor_value(assertion_id: str, factor: str, value) -> None:
         raise AssertionRuleError(str(exc)) from exc
 
 
-def _rule(row: Mapping) -> Rule:
-    return Rule.from_row(row)
+def _rules(table: list | RuleInput) -> list[Rule]:
+    return [row if isinstance(row, Rule) else Rule.from_row(row) for row in table]
 
 
 def _snapshot(snapshot: Mapping | AssertionSnapshot) -> AssertionSnapshot:
@@ -60,14 +61,13 @@ def _validate_expected(rule: Rule, group_number: int, factor: str, expected) -> 
     _EXPECTED_FACTOR_VALIDATED.add(ekey)
 
 
-def assert_snapshot_factors(assertion_id: str, table: list[dict], snapshot: dict | AssertionSnapshot) -> None:
+def assert_snapshot_factors(assertion_id: str, table: list | RuleInput, snapshot: dict | AssertionSnapshot) -> None:
     """公共 query/yearly 边界：参与断语的因子必须在 snapshot 中存在。
 
     expected 是表静态数据，首验后跳过；snapshot 值每年变化，每次校验。
     """
     factor_snapshot = _snapshot(snapshot)
-    for row in table:
-        rule = _rule(row)
+    for rule in _rules(table):
         for group_number, group in enumerate(rule.condition_groups, 1):
             for condition in group.conditions:
                 if condition.factor not in factor_snapshot.factors:
@@ -76,14 +76,14 @@ def assert_snapshot_factors(assertion_id: str, table: list[dict], snapshot: dict
                 _assert_factor_value(assertion_id, condition.factor, factor_snapshot.factors[condition.factor])
 
 
-def match_table(table: list | RuleTable, snapshot: dict | AssertionSnapshot, exclusive: bool = False) -> list:
+def match_table(table: list | RuleInput, snapshot: dict | AssertionSnapshot, exclusive: bool = False) -> list:
     """真值表匹配：因子快照 × 断语条件组 → 命中条目（按表序）。
 
     同一 condition_group 内的条件为 AND，不同 condition_group 为 OR。
     公共入口 match_rule 会先校验所需因子完整；本低层函数只做机械匹配。
     """
     factor_snapshot = _snapshot(snapshot)
-    rules = [row if isinstance(row, Rule) else _rule(row) for row in table]
+    rules = _rules(table)
     hits = []
     for rule in rules:
         matched = tuple(
@@ -118,18 +118,18 @@ def match_rule(rule: str, snapshots: dict, *, skip_validation: bool = False) -> 
     skip_validation=True 时跳过 _validate_rule_factors（调用方已通过
     assert_snapshot_factors 完成校验，如 yearly_range 年循环内）。
     """
-    from .rule_loader import load_rule_tables
+    from .rule_loader import load_rule_models
 
-    tables = load_rule_tables(rule)
+    models = load_rule_models(rule)
     side_codes = load_constants()["命理侧"]["断言代码"]
-    bz_e, zw_e = (tables[side] for side in side_codes)
+    bz_e, zw_e = (models[side] for side in side_codes)
     side_labels = load_constants()["命理侧"]["标签"]
     side_snapshots = {
         side_labels[side]: _snapshot({**snapshots[side_labels[side]], **(snapshots.get("context", {}) or {})})
         for side in side_codes
     }
-    bazi_rules = [_rule(row) for row in bz_e]
-    ziwei_rules = [_rule(row) for row in zw_e]
+    bazi_rules = list(bz_e)
+    ziwei_rules = list(zw_e)
     if not skip_validation:
         _validate_rule_factors(bazi_rules, side_snapshots[side_labels["bazi"]])
         _validate_rule_factors(ziwei_rules, side_snapshots[side_labels["ziwei"]])

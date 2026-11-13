@@ -16,6 +16,7 @@ from .rule_loader import (
     YEARLY_RULES,
     ZIWEI_ONLY_RULES,
     assertion_domains,
+    load_rule_models,
     load_rule_tables,
 )
 
@@ -92,6 +93,7 @@ def query(
     resolved_current_year, resolved_lunar_year, current_year_source = _resolve_current_year(rule, year, timezone)
     query_tables_by_side = load_rule_tables(rule)
     query_tables = list(query_tables_by_side.values())
+    query_models = list(load_rule_models(rule).values())
     if rule in BAZI_ONLY_RULES:
         requested_sides = {"bazi"}
     elif rule in ZIWEI_ONLY_RULES:
@@ -112,7 +114,7 @@ def query(
         factor_names=required_natal_factors(query_tables),
     )
     side_labels = load_constants()["命理侧"]["标签"]
-    for side_code, table in zip(load_constants()["命理侧"]["断言代码"], query_tables):
+    for side_code, table in zip(load_constants()["命理侧"]["断言代码"], query_models):
         if not table:
             continue
         merged = snapshots[side_labels[side_code]]
@@ -162,7 +164,7 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
             f"未知流年命理域 '{rule}'。有效域: {sorted(YEARLY_RULES)}（场景别名请走 yearly_range 展开）"
         )
     side_labels = load_constants()["命理侧"]["标签"]
-    for side_code, table in load_rule_tables(rule).items():
+    for side_code, table in load_rule_models(rule).items():
         if not table:
             continue
         merged = snapshots[side_labels[side_code]]
