@@ -1,17 +1,11 @@
 """Natal immutable domain model contracts."""
 
 import pytest
-from app.domain.natal.models import (
-    AssertionHit,
-    AssertionRule,
-    Condition,
-    ConditionGroup,
-    FactorSnapshot,
-)
+from app.domain.natal.models import Assertion, AssertionSnapshot, Condition, ConditionGroup, Rule
 
 
-def _rule() -> AssertionRule:
-    return AssertionRule(
+def _rule() -> Rule:
+    return Rule(
         id="test_101",
         domain="财运",
         event_type="引动",
@@ -38,11 +32,11 @@ def test_condition_group_matches_and_traces_only_declared_factors():
     }
 
 
-def test_assertion_hit_projects_internal_row_and_trace():
+def test_assertion_projects_internal_row_and_trace():
     rule = _rule()
     group = rule.condition_groups[0]
     factors = {"财星透": "命中", "日主旺": "没命中"}
-    row = AssertionHit(rule=rule, matched=((group, factors),)).to_row()
+    row = Assertion(rule=rule, matched=((group, factors),)).to_row()
 
     assert row["id"] == "test_101"
     assert row["约束组"] == [{"财星透": "命中", "日主旺": "没命中"}]
@@ -57,10 +51,10 @@ def test_assertion_hit_projects_internal_row_and_trace():
     ]
 
 
-def test_factor_snapshot_is_read_only():
+def test_assertion_snapshot_is_read_only():
     factors = {"财星透": "命中"}
     context = {"性别": "male", "时间事实": {"standard_time": "1990-05-20T12:00:00"}}
-    snapshot = FactorSnapshot(factors=factors, context=context)
+    snapshot = AssertionSnapshot(factors=factors, context=context)
 
     factors["财星透"] = "没命中"
     context["性别"] = "female"
@@ -73,7 +67,7 @@ def test_factor_snapshot_is_read_only():
         snapshot.factors["财星透"] = "没命中"
 
 
-def test_assertion_rule_is_immutable():
+def test_rule_is_immutable():
     rule = _rule()
     with pytest.raises(AttributeError):
         rule.id = "changed"

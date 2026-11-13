@@ -10,11 +10,11 @@ from typing import Any
 from app.natal.tools.factor_semantics import FactorValue
 
 __all__ = [
-    "AssertionHit",
-    "AssertionRule",
+    "Assertion",
+    "Rule",
     "Condition",
     "ConditionGroup",
-    "FactorSnapshot",
+    "AssertionSnapshot",
 ]
 
 
@@ -68,8 +68,8 @@ class ConditionGroup:
 
 
 @dataclass(frozen=True, slots=True)
-class AssertionRule:
-    """A canonical assertion row and its OR/AND condition groups."""
+class Rule:
+    """A canonical rule row and its OR/AND condition groups."""
 
     id: str
     domain: str
@@ -82,7 +82,7 @@ class AssertionRule:
     condition_groups: tuple[ConditionGroup, ...]
 
     @classmethod
-    def from_row(cls, row: Mapping[str, Any]) -> AssertionRule:
+    def from_row(cls, row: Mapping[str, Any]) -> Rule:
         groups = tuple(
             ConditionGroup.from_mapping(conditions)
             for conditions in (row.get("约束组") or [])
@@ -116,10 +116,10 @@ class AssertionRule:
 
 
 @dataclass(frozen=True, slots=True)
-class AssertionHit:
+class Assertion:
     """A matched assertion with explicit condition provenance."""
 
-    rule: AssertionRule
+    rule: Rule
     matched: tuple[tuple[ConditionGroup, Mapping[str, FactorValue]], ...]
 
     def __post_init__(self) -> None:
@@ -138,8 +138,8 @@ class AssertionHit:
 
 
 @dataclass(frozen=True, slots=True)
-class FactorSnapshot:
-    """Published factors plus non-factor matching context for one assertion side."""
+class AssertionSnapshot:
+    """Immutable facts and matching context required for one assertion side."""
 
     factors: Mapping[str, FactorValue]
     context: Mapping[str, Any]

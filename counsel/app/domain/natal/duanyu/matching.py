@@ -7,7 +7,7 @@
 from collections.abc import Mapping
 from typing import TypeAlias
 
-from app.domain.natal.models import AssertionHit, AssertionRule, FactorSnapshot
+from app.domain.natal.models import Assertion, AssertionSnapshot, Rule
 from app.natal.tools.errors import AssertionRuleError
 from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.factor_semantics import PredicateState, validate_published_factor_value
@@ -15,7 +15,7 @@ from app.natal.tools.factor_semantics import PredicateState, validate_published_
 __all__ = ["assert_snapshot_factors", "match_rule", "match_table"]
 
 SideTable: TypeAlias = list[Mapping]
-RuleTable: TypeAlias = list[AssertionRule]
+RuleTable: TypeAlias = list[Rule]
 
 
 def _value_matches(cond, actual):
@@ -37,21 +37,21 @@ def _assert_factor_value(assertion_id: str, factor: str, value) -> None:
         raise AssertionRuleError(str(exc)) from exc
 
 
-def _rule(row: Mapping) -> AssertionRule:
-    return AssertionRule.from_row(row)
+def _rule(row: Mapping) -> Rule:
+    return Rule.from_row(row)
 
 
-def _snapshot(snapshot: Mapping | FactorSnapshot) -> FactorSnapshot:
-    if isinstance(snapshot, FactorSnapshot):
+def _snapshot(snapshot: Mapping | AssertionSnapshot) -> AssertionSnapshot:
+    if isinstance(snapshot, AssertionSnapshot):
         return snapshot
     factors = {key: value for key, value in snapshot.items() if key != "context"}
-    return FactorSnapshot(factors=factors, context=snapshot.get("context") or {})
+    return AssertionSnapshot(factors=factors, context=snapshot.get("context") or {})
 
 
 _EXPECTED_FACTOR_VALIDATED: set = set()
 
 
-def _validate_expected(rule: AssertionRule, group_number: int, factor: str, expected) -> None:
+def _validate_expected(rule: Rule, group_number: int, factor: str, expected) -> None:
     # Assertion IDs are the stable domain identity; do not key caches by object identity.
     ekey = (rule.id, group_number, factor)
     if ekey in _EXPECTED_FACTOR_VALIDATED:
@@ -60,7 +60,7 @@ def _validate_expected(rule: AssertionRule, group_number: int, factor: str, expe
     _EXPECTED_FACTOR_VALIDATED.add(ekey)
 
 
-def assert_snapshot_factors(assertion_id: str, table: list[dict], snapshot: dict | FactorSnapshot) -> None:
+def assert_snapshot_factors(assertion_id: str, table: list[dict], snapshot: dict | AssertionSnapshot) -> None:
     """公共 query/yearly 边界：参与断语的因子必须在 snapshot 中存在。
 
     expected 是表静态数据，首验后跳过；snapshot 值每年变化，每次校验。
@@ -76,14 +76,14 @@ def assert_snapshot_factors(assertion_id: str, table: list[dict], snapshot: dict
                 _assert_factor_value(assertion_id, condition.factor, factor_snapshot.factors[condition.factor])
 
 
-def match_table(table: list | RuleTable, snapshot: dict | FactorSnapshot, exclusive: bool = False) -> list:
+def match_table(table: list | RuleTable, snapshot: dict | AssertionSnapshot, exclusive: bool = False) -> list:
     """真值表匹配：因子快照 × 断语条件组 → 命中条目（按表序）。
 
     同一 condition_group 内的条件为 AND，不同 condition_group 为 OR。
     公共入口 match_rule 会先校验所需因子完整；本低层函数只做机械匹配。
     """
     factor_snapshot = _snapshot(snapshot)
-    rules = [row if isinstance(row, AssertionRule) else _rule(row) for row in table]
+    rules = [row if isinstance(row, Rule) else _rule(row) for row in table]
     hits = []
     for rule in rules:
         matched = tuple(
@@ -93,11 +93,11 @@ def match_table(table: list | RuleTable, snapshot: dict | FactorSnapshot, exclus
         )
         if not matched:
             continue
-        hits.append(AssertionHit(rule=rule, matched=matched).to_row())
+        hits.append(Assertion(rule=rule, matched=matched).to_row())
     return hits[:1] if exclusive and hits else hits
 
 
-def _validate_rule_factors(rules: RuleTable, factor_snapshot: FactorSnapshot) -> None:
+def _validate_rule_factors(rules: RuleTable, factor_snapshot: AssertionSnapshot) -> None:
     """公共断语边界的因子契约：参与条件必须存在且为 FactorValue。
 
     expected 是表静态数据（同一 rule 模型跨年复用），首验后跳过。
