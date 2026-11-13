@@ -82,4 +82,4 @@ async def handle_request(
     return method_not_found(request_id, method)
 
 
-GatewayRequestHandler: TypeAlias = Callable[["GatewayConfig", Any], Awaitable[JSONResponse]]
+GatewayRequestHandler: TypeAlias = Callable[..., Awaitable[JSONResponse]]

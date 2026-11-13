@@ -42,7 +42,7 @@ def _get_payment_service(config: GatewayConfig) -> "PaymentService":
     return _payment_service
 
 
-def _json_response_body(response) -> Any:
+def _json_response_body(response: JSONResponse) -> Any:
     return json.loads(bytes(response.body))
 
 
@@ -120,7 +120,7 @@ async def mcp_endpoint(request: Request) -> Response:
             paid_authorization = authorization
 
     messages = payload if isinstance(payload, list) else [payload]
-    responses = []
+    responses: list[JSONResponse] = []
     has_request = False
 
     for message in messages:

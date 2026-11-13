@@ -106,9 +106,6 @@ class PaymentOrder:
         self.state = OrderState.FULFILLED
         self.fulfillment_state = FulfillmentState.FULFILLED
 
-    def to_snapshot(self) -> Order:
-        return Order(**self.__dict__)
-
 
 @dataclass(frozen=True)
 class FulfillmentResult:
@@ -196,7 +193,7 @@ class OrderStore:
         aggregate = PaymentOrder.from_snapshot(order)
         aggregate.mark_paid()
         conn = self._get_conn()
-        conn.execute(
+        cursor = conn.execute(
             """
             UPDATE aipay_orders
                SET state = ?, updated_at = datetime('now')
@@ -211,6 +208,16 @@ class OrderStore:
                 FulfillmentState.UNFULFILLED,
             ),
         )
+        if cursor.rowcount == 0:
+            current = self.find_by_out_trade_no(out_trade_no)
+            if current is None:
+                raise OrderTransitionError("订单不存在")
+            aggregate = PaymentOrder.from_snapshot(current)
+            try:
+                aggregate.mark_paid()
+            except OrderTransitionError:
+                raise OrderTransitionError("订单状态被并发修改") from None
+            return
         conn.commit()
 
     def find_by_out_trade_no(self, out_trade_no: str) -> Order | None:
@@ -260,14 +267,13 @@ class OrderStore:
             UPDATE aipay_orders
                SET state = ?, fulfillment_state = ?, updated_at = datetime('now')
              WHERE out_trade_no = ?
-               AND state IN (?, ?)
+               AND state = ?
                AND fulfillment_state = ?
             """,
             (
                 OrderState.PAID,
                 FulfillmentState.PENDING_CONFIRM,
                 out_trade_no,
-                OrderState.PAID,
                 OrderState.PAID,
                 FulfillmentState.UNFULFILLED,
             ),
@@ -300,10 +306,14 @@ class OrderStore:
         order = self.find_by_out_trade_no(out_trade_no)
         if order is None:
             raise OrderTransitionError("订单不存在")
+        if order.fulfillment_state == FulfillmentState.FULFILLED:
+            if order.trade_no != trade_no:
+                raise OrderTransitionError("履约 trade_no 不一致")
+            return
         aggregate = PaymentOrder.from_snapshot(order)
         aggregate.mark_fulfilled(trade_no)
         conn = self._get_conn()
-        conn.execute(
+        cursor = conn.execute(
             """
             UPDATE aipay_orders
                SET trade_no = ?, state = ?, fulfillment_state = ?,
@@ -319,6 +329,8 @@ class OrderStore:
                 FulfillmentState.PENDING_CONFIRM,
             ),
         )
+        if cursor.rowcount == 0:
+            raise OrderTransitionError("订单状态被并发修改")
         conn.commit()
 
     def close(self) -> None:

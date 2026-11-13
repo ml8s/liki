@@ -4,7 +4,7 @@ from app.natal.tools.chart_schema import validate_natal_chart
 from app.natal.tools.duanyu_match import assert_snapshot_factors, match_rule
 from app.natal.tools.errors import AssertionRuleError
 from app.natal.tools.factor_constants import load_constants
-from app.natal.tools.factors import evaluate_snap_from_natal_chart, prepare_natal_context
+from app.natal.tools.factors import evaluate_snap_from_natal_chart
 
 from .cache import resolve_current_years
 from .factor_closure import required_natal_factors
@@ -44,7 +44,7 @@ def default_scene_domains(rules: list[str]) -> list[str] | None:
     return sorted(domains)
 
 
-def _validate_domains(domains, tables: list[list[dict]], label: str) -> None:
+def validate_domains(domains, tables: list[list[dict]], label: str) -> None:
     if not isinstance(domains, list) or not domains or any(not isinstance(item, str) or not item for item in domains):
         raise ValueError("domains 必须是非空字符串数组。")
     if len(domains) != len(set(domains)):
@@ -99,7 +99,7 @@ def query(
     else:
         requested_sides = {"bazi", "ziwei"}
     if domains is not None:
-        _validate_domains(
+        validate_domains(
             domains,
             query_tables,
             f"rule={rule} 有效领域",
@@ -178,7 +178,7 @@ __all__ = [
     "brief",
     "default_scene_domains",
     "filter_domains",
-    "prepare_natal_context",
     "query",
     "query_yearly",
+    "validate_domains",
 ]

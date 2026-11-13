@@ -9,13 +9,13 @@ from contextlib import asynccontextmanager
 from unittest.mock import MagicMock, patch
 
 import pytest
-from httpx2 import ASGITransport, AsyncClient
-from mcp.types import CallToolResult
-
 from app.config import AipayConfig, GatewayConfig, UpstreamConfig
 from app.gateway import create_app
 from app.order_store import OrderStore, PendingOrder
 from app.payment import PaymentService
+from httpx2 import ASGITransport, AsyncClient
+from mcp.types import CallToolResult
+
 
 def _aipay_config(enabled: bool = True) -> AipayConfig:
     return AipayConfig(
@@ -93,16 +93,18 @@ def _verify_response(
     resource_id: str = "subject_candidates",
     active: bool = True,
 ) -> str:
-    return json.dumps({
-        "alipay_aipay_agent_payment_verify_response": {
-            "code": "10000",
-            "active": active,
-            "trade_no": trade_no,
-            "out_trade_no": out_trade_no,
-            "amount": amount,
-            "resource_id": resource_id,
+    return json.dumps(
+        {
+            "alipay_aipay_agent_payment_verify_response": {
+                "code": "10000",
+                "active": active,
+                "trade_no": trade_no,
+                "out_trade_no": out_trade_no,
+                "amount": amount,
+                "resource_id": resource_id,
+            }
         }
-    })
+    )
 
 
 class TestOrderStore:
@@ -113,9 +115,7 @@ class TestOrderStore:
         )
         _pending(service)
         store = service._store
-        row = store._get_conn().execute(
-            "SELECT out_trade_no FROM aipay_orders"
-        ).fetchone()
+        row = store._get_conn().execute("SELECT out_trade_no FROM aipay_orders").fetchone()
         order = store.find_by_out_trade_no(row[0])
         assert order is not None
         assert order.amount == "0.01"
@@ -124,14 +124,16 @@ class TestOrderStore:
 
     def test_fulfillment_is_atomic_and_idempotent(self, tmp_path):
         store = OrderStore(str(tmp_path / "test.db"))
-        store.create_pending(PendingOrder(
-            out_trade_no="ORDER_1",
-            tool_name="subject_candidates",
-            amount="0.01",
-            currency="CNY",
-            goods_name="Liki",
-            pay_before="2999-01-01T00:00:00+00:00",
-        ))
+        store.create_pending(
+            PendingOrder(
+                out_trade_no="ORDER_1",
+                tool_name="subject_candidates",
+                amount="0.01",
+                currency="CNY",
+                goods_name="Liki",
+                pay_before="2999-01-01T00:00:00+00:00",
+            )
+        )
         store.mark_paid("ORDER_1")
         first = store.reserve_fulfillment("ORDER_1")
         assert first.state == "PENDING_CONFIRM"
@@ -146,18 +148,43 @@ class TestOrderStore:
 
     def test_pending_order_cannot_reserve_before_payment(self, tmp_path):
         store = OrderStore(str(tmp_path / "pending.db"))
-        store.create_pending(PendingOrder(
-            out_trade_no="ORDER_1",
-            tool_name="subject_candidates",
-            amount="0.01",
-            currency="CNY",
-            goods_name="Liki",
-            pay_before="2999-01-01T00:00:00+00:00",
-        ))
+        store.create_pending(
+            PendingOrder(
+                out_trade_no="ORDER_1",
+                tool_name="subject_candidates",
+                amount="0.01",
+                currency="CNY",
+                goods_name="Liki",
+                pay_before="2999-01-01T00:00:00+00:00",
+            )
+        )
         result = store.reserve_fulfillment("ORDER_1")
         assert result.state == "INVALID_STATE"
         assert result.order is not None
         assert result.order.state == "PENDING_PAYMENT"
+
+    def test_payment_and_fulfillment_marks_are_guarded_and_idempotent(self, tmp_path):
+        store = OrderStore(str(tmp_path / "guarded.db"))
+        store.create_pending(
+            PendingOrder(
+                out_trade_no="ORDER_1",
+                tool_name="subject_candidates",
+                amount="0.01",
+                currency="CNY",
+                goods_name="Liki",
+                pay_before="2999-01-01T00:00:00+00:00",
+            )
+        )
+        store.mark_paid("ORDER_1")
+        store.mark_paid("ORDER_1")
+        store.reserve_fulfillment("ORDER_1")
+        with pytest.raises(ValueError, match="重复支付"):
+            store.mark_paid("ORDER_1")
+
+        store.mark_fulfilled("ORDER_1", "T123")
+        store.mark_fulfilled("ORDER_1", "T123")
+        with pytest.raises(ValueError, match="trade_no 不一致"):
+            store.mark_fulfilled("ORDER_1", "T456")
 
 
 class TestPaymentService:
@@ -206,9 +233,7 @@ class TestPaymentService:
 
     def test_verify_and_fulfillment_strictly_bind_local_order(self, service):
         _pending(service)
-        order = service._store._get_conn().execute(
-            "SELECT out_trade_no FROM aipay_orders"
-        ).fetchone()[0]
+        order = service._store._get_conn().execute("SELECT out_trade_no FROM aipay_orders").fetchone()[0]
         service._client = MagicMock()
         service._client.execute.return_value = _verify_response(
             out_trade_no=order,
@@ -257,9 +282,7 @@ class TestGatewayPaywall:
             OrderStore(str(tmp_path / "gateway.db")),
         )
         _pending(service)
-        order = service._store._get_conn().execute(
-            "SELECT out_trade_no FROM aipay_orders"
-        ).fetchone()[0]
+        order = service._store._get_conn().execute("SELECT out_trade_no FROM aipay_orders").fetchone()[0]
         service._client = MagicMock()
         service._client.execute.return_value = _verify_response(
             out_trade_no=order,
@@ -268,6 +291,7 @@ class TestGatewayPaywall:
 
         import app.gateway as gateway_module
         import app.tool_router as tool_router_module
+
         monkeypatch.setattr(gateway_module, "load_config", lambda: config)
         monkeypatch.setattr(gateway_module, "_payment_service", service)
         monkeypatch.setattr(gateway_module, "_payment_config", config.aipay)
@@ -285,6 +309,7 @@ class TestGatewayPaywall:
 
         monkeypatch.setattr(tool_router_module, "upstream_session", fake_upstream_session)
         with patch.object(service, "confirm_fulfillment", return_value=True):
+
             async def run():
                 app = create_app()
                 async with AsyncClient(
@@ -323,7 +348,7 @@ class TestGatewayPaywall:
     def test_batch_with_paid_tool_is_fail_closed(self, monkeypatch):
         config = _gateway_config(_aipay_config())
         import app.gateway as gateway_module
-        import app.tool_router as tool_router_module
+
         monkeypatch.setattr(gateway_module, "load_config", lambda: config)
         monkeypatch.setattr(gateway_module, "_payment_service", None)
         monkeypatch.setattr(gateway_module, "_payment_config", config.aipay)
@@ -334,12 +359,17 @@ class TestGatewayPaywall:
                 transport=ASGITransport(app=app),
                 base_url="http://test",
             ) as client:
-                return await client.post("/mcp", json=[{
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "tools/call",
-                    "params": {"name": "subject_candidates", "arguments": {}},
-                }])
+                return await client.post(
+                    "/mcp",
+                    json=[
+                        {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "tools/call",
+                            "params": {"name": "subject_candidates", "arguments": {}},
+                        }
+                    ],
+                )
 
         response = asyncio.run(run())
         assert response.status_code == 400

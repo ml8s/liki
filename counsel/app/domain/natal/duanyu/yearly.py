@@ -9,7 +9,7 @@ from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.factors import evaluate_liunian_snap_from_natal_chart, prepare_natal_context
 from app.natal.tools.yearly_eval import MAX_YEARS
 
-from .assertion_query import brief, default_scene_domains, filter_domains, query_yearly
+from .assertion_query import brief, default_scene_domains, filter_domains, query_yearly, validate_domains
 from .factor_closure import flow_factor_names, natal_factors_for_flow
 from .rule_loader import load_rule_tables, resolve_rule_selection
 
@@ -75,9 +75,7 @@ def yearly_range(
     flow_factors = flow_factor_names(rules)
     yearly_tables = [table for rule in resolved_rules for table in load_rule_tables(rule).values()]
     if domains is not None:
-        from .assertion_query import _validate_domains
-
-        _validate_domains(domains, yearly_tables, "有效领域")
+        validate_domains(domains, yearly_tables, "有效领域")
     natal_context = prepare_natal_context(natal_chart, factor_names=natal_factors_for_flow(flow_factors))
 
     from app.natal.tools.charts import RPCError

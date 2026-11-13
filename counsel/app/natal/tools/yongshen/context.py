@@ -140,7 +140,7 @@ def enrich_facts(chart: dict, policy: dict) -> dict:
     stems = [(chart.get(pillar) or {}).get("gan", "") for pillar in ("nian", "yue", "ri", "shi")]
     stems = [stem for stem in stems if stem]
     month_zhi = (chart.get("yue") or {}).get("zhi", "")
-    day_master_stem = atomic.get("day_master_stem", "") or chart.get("ri", {}).get("gan", "")
+    day_master_stem = atomic.get("day_master_stem", "") or (chart.get("ri") or {}).get("gan", "")
     fu_yi = {
         **fu_yi,
         "season": (fu_yi.get("wang_shuai") or {}).get(day_master_element, ""),
