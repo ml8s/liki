@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from app.order_store import FulfillmentResult, Order
-from app.payment.order import FulfillmentState, OrderState
+from app.payment.order import FulfillmentResult, FulfillmentState, Order, OrderState
 from app.payment.responses import Authorization, PaywallResponse
 
 

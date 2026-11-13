@@ -10,10 +10,10 @@ from typing import Any
 
 import app.payment.alipay_client as alipay_client
 from app.config import AipayConfig, normalize_amount
-from app.order_store import OrderStore, PendingOrder
+from app.order_store import OrderStore
 from app.payment.authorization import amounts_equal, order_usable
 from app.payment.fulfillment import completable, map_reservation
-from app.payment.order import FulfillmentState, OrderState
+from app.payment.order import FulfillmentState, OrderState, PendingOrder
 from app.payment.proof import ProofComponents, VerifyResult, decode_proof
 from app.payment.responses import Authorization, PaymentValidation, PaywallResponse, b64url_encode
 

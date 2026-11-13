@@ -11,8 +11,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from app.config import AipayConfig, GatewayConfig, UpstreamConfig
 from app.gateway import create_app
-from app.order_store import OrderStore, PendingOrder
+from app.order_store import OrderStore
 from app.payment import PaymentService
+from app.payment.order import PendingOrder
 from httpx2 import ASGITransport, AsyncClient
 from mcp.types import CallToolResult
 

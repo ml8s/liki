@@ -1,10 +1,9 @@
-"""Payment order aggregate and lifecycle invariants."""
+"""Payment order snapshots, aggregate, and lifecycle invariants."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
 from enum import StrEnum
-from typing import Any
 
 
 class OrderState(StrEnum):
@@ -23,6 +22,41 @@ class OrderTransitionError(ValueError):
     """The current order lifecycle does not allow the requested transition."""
 
 
+@dataclass(frozen=True)
+class Order:
+    """Persisted payment-order snapshot projected by the repository."""
+
+    out_trade_no: str
+    trade_no: str | None
+    state: OrderState
+    tool_name: str
+    amount: str
+    currency: str
+    goods_name: str
+    pay_before: str
+    fulfillment_state: FulfillmentState
+
+
+@dataclass(frozen=True)
+class PendingOrder:
+    """Input required to create a payment-order aggregate."""
+
+    out_trade_no: str
+    tool_name: str
+    amount: str
+    currency: str
+    goods_name: str
+    pay_before: str
+
+
+@dataclass(frozen=True)
+class FulfillmentResult:
+    """Repository outcome for a fulfillment reservation attempt."""
+
+    state: str
+    order: Order | None = None
+
+
 @dataclass(slots=True)
 class PaymentOrder:
     """支付订单聚合根；拥有生命周期不变量，仓库只负责持久化。"""
@@ -38,7 +72,7 @@ class PaymentOrder:
     fulfillment_state: FulfillmentState
 
     @classmethod
-    def from_snapshot(cls, order: Any) -> PaymentOrder:
+    def from_snapshot(cls, order: Order) -> PaymentOrder:
         snapshot_fields = fields(order)
         return cls(**{field.name: getattr(order, field.name) for field in snapshot_fields})
 

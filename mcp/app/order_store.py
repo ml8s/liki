@@ -7,46 +7,19 @@ SQLite 单文件满足当前规模；多实例部署时换 Redis/Postgres。
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass
 from pathlib import Path
 
-from app.payment.order import FulfillmentState, OrderState, OrderTransitionError, PaymentOrder
+from app.payment.order import (
+    FulfillmentResult,
+    FulfillmentState,
+    Order,
+    OrderState,
+    OrderTransitionError,
+    PaymentOrder,
+    PendingOrder,
+)
 
-__all__ = [
-    "Order",
-    "FulfillmentResult",
-    "OrderStore",
-    "PendingOrder",
-]
-
-
-@dataclass(frozen=True)
-class Order:
-    out_trade_no: str
-    trade_no: str | None
-    state: OrderState
-    tool_name: str
-    amount: str
-    currency: str
-    goods_name: str
-    pay_before: str
-    fulfillment_state: FulfillmentState
-
-
-@dataclass(frozen=True)
-class PendingOrder:
-    out_trade_no: str
-    tool_name: str
-    amount: str
-    currency: str
-    goods_name: str
-    pay_before: str
-
-
-@dataclass(frozen=True)
-class FulfillmentResult:
-    state: str
-    order: Order | None = None
+__all__ = ["OrderStore"]
 
 
 class OrderStore:
