@@ -59,7 +59,7 @@ def _gateway_config(aipay: AipayConfig) -> GatewayConfig:
 
 
 def _pending(service: PaymentService) -> str:
-    with patch("app.payment.service._seller_signature", return_value="seller-signature"):
+    with patch("app.payment.alipay_client.seller_signature", return_value="seller-signature"):
         response = service.build_402_response("subject_candidates")
     assert response.status_code == 402
     encoded = response.headers["Payment-Needed"]
@@ -203,7 +203,7 @@ class TestPaymentService:
         assert service.authorize_paid_call("subject_candidates", None) is None
 
     def test_paid_tool_no_proof_returns_official_402(self, service):
-        with patch("app.payment.service._seller_signature", return_value="seller-signature"):
+        with patch("app.payment.alipay_client.seller_signature", return_value="seller-signature"):
             response = service.authorize_paid_call("subject_candidates", None)
         assert response is not None
         assert response.status_code == 402
@@ -261,7 +261,7 @@ class TestPaymentService:
             out_trade_no=order,
             amount="9.90",
         )
-        with patch("app.payment.service._seller_signature", return_value="seller-signature"):
+        with patch("app.payment.alipay_client.seller_signature", return_value="seller-signature"):
             response = service.authorize_paid_call(
                 "subject_candidates",
                 _proof(order),

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.order_store import FulfillmentResult, Order
+from app.payment.order import FulfillmentState, OrderState
 from app.payment.responses import Authorization, PaywallResponse
 
 
@@ -21,8 +22,8 @@ def map_reservation(
 
 
 def completable(order: Order) -> bool:
-    return (order.state == "PAID" and order.fulfillment_state == "PENDING_CONFIRM") or (
-        order.state == "FULFILLED" and order.fulfillment_state == "FULFILLED"
+    return (order.state == OrderState.PAID and order.fulfillment_state == FulfillmentState.PENDING_CONFIRM) or (
+        order.state == OrderState.FULFILLED and order.fulfillment_state == FulfillmentState.FULFILLED
     )
 
 

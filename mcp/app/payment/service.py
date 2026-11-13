@@ -11,10 +11,9 @@ from typing import Any
 import app.payment.alipay_client as alipay_client
 from app.config import AipayConfig, normalize_amount
 from app.order_store import OrderStore, PendingOrder
-from app.payment.alipay_client import create_client
-from app.payment.alipay_client import seller_signature as sdk_seller_signature
 from app.payment.authorization import amounts_equal, order_usable
 from app.payment.fulfillment import completable, map_reservation
+from app.payment.order import FulfillmentState, OrderState
 from app.payment.proof import ProofComponents, VerifyResult, decode_proof
 from app.payment.responses import Authorization, PaymentValidation, PaywallResponse, b64url_encode
 
@@ -29,7 +28,7 @@ class PaymentService:
 
     def _get_client(self) -> Any:
         if self._client is None:
-            self._client = create_client(self._config)
+            self._client = alipay_client.create_client(self._config)
         return self._client
 
     def build_402_response(self, tool_name: str) -> PaywallResponse:
@@ -44,7 +43,7 @@ class PaymentService:
             goods_name = self._config.goods_name
             pay_before = (datetime.now(timezone.utc).astimezone() + timedelta(minutes=30)).isoformat()
 
-            signature = _seller_signature(
+            signature = alipay_client.seller_signature(
                 {
                     "amount": amount,
                     "currency": currency,
@@ -180,7 +179,7 @@ class PaymentService:
         ):
             return self.build_402_response(tool_name)
 
-        if order.state == "PENDING_PAYMENT":
+        if order.state == OrderState.PENDING_PAYMENT:
             self._store.mark_paid(order.out_trade_no)
 
         return Authorization(
@@ -210,7 +209,7 @@ class PaymentService:
                 "FULFILLMENT_ERROR",
                 "订单尚未进入履约状态",
             )
-        if order.fulfillment_state == "PENDING_CONFIRM":
+        if order.fulfillment_state == FulfillmentState.PENDING_CONFIRM:
             if not self.confirm_fulfillment(authorization.trade_no):
                 return PaywallResponse.processing_error(
                     "FULFILLMENT_CONFIRM_FAILED",
@@ -222,8 +221,3 @@ class PaymentService:
             out_trade_no=authorization.out_trade_no,
             resource_id=authorization.resource_id,
         )
-
-
-def _seller_signature(params: dict[str, str], private_key: str) -> str:
-    """Seam retained for tests; production calls delegate to the SDK adapter."""
-    return sdk_seller_signature(params, private_key)
