@@ -132,6 +132,7 @@ class TestOrderStore:
             goods_name="Liki",
             pay_before="2999-01-01T00:00:00+00:00",
         ))
+        store.mark_paid("ORDER_1")
         first = store.reserve_fulfillment("ORDER_1")
         assert first.state == "PENDING_CONFIRM"
         assert first.order is not None
@@ -142,6 +143,21 @@ class TestOrderStore:
         store.mark_fulfilled("ORDER_1", "T123")
         final = store.reserve_fulfillment("ORDER_1")
         assert final.state == "FULFILLED"
+
+    def test_pending_order_cannot_reserve_before_payment(self, tmp_path):
+        store = OrderStore(str(tmp_path / "pending.db"))
+        store.create_pending(PendingOrder(
+            out_trade_no="ORDER_1",
+            tool_name="subject_candidates",
+            amount="0.01",
+            currency="CNY",
+            goods_name="Liki",
+            pay_before="2999-01-01T00:00:00+00:00",
+        ))
+        result = store.reserve_fulfillment("ORDER_1")
+        assert result.state == "INVALID_STATE"
+        assert result.order is not None
+        assert result.order.state == "PENDING_PAYMENT"
 
 
 class TestPaymentService:

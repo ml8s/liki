@@ -13,9 +13,11 @@ from pathlib import Path
 
 __all__ = [
     "Order",
+    "OrderTransitionError",
     "OrderState",
     "FulfillmentState",
     "FulfillmentResult",
+    "PaymentOrder",
     "OrderStore",
     "PendingOrder",
 ]
@@ -54,6 +56,58 @@ class PendingOrder:
     currency: str
     goods_name: str
     pay_before: str
+
+
+class OrderTransitionError(ValueError):
+    """The current order lifecycle does not allow the requested transition."""
+
+
+@dataclass(slots=True)
+class PaymentOrder:
+    """支付订单聚合根；拥有生命周期不变量，仓库只负责持久化。"""
+
+    out_trade_no: str
+    trade_no: str | None
+    state: OrderState
+    tool_name: str
+    amount: str
+    currency: str
+    goods_name: str
+    pay_before: str
+    fulfillment_state: FulfillmentState
+
+    @classmethod
+    def from_snapshot(cls, order: Order) -> PaymentOrder:
+        return cls(**order.__dict__)
+
+    def mark_paid(self) -> None:
+        """Mark a verified pending payment; repeated verification is idempotent."""
+        if self.state == OrderState.PAID:
+            if self.fulfillment_state != FulfillmentState.UNFULFILLED:
+                raise OrderTransitionError("已支付订单不允许重复支付")
+            return
+        if self.state != OrderState.PENDING_PAYMENT or self.fulfillment_state != FulfillmentState.UNFULFILLED:
+            raise OrderTransitionError("订单状态不允许支付")
+        self.state = OrderState.PAID
+
+    def reserve_fulfillment(self) -> None:
+        """Reserve one usable execution; repeated reservation stays idempotent."""
+        if self.fulfillment_state == FulfillmentState.PENDING_CONFIRM:
+            return
+        if self.state == OrderState.PAID and self.fulfillment_state == FulfillmentState.UNFULFILLED:
+            self.fulfillment_state = FulfillmentState.PENDING_CONFIRM
+            return
+        raise OrderTransitionError("订单状态不允许履约")
+
+    def mark_fulfilled(self, trade_no: str) -> None:
+        if self.fulfillment_state != FulfillmentState.PENDING_CONFIRM:
+            raise OrderTransitionError("订单尚未进入履约状态")
+        self.trade_no = trade_no
+        self.state = OrderState.FULFILLED
+        self.fulfillment_state = FulfillmentState.FULFILLED
+
+    def to_snapshot(self) -> Order:
+        return Order(**self.__dict__)
 
 
 @dataclass(frozen=True)
@@ -103,8 +157,7 @@ class OrderStore:
             "goods_name": "ALTER TABLE aipay_orders ADD COLUMN goods_name TEXT NOT NULL DEFAULT ''",
             "pay_before": "ALTER TABLE aipay_orders ADD COLUMN pay_before TEXT NOT NULL DEFAULT ''",
             "fulfillment_state": (
-                "ALTER TABLE aipay_orders ADD COLUMN fulfillment_state "
-                "TEXT NOT NULL DEFAULT 'UNFULFILLED'"
+                "ALTER TABLE aipay_orders ADD COLUMN fulfillment_state TEXT NOT NULL DEFAULT 'UNFULFILLED'"
             ),
         }
         for name, statement in migrations.items():
@@ -135,16 +188,45 @@ class OrderStore:
         conn.commit()
         return self.find_by_out_trade_no(order.out_trade_no)
 
-    def find_by_out_trade_no(self, out_trade_no: str) -> Order | None:
-        row = self._get_conn().execute(
+    def mark_paid(self, out_trade_no: str) -> None:
+        """Persist a verified payment transition guarded by pending state."""
+        order = self.find_by_out_trade_no(out_trade_no)
+        if order is None:
+            raise OrderTransitionError("订单不存在")
+        aggregate = PaymentOrder.from_snapshot(order)
+        aggregate.mark_paid()
+        conn = self._get_conn()
+        conn.execute(
             """
+            UPDATE aipay_orders
+               SET state = ?, updated_at = datetime('now')
+             WHERE out_trade_no = ?
+               AND state = ?
+               AND fulfillment_state = ?
+            """,
+            (
+                OrderState.PAID,
+                out_trade_no,
+                OrderState.PENDING_PAYMENT,
+                FulfillmentState.UNFULFILLED,
+            ),
+        )
+        conn.commit()
+
+    def find_by_out_trade_no(self, out_trade_no: str) -> Order | None:
+        row = (
+            self._get_conn()
+            .execute(
+                """
             SELECT out_trade_no, trade_no, state, tool_name, amount, currency,
                    goods_name, pay_before, fulfillment_state
             FROM aipay_orders
             WHERE out_trade_no = ?
             """,
-            (out_trade_no,),
-        ).fetchone()
+                (out_trade_no,),
+            )
+            .fetchone()
+        )
         if row is None:
             return None
         return Order(
@@ -163,6 +245,14 @@ class OrderStore:
         order = self.find_by_out_trade_no(out_trade_no)
         if order is None:
             return FulfillmentResult(state="NOT_FOUND")
+        if order.fulfillment_state == FulfillmentState.FULFILLED:
+            return FulfillmentResult(state="FULFILLED", order=order)
+
+        aggregate = PaymentOrder.from_snapshot(order)
+        try:
+            aggregate.reserve_fulfillment()
+        except OrderTransitionError:
+            return FulfillmentResult(state="INVALID_STATE", order=order)
 
         conn = self._get_conn()
         cursor = conn.execute(
@@ -177,7 +267,7 @@ class OrderStore:
                 OrderState.PAID,
                 FulfillmentState.PENDING_CONFIRM,
                 out_trade_no,
-                OrderState.PENDING_PAYMENT,
+                OrderState.PAID,
                 OrderState.PAID,
                 FulfillmentState.UNFULFILLED,
             ),
@@ -197,9 +287,21 @@ class OrderStore:
             return FulfillmentResult(state="PENDING_CONFIRM", order=reread)
         if reread.fulfillment_state == FulfillmentState.FULFILLED:
             return FulfillmentResult(state="FULFILLED", order=reread)
+        aggregate = PaymentOrder.from_snapshot(reread)
+        try:
+            aggregate.reserve_fulfillment()
+        except OrderTransitionError:
+            return FulfillmentResult(state="INVALID_STATE", order=reread)
+        # A concurrent writer changed the row after the guarded update; the
+        # aggregate invariant is the authoritative compatibility check.
         return FulfillmentResult(state="INVALID_STATE", order=reread)
 
     def mark_fulfilled(self, out_trade_no: str, trade_no: str) -> None:
+        order = self.find_by_out_trade_no(out_trade_no)
+        if order is None:
+            raise OrderTransitionError("订单不存在")
+        aggregate = PaymentOrder.from_snapshot(order)
+        aggregate.mark_fulfilled(trade_no)
         conn = self._get_conn()
         conn.execute(
             """

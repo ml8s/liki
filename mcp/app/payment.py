@@ -370,6 +370,10 @@ class PaymentService:
                 )
                 or (
                     order.state == "PAID"
+                    and order.fulfillment_state == "UNFULFILLED"
+                )
+                or (
+                    order.state == "PAID"
                     and order.fulfillment_state == "PENDING_CONFIRM"
                 )
                 or (
@@ -385,6 +389,9 @@ class PaymentService:
             or verify_resource != tool_name
         ):
             return self.build_402_response(tool_name)
+
+        if order.state == "PENDING_PAYMENT":
+            self._store.mark_paid(order.out_trade_no)
 
         return Authorization(
             trade_no=verification.trade_no,
