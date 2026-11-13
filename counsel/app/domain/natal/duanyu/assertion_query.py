@@ -1,13 +1,13 @@
 """Validate and execute natal/yearly assertion queries."""
 
 from app.natal.tools.chart_schema import validate_natal_chart
-from app.natal.tools.duanyu_match import assert_snapshot_factors, match_rule
 from app.natal.tools.errors import AssertionRuleError
 from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.factors import evaluate_snap_from_natal_chart
 
 from .cache import resolve_current_years
 from .factor_closure import required_natal_factors
+from .matching import assert_snapshot_factors, match_rule
 from .projection import brief, current_step
 from .rule_loader import (
     BAZI_ONLY_RULES,

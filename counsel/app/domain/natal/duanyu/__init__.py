@@ -14,6 +14,7 @@ from .factor_closure import (
     required_flow_factors,
     required_natal_factors,
 )
+from .matching import assert_snapshot_factors, match_rule, match_table
 from .rule_loader import (
     BAZI_ONLY_RULES,
     CURRENT_LIMIT_RULES,
@@ -41,11 +42,14 @@ __all__ = [
     "flow_factor_names",
     "load_rule_table",
     "load_rule_tables",
+    "match_rule",
+    "match_table",
     "natal_factors_for_flow",
     "query",
     "query_yearly",
     "required_flow_factors",
     "required_natal_factors",
+    "assert_snapshot_factors",
     "reset_current_year_cache",
     "resolve_current_year",
     "resolve_current_years",
