@@ -1,4 +1,3 @@
-
 import copy
 import json
 from pathlib import Path
@@ -11,7 +10,7 @@ from app.natal.tools.factors import evaluate_factors  # noqa: E402
 from app.natal.tools.natal_judgment import natal_liunian_query  # noqa: E402
 from app.natal.tools.operators_liunian import _flow_element_in_selected  # noqa: E402
 from app.natal.tools.yongshen import load_policy, resolve_yongshen, validate_policy  # noqa: E402
-from app.natal.tools.yongshen.evaluator import _MISSING  # noqa: E402
+from app.natal.tools.yongshen.context import MISSING  # noqa: E402
 
 WIRE_INPUTS = ROOT / "engine" / "internal" / "mcpcontract" / "testdata" / "wire_inputs"
 
@@ -45,7 +44,7 @@ def test_selected_yongshen_never_leaks_internal_missing_sentinel():
     json.dumps(result, ensure_ascii=False)
 
     def assert_materialized(value: object) -> None:
-        assert value is not _MISSING
+        assert value is not MISSING
         if isinstance(value, dict):
             for item in value.values():
                 assert_materialized(item)
@@ -54,6 +53,8 @@ def test_selected_yongshen_never_leaks_internal_missing_sentinel():
                 assert_materialized(item)
 
     assert_materialized(result)
+
+
 def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
     result = resolve_yongshen(_bazi_chart_fixture("bazi_chart_1984.json"))
     assert result["status"] == "resolved"
@@ -84,7 +85,8 @@ def test_summer_tiaohou_conflict_is_explicit_and_not_forced():
     assert result["selected"]["xi"] == []
     assert result["selected"]["ji"] == []
     assert {item["code"] for item in result["conflicts"]} == {
-        "tiaohou_evidence_hidden", "xi_ji_overlap",
+        "tiaohou_evidence_hidden",
+        "xi_ji_overlap",
     }
 
 
@@ -112,6 +114,8 @@ def test_tiaohou_primary_missing_uses_secondary_when_condition_ok():
     assert result["rule_id"] == "YS-TH"
     assert result["selected"]["yong"] == "金"
     assert result["selected"]["xi"] == []
+
+
 def test_tiaohou_secondary_condition_not_met_keeps_needed_primary_partial():
     full = _bazi_chart_fixture("bazi_chart.json")
     th = copy.deepcopy(full["tiao_hou"])
@@ -141,10 +145,12 @@ def test_tiaohou_secondary_condition_not_met_keeps_needed_primary_partial():
     assert result["status"] == "partial"
     assert result["rule_id"] == "YS-TH"
     assert result["selected"]["yong"] == "水"
-    assert result["conflicts"] == [{
-        "code": "tiaohou_evidence_missing",
-        "message": "调候主辅神均未在原局落实，仅保留所需五行，不作强断",
-    }]
+    assert result["conflicts"] == [
+        {
+            "code": "tiaohou_evidence_missing",
+            "message": "调候主辅神均未在原局落实，仅保留所需五行，不作强断",
+        }
+    ]
 
 
 def test_tiaohou_controlling_auxiliary_is_not_promoted_to_xi():
@@ -220,6 +226,8 @@ def test_hidden_rooted_resource_breaks_cong_sha_verification():
 
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-UNVERIFIED"
+
+
 def test_geju_clear_changes_context_without_yongshen():
     full = _bazi_chart_fixture("bazi_chart_1990.json")
     baseline = resolve_yongshen(full)
@@ -267,11 +275,11 @@ def test_verified_congge_selects_fuyi_cong_candidate():
         "yong": "金",
         "xi": "土",
         "ji": "木",
-            "wang_shuai": {"火": "囚"},
+        "wang_shuai": {"火": "囚"},
         "basis": {
-                **(full["fu_yi"].get("basis") or {}),
-                "ri_gan_gen": "none",
-            },
+            **(full["fu_yi"].get("basis") or {}),
+            "ri_gan_gen": "none",
+        },
     }
     full["ten_god_states"] = [
         {"shi_shen": "正财", "transparent": True},
@@ -353,7 +361,8 @@ def test_natal_liunian_query_computes_selected_yongshen_internally():
     }
     result = natal_liunian_query(
         subject,
-        2026, 1,
+        2026,
+        1,
         ["career"],
     )
     assert result["natal_chart_digest"]

@@ -1,15 +1,16 @@
 """yearly_range 流年预取的单次 RPC 与 engine count 边界契约。"""
+
 import threading
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import pytest
+from app.domain.natal.duanyu.yearly import batch_liunian_data
 from app.natal.tools.charts import (
     MAX_LIUNIAN_BATCH,
     RPCError,
     _bazi_liunian_range,
     _ziwei_liunian_range,
 )
-from app.natal.tools.duanyu import _batch_liunian_data
 
 
 def _pan(*, bazi=True, ziwei=True) -> dict:
@@ -34,7 +35,7 @@ def test_batch_liunian_uses_one_call_per_side(monkeypatch) -> None:
     monkeypatch.setattr("app.natal.tools.charts._bazi_liunian_range", bazi_range)
     monkeypatch.setattr("app.natal.tools.charts._ziwei_liunian_range", ziwei_range)
 
-    cache = _batch_liunian_data(_pan(), 2026, MAX_LIUNIAN_BATCH)
+    cache = batch_liunian_data(_pan(), 2026, MAX_LIUNIAN_BATCH)
 
     assert calls == [
         ("bazi", 2026, MAX_LIUNIAN_BATCH),
@@ -52,13 +53,9 @@ def test_batch_liunian_runs_side_calls_concurrently(monkeypatch) -> None:
         barrier.wait()
         return []
 
-    monkeypatch.setattr(
-        "app.natal.tools.charts._bazi_liunian_range", wait_for_side
-    )
-    monkeypatch.setattr(
-        "app.natal.tools.charts._ziwei_liunian_range", wait_for_side
-    )
-    cache = _batch_liunian_data(_pan(), 2026, 1)
+    monkeypatch.setattr("app.natal.tools.charts._bazi_liunian_range", wait_for_side)
+    monkeypatch.setattr("app.natal.tools.charts._ziwei_liunian_range", wait_for_side)
+    cache = batch_liunian_data(_pan(), 2026, 1)
     assert cache == {2026: {"bazi": {}, "ziwei": {}}}
 
 
@@ -74,7 +71,7 @@ def test_batch_liunian_fails_closed_for_the_requested_range(monkeypatch) -> None
     monkeypatch.setattr("app.natal.tools.charts._bazi_liunian_range", bazi_range)
     monkeypatch.setattr("app.natal.tools.charts._ziwei_liunian_range", ziwei_range)
 
-    cache = _batch_liunian_data(_pan(), 2026, 2)
+    cache = batch_liunian_data(_pan(), 2026, 2)
 
     assert cache[2026]["error"] == "ConnectionError: engine unavailable"
     assert cache[2027]["error"] == "ConnectionError: engine unavailable"
@@ -95,7 +92,7 @@ def test_batch_liunian_keeps_bazi_only_analysis_pan_on_one_side(monkeypatch) -> 
     monkeypatch.setattr("app.natal.tools.charts._bazi_liunian_range", bazi_range)
     monkeypatch.setattr("app.natal.tools.charts._ziwei_liunian_range", ziwei_range)
 
-    cache = _batch_liunian_data(_pan(ziwei=False), 2026, 1)
+    cache = batch_liunian_data(_pan(ziwei=False), 2026, 1)
 
     assert calls == ["bazi"]
     assert cache == {2026: {"bazi": {"year": 2026}, "ziwei": {}}}
@@ -115,7 +112,7 @@ def test_batch_liunian_keeps_ziwei_only_analysis_pan_on_one_side(monkeypatch) ->
     monkeypatch.setattr("app.natal.tools.charts._bazi_liunian_range", bazi_range)
     monkeypatch.setattr("app.natal.tools.charts._ziwei_liunian_range", ziwei_range)
 
-    cache = _batch_liunian_data(_pan(bazi=False), 2026, 1)
+    cache = batch_liunian_data(_pan(bazi=False), 2026, 1)
 
     assert calls == ["ziwei"]
     assert cache == {2026: {"bazi": {}, "ziwei": {"lunar_year": 2026}}}

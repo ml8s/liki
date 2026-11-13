@@ -1,6 +1,5 @@
-"""Compatibility façade for the split yongshen resolver."""
+"""Public façade and composition root for the yongshen resolver."""
 
-from .context import MISSING as _MISSING
 from .context import YongShenEvaluationError, load_policy
 from .context import enrich_facts as _enrich_facts
 from .evidence import evidence as _evidence
@@ -12,7 +11,6 @@ from .selection import finalize as _finalize
 from .selection import select_rule as _select_rule
 
 __all__ = [
-    "_MISSING",
     "YongShenEvaluationError",
     "load_policy",
     "published_yongshen",

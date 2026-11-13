@@ -14,7 +14,7 @@ from .factor_closure import flow_factor_names, natal_factors_for_flow
 from .rule_loader import load_rule_tables, resolve_rule_selection
 
 
-def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, dict]:
+def batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, dict]:
     """单次预取流年盘数据，返回 year → {bazi, ziwei} 查找表。"""
     from app.natal.tools.charts import (
         RPCError,
@@ -80,7 +80,7 @@ def yearly_range(
 
     from app.natal.tools.charts import RPCError
 
-    liunian_cache = _batch_liunian_data(natal_chart, start, year_count)
+    liunian_cache = batch_liunian_data(natal_chart, start, year_count)
 
     def _liunian_cached(_natal_chart: dict, year: int) -> dict:
         """从预取缓存查找流年盘，零 RPC。"""

@@ -3,7 +3,7 @@
 分层：
 charts.py 引擎排盘调用
 factors.py natal_chart → snap（本命/流年因子快照：直读 natal_chart + 真值表复合求值）
-duanyu.py snap + 断语表 → 断语
+domain/natal/duanyu snap + 断语表 → 断语
 
 本文件只做机械求值；命理成员关系与分组在 constants.json，因子组合在 CSV。
 """

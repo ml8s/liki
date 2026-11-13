@@ -54,7 +54,7 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
     with (
         mock.patch.object(
             yearly_domain,
-            "_batch_liunian_data",
+            "batch_liunian_data",
             return_value={2026: liunian_pan},
         ),
         mock.patch.object(
@@ -85,7 +85,7 @@ def test_yearly_range_degrades_prefetch_error_without_empty_chart() -> None:
     with (
         mock.patch.object(
             yearly_domain,
-            "_batch_liunian_data",
+            "batch_liunian_data",
             return_value={2026: {"error": "RPCError: unavailable"}},
         ),
         mock.patch.object(yearly_domain, "evaluate_liunian_snap_from_natal_chart") as make_snapshot,
@@ -194,7 +194,7 @@ def test_yearly_range_prepares_natal_context_once() -> None:
         mock.patch.object(yearly_domain, "prepare_natal_context", return_value=natal_context) as prepare,
         mock.patch.object(
             yearly_domain,
-            "_batch_liunian_data",
+            "batch_liunian_data",
             return_value={2026: liunian_pan, 2027: liunian_pan},
         ),
         mock.patch.object(
