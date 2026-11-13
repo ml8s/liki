@@ -4,11 +4,11 @@ from app.natal.tools.charts import (
     _bazi_liunian_range,  # noqa: E402
     _ziwei_liunian_range,  # noqa: E402
 )
-from app.natal.tools.counsel import _build_natal_chart  # noqa: E402
 from app.natal.tools.factors import (
     evaluate_liunian_snap_from_natal_chart,  # noqa: E402
     prepare_natal_context,  # noqa: E402
 )
+from app.natal.tools.natal_judgment import _build_natal_chart  # noqa: E402
 
 
 def _subject() -> dict:

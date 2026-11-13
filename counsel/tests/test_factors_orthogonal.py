@@ -46,7 +46,7 @@ def _subject(instant: str, timezone: str, gender: str, longitude: float) -> dict
 
 
 def _full_pan(instant, timezone, gender, longitude):
-    from app.natal.tools.counsel import _build_natal_chart
+    from app.natal.tools.natal_judgment import _build_natal_chart
     return _build_natal_chart(_subject(instant, timezone, gender, longitude))
 
 
@@ -56,8 +56,8 @@ def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
 
 @pytest.mark.parametrize("sample", SAMPLES)
 def test_internal_factor_snapshot_matches_direct_evaluation(sample):
-    from app.natal.tools.counsel import _factor_snapshots
     from app.natal.tools.factors import evaluate_factors
+    from app.natal.tools.natal_judgment import _factor_snapshots
 
     instant, timezone, gender, longitude = sample
     subject = _subject(instant, timezone, gender, longitude)

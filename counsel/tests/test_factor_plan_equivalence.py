@@ -39,7 +39,7 @@ def _run_both(rows, atomic_fn, plan, gender, chart, ctx=None,
 
 
 def _build_natal():
-    from app.natal.tools.counsel import _build_natal_chart
+    from app.natal.tools.natal_judgment import _build_natal_chart
     from tests.time_helpers import standard_time_from_instant
 
     instant, timezone, gender, longitude = BIRTH

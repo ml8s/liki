@@ -7,7 +7,7 @@ from app.build import build_id  # noqa: E402
 # 工具层为 app.* 绝对导入包（无 sys.path 注入）。
 from app.contracts import COUNSEL_TOOLS  # noqa: E402
 from app.mcp_tool_adapter import add_contract_tool as _add_contract_tool  # noqa: E402
-from app.natal.tools import counsel  # noqa: E402
+from app.natal.tools import natal_judgment as counsel  # noqa: E402
 
 _CONTRACTS = {contract.name: contract for contract in COUNSEL_TOOLS}
 

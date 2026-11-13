@@ -6,9 +6,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"
 
-from app.natal.tools.counsel import natal_liunian_query  # noqa: E402
 from app.natal.tools.factor_semantics import PredicateState  # noqa: E402
 from app.natal.tools.factors import evaluate_factors  # noqa: E402
+from app.natal.tools.natal_judgment import natal_liunian_query  # noqa: E402
 from app.natal.tools.operators_liunian import _flow_element_in_selected  # noqa: E402
 from app.natal.tools.yongshen import load_policy, resolve_yongshen, validate_policy  # noqa: E402
 from app.natal.tools.yongshen.evaluator import _MISSING  # noqa: E402
