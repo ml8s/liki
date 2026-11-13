@@ -1,4 +1,5 @@
 """八字用神裁决：表驱动 policy + 通用解释器。"""
+
 from .evaluator import (
     YongShenEvaluationError,
     load_policy,
