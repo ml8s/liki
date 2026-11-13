@@ -84,5 +84,6 @@ liki-agent-runtime → liki-expert
 
 - [Domain naming matrix](DOMAIN_NAMING.md)
 - [Domain language matrix](DOMAIN_LANGUAGE.md)
+- [Context map](CONTEXT_MAP.md)
 - [MCP contract design](MCP_CONTRACT_DESIGN.md)
 - [Digest policy](DIGEST_POLICY.md)
