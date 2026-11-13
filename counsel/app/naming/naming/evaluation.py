@@ -1,7 +1,14 @@
 """Name evaluation pipeline."""
 
 from app.naming.naming.loader import _char_by_char, _ensure_loaded, _negative_chars
-from app.naming.naming.models import Character
+from app.naming.naming.models import (
+    Character,
+    NamingCharacterFact,
+    NamingConstraints,
+    NamingError,
+    NamingEvaluation,
+    SelectedYongshenPlan,
+)
 from app.naming.naming.selection import _normalize_selected_yongshen
 from app.natal.tools.errors import LikiToolError
 
@@ -16,22 +23,15 @@ def evaluate_names(
     if not given_names:
         raise ValueError("given_names must contain at least one name")
 
-    normalized_plan = (
-        _normalize_selected_yongshen(selected_yongshen)
-        if selected_yongshen is not None
-        else None
-    )
+    normalized_plan = _normalize_selected_yongshen(selected_yongshen) if selected_yongshen is not None else None
     normalized_constraints = _normalize_constraints(constraints)
-    return [
-        _evaluate_name(name, normalized_plan, normalized_constraints)
-        for name in given_names
-    ]
+    return [_evaluate_name(name, normalized_plan, normalized_constraints).to_dict() for name in given_names]
 
 
-def _normalize_constraints(constraints: object) -> dict:
+def _normalize_constraints(constraints: object) -> NamingConstraints:
     """Normalize optional user character constraints."""
     if constraints is None:
-        return {"forbidden": set(), "required": set()}
+        return NamingConstraints(frozenset(), frozenset())
     if isinstance(constraints, dict):
         raw = constraints
     else:
@@ -42,111 +42,86 @@ def _normalize_constraints(constraints: object) -> dict:
     if not isinstance(raw, dict):
         raise ValueError("constraints must be an object")
 
-    def normalize_list(field: str) -> set[str]:
-        values = raw.get(field) or []
-        if not isinstance(values, list):
-            raise LikiToolError(f"constraints.{field} must be an array")
-        result: set[str] = set()
-        for value in values:
-            if not isinstance(value, str) or len(value) != 1:
-                raise LikiToolError(f"invalid constraints.{field} {value!r}")
-            result.add(value)
-        return result
-
-    forbidden = normalize_list("forbidden_chars")
-    required = normalize_list("required_chars")
+    forbidden = _normalize_constraint_list("forbidden_chars", raw.get("forbidden_chars"))
+    required = _normalize_constraint_list("required_chars", raw.get("required_chars"))
     overlap = forbidden & required
     if overlap:
-        raise ValueError(
-            f"同一字不能同时属于 forbidden_chars 和 required_chars: {sorted(overlap)}"
-        )
-    return {"forbidden": forbidden, "required": required}
+        raise ValueError(f"同一字不能同时属于 forbidden_chars 和 required_chars: {sorted(overlap)}")
+    return NamingConstraints(frozenset(forbidden), frozenset(required))
 
 
-def _named_characters(
-    given_name: str,
-    evaluation: dict,
-) -> list[Character]:
+def _normalize_constraint_list(field: str, values: object) -> set[str]:
+    if not values:
+        return set()
+    if not isinstance(values, list):
+        raise LikiToolError(f"constraints.{field} must be an array")
+    result: set[str] = set()
+    for value in values:
+        if not isinstance(value, str) or len(value) != 1:
+            raise LikiToolError(f"invalid constraints.{field} {value!r}")
+        result.add(value)
+    return result
+
+
+def _named_characters(given_name: str) -> tuple[tuple[Character, ...], tuple[NamingError, ...]]:
     characters: list[Character] = []
+    errors: list[NamingError] = []
     for char in given_name:
         if char not in _char_by_char:
-            _append_error(evaluation, "character_not_found", char)
+            errors.append(NamingError("character_not_found", char))
             continue
         if char in _negative_chars:
-            _append_error(evaluation, "negative_character_forbidden", char)
+            errors.append(NamingError("negative_character_forbidden", char))
             continue
         characters.append(_char_by_char[char])
-    return characters
+    return tuple(characters), tuple(errors)
 
 
-def _check_user_constraints(
-    given_name: str,
-    evaluation: dict,
-    constraints: dict,
-) -> None:
+def _constraint_errors(given_name: str, constraints: NamingConstraints) -> list[NamingError]:
     name_chars = set(given_name)
-    for char in sorted(name_chars & constraints["forbidden"]):
-        _append_error(evaluation, "forbidden_character", char)
-    for char in sorted(constraints["required"] - name_chars):
-        _append_error(evaluation, "required_character_missing", char)
+    errors = [NamingError("forbidden_character", char) for char in sorted(name_chars & constraints.forbidden)]
+    errors.extend(NamingError("required_character_missing", char) for char in sorted(constraints.required - name_chars))
+    return errors
 
 
-def _wuxing_role(plan: dict | None, element: str) -> str | None:
-    if plan is None:
-        return None
-    if element == plan["yong"]:
-        return "yong"
-    if element in plan["xi"]:
-        return "xi"
-    if element in plan["ji"]:
-        return "ji"
-    return "neutral"
+def _wuxing_role(plan: SelectedYongshenPlan | None, element: str) -> str | None:
+    return plan.role_of(element) if plan is not None else None
 
 
 def _evaluate_name(
     given_name: str,
-    plan: dict | None,
-    constraints: dict,
-) -> dict:
-    evaluation: dict = {"given_name": given_name, "valid": False}
+    plan: SelectedYongshenPlan | None,
+    constraints: NamingConstraints,
+) -> NamingEvaluation:
     if not 1 <= len(given_name) <= 2:
-        evaluation["errors"] = [{"code": "invalid_name_length"}]
-        return evaluation
+        return NamingEvaluation(
+            given_name=given_name,
+            valid=False,
+            errors=(NamingError("invalid_name_length", ""),),
+        )
 
-    _check_user_constraints(given_name, evaluation, constraints)
-    characters = _named_characters(given_name, evaluation)
-    if evaluation.get("errors"):
-        return evaluation
+    errors = tuple(_constraint_errors(given_name, constraints))
+    characters, lookup_errors = _named_characters(given_name)
+    all_errors = errors + lookup_errors
+    if all_errors:
+        return NamingEvaluation(given_name=given_name, valid=False, errors=all_errors)
 
-    evaluation["valid"] = True
-    character_facts = []
-    for character in characters:
-        item = _character_json(character)
-        role = _wuxing_role(plan, character.element)
-        if role is not None:
-            item["wuxing_role"] = role
-        character_facts.append(item)
-    evaluation["characters"] = character_facts
-    evaluation["phonetic"] = {"tones": "-".join(str(c.tone) for c in characters)}
-    return evaluation
-
-
-def _character_json(c: Character) -> dict:
-    out = {
-        "char": c.char, "frequency": c.frequency, "wuxing": c.element,
-        "stroke": c.stroke, "pinyin": c.pinyin, "tone": c.tone,
-    }
-    if c.radical:
-        out["radical"] = c.radical
-    return out
-
-
-def _append_error(evaluation: dict, code: str, char: str) -> None:
-    errors = evaluation.setdefault("errors", [])
-    if {"code": code, "char": char} in errors:
-        return
-    errors.append({"code": code, "char": char})
-
-
-# -- 配姓 -------------------------------------------------------------------
-
+    facts = tuple(
+        NamingCharacterFact(
+            char=character.char,
+            frequency=character.frequency,
+            wuxing=character.element,
+            stroke=character.stroke,
+            pinyin=character.pinyin,
+            tone=character.tone,
+            radical=character.radical,
+            wuxing_role=_wuxing_role(plan, character.element),
+        )
+        for character in characters
+    )
+    return NamingEvaluation(
+        given_name=given_name,
+        valid=True,
+        characters=facts,
+        tones=tuple(character.tone for character in characters),
+    )

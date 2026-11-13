@@ -1,8 +1,7 @@
 """Candidate composition and character lookup."""
 
-from app.naming.naming.evaluation import _character_json
 from app.naming.naming.loader import _char_by_char, _ensure_loaded, _negative_chars
-from app.naming.naming.models import Character
+from app.naming.naming.models import Character, NamingCharacterFact
 from app.natal.tools.errors import LikiToolError
 
 COMPOSE_DEFAULT_NAMES = 100
@@ -64,7 +63,7 @@ def lookup_char(char: str) -> dict | None:
     _ensure_loaded()
     if len(char) != 1 or char not in _char_by_char:
         return None
-    return _character_json(_char_by_char[char])
+    return NamingCharacterFact.from_character(_char_by_char[char]).to_dict()
 
 
 def _reject_duplicates(char_position: str, chars: list) -> None:
@@ -76,4 +75,3 @@ def _reject_duplicates(char_position: str, chars: list) -> None:
 
 
 # -- 评估 -------------------------------------------------------------------
-
