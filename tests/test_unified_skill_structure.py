@@ -85,6 +85,17 @@ def test_root_entry_is_a_lightweight_router():
     assert "## 统一硬边界" in lines
 
 
+def test_root_skill_language_protocol_reasons_in_simplified_chinese():
+    """推理固定简体中文以稳定工具/schema 判断；可见输出跟随用户语言。"""
+    text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    assert "## 语言协议" in text
+    assert "推理、规划、规则比对和自我校验一律使用简体中文" in text
+    assert "即使用户使用英文或其他语言也是如此" in text
+    assert "工具名、参数名、枚举值、断语 ID、schema key 和代码片段保留原文" in text
+    assert "最终输出语言跟随用户" in text
+    assert "输出语言按「语言协议」跟随用户" in text
+
+
 def test_natal_layers_are_orthogonal():
     """三层正交：根入口不索引侧层文件；侧入口只索引本层卡，且本层卡齐备。"""
     root_entry = (SKILL_ROOT / "references" / "natal-ENTRY.md").read_text(encoding="utf-8")

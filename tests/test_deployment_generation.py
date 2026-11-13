@@ -79,12 +79,15 @@ class TestDeploymentGeneration(unittest.TestCase):
                 with self.subTest(profile=profile, agent=agent["name"]):
                     path = root / agent["instruction"]["path"]
                     text = path.read_text(encoding="utf-8")
-                    self.assertLess(path.stat().st_size, 4_096, f"{path} 超过骨架上限")
+                    self.assertLess(path.stat().st_size, 6_144, f"{path} 超过骨架上限")
                     # 路由表引用入口卡名是设计意图（非烘焙内容）；方法论文本由 skilltoolset 按需加载
                     self.assertNotIn("## 流程", text)
                     self.assertNotIn("## 边界条件", text)
                     # 骨架仍须保留角色与硬边界
                     self.assertIn("边界", text)
+                    # 语言协议是全局执行前提，必须随骨架进入 deployment。
+                    self.assertIn("## 语言协议", text)
+                    self.assertIn("推理、规划、规则比对和自我校验一律使用简体中文", text)
 
     def test_instructions_carry_no_delegation_section(self):
         """单 agent 拓扑：任何 instruction 不得残留子代理 / 委派语义。"""
