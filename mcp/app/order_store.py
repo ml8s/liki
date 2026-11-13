@@ -153,6 +153,8 @@ class OrderStore:
                 aggregate.mark_paid()
             except OrderTransitionError:
                 raise OrderTransitionError("订单状态被并发修改") from None
+            if current.state == OrderState.PENDING_PAYMENT:
+                raise OrderTransitionError("订单状态被并发修改")
             return
         conn.commit()
 
@@ -266,6 +268,13 @@ class OrderStore:
             ),
         )
         if cursor.rowcount == 0:
+            current = self.find_by_out_trade_no(out_trade_no)
+            if (
+                current is not None
+                and current.fulfillment_state == FulfillmentState.FULFILLED
+                and current.trade_no == trade_no
+            ):
+                return
             raise OrderTransitionError("订单状态被并发修改")
         conn.commit()
 

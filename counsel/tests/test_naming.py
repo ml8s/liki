@@ -87,7 +87,7 @@ def test_evaluate_invalid_length():
         {
             "given_name": "",
             "valid": False,
-            "errors": [{"code": "invalid_name_length", "char": None}],
+            "errors": [{"code": "invalid_name_length"}],
         }
     ]
 
@@ -102,6 +102,17 @@ def test_evaluate_invalid():
     }
     assert e[2]["errors"] == [{"code": "character_not_found", "char": "x"}]
     assert e[3]["valid"] is True
+
+
+def test_evaluate_repeated_invalid_character_has_one_error():
+    e = naming.evaluate_names(["死死"], selected_yongshen("木"))
+    assert e == [
+        {
+            "given_name": "死死",
+            "valid": False,
+            "errors": [{"code": "negative_character_forbidden", "char": "死"}],
+        }
+    ]
 
 
 def test_evaluate_no_constraint():

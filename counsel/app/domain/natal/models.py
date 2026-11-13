@@ -18,6 +18,18 @@ __all__ = [
 ]
 
 
+def _freeze_value(value: Any):
+    if isinstance(value, Mapping):
+        return MappingProxyType({key: _freeze_value(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return tuple(_freeze_value(item) for item in value)
+    return value
+
+
+def _freeze_mapping(value: Mapping) -> MappingProxyType:
+    return MappingProxyType({key: _freeze_value(item) for key, item in value.items()})
+
+
 @dataclass(frozen=True, slots=True)
 class Condition:
     """One factor assertion. A missing factor fails closed before matching."""
@@ -110,6 +122,13 @@ class AssertionHit:
     rule: AssertionRule
     matched: tuple[tuple[ConditionGroup, Mapping[str, FactorValue]], ...]
 
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "matched",
+            tuple((group, MappingProxyType(dict(factors))) for group, factors in self.matched),
+        )
+
     def to_row(self) -> dict[str, Any]:
         row = self.rule.to_row()
         row["trace"] = [
@@ -126,7 +145,7 @@ class FactorSnapshot:
     context: Mapping[str, Any]
 
     def __post_init__(self) -> None:
-        # Callers may pass mutable dicts. Keep the domain snapshot read-only while
-        # preserving JSON-compatible values and avoiding recursive copies.
-        object.__setattr__(self, "factors", MappingProxyType(dict(self.factors)))
-        object.__setattr__(self, "context", MappingProxyType(dict(self.context)))
+        # Callers may pass mutable dicts. Keep the domain snapshot recursively
+        # read-only for JSON-shaped maps and lists.
+        object.__setattr__(self, "factors", _freeze_mapping(self.factors))
+        object.__setattr__(self, "context", _freeze_mapping(self.context))

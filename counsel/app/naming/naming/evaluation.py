@@ -68,12 +68,15 @@ def _named_characters(given_name: str) -> tuple[tuple[Character, ...], tuple[Nam
     errors: list[NamingError] = []
     for char in given_name:
         if char not in _char_by_char:
-            errors.append(NamingError("character_not_found", char))
+            error = NamingError("character_not_found", char)
+        elif char in _negative_chars:
+            error = NamingError("negative_character_forbidden", char)
+        else:
+            characters.append(_char_by_char[char])
             continue
-        if char in _negative_chars:
-            errors.append(NamingError("negative_character_forbidden", char))
-            continue
-        characters.append(_char_by_char[char])
+        # Repeated invalid characters keep the old single structured error.
+        if error not in errors:
+            errors.append(error)
     return tuple(characters), tuple(errors)
 
 

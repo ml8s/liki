@@ -38,11 +38,7 @@ def _assert_factor_value(assertion_id: str, factor: str, value) -> None:
 
 
 def _rule(row: Mapping) -> AssertionRule:
-    """Cache projections of the process-wide assertion-store rows by row identity."""
-    key = id(row)
-    if key not in _RULE_CACHE:
-        _RULE_CACHE[key] = AssertionRule.from_row(row)
-    return _RULE_CACHE[key]
+    return AssertionRule.from_row(row)
 
 
 def _snapshot(snapshot: Mapping | FactorSnapshot) -> FactorSnapshot:
@@ -52,12 +48,12 @@ def _snapshot(snapshot: Mapping | FactorSnapshot) -> FactorSnapshot:
     return FactorSnapshot(factors=factors, context=snapshot.get("context") or {})
 
 
-_RULE_CACHE: dict[int, AssertionRule] = {}
 _EXPECTED_FACTOR_VALIDATED: set = set()
 
 
 def _validate_expected(rule: AssertionRule, group_number: int, factor: str, expected) -> None:
-    ekey = (id(rule), group_number, factor)
+    # Assertion IDs are the stable domain identity; do not key caches by object identity.
+    ekey = (rule.id, group_number, factor)
     if ekey in _EXPECTED_FACTOR_VALIDATED:
         return
     _assert_factor_value(rule.id, factor, expected)

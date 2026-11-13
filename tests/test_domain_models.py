@@ -59,14 +59,16 @@ def test_assertion_hit_projects_internal_row_and_trace():
 
 def test_factor_snapshot_is_read_only():
     factors = {"财星透": "命中"}
-    context = {"性别": "male"}
+    context = {"性别": "male", "时间事实": {"standard_time": "1990-05-20T12:00:00"}}
     snapshot = FactorSnapshot(factors=factors, context=context)
 
     factors["财星透"] = "没命中"
     context["性别"] = "female"
+    if isinstance(context["时间事实"], dict):
+        context["时间事实"]["standard_time"] = "changed"
 
     assert snapshot.factors == {"财星透": "命中"}
-    assert snapshot.context == {"性别": "male"}
+    assert snapshot.context == {"性别": "male", "时间事实": {"standard_time": "1990-05-20T12:00:00"}}
     with pytest.raises(TypeError):
         snapshot.factors["财星透"] = "没命中"
 

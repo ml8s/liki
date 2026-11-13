@@ -65,7 +65,9 @@ class NamingError:
     code: str
     char: str | None
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, object]:
+        if self.char is None:
+            return {"code": self.code}
         return {"code": self.code, "char": self.char}
 
 
