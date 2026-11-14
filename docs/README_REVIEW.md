@@ -1,57 +1,68 @@
-# README 评审清单
+# README review checklist
 
-改 README 前后人工过一遍本清单；不进 CI，仅作为评审会话与大改版的检查工具。
+Run this checklist manually before and after README changes. It is not wired
+into CI — it exists for review sessions and major rewrites.
 
-## 文化差异原则（先读）
+## Cultural differentiation principle (read first)
 
-- EN 与 ZH 两份 README **不做互译**：各自从目标市场的文化特点独立撰写，品牌件（H1、logo、徽章、双语 slogan）保持一致。
-- EN 面向全球英文用户：中国玄学兴趣人群（birth chart、astrology reading 语境）与 AI 工具用户（MCP、Claude、Codex、Cursor 语境）。
-- ZH 面向中文客户：命理传统话语体系（八字、紫微、考时、真太阳时、节气）与中文互联网语境。
-- 热点词分市场维护：英文社区关注 birth chart、manifestation、retrograde 等词的迁移；中文社区关注 AI 算命、电子烧香、赛博命理等词的演变。每季度评审时核对示例与 FAQ 用词是否仍贴近当前热词。
-- 每次评审先检查：两份是否仍为独立叙事，有没有出现互译痕迹（句式一一对应、示例雷同、FAQ 雷同）。
+- The English and Chinese READMEs are **never translations of each other**:
+  each is written independently for its target market. Brand elements (H1,
+  logo, badges, per-language slogans) stay identical.
+- The English face targets global English-speaking users: the Chinese
+  metaphysics curiosity segment (birth chart / astrology reading context) and
+  AI-tool users (MCP, Claude, Codex, Cursor context).
+- The Chinese face targets Chinese customers: the traditional fortune-telling
+  vocabulary (八字, 紫微, 考时, 真太阳时, 节气) and the Chinese internet context.
+- Trending words are maintained per market: watch migration of English terms
+  (birth chart, manifestation, retrograde) and evolution of Chinese terms
+  (AI 算命, 赛博命理). Re-verify example phrasing and FAQ wording each quarter.
+- At every review, first check that the two faces are still independent
+  narratives — no mirrored sentence structures, no duplicated examples, no
+  duplicated FAQ items.
 
-## 六维度清单
+## Six-dimension checklist
 
-### 品牌合规（红线项）
+### Brand compliance (red lines)
 
-- [ ] H1、slogan、描述用语与 liki-web `BRAND.md` 逐字一致
-- [ ] 禁用表述零出现：降格表述、slogan 变体、旧品类词 Metaphysics
-- [ ] 语言纯净：EN 面无中文 slogan；ZH 面不直译英文文案
+- [ ] H1, slogans, and descriptor wording match the liki-web `BRAND.md` verbatim
+- [ ] Zero forbidden phrasing: downgrading expressions, slogan variants, retired category word "Metaphysics"
+- [ ] Language purity: no Chinese slogan on the English face; the Chinese face never translates English copy
 
-### 首屏转化（10 秒测试）
+### First-screen conversion (10-second test)
 
-- [ ] 前 3 屏回答三个问题：这是什么 / 对我有什么用 / 怎么开始
-- [ ] 安装命令在一屏内可见，复制即可执行
-- [ ] 示例表能让目标用户对号入座（看到自己的问题）
+- [ ] The first three screens answer: what is this / what is in it for me / how do I start
+- [ ] The install command is visible within one screen and copy-paste runnable
+- [ ] Example tables let target users recognize their own question
 
-### SEO（搜索引擎）
+### SEO (search engines)
 
-- [ ] 品类关键词出现在副标题、章节标题与正文首段
-- [ ] repo description 与 GitHub topics 和 README 关键词呼应
-- [ ] 标题携带语义关键词，拒绝无信息标题
+- [ ] Category keywords appear in the subtitle, section headings, and first paragraph
+- [ ] Repo description and GitHub topics echo the README keywords
+- [ ] Headings carry semantic keywords — no information-free headings
 
-### GEO（AI 引擎优化）
+### GEO (generative engine optimization)
 
-- [ ] 存在 "X is a ..." 开头的可摘录定义段
-- [ ] 平台实体（Claude / Codex / Cursor / MCP）在正文有明确段落
-- [ ] 独特数字事实在场（829 断语、192 案例、SHA-256）
-- [ ] FAQ 句式贴近目标市场的真实提问方式
+- [ ] An extractable "X is a ..." definition paragraph exists
+- [ ] Platform entities (Claude / Codex / Cursor / MCP) have a dedicated paragraph in the body
+- [ ] Distinctive numeric facts are present (829 assertions, 192 cases, SHA-256)
+- [ ] FAQ phrasing mirrors how real users ask in each market
 
-### 事实与合规
+### Facts and compliance
 
-- [ ] 数字与代码一致（断语数由 `scripts/check_docs.py` 钉住，其余人工核对）
-- [ ] 免责声明完整：传统文化视角、非专业建议、Mingli160 非准确率证明
-- [ ] 无过度承诺（不出现绝对化准确率表述）
+- [ ] Numbers match the code (assertion count is pinned by `scripts/check_docs.py`; verify the rest manually)
+- [ ] Disclaimers are complete: traditional-cultural perspective, not professional advice, Mingli160 is not an accuracy benchmark
+- [ ] No over-claiming (no absolute accuracy statements)
 
-### 工程质量
+### Engineering quality
 
-- [ ] CI 基线绿：契约测试、markdownlint、check_docs
-- [ ] 移动端渲染可读，表格不超宽
-- [ ] 两份行数均在 180 行预算内
+- [ ] CI baseline green: contract tests, markdownlint, check_docs
+- [ ] Mobile rendering readable, tables not over-wide
+- [ ] Both files stay within the 180-line budget
 
-## GEO 引擎实测（每季度一次，人工）
+## GEO engine field test (quarterly, manual)
 
-在 Perplexity / ChatGPT / Claude 用目标问题实测引用情况，记录是否被引用、引用句来自 README 哪一段：
+Query Perplexity / ChatGPT / Claude with target questions and record whether
+we are cited, and which README paragraph the citation came from:
 
-- EN：Which open-source skill can do BaZi reading in Claude?
-- ZH：有没有能在 Claude 里算八字的开源 skill
+- EN: Which open-source skill can do BaZi reading in Claude?
+- ZH: 有没有能在 Claude 里算八字的开源 skill

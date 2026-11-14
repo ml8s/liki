@@ -1,148 +1,244 @@
-# 贡献指南
+# Contributing to Liki Skill
 
-感谢你考虑为liki.hk贡献！
+> 简体中文贡献指南：[CONTRIBUTING.zh.md](./CONTRIBUTING.zh.md)
 
-## 提交 Issue
+Thanks for considering a contribution to Liki. This guide covers how to report
+issues, set up a development environment, and land changes safely. The project
+is enforced by deterministic gates — most conventions described here are pinned
+by scripts and tests, so CI tells you when something drifts.
 
-- 命理计算结果不准确 → 请附上出生时间、地点、期望结果和实际结果
-- SKILL 行为异常 → 请说明触发了什么流程、期望什么、实际发生了什么
-- 建议新技能 → 请描述用户场景，越具体越好
+## Reporting issues
 
-## 分支模型
+- **Inaccurate astrology results** — include birth date/time, birthplace, the
+  expected result, and the actual result.
+- **Unexpected Skill behavior** — describe which flow was triggered, what you
+  expected, and what actually happened.
+- **New capability proposals** — describe the user scenario as concretely as
+  possible.
 
-`main` 是唯一的长期分支；不要使用 `dev`、`master` 或长期发布分支。维护者在 `main`
-上做小而聚焦的提交。外部贡献者可以 fork 后创建短生命周期分支，PR 目标仍然是 `main`。
+Suspected security vulnerabilities go through the private channel in
+[SECURITY.md](./SECURITY.md), not public issues.
 
-发布 = 本地按各仓 commit sha 构建镜像 → `liki-deploy` 跑全系统 e2e → 部署并 smoke；CI 不构建镜像。
+## Development environment
 
-## 提交变更
+Toolchain versions are declared in exactly one place; local and CI read the
+same source, and `make check` verifies they agree:
 
-1. 同步最新 `main`：`git pull --ff-only`
-2. 安装 git hooks（一次）：`make hooks`
-3. 有用户可见行为变化时更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
-4. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
-5. 提交时描述清楚改了什么、为什么；不相关的变更保持独立提交
+| Tool | Version | Declared in | Verified by |
+| --- | --- | --- | --- |
+| Go | 1.26.11 | `go.mod` + `GOTOOLCHAIN` | `make go-version-check` |
+| Python | 3.12.14 | `.python-version` | `make runtime-version-check` |
+| Node | 24.14.1 | `.nvmrc` | `make runtime-version-check` |
+| golangci-lint | v2.13.2 | `deps/golangci-lint.version` | reconciliation test |
+| ruff | 0.16.0 | `RUFF_VERSION` in `scripts/lint-python.sh` | — |
 
-## 代码规范
+First-time setup:
 
-### 本地工具链
+```bash
+make hooks        # point core.hooksPath at .githooks (pre-commit / pre-push gates)
+npm ci            # locked local Markdown lint dependency (markdownlint-cli2)
+make python-env   # install the exact .python-version interpreter + counsel venv via uv
+```
 
-版本只在一处声明，CI 与本地读同一份，`make check` 校验本地一致：
+Notes:
 
-- Go 1.26.11：`go.mod` + `GOTOOLCHAIN`（`make go-version-check`）
-- Python 3.12.14：`.python-version`（`make runtime-version-check`）
-- Node 24.14.1：`.nvmrc`（`make runtime-version-check`）
-- golangci-lint v2.13.2：`deps/golangci-lint.version`（本地与 CI 共用，对账测试锁定）
-- ruff 0.16.0：`lint-python.sh` 的 `RUFF_VERSION`
-
-GitHub Action 版本一律 40 位 SHA pin；升级由 Dependabot 每周分组一个 PR 跟进。
-合并前看 release notes——大版本常有 breaking（如 docker/login-action v4）。
-Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 一次性安装 `.python-version` 精确解释器并重建 counsel venv（锁定依赖 + 测试工具，与 CI 同源）。国内网络可 `export UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple` 加速。
-
-### 语言和服务边界
-
-- 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。
-- 领域 `ENTRY.md` 只做域内路由、工具契约与硬边界；`app` 卡平铺为 `references/<域>-app-<目标>.md`（`natal-app-outcome.md`…）并承载流程、交互闸口与输出模板，方法论卡平铺为 `references/<域>-<体系>-<卡>.md`（`natal-bazi-*.md`、`divination-qimen-*.md`…）；一份信息只在一处定义（`tests/test_unified_skill_structure.py` 钉住路由可达与引用形态）。
-- **单一聚合专家**：`skills/liki/` 是唯一内容源；`distribution/workbuddy/liki-pro/` 只保存 WorkBuddy 渠道资产。`distribution/liki-expert/deployment.yaml` 与 `distribution/liki-expert/profile.json` 是唯一部署配置。领域路由由 `references/<域>-ENTRY.md` 承载，不需要子代理。
-- **卡写作约定（`scripts/check_docs.py` + `tests/test_unified_skill_structure.py` 钉住）**：
-  方法论卡（`references/*-app-*.md`、`references/<域>-<体系>-*.md`）不带 frontmatter——卡的身份由平铺命名（域 / app / 体系段）与 `<域>-ENTRY.md` 路由表表达，元数据写在卡内没有消费方；
-  `## 输出模板` 必须给模板体（代码块 / 列表 / 表），示例放 `### 示例` 之下；
-  一条规则只在一处定义——域级公共口径进该域 `ENTRY.md` / `TOOLS.md`，跨体系合参进 `app/`，被专家包自包含逼出的同源双份（如 natal / naming 的用神优先序）用测试钉成同字；
-  卡内只引工具字段名与工具名，不写实现内部数据文件名（`data/*.json`）；
-  卡间互引统一平铺全路径 `references/<平铺名>.md`——裸名 / 旧嵌套 / 跨域 / 根级共享卡 / `scripts/` 依赖在生成器 fail-closed。
-- 专家身份的唯一手写源是 `skills/liki/SKILL.md`；WorkBuddy 包内入口由唯一身份、`distribution/workbuddy/liki-pro/channel.json` 和付费 overlay 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本。
-- `engine-mcp` 只做确定性排盘/历法/风水计算；`counsel-mcp` 只做因子、断语、起名和问卦判断。
-- 公开 `/engine` 与 `/counsel` 前缀由 edge 负责；两个服务内部只实现 `/mcp`。
-- 不恢复旧 Python CLI 或 JSON-RPC 发现/调用路径；历史评测资产已归档，迁移前不得进入 gate。
-
-### Lint 与安全扫描
-
-- 引擎 lint 用 golangci-lint v2（配置 `engine/.golangci.yml`）。本地安装用官方二进制脚本，**不要 `go install`**（golangci-lint 与 Go 版本强耦合，官方明确不推荐该方式）：
+- GitHub Actions are pinned to 40-character commit SHAs. Dependabot bumps them
+  in one grouped weekly PR; read the release notes before merging — major
+  versions often break (e.g. `docker/login-action` v4).
+- Engine lint uses golangci-lint v2 (config: `engine/.golangci.yml`). Install
+  it with the official binary script, **not** `go install` (golangci-lint is
+  tightly coupled to Go versions and upstream discourages that method):
 
   ```bash
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
   ```
 
-- Python lint 使用 Ruff 0.16.0：`make lint-python`。
-- Go 漏洞扫描使用 `govulncheck`；counsel 哈希锁使用 `pip-audit`。两者在 CI 分别执行。
-- 镜像运行时不用发布版本；构建身份是 Git short SHA。需要生成分发包时运行
-  `make build-archive` 或 `make distribution-package`。
+- Python linting uses ruff 0.16.0 (`make lint-python`); vulnerability scanning
+  uses `govulncheck` (Go) and `pip-audit` (counsel hashed lock), run separately
+  in CI.
+- On mainland-China networks, `export UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple`
+  speeds up uv.
 
-## 有意保留的重复（不要合并）
+## Branch model
 
-评审时下面这些看起来可以合并或去重，但每一项都是刻意的；动手之前先确认理由仍然成立。
+`main` is the only long-lived branch — no `dev`, no `master`, no long-lived
+release branches. Maintainers land small, focused commits directly on `main`.
+External contributors fork and use short-lived branches; PRs still target
+`main`.
 
-| 重复 | 为什么保留 |
+A release means: build images locally pinned to each repo's commit sha →
+`liki-deploy` runs full-system e2e → deploy and smoke. CI never builds images.
+
+## Making changes
+
+1. Sync latest `main`: `git pull --ff-only`.
+2. Install git hooks once: `make hooks`.
+3. Update `CHANGELOG.md` when behavior is user-visible (and README stats when
+   they change).
+4. README / user-guide changes must preserve the existing heading structure
+   and the bilingual contract; run `make check`.
+5. Keep unrelated changes in separate commits, and describe what changed and
+   why.
+
+Commit messages follow conventional commits (`feat`, `fix`, `refactor`,
+`docs`, `chore` with an optional scope), matching the existing history.
+
+## Code and documentation standards
+
+### Language and service boundaries
+
+- `engine-mcp` performs deterministic charting, calendar, and feng shui
+  computation only; `counsel-mcp` handles factors, assertions, naming, and
+  divination judgment only. The edge owns the public `/engine` and `/counsel`
+  prefixes; inside the services only `/mcp` is allowed. Domain documentation
+  describes capabilities and variable bindings — never hand-write transport
+  details.
+- The root `skills/liki/SKILL.md` is product routing only; each domain is
+  entered through its `ENTRY.md`. SKILL.md is deliberately Chinese-first with
+  original terms preserved — that is a product language decision, independent
+  from this repository's documentation language.
+
+### Skill documentation conventions
+
+Pinned by `scripts/check_docs.py` and `tests/test_unified_skill_structure.py`:
+
+- Domain `ENTRY.md` files carry in-domain routing, tool contracts, and hard
+  boundaries only. App cards are flat: `references/<domain>-app-<goal>.md`
+  (e.g. `natal-app-marriage.md`), carrying flows, interaction gates, and output
+  templates. Methodology cards are flat:
+  `references/<domain>-<system>-<card>.md` (e.g. `natal-bazi-geju.md`).
+- Every piece of information is defined in exactly one place; routing
+  reachability and reference shapes are test-pinned.
+- Methodology cards carry no frontmatter — identity comes from flat naming and
+  the ENTRY routing tables; there is no consumer for card metadata.
+- `## 输出模板` sections must contain a real template body (code block / list
+  / table); examples go under `### 示例`.
+- One rule, one definition: domain-wide policies live in that domain's
+  `ENTRY.md` / `TOOLS.md`; cross-system synthesis lives in `app/` cards. Where
+  channel-pack self-containment forces a same-source duplicate (such as the
+  yongshen priority order shared by natal / naming), tests pin the copies as
+  byte-identical.
+- Cards reference tool names and tool field names only — never internal data
+  files (`data/*.json`).
+- Cross-card references always use the flat full path
+  `references/<flat-name>.md`; bare names, legacy nesting, cross-domain, root
+  shared cards, and `scripts/` references fail closed in the generator.
+- Prefer positive guidance: procedural docs say what to do and how; domain
+  prohibitions distilled from real errors (grade-skip prevention, character
+  pool filters, anti-repetition red lines) stay as they are.
+
+### Single expert and channel assets
+
+- `skills/liki/` is the only content source; `distribution/workbuddy/liki-pro/`
+  holds WorkBuddy channel assets only.
+- `distribution/liki-expert/deployment.yaml` and
+  `distribution/liki-expert/profile.json` are the only deployment configs.
+- The single handwritten identity source is `skills/liki/SKILL.md`; channel
+  entry files are generated from it plus
+  `distribution/workbuddy/liki-pro/channel.json` and the paid overlay. The
+  `make check` drift gate rejects a second identity copy inside packages.
+
+### Intentional duplication (do not merge)
+
+Reviewers will spot the following as mergeable — each is deliberate. Confirm
+the reason still holds before touching any of them.
+
+| Duplication | Why it stays |
 | --- | --- |
-| `engine/**/zz_load_test.go`（12 个） | Go 不能跨包共享 `TestMain`；抽成公共包会把 `testing` 带进非测试构建依赖。9 个调自身 `Load()`，3 个调依赖包的 `Load()`（fengshui→luoshu、tianwen→ganzhi、http→tables）。 |
-| 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
-| 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |
-| `skills/liki/SKILL.md` 与渠道包内 `skills/liki/SKILL.md` 正文同源 | 根 `SKILL.md` 是唯一手写身份源，渠道包内入口由构建器按平台格式渲染（WorkBuddy 另加方法论卡索引）；同源保证市场入口、ADK skill 与部署 instruction 不漂移（`make check` 漂移门）。 |
-| 单文件目录 `tools/` | 目录里只有生成物 `mcp-tool-catalog.json`：保持 `scripts/check_mcp_schema.py --emit` 生成、`make check` 漂移检测，而不是合并目录或手改。 |
+| `engine/**/zz_load_test.go` (12 files) | Go cannot share `TestMain` across packages; extracting a common package would pull `testing` into non-test build dependencies. 9 call their own `Load()`, 3 call a dependency package's `Load()` (fengshui→luoshu, tianwen→ganzhi, http→tables). |
+| Script preamble `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"` (7 scripts) | Every script must run standalone (`make`, CI, manual invocation); a shared include would introduce a sourcing dependency. |
+| Empty `tests/__init__.py` | Root `tests/` is an explicit package so pytest import names are `tests.<module>`; `counsel/tests/` has no `__init__.py` and uses bare basenames, so the two suites never shadow each other. |
+| `skills/liki/SKILL.md` body duplicated in channel packages | The root file is the only handwritten identity source; channel entries are rendered from it per platform (WorkBuddy adds a methodology card index). Same-source keeps the marketplace entry, ADK skill, and deployment instruction from drifting (`make check` drift gate). |
+| Single-file directory `tools/` | Contains only the generated `mcp-tool-catalog.json`: kept as `scripts/check_mcp_schema.py --emit` output with `make check` drift detection, not merged or hand-edited. |
 
-## 设计原则（为什么这样设计）
+### Design principles (why it is built this way)
 
-- **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。edge 负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp`。领域文档描述能力与变量绑定，不手写传输层细节。
-- **历史事件只验证整体框架**：校准/结论验证回退的对象是「格局+用神+大运」的综合解读框架，不是单一用神选择——事件是框架的综合结果，无法反推单一变量（v1.23.0 教训）。落地处：`references/natal-app-mingshu.md` 历史事件校准节、`references/natal-bazi-calibration.md`。
-- **用神只有扶抑 / 调候两派，必须聚合出唯一结论**：格局（格神）不是用神，只作结构证据参与聚合决策（`references/natal-bazi-yongshen.md`）；不并列列出让用户选——并列等于把专业判断推给用户（v1.16.0 教训，已落地 yongshen.md 聚合决策表）。
-- **Skill 文档正向引导优先**：流程性指引写「做什么、怎么做」；域规则性禁令（档位防跳、筛字池细则、反重复红线等从真实错误沉淀的专业精度）保留原样，不属于负面清理对象。工具自省、隐私合规等样板只在各 surface 的入口文档存一份，域卡不重复。
+- **Historical events validate the whole framework, not a single variable.**
+  Calibration and conclusion verification fall back to the combined
+  structure + yongshen + luck-cycle reading framework, never to a single
+  yongshen choice — an event is the synthesized outcome of the whole frame and
+  cannot be back-solved from one variable (lesson from v1.23.0). Enforced in
+  `references/natal-app-mingshu.md` and `references/natal-bazi-calibration.md`.
+- **Yongshen has exactly two schools (扶抑 / 调候) and must aggregate to one
+  conclusion.** The structure (格神) is not the yongshen; it only participates
+  in the aggregation decision as structural evidence
+  (`references/natal-bazi-yongshen.md`). Never list candidates and ask the user
+  to choose — that delegates professional judgment to the user (lesson from
+  v1.16.0, now enforced by the yongshen aggregation decision table).
+- **MCP call boundaries are layered.** See "Language and service boundaries"
+  above; this is an architectural rule, not a convention.
 
-## 相关文档
+## Testing and validation
 
-- [docs/SYSTEM.md](./docs/SYSTEM.md)：系统全况与本仓对齐——四仓分工、权威源、专家定义结构、MCP 连接器模型、生成/校验链、变更传播。
-- [docs/MCP_CONTRACTS.md](./docs/MCP_CONTRACTS.md)：MCP 契约模型——typed wire DTO → JSON Schema → 运行时校验，engine / counsel 两侧模式。
-- [distribution/workbuddy/README.md](./distribution/workbuddy/README.md)：WorkBuddy 技能 / 专家包结构、分发产物与校验流程。
+| Command | What it does |
+| --- | --- |
+| `make check` | Static checks: lint (md/python/go fmt), versions, pinned actions, channel package determinism, docs, domain language. No tests. |
+| `make test` | All deterministic tests: Python contract suite + engine coverage floor + MCP protocol smoke. |
+| `make gate` | Full source push gate — the same checks and tests as CI (lint-engine, python deps, check, city data, archive + deployment builds, full test suite). |
 
-## 发布版本模型
+Both git hooks run these automatically: pre-commit lints staged Markdown;
+pre-push runs `make gate`. Expect the push gate to take several minutes.
 
-- 内部运行时不用发布版本，构建身份是 Git short SHA；镜像 tag 和 OCI revision
-  同源。
-- 不恢复手工版本文件、`make version` 或内部版本对账。
-- WorkBuddy / SkillHub 平台若强制 semver，由 `scripts/version_projection.py`
-  在打包时从 Git commit 时间派生；这是外部平台兼容层，不是内部 release contract。
+## Release version model
 
-## 推送前检查清单
+- Internal runtimes carry no release version; build identity is the Git short
+  SHA, and image tags and OCI revisions share that source.
+- No hand-maintained version files, no `make version`, no internal version
+  reconciliation.
+- If WorkBuddy / SkillHub platforms force semver,
+  `scripts/version_projection.py` derives it from the Git commit time at
+  packaging time. That is an external-platform compatibility layer, not an
+  internal release contract.
 
-**改方法名/函数名时**（全量搜索所有引用点）：
+## Pre-push checklist
+
+**Renaming a method or function** — search every reference site:
 
 ```bash
-# 搜代码（含脚本）
-grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
-# 搜 skill 文档
-grep -rn "旧方法名" skills/liki/references/*/app/*.md skills/liki/references/*/ENTRY.md skills/liki/SKILL.md
+# code and scripts
+grep -rn "old-name" --include="*.go" --include="*.sh" --include="*.py"
+# skill documentation
+grep -rn "old-name" skills/liki/references/*-app-*.md skills/liki/references/*-ENTRY.md skills/liki/SKILL.md
 ```
 
-**改领域概念/字段名时**（唯一命名源和别名门禁）：
+**Renaming a domain concept or field** — the single naming source and alias
+gate:
 
 ```bash
 python3 scripts/sync_domain_language.py
 python3 scripts/check_domain_language.py
 ```
 
-不要在代码、契约、注释、测试或文档中发明同义词。若必须保留旧字段，先在
-`tools/domain-language.json` 登记兼容 `scope`、理由和删除版本；checker 只允许
-这些位置出现旧名。
+Do not invent synonyms in code, contracts, comments, tests, or docs. If a
+legacy field must survive, register a compatibility `scope`, the reason, and a
+removal version in `tools/domain-language.json`; the checker allows the old
+name only in those places.
 
-**添加新 MCP 工具时**（Pydantic / typed registry 契约是唯一事实源，同步补契约与测试）：
+**Adding a new MCP tool** — the Pydantic / typed registry contracts are the
+single source of truth; add contracts and tests in the same change:
 
 ```bash
-# engine：补 handler、InputSchema/OutputSchema 与 tool schema 测试
+# engine: add handler, InputSchema/OutputSchema, and tool schema tests
 grep -R "bazi_chart" engine/cmd/engine-mcp engine/internal/mcpcontract
-
-# counsel：在 app/contracts 补 Pydantic 契约，再补业务实现与错误映射测试
+# counsel: add the Pydantic contract in app/contracts, then implementation and error-mapping tests
 grep -R "natal_compute_factors" counsel/app counsel/tests
 ```
 
-**改 skill 文档后**（需要出包时）：
+**Changed skill documentation and a package build is needed:**
 
 ```bash
 make build-archive
 ```
 
-**推送前本地 CI**：
+**Full local CI before pushing:**
 
 ```bash
-npm ci # once, for the locked local Markdown lint dependency
-# 全量（engine + skills 单测 + 全链路集成，本地自动起引擎）+ schema/文档一致性
 make gate
 ```
+
+## Related documents
+
+- [docs/SYSTEM.md](./docs/SYSTEM.md) — system overview: four-repo split, authoritative sources, expert definition structure, MCP connector model, generation/verification chains, change propagation.
+- [docs/MCP_CONTRACTS.md](./docs/MCP_CONTRACTS.md) — MCP contract model: typed wire DTOs → JSON Schema → runtime validation, on both engine and counsel.
+- [distribution/workbuddy/README.md](./distribution/workbuddy/README.md) — WorkBuddy skill/expert package structure, artifacts, and verification flow.
+- [docs/README_REVIEW.md](./docs/README_REVIEW.md) — README review checklist (brand, SEO, GEO, facts).
