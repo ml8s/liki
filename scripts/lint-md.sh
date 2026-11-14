@@ -40,5 +40,5 @@ if [ ! -x "$MARKDOWNLINT" ]; then
 fi
 
 # No explicit targets: use the globs declared in .markdownlint-cli2.jsonc
-# (README.md, README.en.md, docs/USER_GUIDE*.md, skills/liki/**/*.md).
+# (README.md, README.zh.md, docs/USER_GUIDE*.md, skills/liki/**/*.md).
 exec "$MARKDOWNLINT" "$@"

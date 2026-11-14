@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 README_PATHS = (
     ROOT / "README.md",
-    ROOT / "README.en.md",
+    ROOT / "README.zh.md",
 )
 GUIDE_PATHS = (
     ROOT / "docs/USER_GUIDE.md",
@@ -128,10 +128,10 @@ def test_local_links_exist(path: Path):
 @pytest.mark.parametrize(
     ("readme", "guide"),
     [
-        (ROOT / "README.md", "docs/USER_GUIDE.md"),
-        (ROOT / "README.en.md", "docs/USER_GUIDE.en.md"),
+        (ROOT / "README.md", "docs/USER_GUIDE.en.md"),
+        (ROOT / "README.zh.md", "docs/USER_GUIDE.md"),
     ],
-    ids=["zh", "en"],
+    ids=["en", "zh"],
 )
 def test_readme_links_to_governance_documents(readme: Path, guide: str):
     expected = {guide, "CONTRIBUTING.md", "CHANGELOG.md"}

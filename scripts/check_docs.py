@@ -223,11 +223,11 @@ def main() -> int:
         for match in re.finditer(r"`data/[A-Za-z0-9_./-]+\.(?:json|csv)`", text):
             errors.append(f"[{rel}] 引用实现内部数据文件 {match.group(0)}：改引工具字段名")
 
-    readme = os.path.join(_ROOT, "README.md")
     assertion_path = os.path.join(_ROOT, "counsel", "app", "natal", "tools", "assertions", "assertions.csv")
-    if os.path.exists(readme) and os.path.exists(assertion_path):
+    readmes = [p for p in (os.path.join(_ROOT, "README.md"), os.path.join(_ROOT, "README.zh.md")) if os.path.exists(p)]
+    for readme in readmes:
         actual = sum(1 for row in csv.DictReader(open(assertion_path, encoding="utf-8")) if row.get("assertion_id"))
-        match = re.search(r"(\d+)\s*条断语", open(readme, encoding="utf-8").read())
+        match = re.search(r"(\d[\d,]*)\s*(?:条断语|assertions)", open(readme, encoding="utf-8").read())
         if match and int(match.group(1)) != actual:
             errors.append(f"[README] 断语统计 {match.group(1)} ≠ 实际 {actual}")
 

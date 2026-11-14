@@ -52,7 +52,7 @@ def test_active_surfaces_do_not_use_retired_ai_identity():
         PRO_README,
         PLUGIN_JSON,
         ROOT / "README.md",
-        ROOT / "README.en.md",
+        ROOT / "README.zh.md",
         PRODUCT_MCP_CONFIG,
     }
     for path in surfaces:

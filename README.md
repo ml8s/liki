@@ -1,177 +1,138 @@
+<h1 align="center">
+  <img src="./docs/assets/liki-c3.svg" alt="Liki Skill logo" width="72" align="center" valign="middle"> Liki Skill
+</h1>
+
 <p align="center">
-  <img src="./docs/assets/liki-c3.svg" alt="Liki Skill logo" width="96" height="96">
+  Professional Astrology Skill.<br>
+  For Astrology, use Liki.<br>
+  Reproducible charts · Traceable readings · Honest boundaries<br>
+  Bazi · Ziwei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
 </p>
 
-<h1 align="center">Liki Skill</h1>
-
 <p align="center">
-  专业命理 Skill。<br>
-  懂命理，用 Liki。<br>
-  排盘可复现 · 断语可溯源 · 边界明说<br>
-  八字 · 紫微 · 六爻 · 奇门 · 黄历择日 · 风水 · 起名
-</p>
-
-<p align="center">
-  <a href="./README.en.md"><img alt="English" src="https://img.shields.io/badge/English-4a9e6b?style=flat-square"></a>
+  <a href="./README.zh.md"><img alt="中文" src="https://img.shields.io/badge/中文-4a9e6b?style=flat-square"></a>
   <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ml8s/liki/actions/workflows/ci.yml/badge.svg"></a>
   <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat-square"></a>
   <a href="https://liki.hk"><img alt="website" src="https://img.shields.io/badge/liki.hk-6d5acf?style=flat-square"></a>
 </p>
 
-## 为什么是 Liki Skill
+> Ask your AI assistant a real astrology question — a career move, a relationship, a relocation, a name — and get an answer grounded in a computed chart, not a confident guess. Liki Skill brings the liki.hk engine into Claude, Codex, Cursor and any MCP host: BaZi, Zi Wei, Liuyao, QiMen, Feng Shui, date selection and Chinese naming. Every judgment includes its factors and sources, so you can check it; if your birth hour is unclear, it calibrates against events you know. Free to install and use.
 
-直接问大模型算命，同一张盘问三遍，可能得到三个答案。而命理恰恰"差之毫厘，谬以千里"：节气边界错一天，年柱就换，后面的断语全部跟着错。
+## What is Liki Skill?
 
-所以 Liki Skill 把每个"容易错"的环节都做成了显式流程——排盘多源对算、断语来自规则真值表、时间先归一化再考时。**结论是"算"出来的，不是模型临场生成的。**
+Liki Skill is an open-source Chinese astrology skill for AI assistants. It connects the deterministic liki.hk engine to Claude Code, Codex, Cursor, and any host that supports MCP (Model Context Protocol), covering the main systems of Chinese metaphysics: **BaZi** (Four Pillars of Destiny), **Zi Wei Dou Shu** (Purple Star astrology), **Liu Yao** (I Ching divination), **Qi Men Dun Jia** (strategy and timing), **Feng Shui**, **date selection**, and **Chinese naming**.
 
-- ✅ **排盘可复现**——同样的输入，永远同样的盘面；节气、真太阳时由天文历算引擎处理
-- ✅ **断语可溯源**——每条结论都带因子依据，点得回《三命通会》《滴天髓》的原文
-- ✅ **边界明说**——时辰敏感就校准，证据不足就说不足，绝不默认、绝不编造
+It is not a prompt wrapper around a chatbot. Charts are cast by an astronomical engine, readings come from a rule truth table with classical sources, and unclear birth times are calibrated before any judgment — so the same question gets the same grounded answer, every time.
 
-## 三个专项
-
-下面是三个最容易被忽视、也最能区分 Liki Skill 的地方。
-
-### 专项一｜排盘引擎：和三个开源实现"对着算"出来的
-
-排盘引擎不是一次写完的。`192` 个节气边界案例（2024–2027 年，每年 24 节气 × 每节气 2 个锚点）与 **lunar-python、sxtwl、bazi-calculator** 三个开源实现四方对算，策略只有一条：`all_oracles_must_agree`——任何一个不一致都不允许通过。紫微实现与 iztro 兼容数据源对齐。
-
-引擎与经典不符的地方，按原文校正并固化为防回归锚点：
-
-> 《穷通宝鉴》校正示例：**乙木向阳，专取丙火；水多以戊佐。**
-> 引擎输出与这条原文逐字对齐，另与 120 条原文参考表全量比对。
-
-### 专项二｜断语直断：829 条真题 + 经典拟合的真值表
-
-断语不是模型生成的，是从真值表里"命中"出来的：**829 条断语、893 个条件组、1355 条件行**，底层是 511 个本命因子和 111 个流年因子。命中即直断，不命中明说——没有临场编话术的空间。每条断语自带依据与经典出处，比如这条真实数据：
-
-| 断语 | 依据 |
-| --- | --- |
-| 五行缺木：肝/胆/筋骨/目 偏弱 | 木主肝（《黄帝内经》"东方生风，风生木，木生酸，酸生肝"） |
-
-两个设计细节：
-
-- 流年断语必须携带**当年引动因子**，否则数据校验直接报错——防止"本命体质逐年重复命中"；
-- **160 道命理师大赛真题**（Mingli160）用于规则链覆盖与零命中检查，作为手动校准/评估集。
-
-### 专项三｜考时：即使你拿着出生证明
-
-命理排盘最容易错的一步，恰恰是"确定时间"：
-
-- 医院钟表记的是标准时，不是出生那一刻的太阳——经度不同，真太阳时可能差出半个时辰；
-- 出生在节气交界，差几分钟年柱就换；
-- 23 点后的晚子时，日柱归属最容易错。
-
-所以 Liki Skill 把考时做成显式流程，而不是拿着钟表时间默默替你排：
-
-```text
-你的时间 + 出生地 → 归一化解析 → 候选集（每个候选带原因）
-→ 逐候选完整排盘 → 提取时柱敏感事实（时柱/十神/神煞）
-→ 对照你的真实事件（2-3 个候选、3-5 件大事及年份）→ 校准结论 + 证据覆盖说明
-→ 证据不足？明说"考时证据不足"，绝不默认
-```
-
-## 30 秒上手
-
-### 第一步：安装 skill（一行命令）
+## Install in 30 seconds
 
 ```bash
 npx skills add ml8s/liki
 ```
 
-### 第二步：直接问
+That is the whole setup — you need Node.js installed (the installer runs via `npx`). The skill talks to hosted MCP endpoints (`engine-mcp` for charts, `counsel-mcp` for readings) — no API keys, no configuration. Prefer no terminal? Charting is free at [liki.hk](https://liki.hk). Update when prompted:
 
-| 目标 | 直接这样问 |
+```bash
+npx skills add ml8s/liki -y
+```
+
+Works in Claude Code, Codex, Cursor, and any MCP-compatible assistant or IDE.
+
+## What can you ask?
+
+| You want | Ask like this |
 | --- | --- |
-| 命理 | `算八字，1990-05-20 12:00 北京出生，男` |
-| 起名 | `宝宝起名，2024-06-10 广州出生，男，姓陈` |
-| 问卦 | `这个项目能成吗？什么时候有结果？` |
-| 择日 | `下个月哪天适合搬家？` |
-| 风水 | `我家风水怎么样？` |
+| BaZi chart reading | `Read my BaZi chart — female, born 1992-03-15 14:30 in Guangzhou` |
+| Career timing | `Is 2026 a good year for me to change jobs? Born 1988-07-02 in Chengdu` |
+| Marriage compatibility | `Check compatibility — male 1990-05-20 12:00 Beijing, female 1992-03-15 14:30 Guangzhou` |
+| Liu Yao divination | `Should I take this offer? Cast a Liu Yao hexagram` |
+| Date selection | `Which Saturday next month is good for moving house?` |
+| Feng shui | `My apartment faces south and was built in 2008 — how is its feng shui?` |
+| Chinese baby naming | `Name my baby boy — surname Chen, born 2024-06-10 in Guangzhou` |
 
-第一次使用命理时，建议提供出生日期、尽量精确的时间、出生城市和性别。信息不全时，Skill 会追问或进入考时流程。提示更新后重新执行：`npx skills add ml8s/liki -y`。
+For destiny readings, provide the birth date, exact time when possible, birth city, and gender. If data is incomplete, the Skill asks follow-up questions or enters time calibration — it never silently guesses.
 
-## 对比：直接问大模型，还是用 Liki Skill
+## Why not just ask the LLM directly?
 
-|  | 直接问大模型 | Liki Skill |
+Ask a general-purpose LLM the same chart question three times and you may get three different answers. Chinese metaphysics amplifies small errors: miss a solar-term boundary by one day and the year pillar changes — every reading after it shifts.
+
+|  | Ask an LLM directly | Liki Skill |
 | --- | --- | --- |
-| 排盘 | 模型心算，节气/真太阳时易错，多次结果可能不同 | 天文历算引擎，同样输入永远同样盘面 |
-| 断语 | 自由发挥，没有出处 | 829 条规则真值表，每条带经典原文 |
-| 考时与边界 | 直接用钟表时间，边界处静默二选一 | 候选集 + 原因 → 逐盘校准，证据不足明说 |
-| 输出 | 纯文本，下游难以复用 | 结构化 JSON + SHA-256 摘要防篡改，可接入你的产品 |
-| 验证方式 | 无法验证 | 开源，全链路可审计 |
+| Charts | Mental math; solar terms and true solar time are error-prone | Astronomical engine; same input, same chart, every time |
+| Readings | Freeform, no sources | 829 rule truth-table assertions, each with classical sources |
+| Birth time | Wall-clock used as-is; boundaries silently resolved | Candidate set + reasons → per-candidate calibration; insufficient evidence labeled |
+| Output | Plain text | Structured JSON + SHA-256 digests, ready to build on |
+| Verification | None | Open source; the whole chain is auditable |
 
-## 发行版本
+## How Liki Skill stays accurate
 
-Liki Skill 使用同一套方法论构建两个分发变体：
+### Cross-checked chart engine
 
-| 变体 | MCP 接入 | 支付 |
-| --- | --- | --- |
-| `liki-free` | 直连 `engine-mcp` 与 `counsel-mcp` | 无 |
-| `liki-pro` | 通过 `liki-mcp` 付费产品 MCP | 支持 SkillPay / 402 支付流程 |
+The engine was not written once and shipped. `192` solar-term boundary cases (2024–2027, 24 terms × 2 anchors per year) are cross-checked against **lunar-python, sxtwl, and bazi-calculator** under one policy — `all_oracles_must_agree`: a single mismatch fails the gate. The Ziwei implementation aligns with iztro-compatible data. Where the engine disagreed with the classics, it was corrected against the original texts (such as Qiong Tong Bao Jian 《穷通宝鉴》) and pinned as regression anchors.
 
-免费版本仓库通过 `npx skills add ml8s/liki` 安装。付费包按渠道发布到 SkillHub / WorkBuddy。
+### Readings from a truth table, not improvisation
 
-## 信任与边界
+Readings are not generated by the model — they are **hit** from a truth table: **829 assertions, 893 condition groups, 1,355 condition rows**, driven by 511 natal factors and 111 annual factors. A hit yields a direct conclusion with its evidence; a miss is reported as a miss. Every assertion cites its factor basis back to classical texts such as San Ming Tong Hui 《三命通会》 and Di Tian Sui 《滴天髓》. Example row:
 
-### 可靠性的三根支柱
-
-| 支柱 | 事实 |
+| Assertion | Basis |
 | --- | --- |
-| 可溯源（专业度） | 每条断语 → 命中因子 → 因子依据 → 经典原文，四层全链可回溯 |
-| 可复现（可靠度） | 引擎与主流实现对算通过；关键输出带 SHA-256 摘要，防篡改 |
-| 不越界（低自我导向） | 出生数据只在当前会话；不索要真实姓名，不写档案、不进反馈 |
+| Five elements lack Wood: liver / gallbladder / sinews / eyes run weak | Wood governs the liver (Huangdi Neijing 《黄帝内经》: "East generates wind; wind generates wood; wood generates sour; sour generates the liver") |
 
-### 工程与隐私事实
+### Time calibration, even with a birth certificate
 
-- 双体系显式合参：八字、紫微分侧计算，冲突分层列证。
-- Skill 与服务端不做版本兼容检查；未知工具会返回明确错误。
-- 镜像由本地构建，按 commit sha 部署。
-- 敏感问题走关怀优先（support-first）的安全策略。
-- 城市查询只使用内置 WGS-84 地理表，不做外部地理编码请求。
+Clock time is not solar time: a hospital clock records standard time, while true solar time at your birthplace can drift by up to half a shichen (a traditional double-hour, about two hours). Born near a solar-term boundary, a few minutes change the year pillar; after 23:00, the late-Zi rule makes the day pillar assignment error-prone. So calibration is an explicit process:
 
-### 诚实声明：边界本身就是可靠性的一部分
+```text
+your time + birthplace → normalize → candidate set (each with reasons)
+→ full chart per candidate → compare against 2–3 real events you know
+→ calibrated conclusion + evidence coverage; insufficient evidence is labeled
+```
 
-- Mingli160 是覆盖与零命中检查，不是独立准确率评测，也不构成命理正确性证明。
-- 命理结论是传统文化视角的条件性解读，不构成医疗、法律、投资或重大人生决策建议。
+On top of this, Mingli160 — 160 professional competition questions — is used for rule-chain coverage and zero-hit checks as a manual calibration set.
 
-## 这适合谁
+## Privacy and honest boundaries
 
-- **想认真了解自己命盘的人**——排盘可靠、依据可查，不用自己啃古籍排盘。
-- **命理师 / 内容创作者**——一致性工具：同一张盘，任何时候、任何人排出来都一样。
-- **应用开发者**——标准 MCP 工具，结构化 JSON 输出，可直接接入你的产品。
+- Birth data stays in the current conversation: no profiles, no real names, no feedback payloads.
+- City lookup uses the built-in WGS-84 table; no external geocoding request is made.
+- Sensitive questions follow a support-first safety policy.
+- Mingli160 is a coverage and zero-hit check, not an independent accuracy benchmark.
+- Conclusions are conditional interpretations from a traditional cultural perspective — not medical, legal, investment, or major life advice.
 
-## 常见问题
+## FAQ
 
-### 不知道出生时辰怎么办？
+### What is BaZi?
 
-Skill 会追问，或使用真实事件进入考时流程。证据不足时明确标注"考时证据不足"，不会默认时辰。起名域不默认时辰，改用期望五行策略；宝宝和青少年跳过考时，直接以提供的时辰排盘。
+BaZi (八字, Eight Characters), also known as the Four Pillars of Destiny, maps your birth year, month, day, and hour into four pillars of heavenly stems and earthly branches — a chart of five-element balance, ten gods, and luck cycles. Liki Skill computes this chart with an astronomical engine and reads it through 829 sourced assertions.
 
-### 我知道准确的出生时间，为什么还要考时？
+### Can AI do Chinese astrology accurately?
 
-钟表时间不是命理时间：标准时（如北京时间）和出生地的真太阳时可能差出半个时辰；节气交界差几分钟年柱就换；晚子时还涉及日柱归属。这些错都发生在你看不见的边界上，所以即使时间准确，Liki Skill 也先归一化：列出候选和原因，逐个排盘，再用真实事件校准。这是排盘正确性的第一步。
+A general LLM improvises; Liki Skill computes. Charts come from an astronomical engine cross-checked against three open-source implementations, and readings are emitted from a rule truth table with classical sources — every answer is reproducible and checkable.
 
-### 需要联网吗？
+### I do not know my exact birth hour. Can I still get a reading?
 
-需要。Skill 通过托管的 `engine-mcp`（排盘）与 `counsel-mcp`（断语）两个 MCP 端点提供服务——安装即用，无需任何配置。
+Yes. The Skill asks follow-up questions or calibrates against 2–3 real events you remember, with years. If evidence is insufficient, it says so — the hour is never silently defaulted. Baby and teenage charts are read directly from the provided hour; naming uses an expected-element strategy and skips calibration.
 
-### 出生数据会被存储吗？
+### Does it work in Claude, Codex, or Cursor?
 
-不会。出生数据只在当前会话上下文中使用；不写入本地档案，也不提交到反馈。
+Yes — and in any host that supports MCP. The skill ships as standard MCP tools with structured JSON output, so developers can also embed it into their own products.
 
-### 怎么更新？
+### Is it free?
 
-按提示重新执行 `npx skills add ml8s/liki -y`。版本校验失败时不降级调用旧 RPC。
+The skill is free to install and use (`liki-free`). A paid `liki-pro` variant is delivered through the liki-mcp product endpoint for SkillHub / WorkBuddy channels, with the SkillPay / 402 payment flow.
 
-## 仓库与部署
+### Is my birth data stored?
 
-四个仓：`liki`、`liki-agent-runtime`、`liki-web`、`liki-deploy`。镜像在各仓本地构建
-（tag = commit sha）；`liki-deploy` 负责全系统 e2e、部署与 smoke。
+No. Birth data remains in the current conversation context; it is not written to a local profile or submitted through feedback.
 
-## 许可与声明
+### How is this different from a BaZi calculator website?
 
-代码采用 MIT。命理结论为传统文化视角的参考性解读，不构成医疗、法律、投资或重大人生决策建议。内嵌地理数据不由 MIT 重新授权，第三方声明见 [NOTICE](./NOTICE.md)。
+A calculator gives you a chart. Liki Skill gives you the chart plus sourced readings, boundary handling, and time calibration — inside the AI assistant you already use, with every conclusion traceable to its factors and classical text.
 
-完整使用说明见[用户指南](./docs/USER_GUIDE.md)；参与贡献见 [CONTRIBUTING](./CONTRIBUTING.md)，变更历史见 [CHANGELOG](./CHANGELOG.md)。
+## Documentation and links
 
-> 懂命理，用 Liki。
+- Full usage: [user guide](./docs/USER_GUIDE.en.md)
+- Website: [liki.hk](https://liki.hk)
+- Contributing: [CONTRIBUTING](./CONTRIBUTING.md) · Release history: [CHANGELOG](./CHANGELOG.md)
+- License: MIT; bundled geographic data is not relicensed — see [NOTICE](./NOTICE.md)
+
+> For Astrology, use Liki.
