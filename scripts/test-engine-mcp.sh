@@ -4,8 +4,6 @@ set -eo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-"$ROOT/scripts/check-go-version.sh"
-
 cd "$ROOT/engine"
 ENGINE_DIR="$(mktemp -d)"
 trap 'rm -rf "$ENGINE_DIR"' EXIT

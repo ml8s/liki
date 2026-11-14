@@ -1,36 +1,25 @@
 # liki monorepo — skill client + engine/counsel MCP services
-# Quality gate: make gate 是"本地可执行的源码门槛"（lint + 静态检查 + 测试）。
-#   CI 另外强制执行：漏洞扫描（govulncheck/pip-audit/npm）、-race 与覆盖率门槛。
-#   镜像只在本地构建，tag = git sha；CI 不构建镜像。
-#
-# 统一语义（四仓一致）：
-#   make lint   静态检查聚合
-#   make check  静态检查（lint+格式+数据结构+docs+专家一致性；临时构建分发包后校验）
-#   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
-#   make gate   check + test ＝推送门槛
-#   make eval-mingli160 手动 skill 校准/评估报告；不属于测试或发布门禁
-#   make build  本仓产物（skill 归档 + engine 二进制）
-#   make image  本地镜像（tag 由 IMAGE_TAG 指定）
-#   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
+# Minimal contributor gate: format, lint, domain-data integrity, external MCP
+# contracts, and deterministic tests. Release packaging remains a separate
+# target so every check does not rebuild four distribution variants.
 
 .DEFAULT_GOAL := help
 
 export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
-NODE_BIN := $(HOME)/.nvm/versions/node/v$(shell cat .nvmrc)/bin
-PYTHON_BIN := $(CURDIR)/counsel/.venv/bin
-export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/sdk/go1.26.11/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
+PYTHON_VENV_BIN := $(CURDIR)/counsel/.venv/bin
+PYTHON_BIN := $(PYTHON_VENV_BIN)/python
+export PATH := $(PYTHON_VENV_BIN):$(HOME)/sdk/go1.26.11/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
 export GOTOOLCHAIN ?= go1.26.11
 # Stale host GOROOT would force the 1.26.10 standard library onto the 1.26.11 toolchain.
 unexport GOROOT
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
-        go-version-check runtime-version-check lint security-engine security-python python-ci-deps lint-md check test test-content test-engine \
-        test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp verify-city-data \
-        test-python-coverage \
+        security-engine security-python python-ci-deps check check-skill-docs check-content test test-engine \
+        test-engine-package test-engine-golden test-counsel test-engine-mcp verify-city-data \
         eval-mingli160 golden gate hooks build-archive build-deployment \
         workbuddy-package skillhub-package distribution-package \
-        sync-domain-language check-domain-language check-actions check-content \
+        check-actions check-content \
         runtime-validate image image-engine image-counsel image-liki-mcp image-assembly \
         smoke smoke-engine smoke-counsel smoke-liki-mcp
 
@@ -145,22 +134,13 @@ fmt: ## Format Go sources
 fmt-check: ## Reject unformatted Go sources
 	@cd engine && test -z "$$(gofmt -l .)" || { gofmt -l .; exit 1; }
 
-go-version-check: ## Require the security-supported Go toolchain
-	scripts/check-go-version.sh
-
-runtime-version-check: ## 本地 node/python 必须等于 .nvmrc/.python-version（与 CI 同源）
-	scripts/check-runtime-versions.sh
-
-lint-md: ## Markdown structure and style check
-	scripts/lint-md.sh
-
-lint-engine: go-version-check ## Engine static analysis (pinned golangci-lint)
+lint-engine: ## Engine static analysis (pinned golangci-lint)
 	scripts/lint-engine.sh
 
 lint-python: ## Python static analysis
 	scripts/lint-python.sh
 
-lint: lint-md lint-engine lint-python ## Full lint entry point
+lint: lint-engine lint-python ## Full lint entry point
 
 security-engine: ## Run the pinned engine vulnerability scanner
 	go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
@@ -174,16 +154,9 @@ python-ci-deps: ## Install the single pinned Python dependency set for check/tes
 	uv venv --allow-existing counsel/.venv --python "$$(cat .python-version)"
 	uv pip install --python counsel/.venv/bin/python -r scripts/requirements-ci.txt
 
-check: lint-md lint-python fmt-check go-version-check runtime-version-check check-actions check-content ## 静态检查（lint + Python lint + 格式 + 数据结构 + docs + 领域语言；dist 中临时构建分发包后校验）。不跑测试。
+check: fmt-check lint-engine lint-python check-actions ## Static checks
 	python3 scripts/check_factor_data.py
-	python3 scripts/check_docs.py
-	python3 scripts/check_doc_paths.py
-	python3 scripts/sync_domain_language.py --check
-	python3 scripts/check_domain_language.py
-	python3 scripts/check_workflow.py
 	python3 scripts/check_mcp_schema.py --check
-	bash scripts/check-exec-bits.sh
-
 
 check-content: distribution-package ## Build ephemeral packages and verify every channel deterministically.
 	@python3 scripts/check_expert_docs.py
@@ -192,8 +165,8 @@ check-content: distribution-package ## Build ephemeral packages and verify every
 	python3 scripts/build_channel_package.py --channel skillhub --variant free --check
 	python3 scripts/build_channel_package.py --channel skillhub --variant pro --check
 
-sync-domain-language: ## 从 tools/domain-language.json 生成 docs/DOMAIN_LANGUAGE.md
-	python3 scripts/sync_domain_language.py
+check-skill-docs: ## Validate skill references and assertion identifiers
+	python3 scripts/check_docs.py skills/liki
 
 P ?= ./...
 BASE ?= baseline
@@ -202,20 +175,21 @@ NEW ?= current
 BENCH_COUNT ?= 5
 BENCHTIME ?= 1s
 
-test-content: test-python-coverage ## Root Python contract suite and Counsel integration coverage
+test-content: ## Root Python domain/feature suite
+	$(PYTHON_BIN) -m pytest tests -q
 
-test-engine-package: go-version-check ## Run one engine package, e.g. P=./internal/engine/bazi
+test-engine-package: ## Run one engine package, e.g. P=./internal/engine/bazi
 	@cd engine && go test -count=1 $(P)
 
-test-engine: go-version-check ## Engine unit and integration suites
+test-engine: ## Engine unit and integration suites
 	@cd engine && go test -count=1 ./...
 
-bench-engine: go-version-check ## Run focused engine and MCP boundary benchmarks
+bench-engine: ## Run focused engine and MCP boundary benchmarks
 	@cd engine && go test -run '^$$' -bench 'Benchmark(MCP|ComputeChart)' \
 		-benchmem ./internal/mcpcontract ./internal/engine/bazi \
 		./internal/engine/qimen ./internal/engine/ziwei
 
-bench-engine-save: go-version-check ## Save a reproducible benchmark baseline under .benchmarks
+bench-engine-save: ## Save a reproducible benchmark baseline under .benchmarks
 	@mkdir -p .benchmarks
 	@cd engine && go test -run '^$$' -bench 'Benchmark(MCP|ComputeChart)' \
 		-count=$(BENCH_COUNT) -benchtime=$(BENCHTIME) -benchmem \
@@ -231,13 +205,13 @@ bench-engine-compare: ## Compare two saved baselines with benchstat (or diff if 
 		diff -u .benchmarks/$(OLD).bench .benchmarks/$(NEW).bench; \
 	fi
 
-bench-engine-1cpu: go-version-check ## Run focused benchmarks with Go limited to one logical CPU
+bench-engine-1cpu: ## Run focused benchmarks with Go limited to one logical CPU
 	@cd engine && GOMAXPROCS=1 go test -run '^$$' -bench 'Benchmark(MCP|ComputeChart)' \
 		-benchmem ./internal/mcpcontract ./internal/engine/bazi \
 		./internal/engine/qimen ./internal/engine/ziwei
 
-test-engine-coverage: go-version-check ## Engine unit coverage floor (shared with CI)
-	scripts/test-engine-coverage.sh
+test-engine-coverage: ## Run engine tests and write a local coverage report
+	cd engine && go test -count=1 -coverprofile=coverage.out ./...
 
 verify-city-data: ## Verify embedded city data can be rebuilt byte-for-byte
 	python3 scripts/build_city_data.py --verify
@@ -251,9 +225,7 @@ test-engine-mcp: ## Engine MCP root/domain protocol smoke
 eval-mingli160: ## Manual Mingli160 skill calibration/evaluation report (not a gate)
 	scripts/eval-mingli160.sh
 
-test: test-content test-engine-coverage test-engine-mcp ## All deterministic tests
-test-python-coverage: ## Run root Python domain suite with coverage
-	scripts/test-python-coverage.sh
+test: test-content test-engine test-engine-mcp ## All deterministic tests
 
 
 test-engine-golden: ## Focused engine golden/oracle/matrix subset

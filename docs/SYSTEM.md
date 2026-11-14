@@ -42,7 +42,7 @@ Liki 只有一个生产专家身份：`liki`；其 Expert assembly 产物是 `li
 | 部署 profile | `distribution/liki-expert/profile.json` |
 | 分发变体 | `distribution/variants/free.json`, `distribution/variants/pro.json` |
 
-`make distribution-package` 不再生成第二份方法论源；它在构建 WorkBuddy 包时从唯一身份、唯一方法论卡、渠道配置和付费 overlay 组装包内容。`make check` 对漂移 fail-closed。
+`make distribution-package` 不再生成第二份方法论源；它在构建 WorkBuddy 包时从唯一身份、唯一方法论卡、渠道配置和付费 overlay 组装包内容。`make check-content` 对漂移 fail-closed。
 
 ## 生成链
 
@@ -78,12 +78,10 @@ liki-agent-runtime → liki-expert
 
 ## CI 与发布
 
-`ci.yml` 执行 lint、结构契约、文档检查和测试。镜像按 commit SHA 本地构建；`liki-deploy` 负责装配测试、发布和 smoke。
+`ci.yml` 执行 lint、领域数据/MCP schema 校验和测试。镜像按 commit SHA 本地构建；`liki-deploy` 负责装配测试、发布和 smoke。
 
 ## 相关文档
 
 - [Domain naming matrix](DOMAIN_NAMING.md)
-- [Domain language matrix](DOMAIN_LANGUAGE.md)
 - [Context map](CONTEXT_MAP.md)
-- [MCP contract design](MCP_CONTRACT_DESIGN.md)
-- [Digest policy](DIGEST_POLICY.md)
+- [MCP contracts](MCP_CONTRACTS.md)

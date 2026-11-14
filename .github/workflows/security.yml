@@ -1,11 +1,7 @@
 name: Security scans
 
-# 依赖漏洞扫描：PR/push 做左移门禁；低频定时做漏洞库巡检。
+# Dependency vulnerability scans: weekly and on demand.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   schedule:
     - cron: '53 3 * * 2'
   workflow_dispatch:

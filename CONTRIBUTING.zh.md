@@ -22,19 +22,17 @@
 1. 同步最新 `main`：`git pull --ff-only`
 2. 安装 git hooks（一次）：`make hooks`
 3. 有用户可见行为变化时更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
-4. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
+4. 保持用户文档准确，并运行与改动层级相关的命令
 5. 提交时描述清楚改了什么、为什么；不相关的变更保持独立提交
 
 ## 代码规范
 
 ### 本地工具链
 
-版本只在一处声明，CI 与本地读同一份，`make check` 校验本地一致：
+版本在其权威清单中声明：
 
-- Go 1.26.11：`go.mod` + `GOTOOLCHAIN`（`make go-version-check`）
-- Python 3.12.14：`.python-version`（`make runtime-version-check`）
-- Node 24.14.1：`.nvmrc`（`make runtime-version-check`）
-- golangci-lint v2.13.2：`deps/golangci-lint.version`（本地与 CI 共用，对账测试锁定）
+- Go 1.26.11：`engine/go.mod` + `GOTOOLCHAIN`（`make lint-engine`）
+- Python 3.12.14：`.python-version`（`make python-env`）
 - ruff 0.16.0：`lint-python.sh` 的 `RUFF_VERSION`
 
 GitHub Action 版本一律 40 位 SHA pin；升级由 Dependabot 每周分组一个 PR 跟进。
@@ -52,7 +50,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
   一条规则只在一处定义——域级公共口径进该域 `ENTRY.md` / `TOOLS.md`，跨体系合参进 `app/`，被专家包自包含逼出的同源双份（如 natal / naming 的用神优先序）用测试钉成同字；
   卡内只引工具字段名与工具名，不写实现内部数据文件名（`data/*.json`）；
   卡间互引统一平铺全路径 `references/<平铺名>.md`——裸名 / 旧嵌套 / 跨域 / 根级共享卡 / `scripts/` 依赖在生成器 fail-closed。
-- 专家身份的唯一手写源是 `skills/liki/SKILL.md`；WorkBuddy 包内入口由唯一身份、`distribution/workbuddy/liki-pro/channel.json` 和付费 overlay 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本。
+- 专家身份的唯一手写源是 `skills/liki/SKILL.md`；WorkBuddy 包内入口由唯一身份、`distribution/workbuddy/liki-pro/channel.json` 和付费 overlay 生成，`make check-content` 漂移门守护且拒绝包内出现第二份身份副本。
 - `engine-mcp` 只做确定性排盘/历法/风水计算；`counsel-mcp` 只做因子、断语、起名和问卦判断。
 - 公开 `/engine` 与 `/counsel` 前缀由 edge 负责；两个服务内部只实现 `/mcp`。
 - 不恢复旧 Python CLI 或 JSON-RPC 发现/调用路径；历史评测资产已归档，迁移前不得进入 gate。
@@ -79,7 +77,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 | `engine/**/zz_load_test.go`（12 个） | Go 不能跨包共享 `TestMain`；抽成公共包会把 `testing` 带进非测试构建依赖。9 个调自身 `Load()`，3 个调依赖包的 `Load()`（fengshui→luoshu、tianwen→ganzhi、http→tables）。 |
 | 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
 | 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |
-| `skills/liki/SKILL.md` 与渠道包内 `skills/liki/SKILL.md` 正文同源 | 根 `SKILL.md` 是唯一手写身份源，渠道包内入口由构建器按平台格式渲染（WorkBuddy 另加方法论卡索引）；同源保证市场入口、ADK skill 与部署 instruction 不漂移（`make check` 漂移门）。 |
+| `skills/liki/SKILL.md` 与渠道包内 `skills/liki/SKILL.md` 正文同源 | 根 `SKILL.md` 是唯一手写身份源，渠道包内入口由构建器按平台格式渲染（WorkBuddy 另加方法论卡索引）；同源保证市场入口、ADK skill 与部署 instruction 不漂移（`make check-content` 漂移门）。 |
 | 单文件目录 `tools/` | 目录里只有生成物 `mcp-tool-catalog.json`：保持 `scripts/check_mcp_schema.py --emit` 生成、`make check` 漂移检测，而不是合并目录或手改。 |
 
 ## 设计原则（为什么这样设计）
@@ -114,16 +112,8 @@ grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
 grep -rn "旧方法名" skills/liki/references/*-app-*.md skills/liki/references/*-ENTRY.md skills/liki/SKILL.md
 ```
 
-**改领域概念/字段名时**（唯一命名源和别名门禁）：
-
-```bash
-python3 scripts/sync_domain_language.py
-python3 scripts/check_domain_language.py
-```
-
-不要在代码、契约、注释、测试或文档中发明同义词。若必须保留旧字段，先在
-`tools/domain-language.json` 登记兼容 `scope`、理由和删除版本；checker 只允许
-这些位置出现旧名。
+**改领域概念/字段名时**：在代码、测试、prompt、文档中全量搜索旧术语，
+并在同一次变更里更新所有消费方。优先沿用 engine / counsel 工具契约已使用的领域语言。
 
 **添加新 MCP 工具时**（Pydantic / typed registry 契约是唯一事实源，同步补契约与测试）：
 
@@ -144,7 +134,6 @@ make build-archive
 **推送前本地 CI**：
 
 ```bash
-npm ci # once, for the locked local Markdown lint dependency
 # 全量（engine + skills 单测 + 全链路集成，本地自动起引擎）+ schema/文档一致性
 make gate
 ```

@@ -27,5 +27,5 @@ changed in exactly one context; other contexts consume its published projection.
 ## Related language
 
 Canonical domain terms and compatibility names are governed by
-[DOMAIN_LANGUAGE.md](DOMAIN_LANGUAGE.md); runtime names are governed by
+[MCP_CONTRACTS.md](MCP_CONTRACTS.md); runtime names are governed by
 [DOMAIN_NAMING.md](DOMAIN_NAMING.md).

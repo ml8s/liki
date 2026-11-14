@@ -1,117 +1,42 @@
-# Liki test model
+# Liki tests
 
-This repository has deterministic tests and curated data assets. Do not treat functional smoke as proof of metaphysical accuracy.
+`make test` runs the deterministic Python and Go suites. Release packaging has
+its own content gate.
 
-## Current test layers
+## Layout
 
-| Layer | Entry | Scope |
-| --- | --- | --- |
-| Content suite | `make test-content` | README, skill layout, tool manifests, factors, assertions, schemas, data flow |
-| Python lint | `make lint-python` | Ruff E/F/W/I over `counsel/`, `scripts/`, and root `tests/` |
-| Python vulnerabilities | CI `pip-audit` | Known CVEs in the hashed counsel dependency lock |
-| Engine tests | `make test-engine` | Go domain packages, MCP contract registry (`internal/mcpcontract`), and HTTP middleware |
-| Toolchain gate | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.11 |
-| Engine vulnerabilities | CI `govulncheck ./...` | Reachable Go standard-library/module vulnerabilities |
-| Engine MCP smoke | `make test-engine-mcp` | Internal `/mcp` aggregate surface, `server/discover`, `tools/list`, `tools/call` |
-| Counsel MCP integration | `make test-counsel` | Bootstraps a locked Python environment and local engine, then tests all counsel tools |
-| Combined Python coverage | `make test-python-coverage` | Root contract tests plus counsel integration tests, combined over `counsel/app` |
-| Assertion data check | `python3 scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
-| Documentation check | `python3 scripts/check_docs.py skills/liki` | Distributed skill documentation references |
-| Documentation path check | `python3 scripts/check_doc_paths.py` | Every Markdown link target and top-level code-span path in the repository resolves |
-| Domain language check | `python3 scripts/check_domain_language.py` | Canonical concepts, generated vocabulary doc, forbidden aliases, and scoped compatibility names |
-| Markdown lint | `make lint-md` | Locked `markdownlint-cli2` over all skill markdown |
-| Focused golden selector | `make golden` | The `Golden\|External\|Matrix\|Pattern` subset already consumed by `make test-engine` |
-| Distribution build | `make build-archive` | Self-contained skill archive and expert methodology cards |
-
-## Test placement
-
-Put a test where its contract lives; the suite that owns the contract also owns the test.
-
-| Contract under test | Location | Entry |
-| --- | --- | --- |
-| Engine tool schema, DTO, wire fidelity | `engine/internal/mcpcontract/*_test.go` | `make test-engine` |
-| Engine domain algorithm or data table | `engine/internal/engine/<domain>/*_test.go` | `make test-engine` |
-| Counsel tool models, factors, assertions | `counsel/tests/` | `make test-counsel` |
-| Repository surface (README, skill layout, deployment, versions, CI contracts) | root `tests/` | `make test-content` |
-| Independent domain truth (data only, never implementation-derived) | `tests/fixtures/domain_oracle/` | oracle tests |
-| Characterization snapshot (drift detector) | `tests/golden/<domain>/` | `make golden` |
-
-Notes:
-
-- Root `tests/` is a package (`tests/__init__.py`), so its modules cannot collide with
-  same-named modules under `counsel/tests/`; the counsel suite has its own rootdir.
-- Golden generators write into `engine/internal/engine/*/testdata/` and resolve that path
-  from the repository root, so they run from any cwd. Never hand-edit a golden; change the
-  generator and regenerate. See `tests/golden/README.md`.
-
-## Static check scripts
-
-`make check` is the static half of the push gate. It builds and verifies ephemeral
-channel packages under ignored `dist/`. Its script set is pinned by
-`tests/test_check_scripts_contract.py`, so adding a script to the `check` recipe
-without listing it here (or leaving a listed script unwired) fails.
-
-| Script | Contract |
+| Suite | Scope |
 | --- | --- |
-| `scripts/lint-md.sh` | Locked `markdownlint-cli2` over the declared Markdown globs |
-| `scripts/lint-python.sh` | Locked Ruff over `counsel/`, `scripts/`, and root `tests/` |
-| `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.11 |
-| `scripts/check-runtime-versions.sh` | Local node/python must equal `.nvmrc`/`.python-version` |
-| `scripts/check_actions_pinned.py` | Rejects mutable workflow/action references |
-| `scripts/check_expert_docs.py` | Expert methodology cards match the root skill and entrypoint |
-| `scripts/build_channel_package.py` | Build and byte-compare WorkBuddy/SkillHub free/pro packages |
-| `scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
-| `scripts/check_docs.py` | Distributed skill documentation: assertions, paths, budgets |
-| `scripts/check_doc_paths.py` | Markdown link targets and top-level code-span paths resolve |
-| `scripts/sync_domain_language.py` | `docs/DOMAIN_LANGUAGE.md` is generated from the canonical concept registry |
-| `scripts/check_domain_language.py` | Concept/alias uniqueness and forbidden-alias drift across code, contracts, docs, and tests |
-| `scripts/check_workflow.py` | CI workflow structure and job wiring |
-| `scripts/check_mcp_schema.py` | MCP tool schemas, context budgets, and `tools/mcp-tool-catalog.json` drift (`--emit` regenerates it) |
-| `scripts/check-exec-bits.sh` | Git executable bits for scripts invoked without an interpreter |
+| `tests/` | Domain semantics, release structure, deployment generation, packaging |
+| `counsel/tests/` | Counsel tool models, factors, assertions, naming, divination |
+| `engine/**/*_test.go` | Engine algorithms and MCP wire contracts |
+| `mcp/tests/` | Product gateway and payment flow |
 
-The counsel direct dependencies are declared twice on purpose --
-`counsel/pyproject.toml [project.dependencies]` is the metadata surface and
-`counsel/requirements.txt` is the lock input -- so change both and let
-`tests/test_counsel_dependency_parity.py` confirm they agree, then regenerate the lock:
+## Commands
+
+```bash
+make test          # Python domain suite, engine tests, engine MCP smoke
+make test-content  # Python domain/feature suite
+make test-engine   # Go engine tests
+make test-counsel  # Counsel integration suite with a local engine
+make check-content # Build and verify distribution packages
+```
+
+When changing counsel dependencies, update both `counsel/pyproject.toml` and
+`counsel/requirements.txt`, then regenerate the lock:
 
 ```bash
 uv pip compile --universal --python 3.12 --generate-hashes \
   counsel/requirements.txt -o counsel/requirements.lock
 ```
 
-The lock is frozen between deliberate upgrades; the same command today would also bump
-transitive pins, so regenerating it is its own reviewed change.
+## Placement
 
-The full push gate is:
+- Engine algorithm or wire behavior: `engine/internal/...`
+- Counsel tool behavior: `counsel/tests/`
+- Skill archive/deployment behavior: `tests/`
+- MCP gateway/paywall behavior: `mcp/tests/`
 
-```bash
-make gate
-```
-
-## Route boundary
-
-`make check` builds ephemeral channel packages and runs the checks below on every
-execution; results are never cached across runs:
-
-| Script | Contract |
-| --- | --- |
-| `scripts/check_expert_docs.py` | Expert-pack methodology cards against the root skill |
-| `scripts/build_channel_package.py` | Packages are built from the root skill and channel configs, then compared byte-for-byte |
-
-The public paths are `/engine/mcp` and `/counsel/mcp`. Caddy strips `/engine` or `/counsel`; the services themselves see `/mcp`. Tests must not document or assert service-level public prefixes.
-
-## Oracle & golden policy
-
-Independence matters more than volume. Keep the deterministic test tiers distinct:
-
-- **Independent truth** — `tests/fixtures/domain_oracle/*.json`: hand-curated hard facts with
-  `basis` / `sources`, explicitly **not** generated from the implementation. Go/Python oracle
-  tests read only this directory; never copy implementation internals as `expected`, and never
-  reverse-edit `expected` to make a failing implementation pass (see
-  `tests/fixtures/domain_oracle/README.md`).
-- **Regression guards** — `tests/golden/*`: deterministic characterization snapshots. They detect
-  *drift*, not correctness; a golden that is regenerated after a change proves nothing on its own.
-  Where an external source exists (e.g. bazi/黄历 multi-oracle consensus), bind the golden to it;
-  otherwise treat it as a change-detector only.
-Mingli160 is not a test tier. It is a manual calibration/evaluation dataset under
-`evals/mingli160/`; see that directory's README before using its report.
+Keep tests focused on behavior that a contributor or release can observe. Avoid
+source-text-only assertions unless they protect safety, licensing, or release
+integrity.

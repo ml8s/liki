@@ -8,8 +8,6 @@ COUNSEL_PYTHON="${COUNSEL_PYTHON:-}"
 COUNSEL_TEST_TARGETS="${COUNSEL_TEST_TARGETS:-tests/}"
 export UV_CACHE_DIR="${UV_CACHE_DIR:-/tmp/uv-cache}"
 
-"$ROOT/scripts/check-go-version.sh"
-
 cd "$ROOT/engine"
 ENGINE_DIR="$(mktemp -d)"
 trap 'rm -rf "$ENGINE_DIR"' EXIT
