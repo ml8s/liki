@@ -80,7 +80,7 @@ def test_tools_delegate_to_guards():
     expected = {
         "liuyao_case.py": "require_question",
         "qimen_case.py": "require_question",
-        "liuyao_board.py": "require_mutually_exclusive",
+        "liuyao_board.py": "require_object",
         "qimen_charts.py": "require_mutually_exclusive",
     }
     multi_expected = {

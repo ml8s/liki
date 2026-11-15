@@ -9,6 +9,7 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 import divination_contracts  # noqa: E402
+from app.contracts.divination.liuyao import LiuyaoAnalysis  # noqa: E402
 
 EXPECTED_TOOLS = {
     "liuyao_case",
@@ -18,7 +19,6 @@ EXPECTED_TOOLS = {
 }
 FORBIDDEN_TOOLS = {
     "divination_route",
-    "liuyao_qigua",
     "liuyao_read",
     "liuyao_report",
     "liuyao_audit",
@@ -83,8 +83,8 @@ def test_contract_registry_has_exact_domain_contracts():
         assert not (TOOLS / filename).exists()
 
 
-def test_intent_app_cards_use_snapshot_flow():
-    """app 卡按用户目标命名（outcome/decision/date），流程走 snapshot，不再有 chart 卡。"""
+def test_intent_app_cards_do_not_revive_legacy_flows():
+    """app 卡按用户目标命名，且不再恢复旧 chart/snapshot 直调流程。"""
     root = ROOT / "skills/liki/references"
     for name in ("divination-app-outcome.md", "divination-app-decision.md",
                  "divination-app-date.md", "divination-app-question.md"):
@@ -105,22 +105,35 @@ def test_primary_entries_use_shared_safety():
             assert "safety" in text.lower(), f"{filename} must reference safety"
 
 
+def test_liuyao_ask_and_case_do_not_create_castings():
+    for filename in ("liuyao_ask.py", "liuyao_case.py"):
+        text = (TOOLS / filename).read_text(encoding="utf-8")
+        assert "qigua" not in text.lower(), f"{filename} must not create a casting"
+
+
 def test_divination_rules_are_table_driven_not_python_literals():
     timing = (TOOLS / "liuyao_timing.py").read_text(encoding="utf-8")
-    matters = (TOOLS / "liuyao_matters.py").read_text(encoding="utf-8")
 
     assert "BASE_PRIORITY" not in timing
     assert "HORIZONS" not in timing
     assert "TIMING_FOCUS_ID_PREFIXES" not in timing
-    assert "MATTERS: dict" not in matters
-    assert (TOOLS / "data/liuyao_matters.csv").is_file()
     assert (TOOLS / "liuyao_timing_rules.json").is_file()
+    assert not (TOOLS / "liuyao_matters.py").exists()
+    assert not (TOOLS / "data/liuyao_matters.csv").exists()
 
 
 def test_liuyao_question_uses_matter_not_domain():
     fields = divination_contracts.LiuyaoCase.model_fields
     field_names = set(fields.keys())
     assert "domain" not in field_names
+
+
+def test_liuyao_analysis_does_not_duplicate_chart_body():
+    analysis_fields = LiuyaoAnalysis.model_fields
+    assert "patterns" not in analysis_fields
+    assert "yong_shen" not in analysis_fields
+    assert "gua_ci" not in analysis_fields
+    assert "timing_candidates" in analysis_fields
 
 
 
@@ -135,7 +148,7 @@ def test_liuyao_question_uses_matter_not_domain():
 
 def test_liuyao_conflicts_come_from_engine():
     source = (TOOLS / "liuyao_factors.py").read_text(encoding="utf-8")
-    assert 'chart.get("conflicts", [])' in source
+    assert 'analysis.get("conflicts", [])' in source
     assert '"生用" in relations' not in source
     assert '"克用" in relations' not in source
     assert '"旺", "相"' not in source
@@ -179,21 +192,26 @@ def test_divination_safety_boundary_is_table_driven():
     assert "GUIDANCE = {" not in source
 
 
-def test_liuyao_chart_rpc_has_no_legacy_yaos_input():
+def test_liuyao_chart_rpc_consumes_immutable_case():
     source = (ROOT / "engine/internal/mcpcontract/liuyao.go").read_text(encoding="utf-8")
     assert "type LiuyaoChartInput struct" in source
-    assert "Casting" in source and "LiuyaoCastingOutput" in source
-    assert "type LiuyaoChartOutput struct" in source
+    assert "Event *LiuyaoCastingEvent" in source
+    assert "type LiuyaoChartResultOutput struct" in source
     assert "casting.Validate()" in source
     assert "兼容旧" not in source
     assert "Seed" not in source
     assert "QiguaWithSeed" not in source
+    chart_body = source.split("func LiuyaoChart", 1)[1].split("func liuyaoCastingDomain", 1)[0]
+    assert "SecureQigua" not in chart_body
 
 
 def test_liuyao_qigua_rpc_returns_single_casting_receipt():
     source = (ROOT / "engine/internal/mcpcontract/liuyao.go").read_text(encoding="utf-8")
     assert "type LiuyaoQiguaOutput struct" in source
-    assert "Casting LiuyaoCastingOutput" in source
+    assert "Event LiuyaoCastingEvent" in source
+    assert "Question       string" in source
+    assert "Origin         LiuyaoCastingRequestInput" in source
+    assert "CastingContext LiuyaoCastingContextInput" in source
     assert "LiuyaoCoinRoundsInput" in source
     assert "LiuyaoYaoValuesInput" in source
     assert '"casting_mode"' not in source

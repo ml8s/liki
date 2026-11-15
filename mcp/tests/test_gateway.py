@@ -12,6 +12,8 @@ def upstream_tools():
         "subject_candidates",
         "city_info",
         "huangli_days",
+        "liuyao_qigua",
+        "liuyao_chart",
         "bazi_chart",
         "ziwei_chart",
         "bazi_liupan",
@@ -67,7 +69,7 @@ def _call(payload):
     return asyncio.run(run())
 
 
-def test_tools_list_filters_raw_divination(monkeypatch):
+def test_tools_list_exposes_liuyao_event_chain(monkeypatch):
     requested = []
 
     class FakeSession:
@@ -92,6 +94,8 @@ def test_tools_list_filters_raw_divination(monkeypatch):
         "subject_candidates",
         "city_info",
         "huangli_days",
+        "liuyao_qigua",
+        "liuyao_chart",
         "bazi_chart",
         "ziwei_chart",
         "bazi_liupan",
@@ -140,6 +144,72 @@ def test_tools_call_routes_without_retry_or_schema_change(monkeypatch):
     assert response.status_code == 200
     assert calls == [("counsel", "natal_query", arguments)]
     assert response.json()["result"]["structuredContent"] == {"assertions": []}
+
+
+def test_liuyao_event_chain_routes_across_upstreams(monkeypatch):
+    calls = []
+    origin = {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]}
+    casting = {
+        "mode": "yaos", "order": "bottom_up",
+        "yaos": [7, 7, 7, 7, 7, 7], "dong_yao": [],
+    }
+    casting_context = {
+        "standard_time": "2026-10-01T10:00:00+08:00",
+        "longitude": 116.4,
+        "focus": {"kind": "matter", "matter": "career"},
+    }
+    event = {
+        "question": "这次面试能不能通过？",
+        "origin": origin,
+        "casting": casting,
+        "casting_context": casting_context,
+    }
+    chart = {"gua_name": "乾为天", "lines": []}
+    reading = {"technique": "liuyao", "event": event, "chart": chart}
+
+    def result_for(name, arguments):
+        calls.append((name, arguments))
+        if name == "liuyao_qigua":
+            return {"event": event}
+        if name == "liuyao_chart":
+            return {"event": event, "chart": chart}
+        return reading
+
+    class FakeSession:
+        def __init__(self, upstream_name):
+            self.upstream_name = upstream_name
+
+        async def call_tool(self, name, arguments=None):
+            return _call_tool_result(result_for(name, arguments))
+
+    async def fake_upstream_session(config, **kwargs):
+        yield FakeSession(config.name)
+
+    fake = asynccontextmanager(fake_upstream_session)
+    monkeypatch.setattr("app.tool_router.upstream_session", fake)
+
+    responses = []
+    for name, arguments in (
+        ("liuyao_qigua", {
+            "question": event["question"], "origin": origin,
+            "casting_context": casting_context,
+        }),
+        ("liuyao_chart", {"event": event}),
+        ("liuyao_ask", {"event": event}),
+    ):
+        responses.append(_call({
+            "jsonrpc": "2.0", "id": len(responses) + 2,
+            "method": "tools/call",
+            "params": {"name": name, "arguments": arguments},
+        }))
+
+    assert [response.status_code for response in responses] == [200, 200, 200]
+    assert [name for name, _ in calls] == [
+        "liuyao_qigua", "liuyao_chart", "liuyao_ask",
+    ]
+    assert responses[0].json()["result"]["structuredContent"]["event"] == event
+    assert responses[1].json()["result"]["structuredContent"]["chart"] == chart
+    assert responses[2].json()["result"]["structuredContent"]["chart"] == chart
 
 
 def test_tools_call_denies_raw_divination(monkeypatch):

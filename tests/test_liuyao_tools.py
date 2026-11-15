@@ -1,66 +1,37 @@
 """Liuyao internal orchestration and current toolface guardrails."""
 
-import pytest
+import json
+from pathlib import Path
+
 from app.contracts import DIVINATION_TOOLS
 from app.contracts.divination import LiuyaoAskInput
+from app.contracts.divination.liuyao import LiuyaoCastingEvent, LiuyaoChart
 from app.divination.tools.liuyao_board import factors as board_factors
-from app.divination.tools.liuyao_casting import qigua
 from app.divination.tools.liuyao_factors import project_factors
-from app.divination.tools.liuyao_matters import resolve_matter
 
 
-def test_matter_table_maps_explicit_yong_shen():
-    assert resolve_matter("career")["yong_shen"] == "官鬼"
-    assert resolve_matter("wealth")["yong_shen"] == "妻财"
-    assert resolve_matter("relationship", perspective="male")["yong_shen"] == "妻财"
-    assert resolve_matter("relationship", perspective="female")["yong_shen"] == "官鬼"
-
-
-def test_relationship_requires_perspective():
-    with pytest.raises(ValueError, match="perspective"):
-        resolve_matter("relationship")
-
-
-def test_qigua_sends_original_coins_to_engine(monkeypatch):
+def test_board_sends_immutable_case_to_chart(monkeypatch):
     calls = []
-
-    def engine(method, params):
-        calls.append((method, params))
-        return {"casting": {
-            "mode": "coins", "order": "bottom_up",
-            "coin_convention": {"正": 3, "反": 2},
-            "rounds": [
-                {"position": index, "coins": coins, "yao_value": 7,
-                 "yao_label": "少阳", "is_dong_yao": False}
-                for index, coins in enumerate(rounds, 1)
-            ],
-            "yaos": [7] * 6, "dong_yao": [],
-        }}
-
-    monkeypatch.setattr("app.divination.tools.liuyao_casting.engine_data", engine)
-    rounds = [["正", "反", "反"]] * 6
-    assert qigua(mode="coins", rounds=rounds)["mode"] == "coins"
-    assert calls == [("liuyao_qigua", {"casting": {"mode": "coins", "rounds": rounds}})]
-
-
-def test_qigua_rejects_coin_conversion_inputs():
-    with pytest.raises(ValueError, match="exactly 6"):
-        qigua(mode="coins", rounds=[["正", "反", "反"]] * 5)
-    with pytest.raises(ValueError, match="exactly 3"):
-        qigua(mode="coins", rounds=[["正", "反"]] * 6)
-
-
-def test_board_sends_casting_and_resolved_yongshen_only(monkeypatch):
-    calls = []
-    raw_chart = {
-        "gua_name": "乾为天", "gong": "乾", "gong_wuxing": "金",
-        "lines": [], "yong_shen": {"name": "官鬼", "position": 1},
-        "timing_candidates": [],
+    chart_view = {
+        "gua_name": "乾为天", "palace": "乾", "palace_wuxing": "金",
+        "lines": [], "bian_lines": [], "patterns": [],
+        "yong_shen": {"name": "官鬼", "position": 1, "wang_shuai": "旺"},
+    }
+    analysis = {
+        "moving_relations": [], "hidden_lines": [], "branch_relation_facts": [],
+        "day_clash_facts": [], "moving_transformations": [], "san_he_candidates": [],
+        "timing_candidates": [], "yong_shen_force_chain": None,
+        "yong_shen_candidates": [], "conflicts": [],
+        "tomb_school": {"earth_branch": "辰", "school": "engine_default_chen"},
+        "reference_only_facts": [],
     }
 
     def engine(method, params):
         calls.append((method, params))
-        return raw_chart
+        return {
+            "event": event,
+            "chart": chart_view, "analysis": analysis,
+        }
 
     monkeypatch.setattr("app.divination.tools.liuyao_board.engine_data", engine)
     casting = {
@@ -73,56 +44,75 @@ def test_board_sends_casting_and_resolved_yongshen_only(monkeypatch):
         ],
         "yaos": [7] * 6, "dong_yao": [],
     }
-    result = board_factors(
-        casting=casting,
-        longitude=116.4,
-        standard_time="2026-10-01T10:00:00+08:00",
-        matter="career",
-        question="这次面试能不能通过",
-    )
-    assert calls == [("liuyao_chart", {
-        "yong_shen": "官鬼",
+    context = {
         "standard_time": "2026-10-01T10:00:00+08:00",
         "longitude": 116.4,
+        "focus": {"kind": "matter", "matter": "career"},
+    }
+    event = {
+        "question": "这次面试能不能通过",
+        "origin": {"mode": "coins"},
         "casting": casting,
-    })]
+        "casting_context": context,
+    }
+    result = board_factors(event=event)
+    assert calls == [("liuyao_chart", {"event": event})]
     assert result["matter"]["matter"] == "career"
-    assert result["factors"]["selected_yongshen_context"]["selected_yongshen"]["name"] == "官鬼"
+    assert result["factors"]["casting"] == casting
+    assert result["factors"]["liuyao_chart"] == chart_view
+    assert result["factors"]["liuyao_chart"]["yong_shen"]["name"] == "官鬼"
 
 
 def test_projected_factors_use_current_case_shape():
-    casting = {"mode": "yaos", "yaos": [7] * 6, "dong_yao": []}
+    casting = {
+        "mode": "yaos", "order": "bottom_up",
+        "yaos": [7] * 6, "dong_yao": [],
+    }
     chart = {
-        "gua_name": "乾为天", "gong": "乾", "gong_wuxing": "金",
+        "gua_name": "乾为天", "bian_gua": None, "palace": "乾", "palace_wuxing": "金",
         "lines": [{
-            "position": 1, "yao_value": 7, "gan": "甲", "zhi": "子", "wuxing": "水",
+            "position": 1, "yao_value": 7, "gan_zhi": "甲子", "wuxing": "水",
             "liu_qin": "兄弟", "liu_shou": "青龙", "shi_ying": "世",
-            "wang_shuai": "旺", "ri_chen_relations": ["扶"],
+            "wang_shuai": "旺", "ri_chen_relations": {"relations": ["扶"]},
+            "flags": {
+                "moving": False, "yue_po": False, "xun_kong": False, "mu_ku": False,
+                "mu_ku_branch": None, "mu_ku_element": None,
+                "dong_sheng": False, "dong_ke": False,
+            },
         }],
-        "bian_yao": [{
-            "position": 1, "yao_value": 8, "gan": "乙", "zhi": "丑", "wuxing": "土",
-            "liu_qin": "官鬼",
-        }],
-        "ri_chen_gan": "甲", "ri_chen_zhi": "子",
-        "yue_jian_gan": "甲", "yue_jian_zhi": "子",
+        "bian_lines": [],
+        "ri_gan": "甲", "ri_zhi": "子", "yue_gan": "甲", "yue_zhi": "子",
         "xun_kong": ["戌", "亥"],
+        "patterns": [],
         "yong_shen": {"name": "父母", "position": 1, "wang_shuai": "旺"},
     }
-    result = project_factors(casting, chart, {"text": "测试"})
+    analysis = {
+        "moving_relations": [], "hidden_lines": [], "branch_relation_facts": [],
+        "day_clash_facts": [], "moving_transformations": [], "san_he_candidates": [],
+        "timing_candidates": [], "yong_shen_force_chain": None,
+        "yong_shen_candidates": [], "conflicts": [],
+        "tomb_school": {"earth_branch": "辰", "school": "engine_default_chen"},
+        "reference_only_facts": [],
+    }
+    result = project_factors(
+        casting=casting,
+        chart=chart,
+        analysis=analysis,
+        question={"text": "测试"},
+    )
     assert set(result) == {
-        "question", "casting", "liuyao_chart", "selected_yongshen_context",
-        "evidence", "chart_facts", "timing_candidates", "policy",
+        "question", "casting", "liuyao_chart", "evidence", "analysis", "policy",
     }
     line = result["liuyao_chart"]["lines"][0]
     assert line["gan_zhi"] == "甲子"
     primary = {item["id"]: item for item in result["evidence"]["primary"]}
     assert primary["yong-shen-state"]["fact"]["wang_shuai"] == "旺"
-    assert result["selected_yongshen_context"]["selected_yongshen"]["name"] == "父母"
-    assert result["liuyao_chart"]["bian_lines"][0]["liu_qin"] == "官鬼"
+    assert result["liuyao_chart"]["yong_shen"]["name"] == "父母"
+    assert result["analysis"]["tomb_school"]["school"] == "engine_default_chen"
     assert (result["liuyao_chart"]["ri_gan"], result["liuyao_chart"]["ri_zhi"]) == ("甲", "子")
 
 
-def test_divination_tools_are_one_shot_asks():
+def test_divination_tools_have_single_ask_surface():
     assert {contract.name for contract in DIVINATION_TOOLS} == {
         "liuyao_ask", "qimen_ask",
     }
@@ -130,9 +120,113 @@ def test_divination_tools_are_one_shot_asks():
 
 def test_liuyao_ask_input_accepts_primary_call():
     LiuyaoAskInput.model_validate({
-        "question": "这次面试能不能通过",
-        "casting": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
-        "focus": {"kind": "matter", "matter": "career"},
-        "longitude": 116.4,
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        "event": {
+            "question": "这次面试能不能通过",
+            "origin": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
+            "casting": {
+            "mode": "yaos", "order": "bottom_up",
+            "yaos": [7, 7, 7, 7, 7, 7], "dong_yao": [],
+            },
+            "casting_context": {
+                "standard_time": "2026-10-01T10:00:00+08:00",
+                "longitude": 116.4,
+                "focus": {"kind": "matter", "matter": "career"},
+            },
+        },
     })
+
+
+def test_ask_never_creates_a_casting(monkeypatch):
+    from app.divination.tools import liuyao_ask
+
+    def forbidden_qigua(**kwargs):
+        raise AssertionError("liuyao_ask must not call liuyao_qigua")
+
+    chart = {
+        "gua_name": "乾为天", "bian_gua": None, "palace": "乾", "palace_wuxing": "金",
+        "lines": [], "yong_shen": {"name": "官鬼", "position": 1},
+        "patterns": [],
+    }
+    casting = {
+        "mode": "yaos", "order": "bottom_up",
+        "yaos": [7, 7, 7, 7, 7, 7], "dong_yao": [],
+    }
+    context = {
+        "standard_time": "2026-10-01T10:00:00+08:00",
+        "longitude": 116.4,
+        "focus": {"kind": "matter", "matter": "career"},
+    }
+    monkeypatch.setattr(
+        "app.divination.tools.liuyao_case.build_liuyao_factors",
+        lambda **kwargs: {
+            "context": {
+                "standard_time": "2026-10-01T10:00:00+08:00",
+                "longitude": 116.4,
+                "focus": {
+                    "kind": "matter", "matter": "career",
+                },
+            },
+            "factors": {
+                "casting": casting,
+                "liuyao_chart": chart,
+                "evidence": {
+                    "primary": [{
+                        "id": "yong-shen-state", "source_ref": "liuyao_chart.lines[0]",
+                        "fact": {}, "conclusion_scope": "conditional_candidate_not_outcome",
+                    }],
+                    "secondary": [], "reference": [], "conflicts": [],
+                },
+                "analysis": {
+                    "moving_relations": [], "hidden_lines": [], "branch_relation_facts": [],
+                    "day_clash_facts": [], "moving_transformations": [],
+                    "san_he_candidates": [], "timing_candidates": [],
+                    "yong_shen_force_chain": None, "yong_shen_candidates": [],
+                    "conflicts": [], "tomb_school": {"earth_branch": "辰", "school": "engine_default_chen"},
+                    "reference_only_facts": [],
+                },
+                "policy": {"may_output": ["tendency"], "must_cover_conflicts": True, "forbidden": []},
+            },
+        },
+    )
+    monkeypatch.setattr(
+        "app.divination.tools.liuyao_case.validate_document",
+        lambda name, document: None,
+    )
+    event = {
+        "question": "这次面试能不能通过",
+        "origin": {"mode": "yaos"},
+        "casting": casting,
+        "casting_context": context,
+    }
+    reading = liuyao_ask.ask(event=event)
+    assert reading["event"] == event
+    assert reading["chart"] == chart
+
+
+def test_go_chart_result_matches_python_contract():
+    raw = json.loads(
+        (Path(__file__).parent / "fixtures/liuyao/chart_result.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    event = LiuyaoCastingEvent.model_validate(raw["event"])
+    chart = LiuyaoChart.model_validate(raw["chart"])
+
+    casting = event.casting
+    assert casting.mode == "yaos"
+    assert chart.yong_shen.name == "官鬼"
+    assert len(chart.lines) == 6
+    if casting.dong_yao == []:
+        assert chart.bian_lines == []
+
+    factors = project_factors(
+        casting=casting.model_dump(by_alias=True),
+        chart=chart.model_dump(),
+        analysis=raw["analysis"],
+        question={
+            "text": "测试", "matter": "career",
+            "explicit_yong_shen": None, "perspective": None,
+        },
+    )
+    assert factors["liuyao_chart"] == chart.model_dump()
+    assert factors["analysis"]["conflicts"] == raw["analysis"].get("conflicts", [])

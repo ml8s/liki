@@ -120,9 +120,11 @@ LIKI-MCP is the public SKILL MCP surface with SkillPay paywall.
 EXPERT (agent-runtime) connects directly to ENGINE and COUNSEL,
 bypassing the product MCP and its paywall. It exposes the selected
 ENGINE chart / fact tools, COUNSEL judgment tools, naming tools, and
-`liuyao_ask` / `qimen_ask`. Raw `qimen_chart`, `liuyao_chart`, and
-`liuyao_qigua` are not exposed. ENGINE / COUNSEL endpoints remain technical
-services for WEB, tests, and internal composition.
+`liuyao_qigua` / `liuyao_ask` / `qimen_ask`. LIKI additionally exposes
+`liuyao_chart` for web display, so its liuyao lifecycle is
+`liuyao_qigua` / `liuyao_chart` / `liuyao_ask`. Only `qimen_chart` remains
+internal. ENGINE / COUNSEL endpoints remain technical services for WEB, tests,
+and internal composition.
 
 ## Deployment rules
 

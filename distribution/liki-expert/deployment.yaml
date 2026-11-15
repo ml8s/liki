@@ -25,6 +25,7 @@ tools:
       - bazhai_layout
       - xuankong_chart
       - xuankong_liunian
+      - liuyao_qigua
     counsel:
       - bazi_yongshen
       - natal_query

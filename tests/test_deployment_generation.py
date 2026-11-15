@@ -66,9 +66,18 @@ class TestDeploymentGeneration(unittest.TestCase):
         deployment = self._deployment("liki-expert")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
         allow = agents["liki"]["tools"]["allow"]
-        assert len(allow["engine"]) == 14, f"ENGINE tools = {len(allow['engine'])}"
+        assert len(allow["engine"]) == 15, f"ENGINE tools = {len(allow['engine'])}"
         assert len(allow["counsel"]) == 10, f"COUNSEL tools = {len(allow['counsel'])}"
         assert "liki" not in allow
+
+    def test_expert_liuyao_exposes_qigua_and_ask_without_chart(self):
+        """Expert 只需起卦和解读；专业 chart 由 Web 产品面消费。"""
+        deployment = self._deployment("liki-expert")
+        allow = deployment["spec"]["agents"][0]["tools"]["allow"]
+        self.assertIn("liuyao_qigua", allow["engine"])
+        self.assertNotIn("liuyao_chart", allow["engine"])
+        self.assertIn("liuyao_ask", allow["counsel"])
+        self.assertNotIn("liuyao_chart", allow["counsel"])
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
         """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""
         for profile in PROFILES:
@@ -139,7 +148,7 @@ class TestDeploymentGeneration(unittest.TestCase):
                     self.assertTrue(allowed <= catalog_tools[server])
                     exposed[server].update(allowed)
         # ENGINE and COUNSEL are the product surfaces for expert; LIKI is not used.
-        self.assertEqual(exposed["engine"], set(catalog_tools["engine"]) - {"liuyao_chart", "liuyao_qigua", "qimen_chart"})
+        self.assertEqual(exposed["engine"], set(catalog_tools["engine"]) - {"liuyao_chart", "qimen_chart"})
         self.assertEqual(exposed["counsel"], set(catalog_tools["counsel"]))
 
     def test_instruction_body_comes_from_identity_source(self):

@@ -5,6 +5,22 @@ from app.contracts.divination import LiuyaoAskInput, QimenAskInput
 from pydantic import BaseModel, ValidationError
 
 
+def _liuyao_event(focus):
+    return {
+        "question": "这次面试能不能通过？",
+        "origin": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
+        "casting": {
+            "mode": "yaos", "order": "bottom_up",
+            "yaos": [7, 7, 7, 7, 7, 7], "dong_yao": [],
+        },
+        "casting_context": {
+            "standard_time": "2026-10-01T10:00:00+08:00",
+            "longitude": 116.4,
+            "focus": focus,
+        },
+    }
+
+
 def _rejects(model: type[BaseModel], instance: dict) -> None:
     with pytest.raises(ValidationError):
         model.model_validate(instance)
@@ -15,37 +31,38 @@ def _accepts(model: type[BaseModel], instance: dict) -> None:
 
 
 def test_liuyao_ask_input_rejects_ambiguous_sources_and_modes():
-    base = {
-        "question": "这次面试能不能通过？",
-        "focus": {"kind": "matter", "matter": "career"},
-        "longitude": 116.4,
-        "standard_time": "2026-10-01T10:00:00+08:00",
-    }
-    _rejects(LiuyaoAskInput, {**base, "yong_shen": "官鬼"})
-    _rejects(LiuyaoAskInput, {**base, "casting": {"mode": "coins"}})
-    _rejects(LiuyaoAskInput, {**base, "casting": {"mode": "yaos"}})
-    _rejects(LiuyaoAskInput, {
-        **base, "casting": {"mode": "auto", "rounds": [["正", "反", "反"]] * 6},
-    })
+    base = {"event": _liuyao_event({"kind": "matter", "matter": "career"})}
+    auto_event = dict(base["event"])
+    auto_event["casting"] = {"mode": "auto"}
+    _rejects(LiuyaoAskInput, {**base, "casting": base["event"]["casting"]})
+    _rejects(LiuyaoAskInput, {"event": auto_event})
     _rejects(LiuyaoAskInput, {**base, "perspective": "male"})
-    _accepts(LiuyaoAskInput, {
-        **base, "casting": {"mode": "coins", "rounds": [["正", "反", "反"]] * 6},
-    })
     _accepts(LiuyaoAskInput, base)
 
 
+def test_liuyao_ask_input_rejects_origin_receipt_mismatch():
+    event = _liuyao_event({"kind": "matter", "matter": "career"})
+    event["origin"] = {"mode": "auto"}
+    _rejects(LiuyaoAskInput, {"event": event})
+
+
+def test_liuyao_ask_input_accepts_explicit_null_topic():
+    base = {"event": _liuyao_event({"kind": "matter", "matter": "career"})}
+    _accepts(LiuyaoAskInput, {**base, "topic": None})
+    schema = LiuyaoAskInput.model_json_schema()["properties"]["topic"]
+    assert any(branch.get("type") == "null" for branch in schema.get("anyOf", []))
+    _rejects(LiuyaoAskInput, {**base, "topic": "not-a-topic"})
+
+
 def test_liuyao_relationship_focus_requires_perspective():
-    _rejects(LiuyaoAskInput, {
-        "question": "感情如何？",
-        "focus": {"kind": "matter", "matter": "relationship"},
-        "longitude": 116.4,
-        "standard_time": "2026-10-01T10:00:00+08:00",
-    })
+    def instance(perspective):
+        focus = {"kind": "matter", "matter": "relationship"}
+        if perspective:
+            focus["perspective"] = perspective
+        return {"event": _liuyao_event(focus)}
+    _rejects(LiuyaoAskInput, instance(None))
     _accepts(LiuyaoAskInput, {
-        "question": "感情如何？",
-        "focus": {"kind": "matter", "matter": "relationship", "perspective": "male"},
-        "longitude": 116.4,
-        "standard_time": "2026-10-01T10:00:00+08:00",
+        **instance("male"),
     })
 
 

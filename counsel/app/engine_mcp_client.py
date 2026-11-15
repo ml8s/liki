@@ -172,7 +172,8 @@ def _effective_retries(method: str, params: dict, retries: int) -> int:
     cannot tell whether the engine already cast a hexagram, so counsel must not
     silently cast another one. Explicit coins/yaos inputs remain retryable.
     """
-    if method == "liuyao_qigua" and params.get("mode") == "auto":
+    origin = params.get("origin") if method == "liuyao_qigua" else None
+    if isinstance(origin, dict) and origin.get("mode") == "auto":
         return 0
     return retries
 

@@ -10,7 +10,7 @@ Digest 不是通用输出装饰，也不是 MCP 调用绑定。只有当产物�
 | --- | --- | --- | --- |
 | `natal_query` / `natal_liunian_query` / internal factor snapshots | `natal_chart_digest` | 保留 | 完整本命盘较大，需要防篡改身份，并作为内部缓存键。 |
 | `bazi_yongshen` | 无 | 不加 | 八字用神是自包含裁决；紫微没有对应 digest，保持两侧对称。 |
-| one-shot divination、普通 chart / series / naming | 无 | 不加 | 一次调用或确定性事实已自包含，不需要调用绑定。 |
+| qimen one-shot divination、liuyao event chain、普通 chart / series / naming | 无 | 不加 | 单次调用或确定性事实已自包含，不需要调用绑定。 |
 
 ## 决策规则
 

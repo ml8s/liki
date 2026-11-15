@@ -4,67 +4,50 @@ from typing import Any
 
 from app.divination.tools.divination_rpc import engine_data
 from app.divination.tools.liuyao_factors import project_factors
-from app.divination.tools.liuyao_matters import resolve_matter
-from app.guards import require_exactly_one, require_mutually_exclusive, require_object
-
-
-def _resolve_yong_shen(
-    matter: str | None,
-    yong_shen: str | None,
-    perspective: str | None,
-) -> tuple[dict | None, str]:
-    require_mutually_exclusive(matter=matter, yong_shen=yong_shen)
-    require_exactly_one(matter=matter, yong_shen=yong_shen)
-    if matter is not None:
-        fact = resolve_matter(matter, perspective=perspective)
-        return {"matter": matter, **fact}, fact["yong_shen"]
-    if perspective is not None:
-        raise ValueError("perspective 仅在 matter=relationship 时使用")
-    allowed = {"父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"}
-    if yong_shen not in allowed:
-        raise ValueError(f"yong_shen must be one of: {', '.join(sorted(allowed))}")
-    return None, yong_shen
-
-
-
+from app.guards import require_object
 
 
 def factors(
     *,
-    casting: dict,
-    longitude: float,
-    standard_time: str,
-    matter: str | None = None,
-    yong_shen: str | None = None,
-    perspective: str | None = None,
-    question: str | None = None,
+    event: dict,
 ) -> dict:
-    """排盘并返回 engine raw chart 与稳定因子投影；不直接暴露 matter 给 engine。"""
-    matter_fact, resolved_yong_shen = _resolve_yong_shen(
-        matter, yong_shen, perspective
-    )
-    require_object(casting, "casting")
-    if not standard_time:
-        raise ValueError("standard_time is required")
-    if longitude < -180 or longitude > 180:
-        raise ValueError("longitude must be within [-180,180]")
+    """排盘并返回 engine raw chart 与稳定因子投影。"""
+    require_object(event, "event")
+    casting = event.get("casting")
+    context = event.get("casting_context")
+    require_object(casting, "event.casting")
+    require_object(context, "event.casting_context")
 
     params: dict[str, Any] = {
-        "yong_shen": resolved_yong_shen,
+        "event": event,
     }
-    params["standard_time"] = standard_time
-    params["longitude"] = longitude
-    params["casting"] = casting
-    raw = engine_data("liuyao_chart", params)
+    result = engine_data("liuyao_chart", params)
+    chart = result.get("chart")
+    analysis = result.get("analysis")
+    if not isinstance(chart, dict):
+        raise ValueError("engine returned liuyao.chart without chart view")
+    if not isinstance(analysis, dict):
+        raise ValueError("engine returned liuyao.chart without analysis")
+
+    focus = context.get("focus", {})
+    matter = focus.get("matter")
+    explicit_yong_shen = focus.get("yong_shen")
+    perspective = focus.get("perspective")
     question_fact = {
-        "text": question or "",
+        "text": event.get("question", ""),
         "matter": matter,
-        "explicit_yong_shen": None if matter else resolved_yong_shen,
+        "explicit_yong_shen": None if matter else explicit_yong_shen,
         "perspective": perspective,
     }
-    factors = project_factors(casting, raw, question_fact)
+    factors = project_factors(
+        casting=casting,
+        chart=chart,
+        analysis=analysis,
+        question=question_fact,
+    )
+    factors["liuyao_chart"] = result.get("chart")
     return {
         "question": question_fact,
-        "matter": matter_fact,
+        "matter": {"matter": matter} if matter else None,
         "factors": factors,
     }

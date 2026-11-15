@@ -47,7 +47,7 @@ def _counsel_groups(errors: list[str]) -> list[tuple[str, Any]]:
     return [(group, tool) for group, tools in TOOL_GROUPS.items() for tool in tools]
 
 
-FORBIDDEN_LIKI_TOOLS = {"qimen_chart", "liuyao_chart", "liuyao_qigua"}
+FORBIDDEN_LIKI_TOOLS = {"qimen_chart"}
 
 
 def _catalog_document(

@@ -57,11 +57,9 @@ def _load_sandbox_profile() -> dict[str, Any]:
     }
 
 
-# 原始六爻 / 奇门盘面由 counsel 的 ask 方法封装，不从 LIKI 暴露。
+# 六爻事件链是产品面；只有仍被 counsel ask 封装的奇门 raw chart 禁止直出。
 FORBIDDEN_TOOLS = {
     "qimen_chart",
-    "liuyao_chart",
-    "liuyao_qigua",
 }
 
 @dataclass(frozen=True)

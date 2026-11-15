@@ -1,4 +1,4 @@
-"""一次性六爻问测：创建内部 case 并返回受控 Reading。"""
+"""六爻问测：解读已有卦象事件并返回受控 Reading。"""
 
 from app.divination.tools.liuyao_answer_core import build as build_answer_core
 from app.divination.tools.liuyao_answer_core import validate_core as validate_answer_core
@@ -42,7 +42,7 @@ def _focus_value(focus: dict) -> str | None:
 
 
 def _build_scope(case: dict) -> dict:
-    focus = case["focus"]
+    focus = case["event"]["casting_context"]["focus"]
     value = _focus_value(focus) or "general"
     included = list(_DOMAIN_EVIDENCE.get(value, ["general", "timing", "obstacle"]))
     known_domains = {
@@ -85,21 +85,18 @@ def _project_evidence(case: dict, answer: dict) -> list[dict]:
 def _source_kind(source_ref: str) -> str:
     if source_ref.startswith("liuyao_chart."):
         return "chart"
-    if source_ref.startswith("selected_yongshen_context."):
-        return "yongshen_context"
-    if source_ref.startswith("chart_facts."):
-        return "chart_facts"
-    return "chart_facts"
+    if source_ref.startswith("analysis."):
+        return "analysis"
+    return "analysis"
 
 
 def _reading(case: dict, answer: dict) -> dict:
     reading = {
         "technique": "liuyao",
-        "question": case["question"],
+        "case_version": case["case_version"],
         "scope": _build_scope(case),
-        "casting": case["casting"],
-        "chart_view": case["liuyao_chart"],
-        "selected_yongshen_context": case["selected_yongshen_context"],
+        "event": case["event"],
+        "chart": case["chart"],
         "evidence": _project_evidence(case, answer),
         "conflicts": answer["conflicts"],
         "timing_candidates": case["timing_plan"]["candidates"],
@@ -122,7 +119,10 @@ def _reading(case: dict, answer: dict) -> dict:
 
 def ask(**arguments) -> dict:
     """创建一次六爻内部 case，并返回自包含受控 Reading。"""
-    require_question(arguments["question"])
+    event = arguments.get("event")
+    if not isinstance(event, dict):
+        raise ValueError("liuyao ask requires event")
+    require_question(event.get("question"))
     case = create_case(**arguments)
     answer = build_answer_core(case)
     counts = (

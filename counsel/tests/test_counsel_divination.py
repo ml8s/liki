@@ -1,31 +1,34 @@
-"""六爻 / 奇门 one-shot ask MCP wiring tests."""
+"""六爻事件链 / 奇门 ask MCP wiring tests."""
 
 import asyncio
 
 from app.counsel_mcp import create_counsel_root_mcp  # noqa: E402
+from app.divination.tools.divination_rpc import engine_data  # noqa: E402
 
 LIUYAO_ARGS = {
-    "question": "测试这次面试能不能通过",
-    "casting": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
-    "longitude": 116.4,
-    "focus": {"kind": "matter", "matter": "general"},
-    "standard_time": "2026-10-01T10:00:00+08:00",
+    "event": {
+        "question": "测试这次面试能不能通过",
+        "origin": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
+        "casting": {
+            "mode": "yaos", "order": "bottom_up",
+            "yaos": [7, 8, 7, 8, 7, 8], "dong_yao": [],
+        },
+        "casting_context": {
+            "standard_time": "2026-10-01T10:00:00+08:00",
+            "longitude": 116.4,
+            "focus": {"kind": "matter", "matter": "general"},
+        },
+    },
 }
 
-LIUYAO_COINS_ARGS = {
-    **LIUYAO_ARGS,
-    "casting": {
-        "mode": "coins",
-        "rounds": [
+LIUYAO_COINS_ROUNDS = [
             ["正", "正", "反"],
             ["正", "反", "反"],
             ["反", "反", "反"],
             ["正", "正", "正"],
             ["正", "反", "反"],
             ["正", "正", "反"],
-        ],
-    },
-}
+]
 
 QIMEN_ARGS = {
     "question": "测试谈判时机",
@@ -46,9 +49,9 @@ def test_liuyao_ask_returns_self_contained_reading():
     assert any(item["layer"] == "primary" for item in got["evidence"])
     assert isinstance(got["timing_candidates"], list)
     assert all(item["source_kind"] for item in got["evidence"])
-    assert all("pattern_kind" in pattern for pattern in got["chart_view"]["patterns"])
-    if got["chart_view"]["gua_ci"] is not None:
-        assert {"name", "text", "yao_ci"} <= set(got["chart_view"]["gua_ci"])
+    assert all("pattern_kind" in pattern for pattern in got["chart"]["patterns"])
+    if got["chart"]["gua_ci"] is not None:
+        assert {"name", "text", "yao_ci"} <= set(got["chart"]["gua_ci"])
     policy = got["scope"]["followup_policy"]
     assert set(policy["same_matter"]) == {"clarification", "timing", "obstacle"}
     assert "used_evidence_ids" not in got["interpretation"]
@@ -58,15 +61,20 @@ def test_liuyao_ask_returns_self_contained_reading():
 def test_liuyao_ask_coins_uses_raw_outcomes_and_engine_normalization():
     """Guard the full counsel -> engine coins contract, not mocked projections."""
     srv = create_counsel_root_mcp()
+    qigua = engine_data("liuyao_qigua", {
+        "question": "测试这次面试能不能通过",
+        "origin": {"mode": "coins", "rounds": LIUYAO_COINS_ROUNDS},
+        "casting_context": LIUYAO_ARGS["event"]["casting_context"],
+    })["event"]
     got = asyncio.run(
-        srv.call_tool("liuyao_ask", dict(LIUYAO_COINS_ARGS))
+        srv.call_tool("liuyao_ask", {"event": qigua})
     ).structured_content
 
-    assert got["casting"]["mode"] == "coins"
-    assert got["casting"]["coin_convention"] == {"正": 3, "反": 2}
-    assert got["casting"]["yaos"] == [8, 7, 6, 9, 7, 8]
-    assert got["casting"]["dong_yao"] == [3, 4]
-    for position, round_value in enumerate(got["casting"]["rounds"], 1):
+    assert got["event"]["casting"]["mode"] == "coins"
+    assert got["event"]["casting"]["coin_convention"] == {"正": 3, "反": 2}
+    assert got["event"]["casting"]["yaos"] == [8, 7, 6, 9, 7, 8]
+    assert got["event"]["casting"]["dong_yao"] == [3, 4]
+    for position, round_value in enumerate(got["event"]["casting"]["rounds"], 1):
         assert round_value["position"] == position
         assert round_value["yao_value"] in {6, 7, 8, 9}
         assert round_value["is_dong_yao"] == (round_value["yao_value"] in {6, 9})

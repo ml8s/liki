@@ -52,9 +52,9 @@ def _topic_bonus(mechanism: str, candidate_id: str, topic: str | None) -> int:
 def project_timing_plan(factors: dict, *, topic: str | None = None, limit: int = 6) -> dict:
     """按表驱动 policy 投影应期计划；数组顺序表达上下文排序。"""
     rules = _rules()
-    source_candidates = factors.get("timing_candidates", [])
+    source_candidates = factors.get("analysis", {}).get("timing_candidates", [])
     if not isinstance(source_candidates, list):
-        raise ValueError("factors.timing_candidates must be an array")
+        raise ValueError("factors.analysis.timing_candidates must be an array")
     if limit < 1 or limit > 20:
         raise ValueError("limit must be 1-20")
 

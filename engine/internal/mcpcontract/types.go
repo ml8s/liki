@@ -43,6 +43,7 @@ type (
 	LiuyaoCoinSymbol       string
 	LiuyaoCoinValue        int
 	LiuyaoYaoValue         int
+	LiuyaoOptionalYaoValue int
 	LiuyaoPosition         int
 	LiuyaoYaoLabel         string
 	LiuyaoOptionalPosition int
@@ -54,8 +55,6 @@ type (
 	LiuyaoShiYing          string
 	LiuyaoLiuQinName       string
 	LiuyaoLiuShouName      string
-	LiuyaoMuKuType         string
-	LiuyaoPatternType      string
 	LiuyaoForceRole        string
 	LiuyaoConflictID       string
 	LiuyaoTombBranch       string

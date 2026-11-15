@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/jsonschema-go/jsonschema"
 
+	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/liuyao"
 )
 
@@ -27,7 +28,9 @@ type LiuyaoCastingRequestInput struct {
 }
 
 type LiuyaoQiguaInput struct {
-	Casting LiuyaoCastingRequestInput `json:"casting" jsonschema:"起卦源事实。"`
+	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
+	Origin         LiuyaoCastingRequestInput `json:"origin" jsonschema:"起卦创建方式；只用于创建一次卦象事件。"`
+	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
 
 type LiuyaoAutoCastingRequest struct {
@@ -45,15 +48,21 @@ type LiuyaoYaosCastingRequest struct {
 }
 
 type LiuyaoQiguaAutoForm struct {
-	Casting LiuyaoAutoCastingRequest `json:"casting" jsonschema:"起卦源事实。"`
+	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
+	Origin         LiuyaoAutoCastingRequest  `json:"origin" jsonschema:"起卦创建方式。"`
+	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
 
 type LiuyaoQiguaCoinsForm struct {
-	Casting LiuyaoCoinsCastingRequest `json:"casting" jsonschema:"起卦源事实。"`
+	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
+	Origin         LiuyaoCoinsCastingRequest `json:"origin" jsonschema:"起卦创建方式。"`
+	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
 
 type LiuyaoQiguaYaosForm struct {
-	Casting LiuyaoYaosCastingRequest `json:"casting" jsonschema:"起卦源事实。"`
+	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
+	Origin         LiuyaoYaosCastingRequest  `json:"origin" jsonschema:"起卦创建方式。"`
+	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
 
 func liuyaoQiguaFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
@@ -62,19 +71,7 @@ func liuyaoQiguaFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, er
 	for _, mode := range modes {
 		var raw json.RawMessage
 		var err error
-		var nested json.RawMessage
-		switch mode {
-		case "auto":
-			_, nested, err = inputSchemaFor[LiuyaoAutoCastingRequest](options)
-		case "coins":
-			_, nested, err = inputSchemaFor[LiuyaoCoinsCastingRequest](options)
-		case "yaos":
-			_, nested, err = inputSchemaFor[LiuyaoYaosCastingRequest](options)
-		}
-		if err != nil {
-			return nil, err
-		}
-		nested, err = withSchemaConst(nested, "mode", mode)
+		nested, err := liuyaoOriginBranchSchema(options, mode)
 		if err != nil {
 			return nil, err
 		}
@@ -89,7 +86,15 @@ func liuyaoQiguaFormsSchema(options *jsonschema.ForOptions) (json.RawMessage, er
 		if err != nil {
 			return nil, err
 		}
-		raw, err = withSchemaProperty(raw, "casting", nested)
+		raw, err = withSchemaProperty(raw, "origin", nested)
+		if err != nil {
+			return nil, err
+		}
+		castingContext, err := liuyaoCastingContextSchema(options)
+		if err != nil {
+			return nil, err
+		}
+		raw, err = withSchemaProperty(raw, "casting_context", castingContext)
 		if err != nil {
 			return nil, err
 		}
@@ -132,81 +137,348 @@ type LiuyaoCastingOutput struct {
 }
 
 type LiuyaoQiguaOutput struct {
-	Casting LiuyaoCastingOutput `json:"casting" jsonschema:"一次起卦的完整源事实；调用 liuyao.chart 时按 schema 原样组装。"`
+	Event LiuyaoCastingEvent `json:"event" jsonschema:"一次起卦创建的不可变卦象事件。"`
 }
 
-type LiuyaoLineOutput struct {
-	Position      LiuyaoOptionalPosition `json:"position" jsonschema:"爻位；本卦为 1-6，未变化的变卦占位行为 0。"`
-	Type          LiuyaoYaoValue         `json:"yao_value" jsonschema:"爻值 6-9。"`
-	Gan           GanName                `json:"gan" jsonschema:"纳甲天干。"`
-	Zhi           ZhiName                `json:"zhi" jsonschema:"纳甲地支。"`
-	Wuxing        ElementName            `json:"wuxing" jsonschema:"爻五行。"`
-	LiuQin        LiuyaoLiuQinName       `json:"liu_qin" jsonschema:"六亲。"`
-	ShiYing       LiuyaoShiYing          `json:"shi_ying" jsonschema:"世、应或空。"`
-	LiuShou       LiuyaoLiuShouName      `json:"liu_shou" jsonschema:"临卦六兽。"`
-	YuePo         bool                   `json:"yue_po,omitempty" jsonschema:"是否月破。"`
-	DongSelf      bool                   `json:"dong_self,omitempty" jsonschema:"本爻是否发动。"`
-	DongSheng     bool                   `json:"dong_sheng,omitempty" jsonschema:"是否有动爻生此爻。"`
-	DongKe        bool                   `json:"dong_ke,omitempty" jsonschema:"是否有动爻克此爻。"`
-	XunKong       bool                   `json:"xun_kong,omitempty" jsonschema:"是否值日柱旬空。"`
-	MuKu          bool                   `json:"mu_ku,omitempty" jsonschema:"是否入墓。"`
-	MuKuBranch    string                 `json:"mu_ku_branch,omitempty" jsonschema:"本五行墓库地支。"`
-	MuKuElement   string                 `json:"mu_ku_element,omitempty" jsonschema:"被入库的五行。"`
-	MuKuTypes     []LiuyaoMuKuType       `json:"mu_ku_types,omitempty" jsonschema:"入墓来源：day/moving/transformed。"`
-	ChangShengYue string                 `json:"chang_sheng_yue,omitempty" jsonschema:"本爻五行在月支的十二长生。"`
+type LiuyaoCoinsCastingReceipt struct {
+	Mode           LiuyaoCastMode         `json:"mode" jsonschema:"起卦方式。"`
+	Order          LiuyaoOrderName        `json:"order" jsonschema:"爻序。"`
+	CoinConvention *LiuyaoCoinConvention  `json:"coin_convention,omitempty" jsonschema:"铜钱记分约定。"`
+	Rounds         LiuyaoCoinRoundsOutput `json:"rounds" jsonschema:"六组铜钱记录。"`
+	Yaos           LiuyaoYaoValuesOutput  `json:"yaos" jsonschema:"六个爻值。"`
+	DongYao        LiuyaoPositions        `json:"dong_yao" jsonschema:"动爻位置列表。"`
 }
 
-type LiuyaoFuShenOutput struct {
-	Position LiuyaoPosition   `json:"position" jsonschema:"伏神爻位 1-6。"`
-	LiuQin   LiuyaoLiuQinName `json:"liu_qin" jsonschema:"伏神六亲。"`
-	Zhi      ZhiName          `json:"zhi" jsonschema:"伏神地支。"`
+type LiuyaoYaosCastingReceipt struct {
+	Mode    LiuyaoCastMode        `json:"mode" jsonschema:"起卦方式。"`
+	Order   LiuyaoOrderName       `json:"order" jsonschema:"爻序。"`
+	Yaos    LiuyaoYaoValuesOutput `json:"yaos" jsonschema:"六个爻值。"`
+	DongYao LiuyaoPositions       `json:"dong_yao" jsonschema:"动爻位置列表。"`
 }
 
-// LiuyaoBianLineOutput preserves the legacy six-slot changed-line wire: a slot
-// with no change remains an explicit zero object rather than null.
-type LiuyaoBianLineOutput struct {
-	Position      int      `json:"position" jsonschema:"爻位；本卦为 1-6，未变化的占位行为 0。"`
-	Type          int      `json:"yao_value" jsonschema:"爻值；未变化占位行为 0。"`
-	Gan           string   `json:"gan" jsonschema:"纳甲天干；占位行为空。"`
-	Zhi           string   `json:"zhi" jsonschema:"纳甲地支；占位行为空。"`
-	Wuxing        string   `json:"wuxing" jsonschema:"爻五行；占位行为空。"`
-	LiuQin        string   `json:"liu_qin" jsonschema:"六亲；占位行为空。"`
-	ShiYing       string   `json:"shi_ying" jsonschema:"世、应或空。"`
-	LiuShou       string   `json:"liu_shou" jsonschema:"临卦六兽；占位行为空。"`
-	YuePo         bool     `json:"yue_po,omitempty" jsonschema:"是否月破。"`
-	DongSelf      bool     `json:"dong_self,omitempty" jsonschema:"本爻是否发动。"`
-	DongSheng     bool     `json:"dong_sheng,omitempty" jsonschema:"是否有动爻生此爻。"`
-	DongKe        bool     `json:"dong_ke,omitempty" jsonschema:"是否有动爻克此爻。"`
-	XunKong       bool     `json:"xun_kong,omitempty" jsonschema:"是否值日柱旬空。"`
-	MuKu          bool     `json:"mu_ku,omitempty" jsonschema:"是否入墓。"`
-	MuKuBranch    string   `json:"mu_ku_branch,omitempty" jsonschema:"本五行墓库地支。"`
-	MuKuElement   string   `json:"mu_ku_element,omitempty" jsonschema:"被入库的五行。"`
-	MuKuTypes     []string `json:"mu_ku_types,omitempty" jsonschema:"入墓来源：day/moving/transformed。"`
-	ChangShengYue string   `json:"chang_sheng_yue,omitempty" jsonschema:"本爻五行在月支的十二长生。"`
+type LiuyaoMatterFocusInput struct {
+	Kind   string `json:"kind" jsonschema:"焦点类型；matter 表示按问事类别推导。"`
+	Matter string `json:"matter" jsonschema:"问事类别。"`
 }
 
-type LiuyaoYongShenOutput struct {
-	Name             LiuyaoYongShenName     `json:"name" jsonschema:"用神类别：六亲或世爻/应爻。"`
-	Position         LiuyaoOptionalPosition `json:"position" jsonschema:"用神爻位；0 表示本卦不现。"`
-	IsHidden         bool                   `json:"is_hidden,omitempty" jsonschema:"本卦不现时是否取伏神。"`
-	WangShuai        WangShuaiName          `json:"wang_shuai" jsonschema:"用神旺衰。"`
-	YuePo            bool                   `json:"yue_po,omitempty" jsonschema:"用神是否月破。"`
-	XunKong          bool                   `json:"xun_kong,omitempty" jsonschema:"用神是否旬空。"`
-	MuKu             bool                   `json:"mu_ku,omitempty" jsonschema:"用神是否入墓。"`
-	LiuShou          LiuyaoLiuShouName      `json:"liu_shou,omitempty" jsonschema:"用神临的六兽；伏神不继承飞神六兽。"`
-	ChangSheng       string                 `json:"chang_sheng,omitempty" jsonschema:"用神五行在月支的十二长生。"`
-	FuShen           *LiuyaoFuShenOutput    `json:"fu_shen,omitempty" jsonschema:"用神不现时选用的伏神。"`
-	FuShenCandidates []LiuyaoFuShenOutput   `json:"fu_shen_candidates,omitempty" jsonschema:"可用伏神候选。"`
+type LiuyaoRelationshipFocusInput struct {
+	Kind        string `json:"kind" jsonschema:"焦点类型；matter 表示按问事类别推导。"`
+	Matter      string `json:"matter" jsonschema:"问事类别。"`
+	Perspective string `json:"perspective" jsonschema:"relationship 必填的性别视角。"`
 }
 
-type LiuyaoGuaCiOutput struct {
-	Name  LiuyaoHexagramName `json:"name" jsonschema:"卦名。"`
-	GuaCi string             `json:"gua_ci" jsonschema:"卦辞。"`
-	YaoCi [6]string          `json:"yao_ci" jsonschema:"六爻爻辞，初爻到上爻。"`
+type LiuyaoYongShenFocusInput struct {
+	Kind     string             `json:"kind" jsonschema:"焦点类型；yong_shen 表示显式用神。"`
+	YongShen LiuyaoYongShenName `json:"yong_shen" jsonschema:"高级显式用神。"`
 }
 
-type LiuyaoDayRelationOutput struct {
-	Relations []string `json:"relations" jsonschema:"日建与该爻的关系：冲/合/生/扶/克/平；冲合可与其他关系并存。"`
+type LiuyaoFocusInput struct {
+	Kind        string `json:"kind"`
+	Matter      string `json:"matter,omitempty"`
+	Perspective string `json:"perspective,omitempty"`
+	YongShen    string `json:"yong_shen,omitempty"`
+}
+
+type LiuyaoCastingContextInput struct {
+	StandardTime StandardTime     `json:"standard_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude    Longitude        `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
+	Focus        LiuyaoFocusInput `json:"focus" jsonschema:"占问焦点；chart 内确定性解析为用神。"`
+}
+
+type LiuyaoCastingContext = LiuyaoCastingContextInput
+
+type LiuyaoCastingEvent struct {
+	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
+	Origin         LiuyaoCastingRequestInput `json:"origin" jsonschema:"起卦创建方式。"`
+	Casting        LiuyaoCastingOutput       `json:"casting" jsonschema:"一次起卦的完整源事实。"`
+	CastingContext LiuyaoCastingContext      `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
+}
+
+func liuyaoMatterFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[LiuyaoMatterFocusInput](options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaConst(raw, "kind", "matter")
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaEnum(
+		raw, "matter",
+		"general", "self", "other", "career", "wealth",
+		"study", "home", "travel", "family", "competition", "children",
+		"lost_item", "legal",
+	)
+	if err != nil {
+		return nil, err
+	}
+	return raw, nil
+}
+
+func liuyaoRelationshipFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[LiuyaoRelationshipFocusInput](options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaConst(raw, "kind", "matter")
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaConst(raw, "matter", "relationship")
+	if err != nil {
+		return nil, err
+	}
+	return withSchemaEnum(raw, "perspective", "male", "female")
+}
+
+func liuyaoYongShenFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[LiuyaoYongShenFocusInput](options)
+	if err != nil {
+		return nil, err
+	}
+	return withSchemaConst(raw, "kind", "yong_shen")
+}
+
+func liuyaoOriginBranchSchema(options *jsonschema.ForOptions, mode string) (json.RawMessage, error) {
+	var raw json.RawMessage
+	var err error
+	switch mode {
+	case "auto":
+		_, raw, err = inputSchemaFor[LiuyaoAutoCastingRequest](options)
+	case "coins":
+		_, raw, err = inputSchemaFor[LiuyaoCoinsCastingRequest](options)
+	case "yaos":
+		_, raw, err = inputSchemaFor[LiuyaoYaosCastingRequest](options)
+	default:
+		return nil, fmt.Errorf("unsupported liuyao origin mode %q", mode)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return withSchemaConst(raw, "mode", mode)
+}
+
+func liuyaoOriginSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	modes := []string{"auto", "coins", "yaos"}
+	branches := make([]json.RawMessage, 0, len(modes))
+	for _, mode := range modes {
+		branch, err := liuyaoOriginBranchSchema(options, mode)
+		if err != nil {
+			return nil, err
+		}
+		branches = append(branches, branch)
+	}
+	return json.Marshal(map[string]any{"oneOf": branches})
+}
+
+func patchLiuyaoEvent(event map[string]any, options *jsonschema.ForOptions) (map[string]any, error) {
+	raw, err := json.Marshal(event)
+	if err != nil {
+		return nil, err
+	}
+	origin, err := liuyaoOriginSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaProperty(raw, "origin", origin)
+	if err != nil {
+		return nil, err
+	}
+	casting, err := liuyaoCastingReceiptSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaProperty(raw, "casting", casting)
+	if err != nil {
+		return nil, err
+	}
+	castingContext, err := liuyaoCastingContextSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaProperty(raw, "casting_context", castingContext)
+	if err != nil {
+		return nil, err
+	}
+	var patched map[string]any
+	if err := json.Unmarshal(raw, &patched); err != nil {
+		return nil, err
+	}
+	return patched, nil
+}
+
+func withLiuyaoEventSchema(document map[string]any, options *jsonschema.ForOptions) (map[string]any, error) {
+	properties, ok := document["properties"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("schema has no properties")
+	}
+	event, ok := properties["event"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("schema has no event properties")
+	}
+	patched, err := patchLiuyaoEvent(event, options)
+	if err != nil {
+		return nil, err
+	}
+	properties["event"] = patched
+	return document, nil
+}
+
+func liuyaoFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	matter, err := liuyaoMatterFocusSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	relationship, err := liuyaoRelationshipFocusSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	yongShen, err := liuyaoYongShenFocusSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(map[string]any{
+		"oneOf": []json.RawMessage{matter, relationship, yongShen},
+	})
+}
+
+func liuyaoCastingContextSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[LiuyaoCastingContextInput](options)
+	if err != nil {
+		return nil, err
+	}
+	focus, err := liuyaoFocusSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	return withSchemaProperty(raw, "focus", focus)
+}
+
+func liuyaoCastingReceiptSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, coins, err := inputSchemaFor[LiuyaoCoinsCastingReceipt](options)
+	if err != nil {
+		return nil, err
+	}
+	coins, err = withSchemaConst(coins, "mode", "coins")
+	if err != nil {
+		return nil, err
+	}
+	coins, err = withSchemaConst(coins, "order", "bottom_up")
+	if err != nil {
+		return nil, err
+	}
+	_, yaos, err := inputSchemaFor[LiuyaoYaosCastingReceipt](options)
+	if err != nil {
+		return nil, err
+	}
+	yaos, err = withSchemaConst(yaos, "mode", "yaos")
+	if err != nil {
+		return nil, err
+	}
+	yaos, err = withSchemaConst(yaos, "order", "bottom_up")
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(map[string]any{"oneOf": []json.RawMessage{coins, yaos}})
+}
+
+func liuyaoChartSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[LiuyaoChartInput](options)
+	if err != nil {
+		return nil, err
+	}
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	document, err = withLiuyaoEventSchema(document, options)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(document)
+}
+
+func liuyaoStrictArraySchema[T any](options *jsonschema.ForOptions) (json.RawMessage, error) {
+	raw, _, err := outputSchemaFor[T](options)
+	if err != nil {
+		return nil, err
+	}
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	strictArrays(document)
+	if _, ok := document["oneOf"]; !ok {
+		return json.Marshal(document)
+	}
+	branches, ok := document["oneOf"].([]any)
+	if !ok {
+		return nil, fmt.Errorf("schema oneOf is not an array")
+	}
+	for _, branch := range branches {
+		strictArrays(branch)
+	}
+	return json.Marshal(document)
+}
+
+func liuyaoQiguaOutputSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	raw, _, err := outputSchemaFor[LiuyaoQiguaOutput](options)
+	if err != nil {
+		return nil, err
+	}
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	document, err = withLiuyaoEventSchema(document, options)
+	if err != nil {
+		return nil, err
+	}
+	strictArrays(document)
+	return json.Marshal(document)
+}
+
+func liuyaoChartOutputSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	raw, err := liuyaoStrictArraySchema[LiuyaoChartResultOutput](options)
+	if err != nil {
+		return nil, err
+	}
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	document, err = withLiuyaoEventSchema(document, options)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(document)
+}
+
+func strictArrays(value any) {
+	switch node := value.(type) {
+	case map[string]any:
+		if types, ok := node["type"].([]any); ok && len(types) == 2 {
+			hasNull, hasArray := false, false
+			for _, kind := range types {
+				if kind == "null" {
+					hasNull = true
+				}
+				if kind == "array" {
+					hasArray = true
+				}
+			}
+			if hasNull && hasArray {
+				node["type"] = "array"
+			}
+		}
+		for _, child := range node {
+			strictArrays(child)
+		}
+	case []any:
+		for _, child := range node {
+			strictArrays(child)
+		}
+	}
 }
 
 type LiuyaoTimingOutput struct {
@@ -216,13 +488,6 @@ type LiuyaoTimingOutput struct {
 	TriggerBranch ZhiName                `json:"trigger_branch,omitempty" jsonschema:"触发地支。"`
 	Window        string                 `json:"window,omitempty" jsonschema:"应期窗口。"`
 	Basis         []string               `json:"basis,omitempty" jsonschema:"确定性依据。"`
-}
-
-type LiuyaoPatternOutput struct {
-	Type     LiuyaoPatternType      `json:"pattern_kind" jsonschema:"特殊格局类型。"`
-	SubType  string                 `json:"sub_type" jsonschema:"格局子类型，如真空/假空。"`
-	Position LiuyaoOptionalPosition `json:"position" jsonschema:"相关爻位；0 表示全卦。"`
-	IsTrue   bool                   `json:"is_true" jsonschema:"结构是否有实质效力。"`
 }
 
 type LiuyaoDongRelationOutput struct {
@@ -332,28 +597,73 @@ type LiuyaoConflictOutput struct {
 	Facts  []string         `json:"facts,omitempty" jsonschema:"构成矛盾的事实。"`
 }
 
-type LiuyaoChartOutput struct {
-	Name                  LiuyaoHexagramName                 `json:"gua_name" jsonschema:"本卦卦名。"`
-	BianGua               *LiuyaoHexagramName                `json:"bian_gua,omitempty" jsonschema:"变卦卦名；无动爻时省略。"`
-	Gong                  string                             `json:"gong" jsonschema:"本卦宫。"`
-	PalaceWuxing          ElementName                        `json:"gong_wuxing" jsonschema:"宫五行。"`
-	Lines                 [6]LiuyaoLineOutput                `json:"lines" jsonschema:"本卦六爻，初爻到上爻。"`
-	BianLines             [6]LiuyaoBianLineOutput            `json:"bian_yao" jsonschema:"变卦六爻；未变化的占位为全零对象。"`
-	RiGan                 GanName                            `json:"ri_chen_gan" jsonschema:"日干。"`
-	RiZhi                 ZhiName                            `json:"ri_chen_zhi" jsonschema:"日支。"`
-	YueZhi                ZhiName                            `json:"yue_jian_zhi" jsonschema:"月建地支。"`
-	YueGan                GanName                            `json:"yue_jian_gan" jsonschema:"月建天干。"`
-	YongShen              LiuyaoYongShenOutput               `json:"yong_shen" jsonschema:"用神分析。"`
-	GuaCi                 LiuyaoGuaCiOutput                  `json:"gua_ci" jsonschema:"周易卦爻辞。"`
-	WangShuai             [6]WangShuaiName                   `json:"wang_shuai" jsonschema:"六爻旺衰。"`
-	DayRelations          [6]LiuyaoDayRelationOutput         `json:"ri_chen_relations" jsonschema:"日建与六爻关系。"`
-	XunKong               [2]ZhiName                         `json:"xun_kong" jsonschema:"日柱旬空地支。"`
+type LiuyaoChartResultOutput struct {
+	Event    LiuyaoCastingEvent   `json:"event" jsonschema:"本次排盘原样回传的不可变卦象事件。"`
+	Chart    LiuyaoChartView      `json:"chart" jsonschema:"六爻盘面统一视图。"`
+	Analysis LiuyaoAnalysisOutput `json:"analysis" jsonschema:"六爻判断层确定性分析事实。"`
+}
+
+var liuyaoMatterYongShen = map[string]LiuyaoYongShenName{
+	"general":     "世爻",
+	"self":        "世爻",
+	"other":       "应爻",
+	"family":      "世爻",
+	"career":      "官鬼",
+	"legal":       "官鬼",
+	"wealth":      "妻财",
+	"lost_item":   "妻财",
+	"study":       "父母",
+	"home":        "父母",
+	"travel":      "父母",
+	"competition": "兄弟",
+	"children":    "子孙",
+}
+
+func liuyaoResolveFocus(focus LiuyaoFocusInput) (LiuyaoYongShenName, error) {
+	switch focus.Kind {
+	case "matter":
+		if focus.YongShen != "" {
+			return "", fmt.Errorf("matter focus does not accept yong_shen")
+		}
+		if focus.Matter == "relationship" {
+			if focus.Perspective != "male" && focus.Perspective != "female" {
+				return "", fmt.Errorf("relationship focus requires perspective=male/female")
+			}
+			if focus.Perspective == "male" {
+				return "妻财", nil
+			} else {
+				return "官鬼", nil
+			}
+		}
+		if focus.Perspective != "" {
+			return "", fmt.Errorf("perspective is only valid for relationship")
+		}
+		name, ok := liuyaoMatterYongShen[focus.Matter]
+		if !ok {
+			return "", fmt.Errorf("unsupported matter focus %q", focus.Matter)
+		}
+		return name, nil
+	case "yong_shen":
+		if focus.Matter != "" || focus.Perspective != "" {
+			return "", fmt.Errorf("yong_shen focus does not accept matter or perspective")
+		}
+		if focus.YongShen == "" {
+			return "", fmt.Errorf("yong_shen focus requires yong_shen")
+		}
+		if _, err := liuyao.ParseYongShen(focus.YongShen); err != nil {
+			return "", fmt.Errorf("invalid yong_shen focus: %w", err)
+		}
+		return LiuyaoYongShenName(focus.YongShen), nil
+	default:
+		return "", fmt.Errorf("focus.kind must be matter/yong_shen")
+	}
+}
+
+type LiuyaoAnalysisOutput struct {
 	TimingCandidates      []LiuyaoTimingOutput               `json:"timing_candidates,omitempty" jsonschema:"应期候选。"`
-	Patterns              []LiuyaoPatternOutput              `json:"ge_ju,omitempty" jsonschema:"特殊格局。"`
 	DongYaoRelations      []LiuyaoDongRelationOutput         `json:"dong_yao_relations,omitempty" jsonschema:"动爻与用神/原神/忌神关系。"`
 	HiddenLines           []LiuyaoHiddenLineOutput           `json:"hidden_lines,omitempty" jsonschema:"本宫全部伏神。"`
 	BranchRelationFacts   []LiuyaoBranchRelationOutput       `json:"branch_relation_facts,omitempty" jsonschema:"爻间地支关系。"`
-	Casting               LiuyaoCastingOutput                `json:"casting" jsonschema:"本次排盘使用的卦象源事实。"`
 	TombSchool            LiuyaoTombOutput                   `json:"tomb_school" jsonschema:"土爻墓库流派。"`
 	DayClashFacts         []LiuyaoDayClashOutput             `json:"day_clash_facts,omitempty" jsonschema:"日冲事实。"`
 	MovingTransformations []LiuyaoMovingTransformationOutput `json:"moving_transformations,omitempty" jsonschema:"动爻机械变化。"`
@@ -363,12 +673,100 @@ type LiuyaoChartOutput struct {
 	Conflicts             []LiuyaoConflictOutput             `json:"conflicts,omitempty" jsonschema:"并列或矛盾信号。"`
 }
 
+type LiuyaoChartLineFlags struct {
+	Moving      bool   `json:"moving" jsonschema:"本爻是否发动。"`
+	YuePo       bool   `json:"yue_po" jsonschema:"是否月破。"`
+	XunKong     bool   `json:"xun_kong" jsonschema:"是否旬空。"`
+	MuKu        bool   `json:"mu_ku" jsonschema:"是否入墓库。"`
+	MuKuBranch  string `json:"mu_ku_branch,omitempty" jsonschema:"墓库地支。"`
+	MuKuElement string `json:"mu_ku_element,omitempty" jsonschema:"墓库五行。"`
+	DongSheng   bool   `json:"dong_sheng" jsonschema:"是否受动爻生。"`
+	DongKe      bool   `json:"dong_ke" jsonschema:"是否受动爻克。"`
+}
+
+type LiuyaoChartLineView struct {
+	Position        LiuyaoOptionalPosition `json:"position" jsonschema:"爻位；0 表示未定位。"`
+	YaoValue        LiuyaoOptionalYaoValue `json:"yao_value" jsonschema:"爻值；0 表示无变爻。"`
+	GanZhi          string                 `json:"gan_zhi" jsonschema:"该爻干支。"`
+	Wuxing          string                 `json:"wuxing" jsonschema:"该爻五行。"`
+	LiuQin          string                 `json:"liu_qin" jsonschema:"六亲。"`
+	ShiYing         LiuyaoShiYing          `json:"shi_ying,omitempty" jsonschema:"世爻或应爻标记。"`
+	LiuShou         string                 `json:"liu_shou" jsonschema:"六神。"`
+	RiChenRelations map[string][]string    `json:"ri_chen_relations,omitempty" jsonschema:"与日辰的关系。"`
+	WangShuai       string                 `json:"wang_shuai,omitempty" jsonschema:"旺衰状态。"`
+	ChangShengYue   string                 `json:"chang_sheng_yue,omitempty" jsonschema:"月令长生状态。"`
+	Flags           LiuyaoChartLineFlags   `json:"flags" jsonschema:"爻位状态标记。"`
+}
+
+type LiuyaoChartPatternView struct {
+	ID          string                 `json:"id" jsonschema:"格局 ID。"`
+	PatternKind string                 `json:"pattern_kind" jsonschema:"格局类型。"`
+	SubType     string                 `json:"sub_type" jsonschema:"格局子类型。"`
+	Position    LiuyaoOptionalPosition `json:"position" jsonschema:"关联爻位。"`
+	IsTrue      bool                   `json:"is_true" jsonschema:"结构是否成立。"`
+}
+
+type LiuyaoGuaCiView struct {
+	Name  string   `json:"name" jsonschema:"卦名。"`
+	Text  string   `json:"text" jsonschema:"卦辞原文。"`
+	YaoCi []string `json:"yao_ci" jsonschema:"各爻爻辞。"`
+}
+
+type LiuyaoFuShenView struct {
+	Position LiuyaoPosition `json:"position" jsonschema:"伏神所在爻位。"`
+	LiuQin   string         `json:"liu_qin" jsonschema:"伏神六亲。"`
+	Zhi      string         `json:"zhi" jsonschema:"伏神地支。"`
+}
+
+type LiuyaoYongShenView struct {
+	Name             string             `json:"name" jsonschema:"用神类别。"`
+	Position         int                `json:"position" jsonschema:"用神爻位；0 表示本卦不现。"`
+	IsHidden         bool               `json:"is_hidden,omitempty" jsonschema:"本卦不现时是否取伏神。"`
+	WangShuai        string             `json:"wang_shuai" jsonschema:"用神旺衰。"`
+	YuePo            bool               `json:"yue_po,omitempty" jsonschema:"用神是否月破。"`
+	XunKong          bool               `json:"xun_kong,omitempty" jsonschema:"用神是否旬空。"`
+	MuKu             bool               `json:"mu_ku,omitempty" jsonschema:"用神是否入墓。"`
+	LiuShou          string             `json:"liu_shou,omitempty" jsonschema:"用神临的六兽；伏神不继承飞神六兽。"`
+	ChangSheng       string             `json:"chang_sheng,omitempty" jsonschema:"用神五行在月支的十二长生。"`
+	FuShen           *LiuyaoFuShenView  `json:"fu_shen,omitempty" jsonschema:"用神不现时选用的伏神。"`
+	FuShenCandidates []LiuyaoFuShenView `json:"fu_shen_candidates,omitempty" jsonschema:"可用伏神候选。"`
+}
+
+type LiuyaoChartView struct {
+	GuaName      string                   `json:"gua_name" jsonschema:"本卦名称。"`
+	BianGua      *string                  `json:"bian_gua" jsonschema:"变卦名称；无动爻时为 null。"`
+	Palace       string                   `json:"palace" jsonschema:"卦宫。"`
+	PalaceWuxing string                   `json:"palace_wuxing" jsonschema:"卦宫五行。"`
+	Lines        []LiuyaoChartLineView    `json:"lines" jsonschema:"本卦六爻。"`
+	BianLines    []LiuyaoChartLineView    `json:"bian_lines" jsonschema:"发生变化的爻。"`
+	RiGan        string                   `json:"ri_gan" jsonschema:"日辰天干。"`
+	RiZhi        string                   `json:"ri_zhi" jsonschema:"日辰地支。"`
+	YueGan       string                   `json:"yue_gan" jsonschema:"月建天干。"`
+	YueZhi       string                   `json:"yue_zhi" jsonschema:"月建地支。"`
+	XunKong      []string                 `json:"xun_kong" jsonschema:"旬空地支。"`
+	Patterns     []LiuyaoChartPatternView `json:"patterns" jsonschema:"盘面格局。"`
+	YongShen     LiuyaoYongShenView       `json:"yong_shen" jsonschema:"最终用神状态。"`
+	GuaCi        *LiuyaoGuaCiView         `json:"gua_ci,omitempty" jsonschema:"卦爻辞。"`
+}
+
 func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, error) {
+	if len([]rune(input.Question)) < 2 {
+		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: question requires at least 2 characters")
+	}
+	if _, err := liuyaoResolveFocus(input.CastingContext.Focus); err != nil {
+		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: invalid focus: %w", err)
+	}
+	if _, _, err := parseStandardTime(input.CastingContext.StandardTime); err != nil {
+		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: %w", err)
+	}
+	if float64(input.CastingContext.Longitude) < -180 || float64(input.CastingContext.Longitude) > 180 {
+		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: longitude must be within [-180,180], got %v", float64(input.CastingContext.Longitude))
+	}
 	var casting liuyao.Casting
 	var err error
-	request := input.Casting
+	request := input.Origin
 	switch request.Mode {
-	case "", "auto":
+	case "auto":
 		if request.Rounds != nil || request.Yaos != nil {
 			return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: auto mode does not accept rounds or yaos")
 		}
@@ -407,43 +805,84 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 	if err != nil {
 		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: %w", err)
 	}
-	return LiuyaoQiguaOutput{Casting: liuyaoCastingWire(casting)}, nil
+	return LiuyaoQiguaOutput{Event: LiuyaoCastingEvent{
+		Question:       input.Question,
+		Origin:         input.Origin,
+		Casting:        liuyaoCastingWire(casting),
+		CastingContext: input.CastingContext,
+	}}, nil
 }
 
-// LiuyaoChartInput consumes the divination event and the requested focus.
+// LiuyaoChartInput consumes the immutable casting event created by liuyao_qigua.
 type LiuyaoChartInput struct {
-	StandardTime StandardTime         `json:"standard_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
-	Longitude    Longitude            `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
-	Casting      *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao_qigua 返回的卦象源事实。"`
-	YongShen     LiuyaoYongShenName   `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
+	Event *LiuyaoCastingEvent `json:"event" jsonschema:"liuyao_qigua 返回的不可变卦象事件。"`
 }
 
-func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, error) {
-	if input.Casting == nil {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: casting is required")
+func validateLiuyaoEventOrigin(origin LiuyaoCastingRequestInput, casting LiuyaoCastingOutput) error {
+	switch origin.Mode {
+	case "auto":
+		if origin.Rounds != nil || origin.Yaos != nil {
+			return fmt.Errorf("auto origin does not accept rounds or yaos")
+		}
+		if casting.Mode != "coins" {
+			return fmt.Errorf("auto origin requires a coins casting receipt")
+		}
+	case "coins":
+		if origin.Yaos != nil || len(origin.Rounds) != 6 {
+			return fmt.Errorf("coins origin requires exactly 6 rounds and no yaos")
+		}
+		if casting.Mode != "coins" {
+			return fmt.Errorf("coins origin requires a coins casting receipt")
+		}
+	case "yaos":
+		if origin.Rounds != nil || len(origin.Yaos) != 6 {
+			return fmt.Errorf("yaos origin requires exactly 6 yaos and no rounds")
+		}
+		if casting.Mode != "yaos" {
+			return fmt.Errorf("yaos origin requires a yaos casting receipt")
+		}
+	default:
+		return fmt.Errorf("unsupported origin mode %q", string(origin.Mode))
 	}
-	casting, err := liuyaoCastingDomain(*input.Casting)
+	return nil
+}
+
+func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartResultOutput, error) {
+	if input.Event == nil {
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: event is required")
+	}
+	if len([]rune(input.Event.Question)) < 2 {
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid event question")
+	}
+	if err := validateLiuyaoEventOrigin(input.Event.Origin, input.Event.Casting); err != nil {
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid event origin: %w", err)
+	}
+	context := input.Event.CastingContext
+	casting, err := liuyaoCastingDomain(input.Event.Casting)
 	if err != nil {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
 	}
-	standard, _, err := parseStandardTime(input.StandardTime)
+	focus, err := liuyaoResolveFocus(context.Focus)
 	if err != nil {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid focus: %w", err)
 	}
-	if float64(input.Longitude) < -180 || float64(input.Longitude) > 180 {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: longitude must be within [-180,180], got %v", float64(input.Longitude))
-	}
-	yongShen := string(input.YongShen)
-	if yongShen == "" {
-		yongShen = "世爻"
-	}
-	ys, err := liuyao.ParseYongShen(yongShen)
+	standard, _, err := parseStandardTime(context.StandardTime)
 	if err != nil {
-		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	chart := liuyao.ComputeChartAt(standard, float64(input.Longitude), ys, casting.Yaos)
-	chart.Casting = &casting
-	return liuyaoChartWire(chart), nil
+	if float64(context.Longitude) < -180 || float64(context.Longitude) > 180 {
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: longitude must be within [-180,180], got %v", float64(context.Longitude))
+	}
+	ys, err := liuyao.ParseYongShen(string(focus))
+	if err != nil {
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: %w", err)
+	}
+	chart := liuyao.ComputeChartAt(standard, float64(context.Longitude), ys, casting.Yaos)
+	return LiuyaoChartResultOutput{
+		Event:    *input.Event,
+		Chart:    liuyaoChartViewWire(chart),
+		Analysis: liuyaoAnalysisWire(chart),
+	}, nil
 }
 
 func liuyaoCastingDomain(output LiuyaoCastingOutput) (liuyao.Casting, error) {
@@ -484,6 +923,112 @@ func liuyaoCastingDomain(output LiuyaoCastingOutput) (liuyao.Casting, error) {
 	return casting, nil
 }
 
+func liuyaoLineView(line liuyao.Line, dayRelation liuyao.DayRelation, wangShuai ganzhi.WangShuai) LiuyaoChartLineView {
+	flags := LiuyaoChartLineFlags{
+		Moving: line.DongSelf, YuePo: line.YuePo, XunKong: line.XunKong,
+		MuKu: line.MuKu, MuKuBranch: line.MuKuBranch, MuKuElement: line.MuKuElement,
+		DongSheng: line.DongSheng, DongKe: line.DongKe,
+	}
+	view := LiuyaoChartLineView{
+		Position: LiuyaoOptionalPosition(line.Position), YaoValue: LiuyaoOptionalYaoValue(line.Type),
+		GanZhi: ganzhi.GanName(line.Gan) + ganzhi.ZhiName(line.Zhi),
+		Wuxing: line.Wuxing.String(), LiuQin: line.LiuQin.String(),
+		ShiYing: LiuyaoShiYing(line.ShiYing), LiuShou: line.LiuShou.String(),
+		WangShuai: wangShuai.String(), ChangShengYue: line.ChangShengYue,
+		Flags: flags,
+	}
+	if len(dayRelation.Relations) > 0 {
+		view.RiChenRelations = map[string][]string{"relations": append([]string(nil), dayRelation.Relations...)}
+	}
+	return view
+}
+
+func liuyaoFuShenView(value *liuyao.FuShen) *LiuyaoFuShenView {
+	if value == nil {
+		return nil
+	}
+	return &LiuyaoFuShenView{
+		Position: LiuyaoPosition(value.Position),
+		LiuQin:   value.LiuQin.String(),
+		Zhi:      value.Zhi,
+	}
+}
+
+func liuyaoYongShenView(value liuyao.YongShenResult) LiuyaoYongShenView {
+	view := LiuyaoYongShenView{
+		Name:       string(value.Name),
+		Position:   int(value.Position),
+		IsHidden:   value.IsHidden,
+		WangShuai:  value.WangShuai,
+		YuePo:      value.YuePo,
+		XunKong:    value.XunKong,
+		MuKu:       value.MuKu,
+		LiuShou:    value.LiuShou.String(),
+		ChangSheng: value.ChangSheng,
+		FuShen:     liuyaoFuShenView(value.FuShen),
+	}
+	for _, candidate := range value.FuShenCandidates {
+		view.FuShenCandidates = append(view.FuShenCandidates, LiuyaoFuShenView{
+			Position: LiuyaoPosition(candidate.Position),
+			LiuQin:   candidate.LiuQin.String(),
+			Zhi:      candidate.Zhi,
+		})
+	}
+	return view
+}
+
+func liuyaoChartViewWire(chart liuyao.Chart) LiuyaoChartView {
+	bianGua := LiuyaoHexagramName(liuyaoEncodedName(chart.BianGua))
+	if int(chart.BianGua) == 0 {
+		bianGua = ""
+	}
+	view := LiuyaoChartView{
+		GuaName:      liuyaoEncodedName(chart.BenGua),
+		Palace:       chart.Palace,
+		PalaceWuxing: chart.PalaceWuxing.String(),
+		Lines:        make([]LiuyaoChartLineView, 0, 6),
+		BianLines:    make([]LiuyaoChartLineView, 0, 6),
+		RiGan:        ganzhi.GanName(chart.RiGan),
+		RiZhi:        ganzhi.ZhiName(chart.RiZhi),
+		YueGan:       ganzhi.GanName(chart.YueGan),
+		YueZhi:       ganzhi.ZhiName(chart.YueZhi),
+		XunKong: []string{
+			ganzhi.ZhiName(chart.XunKong[0]), ganzhi.ZhiName(chart.XunKong[1]),
+		},
+		Patterns: make([]LiuyaoChartPatternView, 0, len(chart.Patterns)),
+		YongShen: liuyaoYongShenView(chart.YongShen),
+	}
+	if bianGua == "" {
+		view.BianGua = nil
+	} else {
+		name := string(bianGua)
+		view.BianGua = &name
+	}
+	for i, line := range chart.Lines {
+		view.Lines = append(view.Lines, liuyaoLineView(line, chart.DayRelations[i], chart.WangShuai[i]))
+	}
+	for _, line := range chart.BianLines {
+		if line.Position != 0 {
+			view.BianLines = append(view.BianLines, liuyaoLineView(line, liuyao.DayRelation{}, ganzhi.WangShuai(-1)))
+		}
+	}
+	for index, pattern := range chart.Patterns {
+		view.Patterns = append(view.Patterns, LiuyaoChartPatternView{
+			ID:          fmt.Sprintf("pattern-%d", index+1),
+			PatternKind: string(pattern.Type), SubType: pattern.SubType,
+			Position: LiuyaoOptionalPosition(pattern.Position), IsTrue: pattern.IsTrue,
+		})
+	}
+	if chart.GuaCi.Name != "" {
+		yaoCi := make([]string, 0, len(chart.GuaCi.YaoCi))
+		yaoCi = append(yaoCi, chart.GuaCi.YaoCi[:]...)
+		view.GuaCi = &LiuyaoGuaCiView{
+			Name: liuyaoEncodedName(chart.GuaCi.Name), Text: chart.GuaCi.GuaCi, YaoCi: yaoCi,
+		}
+	}
+	return view
+}
+
 func liuyaoEncodedName(value any) string {
 	raw, err := json.Marshal(value)
 	if err != nil {
@@ -496,114 +1041,12 @@ func liuyaoEncodedName(value any) string {
 	return name
 }
 
-func liuyaoLineWire(line liuyao.Line) LiuyaoLineOutput {
-	output := LiuyaoLineOutput{
-		Position: LiuyaoOptionalPosition(line.Position),
-		Type:     LiuyaoYaoValue(line.Type),
-		Gan:      GanName(line.Gan.String()),
-		Zhi:      ZhiName(line.Zhi.String()),
-		Wuxing:   ElementName(line.Wuxing.String()),
-		LiuQin:   LiuyaoLiuQinName(line.LiuQin.String()),
-		ShiYing:  LiuyaoShiYing(line.ShiYing),
-		LiuShou:  LiuyaoLiuShouName(line.LiuShou.String()),
-		YuePo:    line.YuePo, DongSelf: line.DongSelf,
-		DongSheng: line.DongSheng, DongKe: line.DongKe,
-		XunKong: line.XunKong, MuKu: line.MuKu,
-		MuKuBranch:    line.MuKuBranch,
-		MuKuElement:   line.MuKuElement,
-		ChangShengYue: line.ChangShengYue,
-	}
-	for _, value := range line.MuKuTypes {
-		output.MuKuTypes = append(output.MuKuTypes, LiuyaoMuKuType(value))
-	}
-	return output
-}
-
-func liuyaoFuShenWire(value liuyao.FuShen) LiuyaoFuShenOutput {
-	return LiuyaoFuShenOutput{
-		Position: LiuyaoPosition(value.Position),
-		LiuQin:   LiuyaoLiuQinName(value.LiuQin.String()),
-		Zhi:      ZhiName(value.Zhi),
-	}
-}
-
-func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
-	output := LiuyaoChartOutput{
-		Name:         LiuyaoHexagramName(liuyaoEncodedName(chart.BenGua)),
-		Gong:         chart.Palace,
-		PalaceWuxing: ElementName(chart.PalaceWuxing.String()),
-		RiGan:        GanName(chart.RiGan.String()),
-		RiZhi:        ZhiName(chart.RiZhi.String()),
-		YueZhi:       ZhiName(chart.YueZhi.String()),
-		YueGan:       GanName(chart.YueGan.String()),
-		YongShen: LiuyaoYongShenOutput{
-			Name:       LiuyaoYongShenName(chart.YongShen.Name),
-			Position:   LiuyaoOptionalPosition(chart.YongShen.Position),
-			IsHidden:   chart.YongShen.IsHidden,
-			WangShuai:  WangShuaiName(chart.YongShen.WangShuai),
-			YuePo:      chart.YongShen.YuePo,
-			XunKong:    chart.YongShen.XunKong,
-			MuKu:       chart.YongShen.MuKu,
-			ChangSheng: chart.YongShen.ChangSheng,
-		},
-		GuaCi: LiuyaoGuaCiOutput{
-			Name:  LiuyaoHexagramName(chart.GuaCi.Name),
-			GuaCi: chart.GuaCi.GuaCi,
-			YaoCi: [6]string(chart.GuaCi.YaoCi),
-		},
-		XunKong: [2]ZhiName{
-			ZhiName(chart.XunKong[0].String()),
-			ZhiName(chart.XunKong[1].String()),
-		},
-		Casting: liuyaoCastingWire(*chart.Casting),
+func liuyaoAnalysisWire(chart liuyao.Chart) LiuyaoAnalysisOutput {
+	output := LiuyaoAnalysisOutput{
 		TombSchool: LiuyaoTombOutput{
 			EarthBranch: LiuyaoTombBranch(chart.TombSchool.EarthBranch),
 			School:      LiuyaoTombSchool(chart.TombSchool.School),
 		},
-	}
-	if int(chart.BianGua) != 0 {
-		name := LiuyaoHexagramName(liuyaoEncodedName(chart.BianGua))
-		output.BianGua = &name
-	}
-	for i, line := range chart.Lines {
-		output.Lines[i] = liuyaoLineWire(line)
-	}
-	for i, line := range chart.BianLines {
-		if line.Position != 0 {
-			output.BianLines[i] = LiuyaoBianLineOutput{
-				Position:      line.Position,
-				Type:          int(line.Type),
-				Gan:           line.Gan.String(),
-				Zhi:           line.Zhi.String(),
-				Wuxing:        line.Wuxing.String(),
-				LiuQin:        line.LiuQin.String(),
-				ShiYing:       line.ShiYing,
-				LiuShou:       line.LiuShou.String(),
-				YuePo:         line.YuePo,
-				DongSelf:      line.DongSelf,
-				DongSheng:     line.DongSheng,
-				DongKe:        line.DongKe,
-				XunKong:       line.XunKong,
-				MuKu:          line.MuKu,
-				MuKuBranch:    line.MuKuBranch,
-				MuKuElement:   line.MuKuElement,
-				ChangShengYue: line.ChangShengYue,
-			}
-			output.BianLines[i].MuKuTypes = append(output.BianLines[i].MuKuTypes, line.MuKuTypes...)
-		}
-	}
-	if chart.YongShen.FuShen != nil {
-		fuShen := liuyaoFuShenWire(*chart.YongShen.FuShen)
-		output.YongShen.FuShen = &fuShen
-	}
-	for _, value := range chart.YongShen.FuShenCandidates {
-		output.YongShen.FuShenCandidates = append(output.YongShen.FuShenCandidates, liuyaoFuShenWire(value))
-	}
-	for i, value := range chart.WangShuai {
-		output.WangShuai[i] = WangShuaiName(value.String())
-	}
-	for i, value := range chart.DayRelations {
-		output.DayRelations[i] = LiuyaoDayRelationOutput{Relations: append([]string(nil), value.Relations...)}
 	}
 	for _, value := range chart.TimingCandidates {
 		output.TimingCandidates = append(output.TimingCandidates, LiuyaoTimingOutput{
@@ -613,12 +1056,6 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 			TriggerBranch: ZhiName(value.TriggerBranch),
 			Window:        value.Window,
 			Basis:         append([]string(nil), value.Basis...),
-		})
-	}
-	for _, value := range chart.Patterns {
-		output.Patterns = append(output.Patterns, LiuyaoPatternOutput{
-			Type: LiuyaoPatternType(value.Type), SubType: value.SubType,
-			Position: LiuyaoOptionalPosition(value.Position), IsTrue: value.IsTrue,
 		})
 	}
 	for _, value := range chart.DongYaoRelations {

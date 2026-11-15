@@ -41,7 +41,8 @@ def test_liuyao_factors_fail_closed_on_malformed_engine_conflicts():
     def project(conflicts):
         return project_factors(
             casting={},
-            chart={"yong_shen": {"name": "官鬼", "position": 4}, "conflicts": conflicts},
+            chart={"yong_shen": {"name": "官鬼", "position": 4}},
+            analysis={"conflicts": conflicts},
             question={"text": "测事"},
         )
 
@@ -50,5 +51,5 @@ def test_liuyao_factors_fail_closed_on_malformed_engine_conflicts():
         "id": "strong-but-void", "reason": "须辨真假空", "facts": [],
     }]
     for malformed in ("not-a-list", [{"reason": "missing id"}], [1]):
-        with pytest.raises(ValueError, match="liuyao chart conflicts are invalid"):
+        with pytest.raises(ValueError, match="liuyao analysis conflicts are invalid"):
             project(malformed)

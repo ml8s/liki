@@ -46,14 +46,16 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 	call("xuankong_liunian", XuankongLiunianInput{
 		StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14,
 	})
-	qiguaRaw := call("liuyao_qigua", LiuyaoQiguaInput{Casting: LiuyaoCastingRequestInput{
+	qiguaRaw := call("liuyao_qigua", LiuyaoQiguaInput{Origin: LiuyaoCastingRequestInput{
 		Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
-	}})
+	},
+		Question:       "测试事业进展",
+		CastingContext: testCastingContext(t),
+	})
 	var qigua LiuyaoQiguaOutput
 	decode(t, qiguaRaw, &qigua)
 	call("liuyao_chart", LiuyaoChartInput{
-		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
-		Longitude:    116.4, Casting: &qigua.Casting,
+		Event: &qigua.Event,
 	})
 
 	// Captured legacy fixtures cover the migrated high-volume bazi, ziwei, and

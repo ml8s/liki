@@ -127,6 +127,9 @@ func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
 		reflect.TypeFor[LiuyaoYaoValue](): {
 			Type: "integer", Minimum: jsonschema.Ptr(float64(6)), Maximum: jsonschema.Ptr(float64(9)),
 		},
+		reflect.TypeFor[LiuyaoOptionalYaoValue](): {
+			Type: "integer", Minimum: jsonschema.Ptr(float64(0)), Maximum: jsonschema.Ptr(float64(9)),
+		},
 		reflect.TypeFor[LiuyaoPosition](): {
 			Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(6)),
 		},
@@ -156,14 +159,6 @@ func buildStaticSchemaOptions() map[reflect.Type]*jsonschema.Schema {
 		},
 		reflect.TypeFor[LiuyaoLiuShouName](): {
 			Type: "string", Enum: []any{"青龙", "朱雀", "勾陈", "螣蛇", "白虎", "玄武"},
-		},
-		reflect.TypeFor[LiuyaoMuKuType](): {
-			Type: "string", Enum: []any{"day", "moving", "transformed"},
-		},
-		reflect.TypeFor[LiuyaoPatternType](): {
-			Type: "string", Enum: []any{
-				"旬空", "月破", "飞伏", "进退", "冲合", "反吟", "伏吟", "随鬼入墓", "独发", "独静", "两现",
-			},
 		},
 		reflect.TypeFor[LiuyaoForceRole](): {
 			Type: "string", Enum: []any{"用神", "原神", "忌神", "仇神"},
@@ -335,16 +330,31 @@ func NewEngine() *Registry {
 	if err != nil {
 		panic("liuyao_qigua input schema: " + err.Error())
 	}
+	qiguaOutputSchema, err := liuyaoQiguaOutputSchema(options)
+	if err != nil {
+		panic("liuyao_qigua output schema: " + err.Error())
+	}
+	chartSchema, err := liuyaoChartSchema(options)
+	if err != nil {
+		panic("liuyao_chart input schema: " + err.Error())
+	}
+	chartOutputSchema, err := liuyaoChartOutputSchema(options)
+	if err != nil {
+		panic("liuyao_chart output schema: " + err.Error())
+	}
 	mustRegister(registry, Tool[LiuyaoQiguaInput, LiuyaoQiguaOutput]{
-		Name:        "liuyao_qigua",
-		Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次，每次调用都是新占卜事件；mode=coins/yaos 可复现既有卦。返回可审计起卦收据。",
-		InputSchema: qiguaSchema,
-		Handler:     LiuyaoQigua,
+		Name:         "liuyao_qigua",
+		Description:  "六爻起卦事件创建。question、origin 和 casting_context 一起构成唯一不可变事件；origin.mode=auto 每次都是新占卜事件，coins/yaos 可复现既有卦。返回完整 event，后续 chart/ask 必须原样消费。",
+		InputSchema:  qiguaSchema,
+		OutputSchema: qiguaOutputSchema,
+		Handler:      LiuyaoQigua,
 	})
-	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartOutput]{
-		Name:        "liuyao_chart",
-		Description: "六爻装卦。在 liuyao_qigua 起卦后、需要解读卦象吉凶或判断应期时调用。只接受 liuyao_qigua 返回的完整起卦收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
-		Handler:     LiuyaoChart,
+	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartResultOutput]{
+		Name:         "liuyao_chart",
+		Description:  "六爻装卦。只消费 liuyao_qigua 返回的完整 event，并原样回传 event；确定性解析 focus 为用神，装卦并分析纳甲、六亲、六兽、旺衰、格局与应期。本方法不创建卦象事件，也不输出解读。",
+		InputSchema:  chartSchema,
+		OutputSchema: chartOutputSchema,
+		Handler:      LiuyaoChart,
 	})
 	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{
 		Name:        "bazi_bond",

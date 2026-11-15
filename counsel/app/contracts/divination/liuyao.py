@@ -22,57 +22,24 @@ LiuyaoDomain = Literal[
 ]
 
 
-# ── liuyao ask inputs ──
-class LiuyaoAutoCasting(BaseModel):
-    """auto：服务端安全随机三枚铜钱起六次。"""
-    model_config = ConfigDict(extra="forbid")
-    mode: Literal["auto"] = Field(description="安全随机起卦。")
-
-
-class LiuyaoCoinsCasting(BaseModel):
-    """coins：复现历史卦时传入六组三枚正/反记录。"""
-    model_config = ConfigDict(extra="forbid")
-    mode: Literal["coins"] = Field(description="铜钱记录起卦。")
-    rounds: Annotated[
-        list[Annotated[list[Literal["正", "反"]], Field(min_length=3, max_length=3)]],
-        Field(min_length=6, max_length=6),
-    ] = Field(description="六组三枚正/反，顺序为初爻到上爻。")
-
-
-class LiuyaoYaosCasting(BaseModel):
-    """yaos：直接传入六个爻值（复现已知卦）。"""
-    model_config = ConfigDict(extra="forbid")
-    mode: Literal["yaos"] = Field(description="爻值起卦。")
-    yaos: Annotated[
-        list[Annotated[int, Field(ge=6, le=9)]],
-        Field(min_length=6, max_length=6),
-    ] = Field(description="六个爻值 6-9，初爻到上爻。")
-
-
-LiuyaoCastingInput = LiuyaoAutoCasting | LiuyaoCoinsCasting | LiuyaoYaosCasting
-
 class LiuyaoMatterFocus(BaseModel):
     """按问事类别推导用神。"""
     model_config = ConfigDict(extra="forbid")
     kind: Literal["matter"] = Field(description="焦点类型：问事类别。")
     matter: Literal[
-        "general", "self", "other", "career", "wealth", "relationship",
+        "general", "self", "other", "career", "wealth",
         "study", "home", "travel", "family", "competition", "children",
         "lost_item", "legal",
     ] = Field(description="问事类别；决定用神。")
-    perspective: Literal["male", "female"] | None = Field(
-        default=None,
+
+class LiuyaoRelationshipFocus(BaseModel):
+    """按问卦人性别视角推导感情用神。"""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["matter"] = Field(description="焦点类型：问事类别。")
+    matter: Literal["relationship"] = Field(description="问事类别。")
+    perspective: Literal["male", "female"] = Field(
         description="问卦人性别视角；matter=relationship 必填。",
     )
-
-    @model_validator(mode="after")
-    def _enforce_perspective(self) -> "LiuyaoMatterFocus":
-        if self.matter == "relationship" and self.perspective is None:
-            raise ValueError("matter=relationship requires perspective")
-        if self.perspective is not None and self.matter != "relationship":
-            raise ValueError("perspective is only valid with matter=relationship")
-        return self
-
 
 class LiuyaoYongshenFocus(BaseModel):
     """使用显式六亲用神。"""
@@ -83,32 +50,88 @@ class LiuyaoYongshenFocus(BaseModel):
     )
 
 
-LiuyaoFocus = LiuyaoMatterFocus | LiuyaoYongshenFocus
+LiuyaoFocus = LiuyaoMatterFocus | LiuyaoRelationshipFocus | LiuyaoYongshenFocus
 
-class LiuyaoAskInput(BaseModel):
-    """一次完成六爻排盘与受控解读所需的输入。"""
 
+class LiuyaoAutoOrigin(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    question: Annotated[str, Field(min_length=2)] = Field(
-        description="本次要判断的一个具体目标",
-    )
-    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
-        description="起卦地经度（-180..180）；必须显式传入，不做默认（精度要求）。",
-    )
-    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
-        description="起卦地标准时间 RFC3339（无 DST），必填。",
-    )
-    casting: LiuyaoCastingInput = Field(
-        description="起卦方式；按 schema 选择 auto / coins / yaos，用户手动记录按原顺序组装。",
-        default={"mode": "auto"},
-    )
-    focus: LiuyaoFocus = Field(
-        description="占问焦点：matter 自动推导用神，或显式指定六亲用神。",
-    )
-    topic: LiuyaoTopic = Field(
-        default=None,
-        description="可选专题视角；省略时与 matter 相同。",
-    )
+    mode: Literal["auto"] = Field(description="安全随机起卦。")
+
+
+class LiuyaoCoinsOrigin(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["coins"] = Field(description="铜钱记录起卦。")
+    rounds: Annotated[
+        list[Annotated[list[Literal["正", "反"]], Field(min_length=3, max_length=3)]],
+        Field(min_length=6, max_length=6),
+    ] = Field(description="六组三枚正/反，顺序为初爻到上爻。")
+
+
+class LiuyaoYaosOrigin(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["yaos"] = Field(description="爻值起卦。")
+    yaos: Annotated[
+        list[Annotated[int, Field(ge=6, le=9)]],
+        Field(min_length=6, max_length=6),
+    ] = Field(description="六个爻值 6-9，初爻到上爻。")
+
+
+LiuyaoOrigin = LiuyaoAutoOrigin | LiuyaoCoinsOrigin | LiuyaoYaosOrigin
+
+
+def _liuyao_context_schema_extra(schema: dict) -> None:
+    """Project focus discriminators and relationship perspective rules to JSON Schema."""
+    matter_names = [
+        "general", "self", "other", "career", "wealth",
+        "study", "home", "travel", "family",
+        "competition", "children", "lost_item", "legal",
+    ]
+    focus = {
+        "oneOf": [
+            {
+                "additionalProperties": False,
+                "properties": {
+                    "kind": {"const": "matter", "description": "焦点类型：问事类别。", "type": "string"},
+                    "matter": {
+                        "description": "问事类别；决定用神。",
+                        "enum": matter_names,
+                        "type": "string",
+                    },
+                },
+                "required": ["kind", "matter"],
+                "type": "object",
+            },
+            {
+                "additionalProperties": False,
+                "properties": {
+                    "kind": {"const": "matter", "description": "焦点类型：问事类别。", "type": "string"},
+                    "matter": {"const": "relationship", "description": "问事类别。", "type": "string"},
+                    "perspective": {
+                        "description": "问卦人性别视角；matter=relationship 必填。",
+                        "enum": ["male", "female"],
+                        "type": "string",
+                    },
+                },
+                "required": ["kind", "matter", "perspective"],
+                "type": "object",
+            },
+            {
+                "additionalProperties": False,
+                "properties": {
+                    "kind": {"const": "yong_shen", "description": "焦点类型：显式用神。", "type": "string"},
+                    "yong_shen": {
+                        "description": "高级显式用神。",
+                        "enum": ["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"],
+                        "type": "string",
+                    },
+                },
+                "required": ["kind", "yong_shen"],
+                "type": "object",
+            },
+        ],
+        "description": "占问焦点；chart 确定性解析为用神。",
+    }
+    schema.setdefault("properties", {})["focus"] = focus
 
 class LiuyaoCastingRoundsItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -124,23 +147,32 @@ DongYaoPositions = Annotated[
     Field(min_length=0, max_length=6),
 ]
 
+class LiuyaoCoinConvention(BaseModel):
+    """Engine's fixed coin scoring convention."""
 
-class LiuyaoCoinsCasting(BaseModel):
-    """Coins casting returned by this tool."""
+    model_config = ConfigDict(extra="forbid")
+    heads: Literal[3] = Field(serialization_alias="正", validation_alias="正", description="正面记 3。")
+    tails: Literal[2] = Field(serialization_alias="反", validation_alias="反", description="反面记 2。")
+
+
+class LiuyaoCoinsCastingReceipt(BaseModel):
+    """Coins casting returned by liuyao_qigua."""
+
     model_config = ConfigDict(extra="forbid")
     mode: Literal["coins"] = Field(description="起卦方式。")
     order: Literal["bottom_up"] = Field(description="爻序。")
-    coin_convention: dict[Literal["正", "反"], int] | None = Field(
+    coin_convention: LiuyaoCoinConvention | None = Field(
         default=None,
-        description="铜钱记分约定；auto 实际落为 coins 时返回。",
+        description="铜钱记分约定。",
     )
     rounds: list[LiuyaoCastingRoundsItem] = Field(description="六组铜钱记录。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
     dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
 
 
-class LiuyaoYaosCasting(BaseModel):
-    """Direct line-value casting returned by this tool."""
+class LiuyaoYaosCastingReceipt(BaseModel):
+    """Direct line-value casting returned by liuyao_qigua."""
+
     model_config = ConfigDict(extra="forbid")
     mode: Literal["yaos"] = Field(description="起卦方式。")
     order: Literal["bottom_up"] = Field(description="爻序。")
@@ -148,7 +180,56 @@ class LiuyaoYaosCasting(BaseModel):
     dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
 
 
-LiuyaoCasting = LiuyaoCoinsCasting | LiuyaoYaosCasting
+LiuyaoCasting = LiuyaoCoinsCastingReceipt | LiuyaoYaosCastingReceipt
+
+
+class LiuyaoCastingContext(BaseModel):
+    """Immutable casting context bound at qigua time."""
+
+    model_config = ConfigDict(extra="forbid", json_schema_extra=_liuyao_context_schema_extra)
+    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+        description="起卦地标准时间 RFC3339（无 DST）。",
+    )
+    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
+        description="起卦地经度（-180..180）。",
+    )
+    focus: LiuyaoFocus = Field(description="占问焦点；chart 确定性解析为用神。")
+
+
+class LiuyaoCastingEvent(BaseModel):
+    """Immutable question, origin, casting, and casting context."""
+
+    model_config = ConfigDict(extra="forbid")
+    question: Annotated[str, Field(min_length=2)] = Field(
+        description="起卦时绑定的唯一固定问题。",
+    )
+    origin: LiuyaoOrigin = Field(description="起卦创建方式。")
+    casting: LiuyaoCasting = Field(description="一次起卦的完整源事实。")
+    casting_context: LiuyaoCastingContext = Field(
+        description="起卦地标准时间、经度与用户确认的占问焦点。",
+    )
+
+    @model_validator(mode="after")
+    def _origin_matches_casting(self) -> "LiuyaoCastingEvent":
+        expected = "yaos" if self.origin.mode == "yaos" else "coins"
+        if self.casting.mode != expected:
+            raise ValueError(
+                f"origin.mode={self.origin.mode} requires casting.mode={expected}",
+            )
+        return self
+
+
+class LiuyaoAskInput(BaseModel):
+    """解读一个已存在的六爻卦象事件所需的输入。"""
+
+    model_config = ConfigDict(extra="forbid")
+    event: LiuyaoCastingEvent = Field(
+        description="liuyao_qigua 返回并由 chart 原样回传的完整卦象事件。",
+    )
+    topic: LiuyaoTopic | None = Field(
+        default=None,
+        description="可选专题视角；省略时与 matter 相同。",
+    )
 
 
 class LiuyaoLineFlags(BaseModel):
@@ -198,6 +279,34 @@ class LiuyaoGuaCi(BaseModel):
     yao_ci: list[str] = Field(description="各爻爻辞。")
 
 
+class LiuyaoFuShenView(BaseModel):
+    """Fu-shen receipt used by a hidden yong-shen."""
+
+    model_config = ConfigDict(extra="forbid")
+    position: Annotated[int, Field(ge=1, le=6, description="伏神所在爻位。")]
+    liu_qin: str = Field(description="伏神六亲。")
+    zhi: str = Field(description="伏神地支。")
+
+
+class LiuyaoYongShenView(BaseModel):
+    """Yong-shen state published with the unified chart view."""
+
+    model_config = ConfigDict(extra="forbid")
+    name: str = Field(description="用神类别。")
+    position: Annotated[int, Field(ge=0, le=6, description="用神爻位；0 表示本卦不现。")]
+    is_hidden: bool = Field(default=False, description="本卦不现时是否取伏神。")
+    wang_shuai: str = Field(description="用神旺衰。")
+    yue_po: bool = Field(default=False, description="用神是否月破。")
+    xun_kong: bool = Field(default=False, description="用神是否旬空。")
+    mu_ku: bool = Field(default=False, description="用神是否入墓。")
+    liu_shou: str | None = Field(default=None, description="用神临的六兽；伏神不继承飞神六兽。")
+    chang_sheng: str | None = Field(default=None, description="用神五行在月支的十二长生。")
+    fu_shen: LiuyaoFuShenView | None = Field(default=None, description="用神不现时选用的伏神。")
+    fu_shen_candidates: list[LiuyaoFuShenView] = Field(
+        default_factory=list, description="可用伏神候选。"
+    )
+
+
 class LiuyaoChart(BaseModel):
     """Structural Liuyao chart."""
 
@@ -214,40 +323,8 @@ class LiuyaoChart(BaseModel):
     yue_zhi: str = Field(description="月建地支。")
     xun_kong: Annotated[list[str], Field(min_length=2, max_length=2, description="旬空地支。")]
     patterns: list[LiuyaoPattern] = Field(default_factory=list, description="盘面格局。")
+    yong_shen: LiuyaoYongShenView = Field(description="最终用神状态。")
     gua_ci: LiuyaoGuaCi | None = Field(default=None, description="卦爻辞。")
-
-
-class LiuyaoFuShen(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    position: Annotated[int, Field(ge=1, le=6, description="伏神所在爻位。")]
-    liu_qin: str = Field(description="伏神六亲。")
-    zhi: str = Field(description="伏神地支。")
-
-
-class LiuyaoSelectedYongshen(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    name: str = Field(description="用神六亲。")
-    position: Annotated[int, Field(ge=0, le=6, description="用神爻位；0 表示伏藏未定位。")]
-    is_hidden: bool = Field(default=False, description="是否伏藏。")
-    wang_shuai: str = Field(description="用神旺衰。")
-    yue_po: bool = Field(default=False, description="是否月破。")
-    xun_kong: bool = Field(default=False, description="是否旬空。")
-    mu_ku: bool = Field(default=False, description="是否入墓库。")
-    liu_shou: str | None = Field(default=None, description="六神。")
-    chang_sheng: str | None = Field(default=None, description="长生状态。")
-    fu_shen: LiuyaoFuShen | None = Field(default=None, description="伏神来源。")
-    fu_shen_candidates: list[LiuyaoFuShen] = Field(default_factory=list, description="候选伏神。")
-
-
-class LiuyaoSelectedYongshenContext(BaseModel):
-    """Resolved selected-yongshen context for the requested focus."""
-
-    model_config = ConfigDict(extra="forbid")
-    selected_yongshen: LiuyaoSelectedYongshen = Field(description="最终用神状态。")
-    yong_line: LiuyaoLine | None = Field(default=None, description="用神所在爻。")
-    world_line: LiuyaoLine | None = Field(default=None, description="世爻。")
-    other_line: LiuyaoLine | None = Field(default=None, description="应爻。")
-
 
 
 class LiuyaoHiddenLine(BaseModel):
@@ -425,7 +502,7 @@ class LiuyaoNameFact(BaseModel):
 
 LiuyaoEvidenceFact = (
     LiuyaoLine
-    | LiuyaoSelectedYongshen
+    | LiuyaoYongShenView
     | LiuyaoHiddenLine
     | LiuyaoBranchRelationFact
     | LiuyaoDayClashFact
@@ -433,7 +510,7 @@ LiuyaoEvidenceFact = (
     | LiuyaoMovingTransformation
     | LiuyaoSanHeCandidate
     | LiuyaoForceChain
-    | LiuyaoFuShen
+    | LiuyaoFuShenView
     | LiuyaoPattern
     | LiuyaoGuaCi
     | LiuyaoYongshenState
@@ -462,19 +539,41 @@ class LiuyaoEvidence(BaseModel):
 
 
 
-class LiuyaoChartFacts(BaseModel):
-    """Canonical Liuyao chart facts."""
+class LiuyaoAnalysisTimingCandidate(BaseModel):
+    """Raw engine timing candidate before policy projection."""
 
     model_config = ConfigDict(extra="forbid")
-    moving_relations: list[LiuyaoMovingRelation]
-    patterns: list[LiuyaoPattern]
-    hidden_lines: list[LiuyaoHiddenLine]
-    branch_relation_facts: list[LiuyaoBranchRelationFact]
-    day_clash_facts: list[LiuyaoDayClashFact]
-    moving_transformations: list[LiuyaoMovingTransformation]
-    san_he_candidates: list[LiuyaoSanHeCandidate]
+    id: Annotated[str, Field(min_length=1, description="应期候选 ID。")]
+    mechanism: str = Field(description="应期机制。")
+    position: Annotated[int, Field(ge=0, le=6)] = Field(description="关联爻位；0 表示卦级候选。")
+    trigger_branch: str | None = Field(default=None, description="触发地支。")
+    window: str | None = Field(default=None, description="时间窗口类型。")
+    basis: list[str] = Field(default_factory=list, description="确定性依据。")
+
+
+class LiuyaoTombSchool(BaseModel):
+    """Explicit tomb-school convention used by this chart."""
+
+    model_config = ConfigDict(extra="forbid")
+    earth_branch: str = Field(description="土爻墓库地支。")
+    school: str = Field(description="墓库流派。")
+
+
+class LiuyaoAnalysis(BaseModel):
+    """Judgment-layer facts derived beyond the displayed chart."""
+
+    model_config = ConfigDict(extra="forbid")
+    moving_relations: list[LiuyaoMovingRelation] = Field(default_factory=list)
+    hidden_lines: list[LiuyaoHiddenLine] = Field(default_factory=list)
+    branch_relation_facts: list[LiuyaoBranchRelationFact] = Field(default_factory=list)
+    day_clash_facts: list[LiuyaoDayClashFact] = Field(default_factory=list)
+    moving_transformations: list[LiuyaoMovingTransformation] = Field(default_factory=list)
+    san_he_candidates: list[LiuyaoSanHeCandidate] = Field(default_factory=list)
+    timing_candidates: list[LiuyaoAnalysisTimingCandidate] = Field(default_factory=list)
     yong_shen_force_chain: LiuyaoForceChain | None
-    yong_shen_candidates: list[LiuyaoYongshenCandidate]
+    yong_shen_candidates: list[LiuyaoYongshenCandidate] = Field(default_factory=list)
+    conflicts: list[DivinationConflict] = Field(default_factory=list)
+    tomb_school: LiuyaoTombSchool
     reference_only_facts: list[LiuyaoReferenceOnlyFact]
 
 
@@ -582,26 +681,20 @@ class LiuyaoSafetyAdvisory(BaseModel):
 
 class LiuyaoCase(BaseModel):
     model_config = ConfigDict(extra="forbid", title="六爻 immutable case 契约", json_schema_extra={"$id": "liki:liuyao-case"})
-    question: Annotated[str, Field(min_length=2)] = Field(
-        description="Question returned by this tool.",
+    case_version: Literal["liuyao-case-v3"] = Field(
+        description="Immutable case contract version.",
     )
-    focus: LiuyaoFocus = Field(
-        description="Requested query focus.",
+    event: LiuyaoCastingEvent = Field(
+        description="Immutable casting event shared by chart and ask.",
     )
-    casting: LiuyaoCasting = Field(
-        description="Casting returned by this tool.",
-    )
-    liuyao_chart: LiuyaoChart = Field(
+    chart: LiuyaoChart = Field(
         description="Structural Liuyao chart.",
-    )
-    selected_yongshen_context: LiuyaoSelectedYongshenContext = Field(
-        description="Resolved yong-shen context.",
     )
     evidence: LiuyaoEvidence = Field(
         description="Evidence returned by this tool.",
     )
-    chart_facts: LiuyaoChartFacts = Field(
-        description="Canonical chart facts.",
+    analysis: LiuyaoAnalysis = Field(
+        description="Judgment-layer analysis facts.",
     )
     policy: LiuyaoPolicy = Field(
         description="Policy returned by this tool.",
@@ -642,12 +735,12 @@ class LiuyaoReadingScope(BaseModel):
 
 
 class LiuyaoReadingEvidence(BaseModel):
-    """Self-contained evidence returned with a one-shot Liuyao reading."""
+    """Self-contained evidence returned with a Liuyao reading."""
 
     model_config = ConfigDict(extra="forbid")
     id: Annotated[str, Field(min_length=1, description="稳定 evidence ID。")]
     source_kind: Literal[
-        "yongshen_context", "chart", "chart_facts", "pattern",
+        "yongshen_context", "chart", "analysis", "pattern",
         "moving_relation", "timing", "condition",
     ] = Field(description="证据来源类别。")
     layer: Literal["primary", "secondary", "reference", "conflict"] = Field(description="证据层级。")
@@ -666,20 +759,19 @@ class LiuyaoInterpretation(BaseModel):
 class LiuyaoAskOutput(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
-        title="六爻一次性问测解读契约",
+        title="六爻问测解读契约",
         json_schema_extra={
             "$id": "liki:liuyao-reading",
-            "description": "六爻一次性问测返回的受控 Reading。",
+            "description": "六爻问测返回的受控 Reading。",
         },
     )
-    """六爻一次性问测返回的受控 Reading。"""
+    """六爻问测返回的受控 Reading。"""
 
     technique: Literal["liuyao"] = Field(description="占测技术。")
-    question: Annotated[str, Field(min_length=2, description="本次问测问题。")]
+    case_version: Literal["liuyao-case-v3"] = Field(description="问卦档案契约版本。")
     scope: LiuyaoReadingScope = Field(description="本次 Reading 的受控范围。")
-    casting: LiuyaoCasting = Field(description="本次使用的卦象源事实。")
-    chart_view: LiuyaoChart = Field(description="六爻盘面受控视图。")
-    selected_yongshen_context: LiuyaoSelectedYongshenContext = Field(description="用神上下文。")
+    event: LiuyaoCastingEvent = Field(description="本次使用的不可变卦象事件。")
+    chart: LiuyaoChart = Field(description="六爻盘面受控视图。")
     evidence: list[LiuyaoReadingEvidence] = Field(min_length=1, description="解读依据。")
     conflicts: list[DivinationConflict] = Field(description="并列或矛盾信号。")
     timing_candidates: list[LiuyaoTimingCandidate] = Field(description="应期候选。")
@@ -688,12 +780,10 @@ class LiuyaoAskOutput(BaseModel):
     safety_advisory: LiuyaoSafetyAdvisory = Field(description="安全提示。")
 
 
-LiuyaoAskInput = LiuyaoAskInput
-
 TOOL_LIUYAO_ASK = ToolContract(
     name="liuyao_ask",
-    description="一次完成六爻起卦、排盘和结构化解读，适用于以卦象断事的问询（吉凶、成败、得失）。casting=auto 时会新起一卦，同一事禁止自动重试或重复调用；后续追问基于本次 Reading 解释，卦象事实按 schema 原样使用。需要时空方位决策时改用 qimen_ask。",
+    description="解读一个已存在的六爻卦象事件。必须传入 liuyao_qigua 返回并在 chart 中原样回传的完整 event；返回专业盘面、证据、应期候选与受控解读。本方法不创建新卦，event 缺失时直接失败。需要时空方位决策时改用 qimen_ask。",
     input=LiuyaoAskInput,
     output=LiuyaoAskOutput,
-    annotations={"readOnlyHint": False, "idempotentHint": False},
+    annotations={"readOnlyHint": True, "idempotentHint": True},
 )

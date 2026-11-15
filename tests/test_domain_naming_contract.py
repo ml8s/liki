@@ -1,4 +1,5 @@
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,7 +38,7 @@ def test_deployment_generator_emits_contract_version():
         output = Path(tmp) / "liki-expert"
         subprocess.run(
             [
-                "python3",
+                    sys.executable,
                 str(ROOT / "scripts/generate_deployment.py"),
                 "--profile",
                 "liki-expert",

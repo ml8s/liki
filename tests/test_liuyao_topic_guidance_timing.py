@@ -29,10 +29,12 @@ def test_project_topic_guidance_returns_primary_layers():
 
 def test_timing_ranks_candidates_without_dates():
     snapshot = {
-        "timing_candidates": [
-            {"id": "a", "mechanism": "静爻逢冲", "position": 2},
-            {"id": "b", "mechanism": "旬空填实", "position": 2},
-        ]
+            "analysis": {
+                "timing_candidates": [
+                    {"id": "a", "mechanism": "静爻逢冲", "position": 2},
+                    {"id": "b", "mechanism": "旬空填实", "position": 2},
+                ]
+            }
     }
     result = liuyao_timing.project_timing_plan(snapshot, topic="wealth")
     assert result["candidates"][0]["id"] == "b"
@@ -44,10 +46,12 @@ def test_timing_ranks_candidates_without_dates():
 
 def test_timing_position_alone_is_not_target_evidence():
     snapshot = {
-        "timing_candidates": [
-            {"id": "with-position", "mechanism": "出月令", "position": 3},
-            {"id": "without-position", "mechanism": "出月令"},
-        ]
+            "analysis": {
+                "timing_candidates": [
+                    {"id": "with-position", "mechanism": "出月令", "position": 3},
+                    {"id": "without-position", "mechanism": "出月令"},
+                ]
+            }
     }
     result = liuyao_timing.project_timing_plan(snapshot, topic="wealth")
     order = [item["id"] for item in result["candidates"]]
@@ -56,9 +60,11 @@ def test_timing_position_alone_is_not_target_evidence():
 
 def test_timing_keeps_health_topic_with_unified_boundary():
     snapshot = {
-        "timing_candidates": [
-            {"id": "health-watch", "mechanism": "旬空填实"}
-        ]
+            "analysis": {
+                "timing_candidates": [
+                    {"id": "health-watch", "mechanism": "旬空填实"}
+                ]
+            }
     }
     result = liuyao_timing.project_timing_plan(snapshot, topic="health_context")
     assert [item["id"] for item in result["candidates"]] == ["health-watch"]

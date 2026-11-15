@@ -40,7 +40,6 @@ def _prewarm_caches() -> None:
     try:
         from app.divination.tools.divination_safety import _load_rules  # noqa: SLF001
         from app.divination.tools.liuyao_conditions import load_rules
-        from app.divination.tools.liuyao_matters import load_matter_table
         from app.divination.tools.qimen_interpretations import (
             load_interpretation_index,
             load_rule_table,
@@ -57,7 +56,6 @@ def _prewarm_caches() -> None:
         load_policy()
         load_contract()
         load_rules()
-        load_matter_table()
         _load_qimen_matters()
         load_rule_table()
         load_interpretation_index()
