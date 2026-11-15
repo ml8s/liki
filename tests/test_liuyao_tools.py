@@ -26,11 +26,13 @@ def test_board_sends_immutable_case_to_chart(monkeypatch):
         "reference_only_facts": [],
     }
 
+    chart_view["analysis"] = analysis
+
     def engine(method, params):
         calls.append((method, params))
         return {
             "event": event,
-            "chart": chart_view, "analysis": analysis,
+            "chart": chart_view,
         }
 
     monkeypatch.setattr("app.divination.tools.liuyao_board.engine_data", engine)
@@ -47,17 +49,15 @@ def test_board_sends_immutable_case_to_chart(monkeypatch):
     context = {
         "standard_time": "2026-10-01T10:00:00+08:00",
         "longitude": 116.4,
-        "focus": {"kind": "matter", "matter": "career"},
+        "yong_shen": "官鬼",
     }
     event = {
-        "question": "这次面试能不能通过",
-        "origin": {"mode": "coins"},
         "casting": casting,
         "casting_context": context,
     }
     result = board_factors(event=event)
     assert calls == [("liuyao_chart", {"event": event})]
-    assert result["matter"]["matter"] == "career"
+    assert "matter" not in result
     assert result["factors"]["casting"] == casting
     assert result["factors"]["liuyao_chart"] == chart_view
     assert result["factors"]["liuyao_chart"]["yong_shen"]["name"] == "官鬼"
@@ -98,10 +98,9 @@ def test_projected_factors_use_current_case_shape():
         casting=casting,
         chart=chart,
         analysis=analysis,
-        question={"text": "测试"},
     )
     assert set(result) == {
-        "question", "casting", "liuyao_chart", "evidence", "analysis", "policy",
+        "casting", "liuyao_chart", "evidence", "analysis", "policy",
     }
     line = result["liuyao_chart"]["lines"][0]
     assert line["gan_zhi"] == "甲子"
@@ -121,16 +120,14 @@ def test_divination_tools_have_single_ask_surface():
 def test_liuyao_ask_input_accepts_primary_call():
     LiuyaoAskInput.model_validate({
         "event": {
-            "question": "这次面试能不能通过",
-            "origin": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
             "casting": {
-            "mode": "yaos", "order": "bottom_up",
-            "yaos": [7, 7, 7, 7, 7, 7], "dong_yao": [],
+                "mode": "yaos", "order": "bottom_up",
+                "yaos": [7, 7, 7, 7, 7, 7], "dong_yao": [],
             },
             "casting_context": {
                 "standard_time": "2026-10-01T10:00:00+08:00",
                 "longitude": 116.4,
-                "focus": {"kind": "matter", "matter": "career"},
+                "yong_shen": "官鬼",
             },
         },
     })
@@ -154,7 +151,7 @@ def test_ask_never_creates_a_casting(monkeypatch):
     context = {
         "standard_time": "2026-10-01T10:00:00+08:00",
         "longitude": 116.4,
-        "focus": {"kind": "matter", "matter": "career"},
+        "yong_shen": "官鬼",
     }
     monkeypatch.setattr(
         "app.divination.tools.liuyao_case.build_liuyao_factors",
@@ -193,14 +190,17 @@ def test_ask_never_creates_a_casting(monkeypatch):
         lambda name, document: None,
     )
     event = {
-        "question": "这次面试能不能通过",
-        "origin": {"mode": "yaos"},
         "casting": casting,
         "casting_context": context,
     }
     reading = liuyao_ask.ask(event=event)
-    assert reading["event"] == event
-    assert reading["chart"] == chart
+    assert set(reading) == {
+        "technique", "evidence", "timing_candidates",
+        "condition_candidates", "interpretation", "safety_advisory",
+    }
+    assert "event" not in reading
+    assert "chart" not in reading
+    assert reading["technique"] == "liuyao"
 
 
 def test_go_chart_result_matches_python_contract():
@@ -222,11 +222,7 @@ def test_go_chart_result_matches_python_contract():
     factors = project_factors(
         casting=casting.model_dump(by_alias=True),
         chart=chart.model_dump(),
-        analysis=raw["analysis"],
-        question={
-            "text": "测试", "matter": "career",
-            "explicit_yong_shen": None, "perspective": None,
-        },
+        analysis=raw["chart"]["analysis"],
     )
     assert factors["liuyao_chart"] == chart.model_dump()
-    assert factors["analysis"]["conflicts"] == raw["analysis"].get("conflicts", [])
+    assert factors["analysis"]["conflicts"] == raw["chart"]["analysis"].get("conflicts", [])

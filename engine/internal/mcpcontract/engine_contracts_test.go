@@ -581,7 +581,6 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	qiguaRaw, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
-		Question: "测试事业进展",
 		Origin: LiuyaoCastingRequestInput{
 			Mode: "yaos",
 			Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
@@ -620,7 +619,6 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	if _, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
-		Question: "测试模式约束",
 		Origin: LiuyaoCastingRequestInput{
 			Mode: "auto",
 			Yaos: LiuyaoYaoValuesInput{7, 7, 7, 7, 7, 7},
@@ -635,7 +633,7 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		Event: &qigua.Event,
+		Event: liuyaoCastingEventInput(qigua.Event),
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.chart: %v", err)
@@ -649,14 +647,14 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 	liuyaoChart := liuyaoChartResult.Chart
 	if liuyaoChart.GuaName == "" || len(liuyaoChart.Lines) != 6 ||
-		liuyaoChartResult.Analysis.TombSchool.School == "" {
+		liuyaoChart.Analysis.TombSchool.School == "" {
 		t.Fatalf("incomplete liuyao chart: %#v", liuyaoChart)
 	}
 
 	tamperedEvent := qigua.Event
 	tamperedEvent.Casting.Yaos[0] = 9
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		Event: &tamperedEvent,
+		Event: liuyaoCastingEventInput(tamperedEvent),
 	})); err == nil || !strings.Contains(err.Error(), "dong_yao mismatch") {
 		t.Fatalf("expected tampered casting rejection, got %v", err)
 	}

@@ -78,15 +78,12 @@ def test_no_inline_duplicates_in_tools():
 
 def test_tools_delegate_to_guards():
     expected = {
-        "liuyao_case.py": "require_question",
         "qimen_case.py": "require_question",
         "liuyao_board.py": "require_object",
         "qimen_charts.py": "require_mutually_exclusive",
     }
     multi_expected = {
-        "liuyao_case.py": {"require_question", "assess"},
         "qimen_case.py": {"require_question", "assess"},
-        "liuyao_ask.py": {"require_question"},
         "qimen_ask.py": {"require_question"},
     }
     for name, symbol in expected.items():

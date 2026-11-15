@@ -242,7 +242,7 @@ def test_workbuddy_pro_static_channel_assets_exist():
 def test_expert_package_manifest_has_shared_methodology():
     manifest = gen.package_manifest("workbuddy", "pro")
     cards = [name for name in manifest if name.startswith("liki-pro/skills/liki/references/")]
-    assert len(cards) == 73
+    assert len(cards) == 74
 
 
 def test_no_legacy_naming_in_skills():

@@ -1,14 +1,12 @@
 """Divination tool-face contract tests."""
 
 import pytest
-from app.contracts.divination import LiuyaoAskInput, QimenAskInput
+from app.contracts.divination import LiuyaoAskInput, LiuyaoMatterFocus, QimenAskInput
 from pydantic import BaseModel, ValidationError
 
 
-def _liuyao_event(focus):
-    return {
-        "question": "这次面试能不能通过？",
-        "origin": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
+def _liuyao_event(focus=None, *, yong_shen="世爻"):
+    event = {
         "casting": {
             "mode": "yaos", "order": "bottom_up",
             "yaos": [7, 7, 7, 7, 7, 7], "dong_yao": [],
@@ -16,9 +14,13 @@ def _liuyao_event(focus):
         "casting_context": {
             "standard_time": "2026-10-01T10:00:00+08:00",
             "longitude": 116.4,
-            "focus": focus,
         },
     }
+    if focus is not None:
+        event["casting_context"]["focus"] = focus
+    else:
+        event["casting_context"]["yong_shen"] = yong_shen
+    return event
 
 
 def _rejects(model: type[BaseModel], instance: dict) -> None:
@@ -31,7 +33,7 @@ def _accepts(model: type[BaseModel], instance: dict) -> None:
 
 
 def test_liuyao_ask_input_rejects_ambiguous_sources_and_modes():
-    base = {"event": _liuyao_event({"kind": "matter", "matter": "career"})}
+    base = {"event": _liuyao_event()}
     auto_event = dict(base["event"])
     auto_event["casting"] = {"mode": "auto"}
     _rejects(LiuyaoAskInput, {**base, "casting": base["event"]["casting"]})
@@ -41,29 +43,29 @@ def test_liuyao_ask_input_rejects_ambiguous_sources_and_modes():
 
 
 def test_liuyao_ask_input_rejects_origin_receipt_mismatch():
-    event = _liuyao_event({"kind": "matter", "matter": "career"})
+    event = _liuyao_event()
     event["origin"] = {"mode": "auto"}
     _rejects(LiuyaoAskInput, {"event": event})
 
 
-def test_liuyao_ask_input_accepts_explicit_null_topic():
-    base = {"event": _liuyao_event({"kind": "matter", "matter": "career"})}
-    _accepts(LiuyaoAskInput, {**base, "topic": None})
-    schema = LiuyaoAskInput.model_json_schema()["properties"]["topic"]
-    assert any(branch.get("type") == "null" for branch in schema.get("anyOf", []))
-    _rejects(LiuyaoAskInput, {**base, "topic": "not-a-topic"})
+def test_liuyao_ask_input_rejects_topic_field():
+    base = {"event": _liuyao_event()}
+    _rejects(LiuyaoAskInput, {**base, "topic": "career"})
+    assert "topic" not in LiuyaoAskInput.model_json_schema()["properties"]
+
+
+def test_liuyao_legacy_focus_is_readable_but_new_events_use_yong_shen():
+    _accepts(LiuyaoAskInput, {"event": _liuyao_event({"kind": "matter", "matter": "career"})})
+    _accepts(LiuyaoAskInput, {"event": _liuyao_event(yong_shen="官鬼")})
+    both = _liuyao_event({"kind": "matter", "matter": "career"})
+    both["casting_context"]["yong_shen"] = "官鬼"
+    _rejects(LiuyaoAskInput, {"event": both})
 
 
 def test_liuyao_relationship_focus_requires_perspective():
-    def instance(perspective):
-        focus = {"kind": "matter", "matter": "relationship"}
-        if perspective:
-            focus["perspective"] = perspective
-        return {"event": _liuyao_event(focus)}
-    _rejects(LiuyaoAskInput, instance(None))
-    _accepts(LiuyaoAskInput, {
-        **instance("male"),
-    })
+    _rejects(LiuyaoMatterFocus, {"kind": "matter", "matter": "relationship"})
+    _accepts(LiuyaoMatterFocus, {"kind": "matter", "matter": "relationship", "perspective": "male"})
+    _rejects(LiuyaoMatterFocus, {"kind": "matter", "matter": "career", "perspective": "male"})
 
 
 def test_qimen_ask_input_rejects_invalid_event_and_focus():

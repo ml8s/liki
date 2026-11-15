@@ -175,58 +175,92 @@ func TestLiuyaoFocusSchemaUsesClosedDiscriminatedBranches(t *testing.T) {
 	}
 }
 
-func assertLiuyaoEventSchemaBranches(t *testing.T, raw json.RawMessage) {
+func assertLiuyaoCanonicalEventSchema(t *testing.T, raw json.RawMessage) {
 	t.Helper()
 	var schema map[string]any
 	if err := json.Unmarshal(raw, &schema); err != nil {
 		t.Fatal(err)
 	}
-	properties, ok := schema["properties"].(map[string]any)
+	event, ok := schema["properties"].(map[string]any)["event"].(map[string]any)
 	if !ok {
-		t.Fatalf("schema has no properties: %#v", schema)
+		t.Fatalf("schema has no event properties: %#v", schema)
 	}
-	event, ok := properties["event"].(map[string]any)
+	eventProperties := event["properties"].(map[string]any)
+	if _, exists := eventProperties["origin"]; exists {
+		t.Fatalf("canonical event must not publish origin: %#v", eventProperties)
+	}
+	if _, exists := eventProperties["question"]; exists {
+		t.Fatalf("canonical event must not publish question: %#v", eventProperties)
+	}
+	branches, ok := eventProperties["casting"].(map[string]any)["oneOf"].([]any)
+	if !ok || len(branches) != 2 {
+		t.Fatalf("casting branches = %#v, want 2", eventProperties["casting"])
+	}
+	context := eventProperties["casting_context"].(map[string]any)
+	contextProperties := context["properties"].(map[string]any)
+	if _, exists := contextProperties["focus"]; exists {
+		t.Fatalf("canonical casting_context must not publish focus: %#v", contextProperties)
+	}
+	yongShen, ok := contextProperties["yong_shen"].(map[string]any)
+	if !ok || (yongShen["type"] != "string" && yongShen["$ref"] == nil) {
+		t.Fatalf("canonical casting_context.yong_shen = %#v", contextProperties["yong_shen"])
+	}
+	required, _ := context["required"].([]any)
+	if !containsAnyString(required, "yong_shen") {
+		t.Fatalf("canonical casting_context must require yong_shen: %#v", context)
+	}
+}
+
+func assertLiuyaoLegacyInputEventSchema(t *testing.T, raw json.RawMessage) {
+	t.Helper()
+	var schema map[string]any
+	if err := json.Unmarshal(raw, &schema); err != nil {
+		t.Fatal(err)
+	}
+	event, ok := schema["properties"].(map[string]any)["event"].(map[string]any)
 	if !ok {
-		t.Fatalf("schema has no event properties: %#v", properties)
+		t.Fatalf("schema has no event properties: %#v", schema)
 	}
-	eventProperties, ok := event["properties"].(map[string]any)
-	if !ok {
-		t.Fatalf("event has no properties: %#v", event)
-	}
+	eventProperties := event["properties"].(map[string]any)
 	for field, want := range map[string]int{"origin": 3, "casting": 2} {
 		branches, ok := eventProperties[field].(map[string]any)["oneOf"].([]any)
 		if !ok || len(branches) != want {
 			t.Fatalf("%s branches = %#v, want %d", field, eventProperties[field], want)
 		}
 	}
-	context, ok := eventProperties["casting_context"].(map[string]any)
-	if !ok {
-		t.Fatalf("event has no casting_context: %#v", eventProperties)
-	}
+	context := eventProperties["casting_context"].(map[string]any)
 	focus, ok := context["properties"].(map[string]any)["focus"].(map[string]any)
-	if !ok {
-		t.Fatalf("casting_context has no focus: %#v", context)
-	}
-	branches, ok := focus["oneOf"].([]any)
-	if !ok || len(branches) != 3 {
-		t.Fatalf("focus branches = %#v, want 3", focus)
+	if ok {
+		branches, ok := focus["oneOf"].([]any)
+		if !ok || len(branches) != 3 {
+			t.Fatalf("legacy focus branches = %#v, want 3", focus)
+		}
 	}
 }
 
-func TestLiuyaoEventSchemaIsSharedAcrossQiguaAndChart(t *testing.T) {
+func containsAnyString(values []any, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
+}
+
+func TestLiuyaoEventSchemaSeparatesCanonicalOutputFromLegacyInput(t *testing.T) {
 	registry := testEngine()
 	qigua, err := registry.Definition("liuyao_qigua")
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertLiuyaoEventSchemaBranches(t, qigua.OutputSchema)
+	assertLiuyaoCanonicalEventSchema(t, qigua.OutputSchema)
 
 	chart, err := registry.Definition("liuyao_chart")
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertLiuyaoEventSchemaBranches(t, chart.InputSchema)
-	assertLiuyaoEventSchemaBranches(t, chart.OutputSchema)
+	assertLiuyaoLegacyInputEventSchema(t, chart.InputSchema)
+	assertLiuyaoCanonicalEventSchema(t, chart.OutputSchema)
 }
 
 func TestLiuyaoEventSchemaRejectsOriginReceiptMismatch(t *testing.T) {
@@ -235,14 +269,14 @@ func TestLiuyaoEventSchemaRejectsOriginReceiptMismatch(t *testing.T) {
 		Mode: "yaos", Order: "bottom_up",
 		Yaos: LiuyaoYaoValuesOutput{7, 8, 8, 7, 8, 9}, DongYao: LiuyaoPositions{6},
 	}
-	castingContext := LiuyaoCastingContextInput{
+	castingContext := LiuyaoCastingContextInputCompat{
 		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
 		Longitude:    116.4,
-		Focus:        LiuyaoFocusInput{Kind: "matter", Matter: "career"},
+		Focus:        &LiuyaoFocusInput{Kind: "matter", Matter: "career"},
 	}
-	valid := LiuyaoCastingEvent{
-		Question:       "测试事件契约",
-		Origin:         LiuyaoCastingRequestInput{Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 8, 7, 8, 9}},
+	origin := LiuyaoCastingRequestInput{Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 8, 7, 8, 9}}
+	valid := LiuyaoCastingEventInput{
+		Origin:         &origin,
 		Casting:        casting,
 		CastingContext: castingContext,
 	}
@@ -251,18 +285,20 @@ func TestLiuyaoEventSchemaRejectsOriginReceiptMismatch(t *testing.T) {
 	}
 
 	missingRounds := valid
-	missingRounds.Origin = LiuyaoCastingRequestInput{Mode: "coins"}
+	missingOrigin := LiuyaoCastingRequestInput{Mode: "coins"}
+	missingRounds.Origin = &missingOrigin
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{Event: &missingRounds})); err == nil {
 		t.Fatal("coins origin without rounds passed the chart input schema")
 	}
 
-	autoWithRounds := valid
-	autoWithRounds.Origin = LiuyaoCastingRequestInput{
-		Mode:   "auto",
-		Rounds: LiuyaoCoinRoundsInput{{"正", "正", "反"}},
-	}
-	if err := registry.ValidateOutput("liuyao_qigua", mustJSON(t, LiuyaoQiguaOutput{Event: autoWithRounds})); err == nil {
-		t.Fatal("auto origin with rounds passed the qigua output schema")
+	if _, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
+		Origin: LiuyaoCastingRequestInput{
+			Mode:   "auto",
+			Rounds: LiuyaoCoinRoundsInput{{"正", "正", "反"}},
+		},
+		CastingContext: testCastingContext(t),
+	})); err == nil {
+		t.Fatal("auto origin with rounds passed the qigua input schema")
 	}
 }
 
@@ -270,7 +306,8 @@ func TestLiuyaoQiguaReceiptFeedsChartForAutoAndCoins(t *testing.T) {
 	registry := testEngine()
 	callChart := func(t *testing.T, event LiuyaoCastingEvent) {
 		t.Helper()
-		raw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{Event: &event}))
+		input := liuyaoCastingEventInput(event)
+		raw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{Event: input}))
 		if err != nil {
 			t.Fatalf("liuyao_chart: %v", err)
 		}
@@ -280,7 +317,6 @@ func TestLiuyaoQiguaReceiptFeedsChartForAutoAndCoins(t *testing.T) {
 	}
 
 	autoRaw, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
-		Question:       "测试事业进展",
 		Origin:         LiuyaoCastingRequestInput{Mode: "auto"},
 		CastingContext: testCastingContext(t),
 	}))
@@ -306,7 +342,6 @@ func TestLiuyaoQiguaReceiptFeedsChartForAutoAndCoins(t *testing.T) {
 	callChart(t, auto.Event)
 
 	coinsRaw, err := registry.Call(context.Background(), "liuyao_qigua", mustJSON(t, LiuyaoQiguaInput{
-		Question: "测试铜钱起卦",
 		Origin: LiuyaoCastingRequestInput{
 			Mode: "coins",
 			Rounds: LiuyaoCoinRoundsInput{
@@ -359,14 +394,14 @@ func TestLiuyaoChartResolvesFocusDeterministically(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			input := LiuyaoChartInput{Event: &LiuyaoCastingEvent{
-				Question: "测试焦点解析",
-				Origin:   LiuyaoCastingRequestInput{Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8}},
-				Casting:  casting,
-				CastingContext: LiuyaoCastingContextInput{
+			origin := LiuyaoCastingRequestInput{Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8}}
+			input := LiuyaoChartInput{Event: &LiuyaoCastingEventInput{
+				Origin:  &origin,
+				Casting: casting,
+				CastingContext: LiuyaoCastingContextInputCompat{
 					StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
 					Longitude:    116.4,
-					Focus:        test.focus,
+					Focus:        &test.focus,
 				},
 			}}
 			raw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, input))
@@ -395,10 +430,45 @@ func TestLiuyaoChartResolvesFocusDeterministically(t *testing.T) {
 	}
 }
 
+func TestLiuyaoChartUsesEventYongShenWithoutFocus(t *testing.T) {
+	registry := testEngine()
+	casting := LiuyaoCastingOutput{
+		Mode:    "yaos",
+		Order:   "bottom_up",
+		Yaos:    LiuyaoYaoValuesOutput{7, 8, 7, 8, 7, 8},
+		DongYao: LiuyaoPositions{},
+	}
+	event := LiuyaoCastingEventInput{
+		Casting: casting,
+		CastingContext: LiuyaoCastingContextInputCompat{
+			StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+			Longitude:    116.4,
+			YongShen:     "子孙",
+		},
+	}
+	raw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{Event: &event}))
+	if err != nil {
+		t.Fatalf("liuyao_chart: %v", err)
+	}
+	var result LiuyaoChartResultOutput
+	if err := json.Unmarshal(raw, &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.Chart.YongShen.Name != "子孙" || result.Event.CastingContext.YongShen != "子孙" {
+		t.Fatalf("event yong_shen was not used: %#v", result)
+	}
+
+	conflict := event
+	conflict.CastingContext.Focus = &LiuyaoFocusInput{Kind: "matter", Matter: "career"}
+	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{Event: &conflict})); err == nil ||
+		!strings.Contains(err.Error(), "both yong_shen and focus") {
+		t.Fatalf("conflicting yong_shen/focus error = %v", err)
+	}
+}
+
 func TestLiuyaoQiguaRejectsEmptyModeWithoutLegacyDefault(t *testing.T) {
 	_, err := LiuyaoQigua(context.Background(), LiuyaoQiguaInput{
-		Question: "测试空模式",
-		Origin:   LiuyaoCastingRequestInput{Mode: ""},
+		Origin: LiuyaoCastingRequestInput{Mode: ""},
 		CastingContext: LiuyaoCastingContextInput{
 			StandardTime: "2026-07-31T10:00:00+08:00",
 			Longitude:    116.4,
@@ -440,6 +510,17 @@ func testCastingContext(t *testing.T) LiuyaoCastingContextInput {
 		Focus: LiuyaoFocusInput{
 			Kind:   "matter",
 			Matter: "career",
+		},
+	}
+}
+
+func liuyaoCastingEventInput(event LiuyaoCastingEvent) *LiuyaoCastingEventInput {
+	return &LiuyaoCastingEventInput{
+		Casting: event.Casting,
+		CastingContext: LiuyaoCastingContextInputCompat{
+			StandardTime: event.CastingContext.StandardTime,
+			Longitude:    event.CastingContext.Longitude,
+			YongShen:     string(event.CastingContext.YongShen),
 		},
 	}
 }

@@ -16,7 +16,6 @@ def project_factors(
     casting: dict,
     chart: dict,
     analysis: dict,
-    question: dict,
 ) -> dict:
     """把 engine chart/analysis 投影为稳定解释上下文。"""
     if not isinstance(casting, dict):
@@ -25,8 +24,6 @@ def project_factors(
         raise ValueError("chart must be an object")
     if not isinstance(analysis, dict):
         raise ValueError("analysis must be an object")
-    if not isinstance(question, dict):
-        raise ValueError("question must be an object")
 
     yong_shen = chart.get("yong_shen")
     if not isinstance(yong_shen, dict):
@@ -246,7 +243,6 @@ def project_factors(
     }
 
     return {
-        "question": question,
         "casting": casting_projection(casting),
         "liuyao_chart": chart,
         "evidence": evidence,

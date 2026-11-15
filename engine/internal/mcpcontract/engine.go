@@ -344,14 +344,14 @@ func NewEngine() *Registry {
 	}
 	mustRegister(registry, Tool[LiuyaoQiguaInput, LiuyaoQiguaOutput]{
 		Name:         "liuyao_qigua",
-		Description:  "六爻起卦事件创建。question、origin 和 casting_context 一起构成唯一不可变事件；origin.mode=auto 每次都是新占卜事件，coins/yaos 可复现既有卦。返回完整 event，后续 chart/ask 必须原样消费。",
+		Description:  "六爻起卦事件创建。origin 与 casting_context（时间、经度、占问焦点）构成唯一不可变事件；起卦时按焦点确定性命理规则解析用神，并写入 event.casting_context.yong_shen。origin.mode=auto 每次都是新占卜事件，coins/yaos 可复现既有卦。question 由调用方持有，不进入 event。返回完整 event，后续 chart/ask 必须原样消费。",
 		InputSchema:  qiguaSchema,
 		OutputSchema: qiguaOutputSchema,
 		Handler:      LiuyaoQigua,
 	})
 	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartResultOutput]{
 		Name:         "liuyao_chart",
-		Description:  "六爻装卦。只消费 liuyao_qigua 返回的完整 event，并原样回传 event；确定性解析 focus 为用神，装卦并分析纳甲、六亲、六兽、旺衰、格局与应期。本方法不创建卦象事件，也不输出解读。",
+		Description:  "六爻装卦。只消费 liuyao_qigua 返回的 event，读取 event.casting_context.yong_shen（旧事件可回退 focus），装卦并输出纳甲、六亲、六兽、旺衰、格局、应期与 analysis。本方法不创建卦象事件，也不输出解读。",
 		InputSchema:  chartSchema,
 		OutputSchema: chartOutputSchema,
 		Handler:      LiuyaoChart,

@@ -49,13 +49,12 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 	qiguaRaw := call("liuyao_qigua", LiuyaoQiguaInput{Origin: LiuyaoCastingRequestInput{
 		Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
 	},
-		Question:       "测试事业进展",
 		CastingContext: testCastingContext(t),
 	})
 	var qigua LiuyaoQiguaOutput
 	decode(t, qiguaRaw, &qigua)
 	call("liuyao_chart", LiuyaoChartInput{
-		Event: &qigua.Event,
+		Event: liuyaoCastingEventInput(qigua.Event),
 	})
 
 	// Captured legacy fixtures cover the migrated high-volume bazi, ziwei, and

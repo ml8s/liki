@@ -7,8 +7,6 @@ from app.divination.tools.divination_rpc import engine_data  # noqa: E402
 
 LIUYAO_ARGS = {
     "event": {
-        "question": "测试这次面试能不能通过",
-        "origin": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
         "casting": {
             "mode": "yaos", "order": "bottom_up",
             "yaos": [7, 8, 7, 8, 7, 8], "dong_yao": [],
@@ -16,7 +14,7 @@ LIUYAO_ARGS = {
         "casting_context": {
             "standard_time": "2026-10-01T10:00:00+08:00",
             "longitude": 116.4,
-            "focus": {"kind": "matter", "matter": "general"},
+            "yong_shen": "世爻",
         },
     },
 }
@@ -43,17 +41,16 @@ def test_liuyao_ask_returns_self_contained_reading():
     srv = create_counsel_root_mcp()
     got = asyncio.run(srv.call_tool("liuyao_ask", dict(LIUYAO_ARGS))).structured_content
     assert got["technique"] == "liuyao"
+    assert set(got) == {
+        "technique", "evidence", "timing_candidates", "condition_candidates",
+        "interpretation", "safety_advisory",
+    }
     assert "reading_digest" not in got
-    assert got["scope"]["focus_value"] == "general"
+    assert "event" not in got and "chart" not in got and "scope" not in got
     assert got["interpretation"]["headline"]
     assert any(item["layer"] == "primary" for item in got["evidence"])
     assert isinstance(got["timing_candidates"], list)
     assert all(item["source_kind"] for item in got["evidence"])
-    assert all("pattern_kind" in pattern for pattern in got["chart"]["patterns"])
-    if got["chart"]["gua_ci"] is not None:
-        assert {"name", "text", "yao_ci"} <= set(got["chart"]["gua_ci"])
-    policy = got["scope"]["followup_policy"]
-    assert set(policy["same_matter"]) == {"clarification", "timing", "obstacle"}
     assert "used_evidence_ids" not in got["interpretation"]
     assert all("applies" not in item for item in got["condition_candidates"])
 
@@ -62,19 +59,22 @@ def test_liuyao_ask_coins_uses_raw_outcomes_and_engine_normalization():
     """Guard the full counsel -> engine coins contract, not mocked projections."""
     srv = create_counsel_root_mcp()
     qigua = engine_data("liuyao_qigua", {
-        "question": "测试这次面试能不能通过",
         "origin": {"mode": "coins", "rounds": LIUYAO_COINS_ROUNDS},
-        "casting_context": LIUYAO_ARGS["event"]["casting_context"],
+        "casting_context": {
+            "standard_time": "2026-10-01T10:00:00+08:00",
+            "longitude": 116.4,
+            "focus": {"kind": "matter", "matter": "career"},
+        },
     })["event"]
     got = asyncio.run(
         srv.call_tool("liuyao_ask", {"event": qigua})
     ).structured_content
 
-    assert got["event"]["casting"]["mode"] == "coins"
-    assert got["event"]["casting"]["coin_convention"] == {"正": 3, "反": 2}
-    assert got["event"]["casting"]["yaos"] == [8, 7, 6, 9, 7, 8]
-    assert got["event"]["casting"]["dong_yao"] == [3, 4]
-    for position, round_value in enumerate(got["event"]["casting"]["rounds"], 1):
+    assert qigua["casting"]["mode"] == "coins"
+    assert qigua["casting"]["coin_convention"] == {"正": 3, "反": 2}
+    assert qigua["casting"]["yaos"] == [8, 7, 6, 9, 7, 8]
+    assert qigua["casting"]["dong_yao"] == [3, 4]
+    for position, round_value in enumerate(qigua["casting"]["rounds"], 1):
         assert round_value["position"] == position
         assert round_value["yao_value"] in {6, 7, 8, 9}
         assert round_value["is_dong_yao"] == (round_value["yao_value"] in {6, 9})

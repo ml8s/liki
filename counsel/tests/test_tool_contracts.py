@@ -48,12 +48,16 @@ def test_qimen_ask_input_uses_method_branches():
 def test_ask_outputs_are_self_contained_readings():
     for name in ("liuyao_ask", "qimen_ask"):
         output = CONTRACTS[name].output_schema["properties"]
-        assert {"scope", "evidence", "interpretation"} <= set(output)
+        assert {"evidence", "interpretation"} <= set(output)
         if name == "liuyao_ask":
-            assert {"case_version", "event", "chart"} <= set(output)
-            assert "liuyao-case-v3" in output["case_version"]["const"]
+            assert set(output) == {
+                "technique", "evidence", "timing_candidates",
+                "condition_candidates", "interpretation", "safety_advisory",
+            }
             assert "selected_yongshen_context" not in output
             assert "chart_view" not in output
+        else:
+            assert "scope" in output
         assert "reading_digest" not in output
         assert "case_digest" not in output and "snapshot_digest" not in output
         assert "factors" not in output

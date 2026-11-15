@@ -43,7 +43,6 @@ def test_liuyao_factors_fail_closed_on_malformed_engine_conflicts():
             casting={},
             chart={"yong_shen": {"name": "官鬼", "position": 4}},
             analysis={"conflicts": conflicts},
-            question={"text": "测事"},
         )
 
     valid = project([{"id": "strong-but-void", "reason": "须辨真假空"}])

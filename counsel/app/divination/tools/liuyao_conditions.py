@@ -59,13 +59,10 @@ def _path_has_any(source: dict, path: str, expected) -> bool:
     return expected in flattened
 
 
-def _rule_state(rule: dict, factors: dict, topic: str | None) -> tuple[bool, str, list[str]]:
+def _rule_state(rule: dict, factors: dict) -> tuple[bool, str, list[str]]:
     applies = rule.get("applies_if", {})
     for path, expected in applies.items():
-        if path == "topic":
-            if topic != expected:
-                return False, "not_applicable", []
-        elif "[]" in path:
+        if "[]" in path:
             if not _path_has_any(factors, path, expected):
                 return False, "not_applicable", []
         else:
@@ -88,12 +85,12 @@ def _matches_state_class(factors: dict, rule: dict) -> bool:
     return _get_path(factors, rule["path"]) in set(rule["values"])
 
 
-def evaluate(factors: dict, topic: str | None = None) -> dict:
+def evaluate(factors: dict) -> dict:
     if not isinstance(factors, dict):
         raise ValueError("factors must be an object")
     results = []
     for rule in load_rules().get("rules", []):
-        applies, state, requires = _rule_state(rule, factors, topic)
+        applies, state, requires = _rule_state(rule, factors)
         branch = {}
         if state == "strong":
             branch = rule.get("strong_branch", {})

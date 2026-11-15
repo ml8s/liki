@@ -28,7 +28,6 @@ type LiuyaoCastingRequestInput struct {
 }
 
 type LiuyaoQiguaInput struct {
-	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
 	Origin         LiuyaoCastingRequestInput `json:"origin" jsonschema:"起卦创建方式；只用于创建一次卦象事件。"`
 	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
@@ -48,19 +47,16 @@ type LiuyaoYaosCastingRequest struct {
 }
 
 type LiuyaoQiguaAutoForm struct {
-	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
 	Origin         LiuyaoAutoCastingRequest  `json:"origin" jsonschema:"起卦创建方式。"`
 	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
 
 type LiuyaoQiguaCoinsForm struct {
-	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
 	Origin         LiuyaoCoinsCastingRequest `json:"origin" jsonschema:"起卦创建方式。"`
 	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
 
 type LiuyaoQiguaYaosForm struct {
-	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
 	Origin         LiuyaoYaosCastingRequest  `json:"origin" jsonschema:"起卦创建方式。"`
 	CastingContext LiuyaoCastingContextInput `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
 }
@@ -157,14 +153,9 @@ type LiuyaoYaosCastingReceipt struct {
 }
 
 type LiuyaoMatterFocusInput struct {
-	Kind   string `json:"kind" jsonschema:"焦点类型；matter 表示按问事类别推导。"`
-	Matter string `json:"matter" jsonschema:"问事类别。"`
-}
-
-type LiuyaoRelationshipFocusInput struct {
 	Kind        string `json:"kind" jsonschema:"焦点类型；matter 表示按问事类别推导。"`
-	Matter      string `json:"matter" jsonschema:"问事类别。"`
-	Perspective string `json:"perspective" jsonschema:"relationship 必填的性别视角。"`
+	Matter      string `json:"matter" jsonschema:"问事类别；relationship 需同时提供 perspective。"`
+	Perspective string `json:"perspective,omitempty" jsonschema:"仅 relationship 使用：问卦人性别，male 男占女，female 女占男。"`
 }
 
 type LiuyaoYongShenFocusInput struct {
@@ -182,16 +173,37 @@ type LiuyaoFocusInput struct {
 type LiuyaoCastingContextInput struct {
 	StandardTime StandardTime     `json:"standard_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude    Longitude        `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
-	Focus        LiuyaoFocusInput `json:"focus" jsonschema:"占问焦点；chart 内确定性解析为用神。"`
+	Focus        LiuyaoFocusInput `json:"focus" jsonschema:"占问焦点；起卦时确定性解析为用神。"`
 }
 
-type LiuyaoCastingContext = LiuyaoCastingContextInput
+// LiuyaoCastingContext is the immutable event context. It carries only the
+// resolved yong_shen so chart/ask never re-interpret the user-facing focus.
+type LiuyaoCastingContext struct {
+	StandardTime StandardTime       `json:"standard_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude    Longitude          `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
+	YongShen     LiuyaoYongShenName `json:"yong_shen" jsonschema:"起卦时解析出的用神；chart/ask 唯一取用依据。"`
+}
 
 type LiuyaoCastingEvent struct {
-	Question       string                    `json:"question" jsonschema:"起卦时绑定的唯一固定问题。"`
-	Origin         LiuyaoCastingRequestInput `json:"origin" jsonschema:"起卦创建方式。"`
-	Casting        LiuyaoCastingOutput       `json:"casting" jsonschema:"一次起卦的完整源事实。"`
-	CastingContext LiuyaoCastingContext      `json:"casting_context" jsonschema:"起卦地标准时间、经度与用户确认的占问焦点。"`
+	Casting        LiuyaoCastingOutput  `json:"casting" jsonschema:"一次起卦的完整源事实。"`
+	CastingContext LiuyaoCastingContext `json:"casting_context" jsonschema:"起卦地标准时间、经度与解析出的用神。"`
+}
+
+// LiuyaoCastingEventInput accepts both the canonical minimal event and legacy
+// events that still carry question/origin/focus. Legacy fields are normalized
+// away before chart/ask logic runs.
+type LiuyaoCastingEventInput struct {
+	Question       string                          `json:"question,omitempty" jsonschema:"旧事件兼容字段；新事件不携带。"`
+	Origin         *LiuyaoCastingRequestInput      `json:"origin,omitempty" jsonschema:"旧事件兼容字段；新事件不携带。"`
+	Casting        LiuyaoCastingOutput             `json:"casting" jsonschema:"一次起卦的完整源事实。"`
+	CastingContext LiuyaoCastingContextInputCompat `json:"casting_context" jsonschema:"起卦地标准时间、经度与用神或旧版焦点。"`
+}
+
+type LiuyaoCastingContextInputCompat struct {
+	StandardTime StandardTime      `json:"standard_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude    Longitude         `json:"longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
+	Focus        *LiuyaoFocusInput `json:"focus,omitempty" jsonschema:"旧事件兼容字段；新事件不携带。"`
+	YongShen     string            `json:"yong_shen,omitempty" jsonschema:"起卦时解析出的用神；新事件必填。"`
 }
 
 func liuyaoMatterFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
@@ -205,18 +217,18 @@ func liuyaoMatterFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, e
 	}
 	raw, err = withSchemaEnum(
 		raw, "matter",
-		"general", "self", "other", "career", "wealth",
-		"study", "home", "travel", "family", "competition", "children",
-		"lost_item", "legal",
+		"self", "other", "parents", "children", "siblings",
+		"wealth", "career", "study", "health", "legal", "home", "travel", "lost_item",
 	)
 	if err != nil {
 		return nil, err
 	}
-	return raw, nil
+	// perspective is only valid on the relationship branch.
+	return withoutSchemaProperty(raw, "perspective")
 }
 
 func liuyaoRelationshipFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
-	_, raw, err := inputSchemaFor[LiuyaoRelationshipFocusInput](options)
+	_, raw, err := inputSchemaFor[LiuyaoMatterFocusInput](options)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +240,11 @@ func liuyaoRelationshipFocusSchema(options *jsonschema.ForOptions) (json.RawMess
 	if err != nil {
 		return nil, err
 	}
-	return withSchemaEnum(raw, "perspective", "male", "female")
+	raw, err = withSchemaEnum(raw, "perspective", "male", "female")
+	if err != nil {
+		return nil, err
+	}
+	return withSchemaRequiredFields(raw, "kind", "matter", "perspective")
 }
 
 func liuyaoYongShenFocusSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
@@ -276,6 +292,34 @@ func patchLiuyaoEvent(event map[string]any, options *jsonschema.ForOptions) (map
 	if err != nil {
 		return nil, err
 	}
+	casting, err := liuyaoCastingReceiptSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaProperty(raw, "casting", casting)
+	if err != nil {
+		return nil, err
+	}
+	context, err := liuyaoEventCastingContextSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaProperty(raw, "casting_context", context)
+	if err != nil {
+		return nil, err
+	}
+	var patched map[string]any
+	if err := json.Unmarshal(raw, &patched); err != nil {
+		return nil, err
+	}
+	return patched, nil
+}
+
+func patchLiuyaoEventInput(event map[string]any, options *jsonschema.ForOptions) (map[string]any, error) {
+	raw, err := json.Marshal(event)
+	if err != nil {
+		return nil, err
+	}
 	origin, err := liuyaoOriginSchema(options)
 	if err != nil {
 		return nil, err
@@ -292,11 +336,11 @@ func patchLiuyaoEvent(event map[string]any, options *jsonschema.ForOptions) (map
 	if err != nil {
 		return nil, err
 	}
-	castingContext, err := liuyaoCastingContextSchema(options)
+	context, err := liuyaoEventInputCastingContextSchema(options)
 	if err != nil {
 		return nil, err
 	}
-	raw, err = withSchemaProperty(raw, "casting_context", castingContext)
+	raw, err = withSchemaProperty(raw, "casting_context", context)
 	if err != nil {
 		return nil, err
 	}
@@ -317,6 +361,23 @@ func withLiuyaoEventSchema(document map[string]any, options *jsonschema.ForOptio
 		return nil, fmt.Errorf("schema has no event properties")
 	}
 	patched, err := patchLiuyaoEvent(event, options)
+	if err != nil {
+		return nil, err
+	}
+	properties["event"] = patched
+	return document, nil
+}
+
+func withLiuyaoEventInputSchema(document map[string]any, options *jsonschema.ForOptions) (map[string]any, error) {
+	properties, ok := document["properties"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("schema has no properties")
+	}
+	event, ok := properties["event"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("schema has no event properties")
+	}
+	patched, err := patchLiuyaoEventInput(event, options)
 	if err != nil {
 		return nil, err
 	}
@@ -352,6 +413,30 @@ func liuyaoCastingContextSchema(options *jsonschema.ForOptions) (json.RawMessage
 		return nil, err
 	}
 	return withSchemaProperty(raw, "focus", focus)
+}
+
+func liuyaoEventCastingContextSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[LiuyaoCastingContext](options)
+	if err != nil {
+		return nil, err
+	}
+	return raw, nil
+}
+
+func liuyaoEventInputCastingContextSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[LiuyaoCastingContextInputCompat](options)
+	if err != nil {
+		return nil, err
+	}
+	focus, err := liuyaoFocusSchema(options)
+	if err != nil {
+		return nil, err
+	}
+	raw, err = withSchemaProperty(raw, "focus", focus)
+	if err != nil {
+		return nil, err
+	}
+	return withSchemaEitherRequired(raw, "yong_shen", "focus")
 }
 
 func liuyaoCastingReceiptSchema(options *jsonschema.ForOptions) (json.RawMessage, error) {
@@ -391,7 +476,7 @@ func liuyaoChartSchema(options *jsonschema.ForOptions) (json.RawMessage, error) 
 	if err := json.Unmarshal(raw, &document); err != nil {
 		return nil, err
 	}
-	document, err = withLiuyaoEventSchema(document, options)
+	document, err = withLiuyaoEventInputSchema(document, options)
 	if err != nil {
 		return nil, err
 	}
@@ -598,25 +683,39 @@ type LiuyaoConflictOutput struct {
 }
 
 type LiuyaoChartResultOutput struct {
-	Event    LiuyaoCastingEvent   `json:"event" jsonschema:"本次排盘原样回传的不可变卦象事件。"`
-	Chart    LiuyaoChartView      `json:"chart" jsonschema:"六爻盘面统一视图。"`
-	Analysis LiuyaoAnalysisOutput `json:"analysis" jsonschema:"六爻判断层确定性分析事实。"`
+	Event LiuyaoCastingEvent `json:"event" jsonschema:"本次排盘原样回传的不可变卦象事件。"`
+	Chart LiuyaoChartView    `json:"chart" jsonschema:"六爻盘面统一视图；analysis 一并置于 chart 内。"`
 }
 
+// liuyaoMatterYongShen is the single source of truth for matter -> yong_shen.
+// rationale:
+//   - self/health/travel: 自占以世爻为用；疾病以世为身，官鬼为病神；出行吉凶看世。
+//   - other: 无尊卑称呼、未深交、泛指对象取应爻。
+//   - relationship: 男占女以妻财为主，女占男以官鬼为主；由 perspective 决定。
+//   - parents/home: 父母为墙城宅舍、文书。
+//   - children/siblings: 六亲分类。
+//   - wealth/lost_item: 财爻为钱物、所失物之主。
+//   - career/legal: 官鬼为功名官府、问官。
+//   - study: 父爻为学业文书，官鬼只作名次辅助。
+//
+// Legacy matters remain readable for historical events only.
 var liuyaoMatterYongShen = map[string]LiuyaoYongShenName{
-	"general":     "世爻",
 	"self":        "世爻",
 	"other":       "应爻",
-	"family":      "世爻",
-	"career":      "官鬼",
-	"legal":       "官鬼",
-	"wealth":      "妻财",
-	"lost_item":   "妻财",
-	"study":       "父母",
-	"home":        "父母",
-	"travel":      "父母",
-	"competition": "兄弟",
+	"parents":     "父母",
 	"children":    "子孙",
+	"siblings":    "兄弟",
+	"wealth":      "妻财",
+	"career":      "官鬼",
+	"study":       "父母",
+	"health":      "世爻",
+	"legal":       "官鬼",
+	"home":        "父母",
+	"travel":      "世爻",
+	"lost_item":   "妻财",
+	"general":     "世爻",
+	"family":      "世爻",
+	"competition": "兄弟",
 }
 
 func liuyaoResolveFocus(focus LiuyaoFocusInput) (LiuyaoYongShenName, error) {
@@ -657,6 +756,25 @@ func liuyaoResolveFocus(focus LiuyaoFocusInput) (LiuyaoYongShenName, error) {
 	default:
 		return "", fmt.Errorf("focus.kind must be matter/yong_shen")
 	}
+}
+
+// liuyaoEventYongShen reads the resolved yong_shen from the event. The focus
+// fallback exists only so pre-upgrade events remain consumable; new events
+// written by liuyao_qigua always carry yong_shen and never carry focus.
+func liuyaoEventYongShen(ctx LiuyaoCastingContextInputCompat) (LiuyaoYongShenName, error) {
+	if ctx.YongShen != "" {
+		if ctx.Focus != nil {
+			return "", fmt.Errorf("casting_context cannot carry both yong_shen and focus")
+		}
+		if _, err := liuyao.ParseYongShen(ctx.YongShen); err != nil {
+			return "", fmt.Errorf("invalid yong_shen: %w", err)
+		}
+		return LiuyaoYongShenName(ctx.YongShen), nil
+	}
+	if ctx.Focus == nil {
+		return "", fmt.Errorf("casting_context.yong_shen is required")
+	}
+	return liuyaoResolveFocus(*ctx.Focus)
 }
 
 type LiuyaoAnalysisOutput struct {
@@ -747,13 +865,12 @@ type LiuyaoChartView struct {
 	Patterns     []LiuyaoChartPatternView `json:"patterns" jsonschema:"盘面格局。"`
 	YongShen     LiuyaoYongShenView       `json:"yong_shen" jsonschema:"最终用神状态。"`
 	GuaCi        *LiuyaoGuaCiView         `json:"gua_ci,omitempty" jsonschema:"卦爻辞。"`
+	Analysis     LiuyaoAnalysisOutput     `json:"analysis" jsonschema:"六爻判断层确定性分析事实。"`
 }
 
 func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, error) {
-	if len([]rune(input.Question)) < 2 {
-		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: question requires at least 2 characters")
-	}
-	if _, err := liuyaoResolveFocus(input.CastingContext.Focus); err != nil {
+	yongShen, err := liuyaoResolveFocus(input.CastingContext.Focus)
+	if err != nil {
 		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: invalid focus: %w", err)
 	}
 	if _, _, err := parseStandardTime(input.CastingContext.StandardTime); err != nil {
@@ -763,7 +880,6 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: longitude must be within [-180,180], got %v", float64(input.CastingContext.Longitude))
 	}
 	var casting liuyao.Casting
-	var err error
 	request := input.Origin
 	switch request.Mode {
 	case "auto":
@@ -806,19 +922,26 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 		return LiuyaoQiguaOutput{}, fmt.Errorf("liuyao_qigua: %w", err)
 	}
 	return LiuyaoQiguaOutput{Event: LiuyaoCastingEvent{
-		Question:       input.Question,
-		Origin:         input.Origin,
-		Casting:        liuyaoCastingWire(casting),
-		CastingContext: input.CastingContext,
+		Casting: liuyaoCastingWire(casting),
+		CastingContext: LiuyaoCastingContext{
+			StandardTime: input.CastingContext.StandardTime,
+			Longitude:    input.CastingContext.Longitude,
+			YongShen:     yongShen,
+		},
 	}}, nil
 }
 
 // LiuyaoChartInput consumes the immutable casting event created by liuyao_qigua.
+// The input type tolerates legacy events (question/origin/focus), while new
+// events are normalized to the minimal canonical shape before use.
 type LiuyaoChartInput struct {
-	Event *LiuyaoCastingEvent `json:"event" jsonschema:"liuyao_qigua 返回的不可变卦象事件。"`
+	Event *LiuyaoCastingEventInput `json:"event" jsonschema:"liuyao_qigua 返回的不可变卦象事件。"`
 }
 
-func validateLiuyaoEventOrigin(origin LiuyaoCastingRequestInput, casting LiuyaoCastingOutput) error {
+func validateLiuyaoEventOrigin(origin *LiuyaoCastingRequestInput, casting LiuyaoCastingOutput) error {
+	if origin == nil {
+		return nil
+	}
 	switch origin.Mode {
 	case "auto":
 		if origin.Rounds != nil || origin.Yaos != nil {
@@ -851,37 +974,41 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartResultOu
 	if input.Event == nil {
 		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: event is required")
 	}
-	if len([]rune(input.Event.Question)) < 2 {
-		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid event question")
-	}
 	if err := validateLiuyaoEventOrigin(input.Event.Origin, input.Event.Casting); err != nil {
 		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid event origin: %w", err)
 	}
-	context := input.Event.CastingContext
 	casting, err := liuyaoCastingDomain(input.Event.Casting)
 	if err != nil {
 		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
 	}
-	focus, err := liuyaoResolveFocus(context.Focus)
-	if err != nil {
-		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: invalid focus: %w", err)
-	}
-	standard, _, err := parseStandardTime(context.StandardTime)
+	yongShen, err := liuyaoEventYongShen(input.Event.CastingContext)
 	if err != nil {
 		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	if float64(context.Longitude) < -180 || float64(context.Longitude) > 180 {
-		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: longitude must be within [-180,180], got %v", float64(context.Longitude))
-	}
-	ys, err := liuyao.ParseYongShen(string(focus))
+	standard, _, err := parseStandardTime(input.Event.CastingContext.StandardTime)
 	if err != nil {
 		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	chart := liuyao.ComputeChartAt(standard, float64(context.Longitude), ys, casting.Yaos)
+	if float64(input.Event.CastingContext.Longitude) < -180 || float64(input.Event.CastingContext.Longitude) > 180 {
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: longitude must be within [-180,180], got %v", float64(input.Event.CastingContext.Longitude))
+	}
+	ys, err := liuyao.ParseYongShen(string(yongShen))
+	if err != nil {
+		return LiuyaoChartResultOutput{}, fmt.Errorf("liuyao.chart: %w", err)
+	}
+	chart := liuyao.ComputeChartAt(standard, float64(input.Event.CastingContext.Longitude), ys, casting.Yaos)
+	view := liuyaoChartViewWire(chart)
+	view.Analysis = liuyaoAnalysisWire(chart)
 	return LiuyaoChartResultOutput{
-		Event:    *input.Event,
-		Chart:    liuyaoChartViewWire(chart),
-		Analysis: liuyaoAnalysisWire(chart),
+		Event: LiuyaoCastingEvent{
+			Casting: input.Event.Casting,
+			CastingContext: LiuyaoCastingContext{
+				StandardTime: input.Event.CastingContext.StandardTime,
+				Longitude:    input.Event.CastingContext.Longitude,
+				YongShen:     yongShen,
+			},
+		},
+		Chart: view,
 	}, nil
 }
 

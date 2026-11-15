@@ -1,1 +1,498 @@
-{"chart":{"gua_name":"既济","bian_gua":null,"palace":"坎","palace_wuxing":"水","lines":[{"position":1,"yao_value":7,"gan_zhi":"己卯","wuxing":"木","liu_qin":"子孙","liu_shou":"勾陈","ri_chen_relations":{"relations":["克"]},"wang_shuai":"死","chang_sheng_yue":"胎","flags":{"moving":false,"yue_po":true,"xun_kong":true,"mu_ku":false,"dong_sheng":false,"dong_ke":false}},{"position":2,"yao_value":8,"gan_zhi":"己丑","wuxing":"土","liu_qin":"官鬼","liu_shou":"螣蛇","ri_chen_relations":{"relations":["平"]},"wang_shuai":"休","chang_sheng_yue":"死","flags":{"moving":false,"yue_po":false,"xun_kong":false,"mu_ku":false,"dong_sheng":false,"dong_ke":false}},{"position":3,"yao_value":7,"gan_zhi":"己亥","wuxing":"水","liu_qin":"兄弟","shi_ying":"世","liu_shou":"白虎","ri_chen_relations":{"relations":["生"]},"wang_shuai":"相","chang_sheng_yue":"沐浴","flags":{"moving":false,"yue_po":false,"xun_kong":false,"mu_ku":false,"dong_sheng":false,"dong_ke":false}},{"position":4,"yao_value":8,"gan_zhi":"戊申","wuxing":"金","liu_qin":"父母","liu_shou":"玄武","ri_chen_relations":{"relations":["扶"]},"wang_shuai":"旺","chang_sheng_yue":"帝旺","flags":{"moving":false,"yue_po":false,"xun_kong":false,"mu_ku":false,"dong_sheng":false,"dong_ke":false}},{"position":5,"yao_value":7,"gan_zhi":"戊戌","wuxing":"土","liu_qin":"官鬼","liu_shou":"青龙","ri_chen_relations":{"relations":["平"]},"wang_shuai":"休","chang_sheng_yue":"死","flags":{"moving":false,"yue_po":false,"xun_kong":false,"mu_ku":false,"dong_sheng":false,"dong_ke":false}},{"position":6,"yao_value":8,"gan_zhi":"戊子","wuxing":"水","liu_qin":"兄弟","shi_ying":"应","liu_shou":"朱雀","ri_chen_relations":{"relations":["生"]},"wang_shuai":"相","chang_sheng_yue":"沐浴","flags":{"moving":false,"yue_po":false,"xun_kong":false,"mu_ku":false,"dong_sheng":false,"dong_ke":false}}],"bian_lines":[],"ri_gan":"戊","ri_zhi":"申","yue_gan":"丁","yue_zhi":"酉","xun_kong":["寅","卯"],"patterns":[{"id":"pattern-1","pattern_kind":"两现","sub_type":"用神两现","position":0,"is_true":true}],"yong_shen":{"name":"官鬼","position":2,"wang_shuai":"休","liu_shou":"螣蛇","chang_sheng":"死"},"gua_ci":{"name":"既济","text":"亨小，利贞。初吉终乱","yao_ci":["曳其轮，濡其尾，无咎","妇丧其茀，勿逐，七日得","高宗伐鬼方，三年克之，小人勿用","繻有衣袽，终日戒","东邻杀牛，不如西邻之禴祭，实受其福","濡其首，厉"]}},"analysis":{"hidden_lines":[{"position":3,"liu_qin":"妻财","gan":"戊","zhi":"午","wuxing":"火","flying_position":3,"flying_liu_qin":"兄弟","flying_gan":"己","flying_zhi":"亥","flying_wuxing":"水","fei_fu_relation":"飞来克伏","exit_condition":"待飞神受冲或合化，伏神旺相方可出伏"}],"branch_relation_facts":[{"left_position":1,"right_position":5,"relations":["六合"],"basis":["left=卯","right=戌"]},{"left_position":2,"right_position":5,"relations":["刑（成组候选）"],"targets":["yong_shen"],"basis":["left=丑","right=戌"]},{"left_position":2,"right_position":6,"relations":["六合"],"targets":["yong_shen","other"],"basis":["left=丑","right=子"]},{"left_position":3,"right_position":4,"relations":["六害"],"targets":["world"],"basis":["left=亥","right=申"]}],"tomb_school":{"earth_branch":"辰","school":"engine_default_chen"},"san_he_candidates":[{"positions":[4,6],"branches":["申","子"],"wuxing":"水","complete":false,"moving_count":0,"qualification":"卦爻支数不足三，只作半合 / 聚气候选，不作成局结论","line_complete":false,"day_present":true,"month_present":false,"missing":["辰"],"static_count":2,"void_count":0,"break_count":0,"activated":false,"targets":["other"],"conclusion_scope":"structure_candidate_only_not_outcome"},{"positions":[1,3],"branches":["卯","亥"],"wuxing":"木","complete":false,"moving_count":0,"qualification":"卦爻支数不足三，只作半合 / 聚气候选，不作成局结论","line_complete":false,"day_present":false,"month_present":false,"missing":["未"],"static_count":2,"void_count":1,"break_count":1,"activated":false,"targets":["world"],"conclusion_scope":"structure_candidate_only_not_outcome"},{"positions":[5],"branches":["戌"],"wuxing":"火","complete":false,"moving_count":0,"qualification":"卦爻支数不足三，只作半合 / 聚气候选，不作成局结论","line_complete":false,"day_present":false,"month_present":false,"missing":["寅","午"],"static_count":1,"void_count":0,"break_count":0,"activated":false,"conclusion_scope":"structure_candidate_only_not_outcome"},{"positions":[2],"branches":["丑"],"wuxing":"金","complete":false,"moving_count":0,"qualification":"卦爻支数不足三，只作半合 / 聚气候选，不作成局结论","line_complete":false,"day_present":false,"month_present":true,"missing":["巳"],"static_count":1,"void_count":0,"break_count":0,"activated":false,"targets":["yong_shen"],"conclusion_scope":"structure_candidate_only_not_outcome"}],"yong_shen_force_chain":{"yong_shen":"官鬼","yong_element":"土","position":2,"is_hidden":false,"entries":[{"role":"用神","wuxing":"土","positions":[2,5],"branches":["丑","戌"],"relations":["日平","日平"],"states":["休/安静","休/安静"],"note":"所问事项主线"},{"role":"原神","wuxing":"火","note":"生用神者"},{"role":"忌神","wuxing":"木","positions":[1],"branches":["卯"],"relations":["日克"],"states":["死/安静/旬空/月破"],"note":"克用神者"},{"role":"仇神","wuxing":"水","positions":[3,6],"branches":["亥","子"],"relations":["日生","日生"],"states":["相/安静","相/安静"],"note":"克原神且生忌神者"}]},"yong_shen_candidates":[{"position":2,"branch":"丑","is_hidden":false,"selected":true,"wang_shuai":"休","reason":"用神两现，按旺衰、动静、破空、被伤取舍"},{"position":5,"branch":"戌","is_hidden":false,"selected":false,"wang_shuai":"休","reason":"未选；列出以供复核"}]},"event":{"question":"测试这次事业能不能推进","origin":{"mode":"yaos","yaos":[7,8,7,8,7,8]},"casting":{"mode":"yaos","order":"bottom_up","yaos":[7,8,7,8,7,8],"dong_yao":[]},"casting_context":{"standard_time":"2026-10-01T10:00:00+08:00","longitude":116.4,"focus":{"kind":"matter","matter":"career"}}}}
+{
+  "chart": {
+    "gua_name": "既济",
+    "bian_gua": null,
+    "palace": "坎",
+    "palace_wuxing": "水",
+    "lines": [
+      {
+        "position": 1,
+        "yao_value": 7,
+        "gan_zhi": "己卯",
+        "wuxing": "木",
+        "liu_qin": "子孙",
+        "liu_shou": "勾陈",
+        "ri_chen_relations": {
+          "relations": [
+            "克"
+          ]
+        },
+        "wang_shuai": "死",
+        "chang_sheng_yue": "胎",
+        "flags": {
+          "moving": false,
+          "yue_po": true,
+          "xun_kong": true,
+          "mu_ku": false,
+          "dong_sheng": false,
+          "dong_ke": false
+        }
+      },
+      {
+        "position": 2,
+        "yao_value": 8,
+        "gan_zhi": "己丑",
+        "wuxing": "土",
+        "liu_qin": "官鬼",
+        "liu_shou": "螣蛇",
+        "ri_chen_relations": {
+          "relations": [
+            "平"
+          ]
+        },
+        "wang_shuai": "休",
+        "chang_sheng_yue": "死",
+        "flags": {
+          "moving": false,
+          "yue_po": false,
+          "xun_kong": false,
+          "mu_ku": false,
+          "dong_sheng": false,
+          "dong_ke": false
+        }
+      },
+      {
+        "position": 3,
+        "yao_value": 7,
+        "gan_zhi": "己亥",
+        "wuxing": "水",
+        "liu_qin": "兄弟",
+        "shi_ying": "世",
+        "liu_shou": "白虎",
+        "ri_chen_relations": {
+          "relations": [
+            "生"
+          ]
+        },
+        "wang_shuai": "相",
+        "chang_sheng_yue": "沐浴",
+        "flags": {
+          "moving": false,
+          "yue_po": false,
+          "xun_kong": false,
+          "mu_ku": false,
+          "dong_sheng": false,
+          "dong_ke": false
+        }
+      },
+      {
+        "position": 4,
+        "yao_value": 8,
+        "gan_zhi": "戊申",
+        "wuxing": "金",
+        "liu_qin": "父母",
+        "liu_shou": "玄武",
+        "ri_chen_relations": {
+          "relations": [
+            "扶"
+          ]
+        },
+        "wang_shuai": "旺",
+        "chang_sheng_yue": "帝旺",
+        "flags": {
+          "moving": false,
+          "yue_po": false,
+          "xun_kong": false,
+          "mu_ku": false,
+          "dong_sheng": false,
+          "dong_ke": false
+        }
+      },
+      {
+        "position": 5,
+        "yao_value": 7,
+        "gan_zhi": "戊戌",
+        "wuxing": "土",
+        "liu_qin": "官鬼",
+        "liu_shou": "青龙",
+        "ri_chen_relations": {
+          "relations": [
+            "平"
+          ]
+        },
+        "wang_shuai": "休",
+        "chang_sheng_yue": "死",
+        "flags": {
+          "moving": false,
+          "yue_po": false,
+          "xun_kong": false,
+          "mu_ku": false,
+          "dong_sheng": false,
+          "dong_ke": false
+        }
+      },
+      {
+        "position": 6,
+        "yao_value": 8,
+        "gan_zhi": "戊子",
+        "wuxing": "水",
+        "liu_qin": "兄弟",
+        "shi_ying": "应",
+        "liu_shou": "朱雀",
+        "ri_chen_relations": {
+          "relations": [
+            "生"
+          ]
+        },
+        "wang_shuai": "相",
+        "chang_sheng_yue": "沐浴",
+        "flags": {
+          "moving": false,
+          "yue_po": false,
+          "xun_kong": false,
+          "mu_ku": false,
+          "dong_sheng": false,
+          "dong_ke": false
+        }
+      }
+    ],
+    "bian_lines": [],
+    "ri_gan": "戊",
+    "ri_zhi": "申",
+    "yue_gan": "丁",
+    "yue_zhi": "酉",
+    "xun_kong": [
+      "寅",
+      "卯"
+    ],
+    "patterns": [
+      {
+        "id": "pattern-1",
+        "pattern_kind": "两现",
+        "sub_type": "用神两现",
+        "position": 0,
+        "is_true": true
+      }
+    ],
+    "yong_shen": {
+      "name": "官鬼",
+      "position": 2,
+      "wang_shuai": "休",
+      "liu_shou": "螣蛇",
+      "chang_sheng": "死"
+    },
+    "gua_ci": {
+      "name": "既济",
+      "text": "亨小，利贞。初吉终乱",
+      "yao_ci": [
+        "曳其轮，濡其尾，无咎",
+        "妇丧其茀，勿逐，七日得",
+        "高宗伐鬼方，三年克之，小人勿用",
+        "繻有衣袽，终日戒",
+        "东邻杀牛，不如西邻之禴祭，实受其福",
+        "濡其首，厉"
+      ]
+    },
+    "analysis": {
+      "hidden_lines": [
+        {
+          "position": 3,
+          "liu_qin": "妻财",
+          "gan": "戊",
+          "zhi": "午",
+          "wuxing": "火",
+          "flying_position": 3,
+          "flying_liu_qin": "兄弟",
+          "flying_gan": "己",
+          "flying_zhi": "亥",
+          "flying_wuxing": "水",
+          "fei_fu_relation": "飞来克伏",
+          "exit_condition": "待飞神受冲或合化，伏神旺相方可出伏"
+        }
+      ],
+      "branch_relation_facts": [
+        {
+          "left_position": 1,
+          "right_position": 5,
+          "relations": [
+            "六合"
+          ],
+          "basis": [
+            "left=卯",
+            "right=戌"
+          ]
+        },
+        {
+          "left_position": 2,
+          "right_position": 5,
+          "relations": [
+            "刑（成组候选）"
+          ],
+          "targets": [
+            "yong_shen"
+          ],
+          "basis": [
+            "left=丑",
+            "right=戌"
+          ]
+        },
+        {
+          "left_position": 2,
+          "right_position": 6,
+          "relations": [
+            "六合"
+          ],
+          "targets": [
+            "yong_shen",
+            "other"
+          ],
+          "basis": [
+            "left=丑",
+            "right=子"
+          ]
+        },
+        {
+          "left_position": 3,
+          "right_position": 4,
+          "relations": [
+            "六害"
+          ],
+          "targets": [
+            "world"
+          ],
+          "basis": [
+            "left=亥",
+            "right=申"
+          ]
+        }
+      ],
+      "tomb_school": {
+        "earth_branch": "辰",
+        "school": "engine_default_chen"
+      },
+      "san_he_candidates": [
+        {
+          "positions": [
+            4,
+            6
+          ],
+          "branches": [
+            "申",
+            "子"
+          ],
+          "wuxing": "水",
+          "complete": false,
+          "moving_count": 0,
+          "qualification": "卦爻支数不足三，只作半合 / 聚气候选，不作成局结论",
+          "line_complete": false,
+          "day_present": true,
+          "month_present": false,
+          "missing": [
+            "辰"
+          ],
+          "static_count": 2,
+          "void_count": 0,
+          "break_count": 0,
+          "activated": false,
+          "targets": [
+            "other"
+          ],
+          "conclusion_scope": "structure_candidate_only_not_outcome"
+        },
+        {
+          "positions": [
+            1,
+            3
+          ],
+          "branches": [
+            "卯",
+            "亥"
+          ],
+          "wuxing": "木",
+          "complete": false,
+          "moving_count": 0,
+          "qualification": "卦爻支数不足三，只作半合 / 聚气候选，不作成局结论",
+          "line_complete": false,
+          "day_present": false,
+          "month_present": false,
+          "missing": [
+            "未"
+          ],
+          "static_count": 2,
+          "void_count": 1,
+          "break_count": 1,
+          "activated": false,
+          "targets": [
+            "world"
+          ],
+          "conclusion_scope": "structure_candidate_only_not_outcome"
+        },
+        {
+          "positions": [
+            5
+          ],
+          "branches": [
+            "戌"
+          ],
+          "wuxing": "火",
+          "complete": false,
+          "moving_count": 0,
+          "qualification": "卦爻支数不足三，只作半合 / 聚气候选，不作成局结论",
+          "line_complete": false,
+          "day_present": false,
+          "month_present": false,
+          "missing": [
+            "寅",
+            "午"
+          ],
+          "static_count": 1,
+          "void_count": 0,
+          "break_count": 0,
+          "activated": false,
+          "conclusion_scope": "structure_candidate_only_not_outcome"
+        },
+        {
+          "positions": [
+            2
+          ],
+          "branches": [
+            "丑"
+          ],
+          "wuxing": "金",
+          "complete": false,
+          "moving_count": 0,
+          "qualification": "卦爻支数不足三，只作半合 / 聚气候选，不作成局结论",
+          "line_complete": false,
+          "day_present": false,
+          "month_present": true,
+          "missing": [
+            "巳"
+          ],
+          "static_count": 1,
+          "void_count": 0,
+          "break_count": 0,
+          "activated": false,
+          "targets": [
+            "yong_shen"
+          ],
+          "conclusion_scope": "structure_candidate_only_not_outcome"
+        }
+      ],
+      "yong_shen_force_chain": {
+        "yong_shen": "官鬼",
+        "yong_element": "土",
+        "position": 2,
+        "is_hidden": false,
+        "entries": [
+          {
+            "role": "用神",
+            "wuxing": "土",
+            "positions": [
+              2,
+              5
+            ],
+            "branches": [
+              "丑",
+              "戌"
+            ],
+            "relations": [
+              "日平",
+              "日平"
+            ],
+            "states": [
+              "休/安静",
+              "休/安静"
+            ],
+            "note": "所问事项主线"
+          },
+          {
+            "role": "原神",
+            "wuxing": "火",
+            "note": "生用神者"
+          },
+          {
+            "role": "忌神",
+            "wuxing": "木",
+            "positions": [
+              1
+            ],
+            "branches": [
+              "卯"
+            ],
+            "relations": [
+              "日克"
+            ],
+            "states": [
+              "死/安静/旬空/月破"
+            ],
+            "note": "克用神者"
+          },
+          {
+            "role": "仇神",
+            "wuxing": "水",
+            "positions": [
+              3,
+              6
+            ],
+            "branches": [
+              "亥",
+              "子"
+            ],
+            "relations": [
+              "日生",
+              "日生"
+            ],
+            "states": [
+              "相/安静",
+              "相/安静"
+            ],
+            "note": "克原神且生忌神者"
+          }
+        ]
+      },
+      "yong_shen_candidates": [
+        {
+          "position": 2,
+          "branch": "丑",
+          "is_hidden": false,
+          "selected": true,
+          "wang_shuai": "休",
+          "reason": "用神两现，按旺衰、动静、破空、被伤取舍"
+        },
+        {
+          "position": 5,
+          "branch": "戌",
+          "is_hidden": false,
+          "selected": false,
+          "wang_shuai": "休",
+          "reason": "未选；列出以供复核"
+        }
+      ]
+    }
+  },
+  "event": {
+    "question": "测试这次事业能不能推进",
+    "origin": {
+      "mode": "yaos",
+      "yaos": [
+        7,
+        8,
+        7,
+        8,
+        7,
+        8
+      ]
+    },
+    "casting": {
+      "mode": "yaos",
+      "order": "bottom_up",
+      "yaos": [
+        7,
+        8,
+        7,
+        8,
+        7,
+        8
+      ],
+      "dong_yao": []
+    },
+    "casting_context": {
+      "standard_time": "2026-10-01T10:00:00+08:00",
+      "longitude": 116.4,
+      "focus": {
+        "kind": "matter",
+        "matter": "career"
+      }
+    }
+  }
+}

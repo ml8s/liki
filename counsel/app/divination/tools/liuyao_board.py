@@ -23,31 +23,16 @@ def factors(
     }
     result = engine_data("liuyao_chart", params)
     chart = result.get("chart")
-    analysis = result.get("analysis")
     if not isinstance(chart, dict):
         raise ValueError("engine returned liuyao.chart without chart view")
+    analysis = chart.get("analysis")
     if not isinstance(analysis, dict):
-        raise ValueError("engine returned liuyao.chart without analysis")
+        raise ValueError("engine returned liuyao.chart without chart.analysis")
 
-    focus = context.get("focus", {})
-    matter = focus.get("matter")
-    explicit_yong_shen = focus.get("yong_shen")
-    perspective = focus.get("perspective")
-    question_fact = {
-        "text": event.get("question", ""),
-        "matter": matter,
-        "explicit_yong_shen": None if matter else explicit_yong_shen,
-        "perspective": perspective,
-    }
     factors = project_factors(
         casting=casting,
         chart=chart,
         analysis=analysis,
-        question=question_fact,
     )
-    factors["liuyao_chart"] = result.get("chart")
-    return {
-        "question": question_fact,
-        "matter": {"matter": matter} if matter else None,
-        "factors": factors,
-    }
+    factors["liuyao_chart"] = chart
+    return {"factors": factors}

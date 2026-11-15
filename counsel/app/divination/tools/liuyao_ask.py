@@ -3,61 +3,6 @@
 from app.divination.tools.liuyao_answer_core import build as build_answer_core
 from app.divination.tools.liuyao_answer_core import validate_core as validate_answer_core
 from app.divination.tools.liuyao_case import create as create_case
-from app.guards import require_question
-
-_DOMAIN_EVIDENCE = {
-    "general": ["general", "timing", "obstacle"],
-    "self": ["self", "timing", "obstacle"],
-    "other": ["other_person", "timing"],
-    "career": ["career", "obstacle", "timing"],
-    "wealth": ["wealth", "obstacle", "timing"],
-    "relationship": ["relationship", "timing"],
-    "study": ["study", "timing"],
-    "home": ["home", "timing"],
-    "travel": ["travel", "obstacle", "timing"],
-    "family": ["family", "timing"],
-    "competition": ["competition", "obstacle", "timing"],
-    "children": ["children", "timing"],
-    "lost_item": ["lost_item", "timing"],
-    "legal": ["legal", "obstacle", "timing"],
-}
-
-_FOLLOWUP_POLICY = {
-    "same_matter": {
-        "clarification": "allowed_from_reading",
-        "timing": "allowed_from_reading",
-        "obstacle": "allowed_from_reading",
-    },
-    "new_domain": "requires_new_case",
-    "another_matter": "requires_new_case",
-    "recast_same_matter": "forbidden",
-    "beyond_returned_evidence": "answer_insufficient",
-}
-
-
-def _focus_value(focus: dict) -> str | None:
-    if focus.get("kind") == "matter":
-        return focus.get("matter")
-    return focus.get("yong_shen")
-
-
-def _build_scope(case: dict) -> dict:
-    focus = case["event"]["casting_context"]["focus"]
-    value = _focus_value(focus) or "general"
-    included = list(_DOMAIN_EVIDENCE.get(value, ["general", "timing", "obstacle"]))
-    known_domains = {
-        domain
-        for domains in _DOMAIN_EVIDENCE.values()
-        for domain in domains
-    }
-    return {
-        "focus_kind": focus.get("kind"),
-        "focus_value": value,
-        "topic": case.get("topic"),
-        "included_domains": included,
-        "excluded_domains": sorted(known_domains - set(included)),
-        "followup_policy": _FOLLOWUP_POLICY,
-    }
 
 
 def _evidence_index(case: dict) -> dict[str, tuple[str, dict]]:
@@ -93,12 +38,7 @@ def _source_kind(source_ref: str) -> str:
 def _reading(case: dict, answer: dict) -> dict:
     reading = {
         "technique": "liuyao",
-        "case_version": case["case_version"],
-        "scope": _build_scope(case),
-        "event": case["event"],
-        "chart": case["chart"],
         "evidence": _project_evidence(case, answer),
-        "conflicts": answer["conflicts"],
         "timing_candidates": case["timing_plan"]["candidates"],
         "condition_candidates": [
             {key: value for key, value in item.items() if key != "applies"}
@@ -122,8 +62,9 @@ def ask(**arguments) -> dict:
     event = arguments.get("event")
     if not isinstance(event, dict):
         raise ValueError("liuyao ask requires event")
-    require_question(event.get("question"))
-    case = create_case(**arguments)
+    if set(arguments) != {"event"}:
+        raise ValueError("liuyao ask accepts only event")
+    case = create_case(event=event)
     answer = build_answer_core(case)
     counts = (
         len(answer.get("primary_evidence_refs", [])),

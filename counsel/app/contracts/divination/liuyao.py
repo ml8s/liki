@@ -2,47 +2,43 @@
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, model_validator
 
-from app.contracts.divination.common import (
-    DivinationConflict,
-    DivinationFollowupPolicy,
-)
-from app.contracts.schema import ToolContract, unique_list
+from app.contracts.divination.common import DivinationConflict
+from app.contracts.schema import ToolContract
 
-LiuyaoTopic = Literal[
-    "career", "children", "competition", "family", "general", "health_context",
-    "home", "legal", "lost_item", "other", "relationship", "self", "study",
-    "travel", "wealth",
+LiuyaoMatter = Literal[
+    "self", "other", "relationship", "parents", "children", "siblings",
+    "wealth", "career", "study", "health", "legal", "home", "travel", "lost_item",
 ]
-LiuyaoDomain = Literal[
-    "general", "self", "other_person", "career", "wealth", "relationship",
-    "study", "home", "travel", "family", "competition", "children",
-    "lost_item", "legal", "obstacle", "timing",
+LIUYAO_MATTER_NAMES = [
+    "self", "other", "parents", "children", "siblings",
+    "wealth", "career", "study", "health", "legal", "home", "travel", "lost_item",
 ]
+LIUYAO_YONGSHEN_NAMES = ["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"]
 
 
 class LiuyaoMatterFocus(BaseModel):
-    """按问事类别推导用神。"""
+    """按问事类别推导用神；relationship 必须带问卦人性别。"""
     model_config = ConfigDict(extra="forbid")
     kind: Literal["matter"] = Field(description="焦点类型：问事类别。")
-    matter: Literal[
-        "general", "self", "other", "career", "wealth",
-        "study", "home", "travel", "family", "competition", "children",
-        "lost_item", "legal",
-    ] = Field(description="问事类别；决定用神。")
-
-class LiuyaoRelationshipFocus(BaseModel):
-    """按问卦人性别视角推导感情用神。"""
-    model_config = ConfigDict(extra="forbid")
-    kind: Literal["matter"] = Field(description="焦点类型：问事类别。")
-    matter: Literal["relationship"] = Field(description="问事类别。")
-    perspective: Literal["male", "female"] = Field(
-        description="问卦人性别视角；matter=relationship 必填。",
+    matter: LiuyaoMatter = Field(description="问事类别；决定用神。")
+    perspective: Literal["male", "female"] | None = Field(
+        default=None,
+        description="仅 relationship 使用：问卦人性别，male 男占女，female 女占男。",
     )
 
+    @model_validator(mode="after")
+    def _perspective_matches_matter(self) -> "LiuyaoMatterFocus":
+        if self.matter == "relationship" and self.perspective is None:
+            raise ValueError("relationship matter requires perspective=male/female")
+        if self.matter != "relationship" and self.perspective is not None:
+            raise ValueError("perspective is only valid for relationship")
+        return self
+
+
 class LiuyaoYongshenFocus(BaseModel):
-    """使用显式六亲用神。"""
+    """使用显式六亲用神；用于同性/非二元关系等无法由类别唯一取用的场景。"""
     model_config = ConfigDict(extra="forbid")
     kind: Literal["yong_shen"] = Field(description="焦点类型：显式用神。")
     yong_shen: Literal["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"] = Field(
@@ -50,7 +46,7 @@ class LiuyaoYongshenFocus(BaseModel):
     )
 
 
-LiuyaoFocus = LiuyaoMatterFocus | LiuyaoRelationshipFocus | LiuyaoYongshenFocus
+LiuyaoFocus = LiuyaoMatterFocus | LiuyaoYongshenFocus
 
 
 class LiuyaoAutoOrigin(BaseModel):
@@ -81,11 +77,7 @@ LiuyaoOrigin = LiuyaoAutoOrigin | LiuyaoCoinsOrigin | LiuyaoYaosOrigin
 
 def _liuyao_context_schema_extra(schema: dict) -> None:
     """Project focus discriminators and relationship perspective rules to JSON Schema."""
-    matter_names = [
-        "general", "self", "other", "career", "wealth",
-        "study", "home", "travel", "family",
-        "competition", "children", "lost_item", "legal",
-    ]
+    matter_names = LIUYAO_MATTER_NAMES
     focus = {
         "oneOf": [
             {
@@ -121,7 +113,7 @@ def _liuyao_context_schema_extra(schema: dict) -> None:
                     "kind": {"const": "yong_shen", "description": "焦点类型：显式用神。", "type": "string"},
                     "yong_shen": {
                         "description": "高级显式用神。",
-                        "enum": ["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"],
+                        "enum": LIUYAO_YONGSHEN_NAMES,
                         "type": "string",
                     },
                 },
@@ -129,9 +121,13 @@ def _liuyao_context_schema_extra(schema: dict) -> None:
                 "type": "object",
             },
         ],
-        "description": "占问焦点；chart 确定性解析为用神。",
+        "description": "占问焦点；起卦时确定性解析为用神。",
     }
     schema.setdefault("properties", {})["focus"] = focus
+    schema["oneOf"] = [
+        {"required": ["yong_shen"], "properties": {"yong_shen": {"type": "string"}}},
+        {"required": ["focus"], "properties": {"focus": {"type": "object"}}},
+    ]
 
 class LiuyaoCastingRoundsItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -184,7 +180,11 @@ LiuyaoCasting = LiuyaoCoinsCastingReceipt | LiuyaoYaosCastingReceipt
 
 
 class LiuyaoCastingContext(BaseModel):
-    """Immutable casting context bound at qigua time."""
+    """Immutable casting context bound at qigua time.
+
+    New events carry only the resolved yong_shen. focus is accepted solely for
+    events created before the qigua contract change.
+    """
 
     model_config = ConfigDict(extra="forbid", json_schema_extra=_liuyao_context_schema_extra)
     standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
@@ -193,24 +193,49 @@ class LiuyaoCastingContext(BaseModel):
     longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
         description="起卦地经度（-180..180）。",
     )
-    focus: LiuyaoFocus = Field(description="占问焦点；chart 确定性解析为用神。")
+    yong_shen: Literal["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"] | None = Field(
+        default=None,
+        description="起卦时解析出的用神；chart/ask 唯一取用依据。",
+    )
+    focus: LiuyaoFocus | None = Field(
+        default=None,
+        description="旧事件兼容字段；新事件不携带。",
+    )
+
+    @model_validator(mode="after")
+    def _yongshen_or_legacy_focus(self) -> "LiuyaoCastingContext":
+        if self.yong_shen is not None and self.focus is not None:
+            raise ValueError("casting_context cannot carry both yong_shen and focus")
+        if self.yong_shen is None and self.focus is None:
+            raise ValueError("casting_context.yong_shen is required")
+        return self
 
 
 class LiuyaoCastingEvent(BaseModel):
-    """Immutable question, origin, casting, and casting context."""
+    """Immutable casting event shared by chart and ask.
+
+    The canonical event is {casting, casting_context}. question/origin remain
+    optional only to keep historical events readable.
+    """
 
     model_config = ConfigDict(extra="forbid")
-    question: Annotated[str, Field(min_length=2)] = Field(
-        description="起卦时绑定的唯一固定问题。",
+    question: Annotated[str, Field(min_length=2)] | None = Field(
+        default=None,
+        description="旧事件兼容字段；新事件不携带，question 由调用方持有。",
     )
-    origin: LiuyaoOrigin = Field(description="起卦创建方式。")
+    origin: LiuyaoOrigin | None = Field(
+        default=None,
+        description="旧事件兼容字段；新事件不携带。",
+    )
     casting: LiuyaoCasting = Field(description="一次起卦的完整源事实。")
     casting_context: LiuyaoCastingContext = Field(
-        description="起卦地标准时间、经度与用户确认的占问焦点。",
+        description="起卦地标准时间、经度与解析出的用神。",
     )
 
     @model_validator(mode="after")
     def _origin_matches_casting(self) -> "LiuyaoCastingEvent":
+        if self.origin is None:
+            return self
         expected = "yaos" if self.origin.mode == "yaos" else "coins"
         if self.casting.mode != expected:
             raise ValueError(
@@ -224,11 +249,7 @@ class LiuyaoAskInput(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
     event: LiuyaoCastingEvent = Field(
-        description="liuyao_qigua 返回并由 chart 原样回传的完整卦象事件。",
-    )
-    topic: LiuyaoTopic | None = Field(
-        default=None,
-        description="可选专题视角；省略时与 matter 相同。",
+        description="liuyao_qigua 返回的不可变卦象事件；ask 只读取 casting 与 yong_shen。",
     )
 
 
@@ -325,11 +346,12 @@ class LiuyaoChart(BaseModel):
     patterns: list[LiuyaoPattern] = Field(default_factory=list, description="盘面格局。")
     yong_shen: LiuyaoYongShenView = Field(description="最终用神状态。")
     gua_ci: LiuyaoGuaCi | None = Field(default=None, description="卦爻辞。")
+    analysis: "LiuyaoAnalysis" = Field(description="判断层确定性分析事实。")
 
 
 class LiuyaoHiddenLine(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
+    id: Annotated[str, Field(min_length=1)] | None = None
     position: Annotated[int, Field(ge=1, le=6)]
     liu_qin: str
     gan: str
@@ -349,7 +371,7 @@ class LiuyaoHiddenLine(BaseModel):
 
 class LiuyaoBranchRelationFact(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
+    id: Annotated[str, Field(min_length=1)] | None = None
     left_position: Annotated[int, Field(ge=1, le=6)]
     right_position: Annotated[int, Field(ge=1, le=6)]
     relations: list[str]
@@ -359,7 +381,7 @@ class LiuyaoBranchRelationFact(BaseModel):
 
 class LiuyaoDayClashFact(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
+    id: Annotated[str, Field(min_length=1)] | None = None
     position: Annotated[int, Field(ge=1, le=6)]
     kind: str
     basis: list[str] = Field(default_factory=list)
@@ -368,14 +390,14 @@ class LiuyaoDayClashFact(BaseModel):
 
 class LiuyaoMovingRelation(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
+    id: Annotated[str, Field(min_length=1)] | None = None
     position: Annotated[int, Field(ge=1, le=6)]
     relations: list[str]
 
 
 class LiuyaoMovingTransformation(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
+    id: Annotated[str, Field(min_length=1)] | None = None
     position: Annotated[int, Field(ge=1, le=6)]
     from_branch: str
     to_branch: str
@@ -388,7 +410,7 @@ class LiuyaoMovingTransformation(BaseModel):
 
 class LiuyaoSanHeCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
+    id: Annotated[str, Field(min_length=1)] | None = None
     positions: list[Annotated[int, Field(ge=1, le=6)]]
     branches: list[str]
     wuxing: str
@@ -420,7 +442,7 @@ class LiuyaoForceEntry(BaseModel):
 
 class LiuyaoForceChain(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
+    id: Annotated[str, Field(min_length=1)] | None = None
     yong_shen: str
     yong_element: str
     position: Annotated[int, Field(ge=0, le=6)]
@@ -430,8 +452,8 @@ class LiuyaoForceChain(BaseModel):
 
 class LiuyaoYongshenCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: Annotated[str, Field(min_length=1)]
-    position: Annotated[int, Field(ge=1, le=6)]
+    id: Annotated[str, Field(min_length=1)] | None = None
+    position: Annotated[int, Field(ge=0, le=6)]
     branch: str
     is_hidden: bool
     selected: bool
@@ -563,18 +585,21 @@ class LiuyaoAnalysis(BaseModel):
     """Judgment-layer facts derived beyond the displayed chart."""
 
     model_config = ConfigDict(extra="forbid")
-    moving_relations: list[LiuyaoMovingRelation] = Field(default_factory=list)
+    dong_yao_relations: list[LiuyaoMovingRelation] = Field(
+        default_factory=list,
+        validation_alias=AliasChoices("dong_yao_relations", "moving_relations"),
+    )
     hidden_lines: list[LiuyaoHiddenLine] = Field(default_factory=list)
     branch_relation_facts: list[LiuyaoBranchRelationFact] = Field(default_factory=list)
     day_clash_facts: list[LiuyaoDayClashFact] = Field(default_factory=list)
     moving_transformations: list[LiuyaoMovingTransformation] = Field(default_factory=list)
     san_he_candidates: list[LiuyaoSanHeCandidate] = Field(default_factory=list)
     timing_candidates: list[LiuyaoAnalysisTimingCandidate] = Field(default_factory=list)
-    yong_shen_force_chain: LiuyaoForceChain | None
+    yong_shen_force_chain: LiuyaoForceChain | None = None
     yong_shen_candidates: list[LiuyaoYongshenCandidate] = Field(default_factory=list)
     conflicts: list[DivinationConflict] = Field(default_factory=list)
     tomb_school: LiuyaoTombSchool
-    reference_only_facts: list[LiuyaoReferenceOnlyFact]
+    reference_only_facts: list[LiuyaoReferenceOnlyFact] = Field(default_factory=list)
 
 
 class LiuyaoPolicy(BaseModel):
@@ -592,21 +617,6 @@ class LiuyaoPolicy(BaseModel):
     must_restore_hidden_conditions: Literal[True]
     forbid_absolute_old_phrases: Literal[True]
     reference_may_not_override_primary: Literal[True]
-
-
-class LiuyaoTopicGuidance(BaseModel):
-    """Topic-specific judgment guidance; evidence availability lives in evidence."""
-
-    model_config = ConfigDict(extra="forbid")
-    name: str
-    expected_yongshen: str = Field(description="该专题期望取的用神。")
-    force_roles: dict[Literal["yuan_shen", "ji_shen", "chou_shen"], str]
-    primary_factors: list[str]
-    reference_factors: list[str]
-    timing_focus: list[str]
-    common_misjudgments: list[str]
-    boundary: str
-    conclusion_scope: str
 
 
 class LiuyaoConditionCandidate(BaseModel):
@@ -688,25 +698,16 @@ class LiuyaoCase(BaseModel):
         description="Immutable casting event shared by chart and ask.",
     )
     chart: LiuyaoChart = Field(
-        description="Structural Liuyao chart.",
+        description="Structural Liuyao chart, including judgment-layer analysis.",
     )
     evidence: LiuyaoEvidence = Field(
         description="Evidence returned by this tool.",
-    )
-    analysis: LiuyaoAnalysis = Field(
-        description="Judgment-layer analysis facts.",
     )
     policy: LiuyaoPolicy = Field(
         description="Policy returned by this tool.",
     )
     technique: Literal["liuyao"] = Field(
         description="Divination technique.",
-    )
-    topic: str | None = Field(
-        description="Topic returned by this tool.",
-    )
-    topic_guidance: LiuyaoTopicGuidance | None = Field(
-        description="Topic-specific judgment guidance.",
     )
     timing_plan: LiuyaoTimingPlan = Field(
         description="Policy-ordered timing candidates.",
@@ -720,19 +721,6 @@ class LiuyaoCase(BaseModel):
 
 
 # ── qimen ask inputs ──
-
-class LiuyaoReadingScope(BaseModel):
-    """Controlled business scope for one divination reading."""
-
-    model_config = ConfigDict(extra="forbid")
-    focus_kind: Literal["matter", "yong_shen"] = Field(description="问测焦点类型。")
-    focus_value: str | None = Field(default=None, description="问测焦点值。")
-    topic: LiuyaoTopic | None = Field(default=None, description="专题视角。")
-    included_domains: unique_list[LiuyaoDomain] = Field(default_factory=list, description="本次 Reading 覆盖的领域。")
-    excluded_domains: unique_list[LiuyaoDomain] = Field(default_factory=list, description="本次 Reading 不覆盖的领域。")
-    followup_policy: DivinationFollowupPolicy = Field(description="追问范围与重新问测边界。")
-
-
 
 class LiuyaoReadingEvidence(BaseModel):
     """Self-contained evidence returned with a Liuyao reading."""
@@ -768,12 +756,7 @@ class LiuyaoAskOutput(BaseModel):
     """六爻问测返回的受控 Reading。"""
 
     technique: Literal["liuyao"] = Field(description="占测技术。")
-    case_version: Literal["liuyao-case-v3"] = Field(description="问卦档案契约版本。")
-    scope: LiuyaoReadingScope = Field(description="本次 Reading 的受控范围。")
-    event: LiuyaoCastingEvent = Field(description="本次使用的不可变卦象事件。")
-    chart: LiuyaoChart = Field(description="六爻盘面受控视图。")
     evidence: list[LiuyaoReadingEvidence] = Field(min_length=1, description="解读依据。")
-    conflicts: list[DivinationConflict] = Field(description="并列或矛盾信号。")
     timing_candidates: list[LiuyaoTimingCandidate] = Field(description="应期候选。")
     condition_candidates: list[LiuyaoReadingConditionCandidate] = Field(description="条件还原候选。")
     interpretation: LiuyaoInterpretation = Field(description="结构化解读结论。")
@@ -782,7 +765,7 @@ class LiuyaoAskOutput(BaseModel):
 
 TOOL_LIUYAO_ASK = ToolContract(
     name="liuyao_ask",
-    description="解读一个已存在的六爻卦象事件。必须传入 liuyao_qigua 返回并在 chart 中原样回传的完整 event；返回专业盘面、证据、应期候选与受控解读。本方法不创建新卦，event 缺失时直接失败。需要时空方位决策时改用 qimen_ask。",
+    description="解读一个已存在的六爻卦象事件。必须传入 liuyao_qigua 返回的完整 event；ask 只读取 event.casting 与 event.casting_context.yong_shen，不接触 question/topic。返回基于用神的证据、应期候选与受控解读，由调用方结合用户问题做领域化解释。本方法不创建新卦。需要时空方位决策时改用 qimen_ask。",
     input=LiuyaoAskInput,
     output=LiuyaoAskOutput,
     annotations={"readOnlyHint": True, "idempotentHint": True},

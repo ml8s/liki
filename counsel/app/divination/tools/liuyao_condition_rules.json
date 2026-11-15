@@ -132,7 +132,7 @@
       "restored": "兄弟动是克财候选，必须实际作用到妻财且妻财无力。",
       "applies_if": {
         "evidence.primary[].fact.relations[]": "克用",
-        "topic": "wealth"
+        "liuyao_chart.yong_shen.name": "妻财"
       },
       "strong_branch": {
         "status": "rejected",

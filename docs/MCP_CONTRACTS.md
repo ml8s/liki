@@ -178,15 +178,58 @@ registry plus `app.contracts.TOOL_GROUPS`; `make check` runs the same script in
 
 ## Divination event lifecycle
 
-Six-yao reads consume one immutable `LiuyaoCastingEvent`:
+Six-yao reads consume one minimal, immutable `LiuyaoCastingEvent`:
 
-- `liuyao_qigua` (ENGINE) creates the event from `question`, `origin`, and
-  `casting_context`; `origin.mode=auto` always creates a new event.
-- `liuyao_chart` (ENGINE) and `liuyao_ask` (COUNSEL) accept that event unchanged.
-  Neither method creates or re-casts a hexagram; `chart` resolves
-  `casting_context.focus` to the yong-shen deterministically.
-- The shared event schema constrains `origin`, `casting`, and `casting_context`
-  as discriminated branches on every input/output boundary.
+```json
+{
+  "casting": { "mode": "yaos", "order": "bottom_up", "yaos": ["..."], "dong_yao": [3] },
+  "casting_context": {
+    "standard_time": "2026-01-01T12:00:00+08:00",
+    "longitude": 116.4,
+    "yong_shen": "妻财"
+  }
+}
+```
+
+- `liuyao_qigua` (ENGINE) creates the event from `origin` and
+  `casting_context` only. `question` is not an MCP argument; it stays with the
+  calling LLM. `casting_context.focus` is resolved exactly once, at qigua time,
+  into `casting_context.yong_shen`. `origin.mode=auto` always creates a new
+  event.
+- `liuyao_chart` (ENGINE) and `liuyao_ask` (COUNSEL) accept that event
+  unchanged. Neither method creates or re-casts a hexagram, and neither reads
+  `question`, `origin`, or `focus`; both read `casting_context.yong_shen` as the
+  single yong-shen fact.
+- `liuyao_chart` returns `{ event, chart }`, where every derived judgment fact
+  lives inside `chart.analysis`; there is no top-level `analysis`.
+- `liuyao_ask` returns only the controlled reading:
+  `technique`, `evidence`, `timing_candidates`, `condition_candidates`,
+  `interpretation`, `safety_advisory`. It does not echo `event` or `chart`, and
+  it has no `topic` input.
+- Legacy events that still carry `question` / `origin` /
+  `casting_context.focus` remain readable by `liuyao_chart` / `liuyao_ask` for
+  historical records only; new events never carry those fields. The two
+  representations are normalized to the same minimal shape before domain logic.
+
+### Focus → yong-shen
+
+| matter | yong_shen |
+| --- | --- |
+| `self`, `health`, `travel` | 世爻 |
+| `other` | 应爻 |
+| `relationship` + `perspective=male` | 妻财 |
+| `relationship` + `perspective=female` | 官鬼 |
+| `parents`, `study`, `home` | 父母 |
+| `children` | 子孙 |
+| `siblings` | 兄弟 |
+| `wealth`, `lost_item` | 妻财 |
+| `career`, `legal` | 官鬼 |
+
+`relationship` requires `perspective=male/female`. An explicit
+`{ "kind": "yong_shen", "yong_shen": "..." }` focus is available for
+same-sex/non-binary readings or when the user explicitly chooses a yong-shen.
+`general`, `family`, and `competition` are accepted only as legacy historical
+matters (世爻 / 世爻 / 兄弟) and are not offered by new forms.
 
 ## Counsel contract
 

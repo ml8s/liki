@@ -20,41 +20,5 @@
     "月破逢值": 54,
     "月破逢合": 46,
     "出月令": 38
-  },
-  "topic_horizon": {
-    "wealth": "short_to_medium",
-    "career": "medium",
-    "relationship": "event_based",
-    "study": "deadline_based",
-    "lost_item": "short",
-    "travel": "short",
-    "legal": "process_based",
-    "health_context": "event_based"
-  },
-  "focus_id_prefixes": {
-    "moving-value": [
-      "moving-value"
-    ],
-    "moving-harmony": [
-      "moving-harmony"
-    ],
-    "static-harmony": [
-      "static-harmony"
-    ],
-    "void-fill": [
-      "void-fill"
-    ],
-    "static-clash": [
-      "static-clash"
-    ],
-    "hidden-release": [
-      "hidden-release"
-    ],
-    "yuepo-recovery": [
-      "month-break-value",
-      "month-break-harmony",
-      "month-break-exit"
-    ],
-    "timing-action": []
   }
 }

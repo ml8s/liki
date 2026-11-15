@@ -118,3 +118,77 @@ func withSchemaProperty(raw json.RawMessage, field string, replacement json.RawM
 	properties[field] = property
 	return json.Marshal(document)
 }
+
+func withoutSchemaProperty(raw json.RawMessage, field string) (json.RawMessage, error) {
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	if properties, ok := document["properties"].(map[string]any); ok {
+		delete(properties, field)
+	}
+	if required, ok := document["required"].([]any); ok {
+		kept := make([]any, 0, len(required))
+		for _, name := range required {
+			if text, ok := name.(string); !ok || text != field {
+				kept = append(kept, name)
+			}
+		}
+		if len(kept) == 0 {
+			delete(document, "required")
+		} else {
+			document["required"] = kept
+		}
+	}
+	return json.Marshal(document)
+}
+
+func withSchemaRequiredFields(raw json.RawMessage, fields ...string) (json.RawMessage, error) {
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	existing := make([]string, 0, len(fields))
+	seen := map[string]struct{}{}
+	if required, ok := document["required"].([]any); ok {
+		for _, name := range required {
+			text, ok := name.(string)
+			if !ok {
+				continue
+			}
+			if _, duplicate := seen[text]; duplicate {
+				continue
+			}
+			seen[text] = struct{}{}
+			existing = append(existing, text)
+		}
+	}
+	for _, field := range fields {
+		if _, duplicate := seen[field]; duplicate {
+			continue
+		}
+		seen[field] = struct{}{}
+		existing = append(existing, field)
+	}
+	document["required"] = existing
+	return json.Marshal(document)
+}
+
+// withSchemaEitherRequired requires exactly one of two optional properties.
+func withSchemaEitherRequired(raw json.RawMessage, first, second string) (json.RawMessage, error) {
+	var document map[string]any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return nil, err
+	}
+	document["oneOf"] = []any{
+		map[string]any{
+			"required":   []any{first},
+			"properties": map[string]any{first: map[string]any{"type": "string"}},
+		},
+		map[string]any{
+			"required":   []any{second},
+			"properties": map[string]any{second: map[string]any{"type": "object"}},
+		},
+	}
+	return json.Marshal(document)
+}
