@@ -1,13 +1,12 @@
 name: Sync to liki
 on:
   push:
-    tags:                # 任何 tag push 皆觸發
+    tags:                # 任何 tag push 皆触发
   workflow_dispatch:    # （可保留）手動觸發
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    if: ${{ contains(github.ref, 'refs/tags/') && match(github.ref, 'refs/tags/v\\d{4}\\.\\d{2}\\.\\d{2}\\.\\d{6}') }}
     steps:
       - name: Checkout liki‑mingli
         uses: actions/checkout@v4
@@ -22,10 +21,16 @@ jobs:
           path: liki
           fetch-depth: 0
 
-      - name: Push to liki (triggered by date‑timestamp tag)
+      - name: Push to liki if date‑timestamp tag
+        if: ${{ github.ref startsWith 'refs/tags/' }}
         run: |
-          cd liki
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --ff-only origin main
-          git push https://${{ secrets.SYNC_PAT }}@github.com/ml8s/liki.git main
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          if [[ "$TAG_NAME" =~ ^v[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{6}$ ]]; then
+            echo "Tag '$TAG_NAME' is a date‑timestamp → pushing"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git pull --ff-only origin main
+            git push https://${{ secrets.SYNC_PAT }}@github.com/ml8s/liki.git main
+          else
+            echo "Tag '$TAG_NAME' is NOT a date‑timestamp → skipping push"
+          fi
