@@ -1,0 +1,10 @@
+{
+  "name": "ml8s/liki-skill",
+  "version": "1.0.0",
+  "description": "Liki Chinese astrology and divination skill",
+  "files": [
+    "skills/liki/SKILL.md",
+    "skills/liki/.mcp.json",
+    "skills/liki/feedback.schema.json"
+  ]
+}
