@@ -1,7 +1,7 @@
 {
-  "name": "ml8s/liki-skill",
+  "name": "ml8s/liki",
   "version": "1.0.0",
-  "description": "Liki Chinese astrology and divination skill",
+  "description": "Liki 命理师覆盖八字、紫微、六爻、奇门、黄历择日、风水与起名；排盘和断语来自确定性引擎，依据可回溯。传统文化视角，不构成专业建议。",
   "files": [
     "skills/liki/SKILL.md",
     "skills/liki/.mcp.json",
