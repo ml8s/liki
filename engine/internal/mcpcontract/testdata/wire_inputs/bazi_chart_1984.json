@@ -1,9 +1,0 @@
-{
-  "input": {
-    "subject": {
-      "standard_time": "1984-02-15T08:00:00+08:00",
-      "longitude": 123.75,
-      "gender": "male"
-    }
-  }
-}

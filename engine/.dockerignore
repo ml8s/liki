@@ -1,9 +1,0 @@
-.git
-.gitignore
-.env
-.env.example
-.github
-scripts/
-Makefile
-*.test
-liki

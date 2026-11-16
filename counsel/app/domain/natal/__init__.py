@@ -1,1 +1,0 @@
-"""Natal domain models."""

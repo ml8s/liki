@@ -1,25 +1,4 @@
-# OS
 .DS_Store
 Thumbs.db
-dist/
-/build/release/
-/node_modules/
-/bin/
-# 本地开发技能（不入库）
 .agents/
 __pycache__/
-.venv/
-
-# Python coverage artifacts
-.coverage
-.coverage.*
-coverage.xml
-htmlcov/
-
-# Go coverage artifacts
-coverage.out
-
-# Local check stamps
-.cache/
-.benchmarks/
-/.alipay-sandbox.json

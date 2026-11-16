@@ -1,2 +1,0 @@
-# golangci-lint 版本 pin：本地 `make lint-engine` 与 CI `engine-lint` job 共用。
-version: v2.13.2

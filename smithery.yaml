@@ -1,5 +1,0 @@
-# Smithery 配置（ml8s/liki 仓库根目录）
-startCommand:
-  type: remote
-  url: https://mcp.tokflux.com/mcp
-  connectionType: streamable-http
