@@ -42,6 +42,12 @@ class TestDeploymentGeneration(unittest.TestCase):
                 agents = deployment["spec"]["agents"]
                 self.assertTrue(all(agent["version"] == build_id for agent in agents))
 
+    def test_root_description_uses_market_english_copy(self):
+        deployment = self._deployment("liki-expert")
+        description = deployment["spec"]["agents"][0]["description"]
+        self.assertTrue(description.startswith("Liki Astrologer (Pro) covers"))
+        self.assertIn("not professional advice", description)
+
     def test_single_root_and_reachable_tree(self):
         deployment = self._deployment("liki-expert")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}

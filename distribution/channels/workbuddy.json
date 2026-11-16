@@ -4,7 +4,8 @@
     "free": {
       "variant": "free",
       "artifact": "liki-free.zip",
-      "top": "liki-free"
+      "top": "liki-free",
+      "expert": true
     },
     "pro": {
       "variant": "pro",

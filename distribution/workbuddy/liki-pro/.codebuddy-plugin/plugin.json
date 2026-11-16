@@ -5,36 +5,26 @@
   },
   "expertType": "agent",
   "displayDescription": {
-    "en": "Professional fate reading with traceable evidence",
-    "zh": "覆盖八字、紫微、六爻、奇门、黄历择日、风水与起名的命理师，结论有确定性引擎依据可回溯"
+    "en": "Liki Astrologer (Pro) is built for full chart work and long-term validation across BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, Feng Shui, date selection and naming, with traceable engine charts.",
+    "zh": "面向完整命盘与长期验证的命理师，覆盖八字、紫微、六爻、奇门、黄历择日、风水与起名，引擎排盘可回溯。"
   },
   "avatar": "./avatars/expert.png",
-  "categoryId": "lifestyle",
-  "defaultInitPrompt": {
-    "en": "Hello, I am Liki Astrologer.",
-    "zh": "你好，我是 Liki 命理师。"
-  },
+  "categoryId": "12-IndustryConsultant",
   "tags": [
-    "命理",
-    "八字",
-    "紫微斗数"
-  ],
-  "quickPrompts": [
     {
-      "label": "八字命盘",
-      "prompt": "帮我看八字命盘",
-      "zh": "你好，我是 Liki 命理师。"
+      "en": "Chinese Astrology",
+      "zh": "命理"
     },
     {
-      "label": "六爻占卜",
-      "prompt": "帮我起一卦",
-      "zh": "六爻占卜"
+      "en": "BaZi",
+      "zh": "八字"
     },
     {
-      "label": "起名",
-      "prompt": "帮我起名",
+      "en": "Chinese Naming",
       "zh": "起名"
     }
   ],
-  "dependencies": {}
+  "dependencies": {
+    "mcpServers": "./.mcp.json"
+  }
 }

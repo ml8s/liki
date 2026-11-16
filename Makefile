@@ -11,6 +11,9 @@ PYTHON_VENV_BIN := $(CURDIR)/counsel/.venv/bin
 PYTHON_BIN := $(PYTHON_VENV_BIN)/python
 export PATH := $(PYTHON_VENV_BIN):$(HOME)/sdk/go1.26.11/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
 export GOTOOLCHAIN ?= go1.26.11
+# Channel hosts reject reused package versions; pin an explicit monotonic version.
+LIKI_PACKAGE_VERSION ?= 2026.1116.190000
+export LIKI_PACKAGE_VERSION
 # Stale host GOROOT would force the 1.26.10 standard library onto the 1.26.11 toolchain.
 unexport GOROOT
 

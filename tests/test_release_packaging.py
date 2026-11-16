@@ -7,7 +7,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from build_channel_package import skill_doc  # noqa: E402
+from build_channel_package import load_market, skill_doc  # noqa: E402
 from version_projection import package_version  # noqa: E402
 
 
@@ -30,6 +30,22 @@ def test_invalid_commit_is_rejected() -> None:
         package_version(commit="invalid")
 
 
+def test_package_version_accepts_semver_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("LIKI_PACKAGE_VERSION", "2026.1116.200000")
+    assert package_version() == "2026.1116.200000"
+
+
+def test_package_version_rejects_invalid_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("LIKI_PACKAGE_VERSION", "2026.11.16.1")
+    with pytest.raises(ValueError):
+        package_version()
+
+
 def test_packaged_skill_projects_commit_time_semver() -> None:
-    frontmatter = skill_doc("free", "liki").split("---\n")[1]
-    assert re.search(r"(?m)^  version: \d+\.\d+\.\d+$", frontmatter)
+    frontmatter = skill_doc(
+        "free",
+        "liki",
+        load_market("skillhub", "free"),
+        channel="skillhub",
+    ).split("---\n")[1]
+    assert re.search(r"(?m)^version: \d+\.\d+\.\d+$", frontmatter)

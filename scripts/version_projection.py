@@ -13,6 +13,8 @@ deterministic for one commit and does not create an internal release contract.
 
 from __future__ import annotations
 
+import os
+import re
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -20,11 +22,17 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 TIMEZONE = ZoneInfo("Asia/Shanghai")
+SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 
 
 def package_version(repo_root: Path = ROOT, commit: str | None = None) -> str:
-    """Return the host-compatible package semver for a Git commit."""
+    """Return semver for an explicit commit, or the env override / HEAD commit."""
     if commit is None:
+        override = os.environ.get("LIKI_PACKAGE_VERSION", "").strip()
+        if override:
+            if not SEMVER_RE.fullmatch(override):
+                raise ValueError(f"LIKI_PACKAGE_VERSION must be semver, got {override!r}")
+            return override
         raw = subprocess.check_output(
             ["git", "-C", str(repo_root), "show", "-s", "--format=%cI", "HEAD"],
             text=True,

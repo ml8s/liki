@@ -25,7 +25,6 @@
 import argparse
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -40,10 +39,14 @@ EXPERT_PROFILE = "liki-expert"
 EXPERT_CONFIG_DIR = DISTRIBUTION_DIR / EXPERT_PROFILE
 TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
 CANONICAL_SKILL = _ROOT / "skills" / "liki" / "SKILL.md"
-FREE_CHANNEL_PATTERN = re.compile(
-    r"<!-- channel:free -->.*?<!-- /channel:free -->\n?",
-    re.S,
-)
+MARKET_DIR = DISTRIBUTION_DIR / "metadata"
+
+
+def market_description_en(variant: str = "pro") -> str:
+    common = json.loads((MARKET_DIR / "common.json").read_text(encoding="utf-8"))
+    skillhub = json.loads((MARKET_DIR / "skillhub.json").read_text(encoding="utf-8"))
+    display_name_en = skillhub[variant]["display_name_en"]
+    return common["description_en"].replace("{display_name_en}", display_name_en)
 
 
 def identity_path(name: str) -> Path:
@@ -69,14 +72,11 @@ def load_identity(name: str) -> tuple[dict, str]:
     if body.startswith("\n"):
         body = body[1:]
     if name == "liki":
-        body = FREE_CHANNEL_PATTERN.sub("", body)
         host_adapter = EXPERT_CONFIG_DIR / "host-adapter.md"
         if not host_adapter.is_file():
             sys.exit(f"internal host adapter not found: {host_adapter.relative_to(_ROOT)}")
         body += "\n" + host_adapter.read_text(encoding="utf-8").rstrip() + "\n"
-        description_en = frontmatter.get("metadata", {}).get("description_en")
-        if isinstance(description_en, str) and description_en.strip():
-            frontmatter.setdefault("description_en", description_en)
+        frontmatter.setdefault("description_en", market_description_en())
     return frontmatter, body.rstrip() + "\n"
 
 

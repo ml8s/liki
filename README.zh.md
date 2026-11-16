@@ -30,13 +30,13 @@ Liki Skill 是一个开源的 AI 命理 Skill：把 liki.hk 的确定性命理�
 npx skills add ml8s/liki
 ```
 
-前提：本机装有 Node.js（安装器通过 `npx` 运行）。装完即用，Skill 通过托管的 `engine-mcp`（排盘）与 `counsel-mcp`（断语）端点工作，不需要配置任何 API key；不想碰命令行，可以直接用 [liki.hk](https://liki.hk) 网页版排盘。提示更新时执行：
+通过 `npx` 安装需要本机有 Node.js；Skill 运行时不依赖本地 Node。装完即用，Skill 通过托管的 `engine-mcp`（排盘）与 `counsel-mcp`（断语）端点工作，不需要配置任何 API key；不想碰命令行，可以直接用 [liki.hk](https://liki.hk) 网页版排盘。提示更新时执行：
 
 ```bash
 npx skills add ml8s/liki -y
 ```
 
-支持 Claude Code、Codex、Cursor 以及一切支持 MCP 的宿主环境。
+支持 Claude Code、Codex、Cursor、WorkBuddy 以及一切支持 MCP 的宿主环境。
 
 ## 能问什么
 

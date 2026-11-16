@@ -1,11 +1,14 @@
 """Trusted skill persona and forbidden retired AI identity contract."""
 
-import json
+import sys
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import build_channel_package as gen  # noqa: E402
+
 SKILL_MD = ROOT / "skills/liki/SKILL.md"
 PLUGIN_JSON = (
     ROOT
@@ -35,11 +38,13 @@ def _skill_metadata() -> dict:
 def test_skill_identity_is_trusted_astrologer_persona():
     metadata = _skill_metadata()
     description = metadata.get("description") or ""
-    description_en = metadata["metadata"].get("description_en") or ""
-    assert metadata["metadata"]["display_name"] == "Liki 命理师"
-    assert metadata["metadata"]["display_name_en"] == "Liki Astrologer"
     assert description.startswith("Liki 命理师覆盖")
-    assert description_en.startswith("Liki Astrologer covers")
+    market = gen.load_market("skillhub", "free")
+    assert market["display_name"] == "Liki 命理师"
+    assert market["display_name_en"] == "Liki Astrologer"
+    assert market["agent_name_zh"] == "灵机"
+    assert market["agent_name_en"] == "Liki"
+    assert market["description_en"].startswith("Liki Astrologer covers")
 
     text = SKILL_MD.read_text(encoding="utf-8")
     assert "\n# Liki 命理师\n" in text
@@ -62,12 +67,18 @@ def test_active_surfaces_do_not_use_retired_ai_identity():
 
 
 def test_workbuddy_plugin_uses_astrologer_persona():
-    plugin = json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))
-    assert plugin["defaultInitPrompt"] == {
-        "en": "Hello, I am Liki Astrologer.",
-        "zh": "你好，我是 Liki 命理师。",
+    plugin = gen.plugin_doc(
+        "pro",
+        "liki-pro",
+        ROOT / "distribution/workbuddy/liki-pro",
+    )
+    assert plugin["displayName"] == {"en": "Liki (Pro)", "zh": "灵机（专业版）"}
+    assert plugin["profession"] == {
+        "en": "Liki Astrologer (Pro)",
+        "zh": "Liki 命理师（专业版）",
     }
     assert plugin["quickPrompts"][0]["zh"] == plugin["defaultInitPrompt"]["zh"]
+    assert any("起名" in prompt["zh"] for prompt in plugin["quickPrompts"])
     for prompt in plugin["quickPrompts"]:
         assert "我是 Liki Skill" not in prompt["zh"]
 

@@ -14,7 +14,7 @@ class TestSkillFrontmatter(unittest.TestCase):
         self.assertEqual(meta.get("name"), "liki")
         self.assertIsInstance(meta.get("description"), str)
         self.assertTrue(meta["description"].strip())
-        self.assertEqual(meta["metadata"].get("agent_created"), "true")
+        self.assertEqual(meta["metadata"].get("author"), "ml8s")
 
     def test_skill_has_no_nested_skill_entries(self):
         skills = list(SKILL_ROOT.rglob("SKILL.md"))
@@ -41,10 +41,25 @@ class TestSkillFrontmatter(unittest.TestCase):
             set(meta),
             {"name", "license", "description", "metadata"},
         )
-        for key in ("description_zh", "description_en", "author"):
-            value = meta["metadata"].get(key)
-            self.assertIsInstance(value, str, key)
-            self.assertTrue(value.strip(), key)
+        self.assertEqual(meta["metadata"].get("author"), "ml8s")
+        self.assertEqual(meta["metadata"].get("homepage"), "https://liki.hk")
+        self.assertEqual(meta["metadata"].get("repository"), "https://github.com/ml8s/liki")
+        for key in (
+            "slug",
+            "agent_created",
+            "keywords",
+            "display_name",
+            "display_name_en",
+            "description_zh",
+            "description_en",
+            "profession_zh",
+            "profession_en",
+            "examples_zh",
+            "examples_en",
+            "agent_name_zh",
+            "agent_name_en",
+        ):
+            self.assertNotIn(key, meta["metadata"], key)
 
     def test_frontmatter_has_no_manual_release_version(self):
         """源码 SKILL.md 不手写版本；渠道包由构建器注入平台投影。"""
