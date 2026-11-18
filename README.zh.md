@@ -24,12 +24,6 @@ Liki Skill 是 Liki 命理的 AI 生态形态，覆盖八字排盘、紫微斗�
 
 它不是"给大模型套个提示词"。排盘由天文历算引擎计算，断语从带经典出处的规则真值表里命中，时辰不清先考时再下结论——同一个问题，任何时候问，都得到同一个有依据的答案。
 
-| 仓库 | 边界 |
-| --- | --- |
-| [`ml8s/liki`](https://github.com/ml8s/liki) | 可安装 Skill 约定、意图路由和 MCP 声明 |
-| [`ml8s/liki-mcp`](https://github.com/ml8s/liki-mcp) | 产品 MCP 服务和渠道变体 |
-| [`ml8s/mingligo`](https://github.com/ml8s/mingligo) | 确定性排盘引擎和可溯源规则核心 |
-
 传输协议是 [MCP Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports)。
 
 ## 30 秒装上

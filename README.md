@@ -34,12 +34,6 @@ professional astrology engine, with AI-assisted interpretation. It covers
 
 It is not a prompt wrapper around a chatbot. Charts are cast by an astronomical engine, readings come from a rule truth table with classical sources, and unclear birth times are calibrated before any judgment — so the same question gets the same grounded answer, every time.
 
-| Repository | Boundary |
-| --- | --- |
-| [`ml8s/liki`](https://github.com/ml8s/liki) | Installable skill contract, intent routing, and MCP declarations |
-| [`ml8s/liki-mcp`](https://github.com/ml8s/liki-mcp) | Product MCP service and channel variants |
-| [`ml8s/mingligo`](https://github.com/ml8s/mingligo) | Deterministic chart engine and sourced rule core |
-
 The wire protocol is [MCP Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports).
 
 > **Endpoint update:** Free Liki uses `https://mcp.tokflux.com/engine/mcp` and `https://mcp.tokflux.com/counsel/mcp`. Paid channel variants use `https://mcp.tokflux.com/mcp`. Legacy `liki.hk/engine/mcp` and `liki.hk/counsel/mcp` paths are retired and do not redirect. If tools are unavailable, run:
