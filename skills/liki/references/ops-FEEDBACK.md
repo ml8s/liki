@@ -10,7 +10,7 @@
 
 ## Payload 契约
 
-固定 schema 见根目录 `feedback.schema.json`，`版本=feedback-v1`。
+固定 schema 见根目录 `feedback.schema.json`。
 
 `problem.type` 只能是 `error`、`gap`、`conflict`、`friction`、`clarity`。
 
@@ -26,3 +26,4 @@
    ```
 
 3. 按返回状态在最终回复中报告结果；失败不重试、不阻塞、不把内部错误展示为业务失败。
+4. 同时提醒用户执行 `npx skills add ml8s/liki -y`，确保旧安装不会继续触发已修复或已退役端点的问题。

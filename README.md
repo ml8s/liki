@@ -1,25 +1,48 @@
-<h1 align="center">Liki Skill</h1>
+<h1 align="center">
+  <img src="assets/liki-skill-logo.svg" alt="" width="96" align="absmiddle">
+  Liki Skill
+</h1>
 
 <p align="center">
-  Professional Astrology Skill.<br>
-  For Astrology, use Liki.<br>
-  Reproducible charts · Traceable readings · Honest boundaries<br>
-  Bazi · Ziwei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
+  <strong>Reproducible Chinese astrology for AI assistants.</strong><br>
+  BaZi · Zi Wei · Liu Yao · Qi Men · Date Selection · Feng Shui · Naming
 </p>
 
 <p align="center">
-  <a href="./README.zh.md"><img alt="中文" src="https://img.shields.io/badge/中文-4a9e6b?style=flat-square"></a>
-  <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat-square"></a>
-  <a href="https://liki.hk"><img alt="website" src="https://img.shields.io/badge/liki.hk-6d5acf?style=flat-square"></a>
+  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ml8s/liki/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports"><img alt="MCP" src="https://img.shields.io/badge/MCP-compatible-0891B2?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/github/license/ml8s/liki?style=flat-square"></a>
+  <a href="https://liki.hk"><img alt="Website" src="https://img.shields.io/badge/site-liki.hk-6D5ACF?style=flat-square"></a>
+  <a href="./README.zh.md"><img alt="中文" src="https://img.shields.io/badge/docs-中文-4A9E6B?style=flat-square"></a>
 </p>
 
-> Ask your AI assistant a real astrology question — a career move, a relationship, a relocation, a name — and get an answer grounded in a computed chart, not a confident guess. Liki Skill brings the liki.hk engine into Claude, Codex, Cursor and any MCP host: BaZi, Zi Wei, Liuyao, QiMen, Feng Shui, date selection and Chinese naming. Every judgment includes its factors and sources, so you can check it; if your birth hour is unclear, it calibrates against events you know. Free to install and use.
+Liki Skill connects Claude, Codex, Cursor, and other MCP hosts to deterministic
+Chinese metaphysics tools. Ask a real question; get a computed chart, a sourced
+reading, and an explicit boundary when evidence is insufficient.
 
 ## What is Liki Skill?
 
-Liki Skill is an open-source Chinese astrology skill for AI assistants. It connects the deterministic liki.hk engine to Claude Code, Codex, Cursor, and any host that supports MCP (Model Context Protocol), covering the main systems of Chinese metaphysics: **BaZi** (Four Pillars of Destiny), **Zi Wei Dou Shu** (Purple Star astrology), **Liu Yao** (I Ching divination), **Qi Men Dun Jia** (strategy and timing), **Feng Shui**, **date selection**, and **Chinese naming**.
+Liki Skill is an open-source Chinese astrology skill for MCP-compatible AI
+assistants. It covers **BaZi** (Four Pillars of Destiny), **Zi Wei Dou Shu**
+(Purple Star astrology), **Liu Yao** (I Ching divination), **Qi Men Dun Jia**
+(strategy and timing), **Feng Shui**, **date selection**, and **Chinese
+naming**.
 
 It is not a prompt wrapper around a chatbot. Charts are cast by an astronomical engine, readings come from a rule truth table with classical sources, and unclear birth times are calibrated before any judgment — so the same question gets the same grounded answer, every time.
+
+| Repository | Boundary |
+| --- | --- |
+| [`ml8s/liki`](https://github.com/ml8s/liki) | Installable skill contract, intent routing, and MCP declarations |
+| [`ml8s/liki-mcp`](https://github.com/ml8s/liki-mcp) | Product MCP service and channel variants |
+| [`ml8s/mingligo`](https://github.com/ml8s/mingligo) | Deterministic chart engine and sourced rule core |
+
+The wire protocol is [MCP Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports).
+
+> **Endpoint update:** Free Liki uses `https://mcp.tokflux.com/engine/mcp` and `https://mcp.tokflux.com/counsel/mcp`. Paid channel variants use `https://mcp.tokflux.com/mcp`. Legacy `liki.hk/engine/mcp` and `liki.hk/counsel/mcp` paths are retired and do not redirect. If tools are unavailable, run:
+>
+> ```bash
+> npx skills add ml8s/liki -y
+> ```
 
 ## Install in 30 seconds
 
@@ -27,7 +50,7 @@ It is not a prompt wrapper around a chatbot. Charts are cast by an astronomical 
 npx skills add ml8s/liki
 ```
 
-Installing via `npx` requires Node.js; the skill itself has no local Node.js runtime dependency. It talks to hosted MCP endpoints (`engine-mcp` for charts, `counsel-mcp` for readings) — no API keys, no configuration. Prefer no terminal? Charting is free at [liki.hk](https://liki.hk). Update when prompted:
+Installing via `npx` requires Node.js; the skill itself has no local Node.js runtime dependency. It talks to the hosted free engine and counsel MCP surfaces — no API keys, no configuration. Paid channel variants can switch to the aggregate `hk.liki/liki` endpoint. Prefer no terminal? Charting is free at [liki.hk](https://liki.hk). Update when prompted:
 
 ```bash
 npx skills add ml8s/liki -y
@@ -128,7 +151,8 @@ A calculator gives you a chart. Liki Skill gives you the chart plus sourced read
 ## Documentation and links
 
 - Website: [liki.hk](https://liki.hk)
-- Engineering source: [ml8s/liki-mingli](https://github.com/ml8s/liki-mingli)
+- Fact core: [ml8s/mingligo](https://github.com/ml8s/mingligo)
+- Product MCP: [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)
 - License: MIT
 
 > For Astrology, use Liki.

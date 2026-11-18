@@ -1,25 +1,36 @@
-<h1 align="center">Liki Skill</h1>
+<h1 align="center">
+  <img src="assets/liki-skill-logo.svg" alt="" width="96" align="absmiddle">
+  Liki Skill
+</h1>
 
 <p align="center">
-  专业命理 Skill。<br>
-  懂命理，用 Liki。<br>
-  排盘可复现 · 断语可溯源 · 边界明说<br>
+  <strong>面向 AI 助手的可复现命理 Skill。</strong><br>
   八字 · 紫微 · 六爻 · 奇门 · 黄历择日 · 风水 · 起名
 </p>
 
 <p align="center">
-  <a href="./README.md"><img alt="English" src="https://img.shields.io/badge/English-4a9e6b?style=flat-square"></a>
-  <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat-square"></a>
-  <a href="https://liki.hk"><img alt="website" src="https://img.shields.io/badge/liki.hk-6d5acf?style=flat-square"></a>
+  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ml8s/liki/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports"><img alt="MCP" src="https://img.shields.io/badge/MCP-compatible-0891B2?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/github/license/ml8s/liki?style=flat-square"></a>
+  <a href="https://liki.hk"><img alt="Website" src="https://img.shields.io/badge/site-liki.hk-6D5ACF?style=flat-square"></a>
+  <a href="./README.md"><img alt="English" src="https://img.shields.io/badge/docs-English-4A9E6B?style=flat-square"></a>
 </p>
 
-> 在你的 AI 助手里，得到排盘可复现、断语可溯源的命理结论——八字、紫微、六爻、奇门、择日、风水、起名，装上就能问，缺时辰它会考时，证据不足它会明说。
+Liki Skill 把 Claude、Codex、Cursor 等 MCP 宿主连接到确定性命理工具。提出真实问题，返回计算出的命盘、带出处的断语；证据不足时，边界也会明说。
 
 ## Liki Skill 是什么
 
-Liki Skill 是一个开源的 AI 命理 Skill：把 liki.hk 的确定性命理引擎接进 Claude Code、Codex、Cursor 等所有支持 MCP 协议的 AI 助手，一个会话覆盖八字排盘、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水、起名七大领域。
+Liki Skill 是一个开源的 AI 命理 Skill，面向支持 MCP 协议的助手，覆盖八字排盘、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水、起名七大领域。
 
 它不是"给大模型套个提示词"。排盘由天文历算引擎计算，断语从带经典出处的规则真值表里命中，时辰不清先考时再下结论——同一个问题，任何时候问，都得到同一个有依据的答案。
+
+| 仓库 | 边界 |
+| --- | --- |
+| [`ml8s/liki`](https://github.com/ml8s/liki) | 可安装 Skill 约定、意图路由和 MCP 声明 |
+| [`ml8s/liki-mcp`](https://github.com/ml8s/liki-mcp) | 产品 MCP 服务和渠道变体 |
+| [`ml8s/mingligo`](https://github.com/ml8s/mingligo) | 确定性排盘引擎和可溯源规则核心 |
+
+传输协议是 [MCP Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports)。
 
 ## 30 秒装上
 
@@ -27,7 +38,13 @@ Liki Skill 是一个开源的 AI 命理 Skill：把 liki.hk 的确定性命理�
 npx skills add ml8s/liki
 ```
 
-通过 `npx` 安装需要本机有 Node.js；Skill 运行时不依赖本地 Node。装完即用，Skill 通过托管的 `engine-mcp`（排盘）与 `counsel-mcp`（断语）端点工作，不需要配置任何 API key；不想碰命令行，可以直接用 [liki.hk](https://liki.hk) 网页版排盘。提示更新时执行：
+> **端点更新：** 免费 Liki 使用 `https://mcp.tokflux.com/engine/mcp` 和 `https://mcp.tokflux.com/counsel/mcp`。付费渠道变体使用 `https://mcp.tokflux.com/mcp`。旧 `liki.hk/engine/mcp` 和 `liki.hk/counsel/mcp` 已永久退役，不做跳转。工具不可用时执行：
+>
+> ```bash
+> npx skills add ml8s/liki -y
+> ```
+
+通过 `npx` 安装需要本机有 Node.js；Skill 运行时不依赖本地 Node。装完即用，Skill 通过托管的免费 engine/counsel MCP 面工作，不需要配置任何 API key；付费渠道变体可切换到聚合 `hk.liki/liki` 端点；不想碰命令行，可以直接用 [liki.hk](https://liki.hk) 网页版排盘。提示更新时执行：
 
 ```bash
 npx skills add ml8s/liki -y
@@ -114,12 +131,13 @@ Skill 本体免费安装使用（`liki-free`）。另有付费的 `liki-pro` 分
 
 ### 和 liki.hk 网页版是什么关系？
 
-同一套引擎与规则体系。liki.hk 面向网页用户，Liki Skill 把同样的能力带进你的 AI 助手。工程源码在 [ml8s/liki-mingli](https://github.com/ml8s/liki-mingli)，本仓库只承载可安装的 Skill 文件。
+同一套引擎与规则体系。liki.hk 面向网页用户，Liki Skill 把同样的能力带进你的 AI 助手。事实核心在 [ml8s/mingligo](https://github.com/ml8s/mingligo)，产品 MCP 在 [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)，本仓库只承载可安装的 Skill 文件。
 
 ## 文档与链接
 
 - 官网：[liki.hk](https://liki.hk)
-- 工程源码：[ml8s/liki-mingli](https://github.com/ml8s/liki-mingli)
+- 事实核心：[ml8s/mingligo](https://github.com/ml8s/mingligo)
+- 产品 MCP：[ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)
 - 许可：MIT
 
 > 懂命理，用 Liki。

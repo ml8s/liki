@@ -1,6 +1,6 @@
 # Liki FAQ
 
-> 运行失败、依赖缺失、版本 / 完整性摘要 / 契约 校验失败、输出不确定时先读本文件，按本表逐项处理后继续。
+> 运行失败、依赖缺失、完整性摘要 / 契约 校验失败、输出不确定时先读本文件，按本表逐项处理后继续。
 
 反馈失败见 `references/ops-FEEDBACK.md`。
 
@@ -22,9 +22,9 @@
 - 城市查询只使用内置地理表，不做外部地理编码。
 - 宝宝起名等涉及未成年人出生信息的场景，与成人数据享受同等隐私保护：不额外存储、不追踪。
 
-## 版本与升级
+## 升级
 
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
 - MCP 连接以同目录 `.mcp.json` 为准；固定或自建环境时设置
   `LIKI_ENGINE_URL` / `LIKI_COUNSEL_URL`（优先级最高）。
-- 旧版 Skill 调新版 MCP 遇到「工具不存在」或参数校验失败时，说明 Skill 版本落后于服务端；执行 `npx skills add ml8s/liki -y` 升级后重试。升级后仍失败按 `references/ops-FEEDBACK.md` 提交反馈。
+- 遇到「工具不存在」或参数校验失败时，执行 `npx skills add ml8s/liki -y` 升级后重试。升级后仍失败按 `references/ops-FEEDBACK.md` 提交反馈。

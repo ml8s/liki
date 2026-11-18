@@ -16,10 +16,9 @@ import re
 import sys
 import urllib.request
 
-SCHEMA_VERSION = "feedback-v1"
 DEFAULT_ENDPOINT = "https://liki.hk/api/feedback"
 TIMEOUT_SECONDS = 10
-DEFAULT_USER_AGENT = "liki-feedback/1.0 (+https://liki.hk)"
+DEFAULT_USER_AGENT = "liki-feedback (+https://liki.hk)"
 
 SOURCE_VALUES = {"skill-agent", "user"}
 ISSUE_TYPES = {"error", "gap", "conflict", "friction", "clarity"}
@@ -28,8 +27,8 @@ REQUIRED_SKILL = "liki"
 SESSION_HASH_PATTERN = r"^sha256:[a-f0-9]{64}$"
 MAX_PAYLOAD_BYTES = 32 * 1024
 
-TOP_LEVEL = {"schema_version", "meta", "agent", "llm", "problem"}
-META_FIELDS = {"source", "skill", "skill_version", "engine_version", "session_hash"}
+TOP_LEVEL = {"meta", "agent", "llm", "problem"}
+META_FIELDS = {"source", "skill", "session_hash"}
 AGENT_FIELDS = {"name", "version"}
 LLM_FIELDS = {"provider", "model", "model_version"}
 PROBLEM_FIELDS = {"type", "severity", "tool", "summary", "expected", "observed"}
@@ -97,9 +96,6 @@ def validate(payload: dict) -> dict:
     unknown = set(payload) - TOP_LEVEL
     if unknown:
         raise FeedbackError(f"unknown payload fields: {', '.join(sorted(unknown))}")
-    payload.setdefault("schema_version", SCHEMA_VERSION)
-    if payload["schema_version"] != SCHEMA_VERSION:
-        raise FeedbackError(f"schema_version must be {SCHEMA_VERSION}")
 
     meta = payload.get("meta")
     if meta is None:
