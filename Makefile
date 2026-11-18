@@ -1,7 +1,11 @@
 PYTHON ?= python3
 
-.PHONY: check
+.PHONY: check test gate
 
-check: ## Validate the skill distribution contract
-	$(PYTHON) tests/test_distribution_contracts.py
+check: ## Static repository boundary checks
 	$(PYTHON) tests/test_repository_boundaries.py
+
+test: ## Skill distribution contract tests
+	$(PYTHON) tests/test_distribution_contracts.py
+
+gate: check test ## Full source gate: boundaries and distribution contracts
