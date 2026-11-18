@@ -4,7 +4,7 @@
 </h1>
 
 <p align="center">
-  <strong>面向 AI 助手的可复现命理 Skill。</strong><br>
+  <strong>专业命理 Skill。</strong><br>
   八字 · 紫微 · 六爻 · 奇门 · 黄历择日 · 风水 · 起名
 </p>
 
@@ -16,11 +16,11 @@
   <a href="./README.md"><img alt="English" src="https://img.shields.io/badge/docs-English-4A9E6B?style=flat-square"></a>
 </p>
 
-Liki Skill 把 Claude、Codex、Cursor 等 MCP 宿主连接到确定性命理工具。提出真实问题，返回计算出的命盘、带出处的断语；证据不足时，边界也会明说。
+Liki 命理 — 专业命理分析。Liki Skill 面向支持 MCP 的助手，由专业命理引擎驱动，提供可验证的排盘与 AI 辅助解读。
 
 ## Liki Skill 是什么
 
-Liki Skill 是一个开源的 AI 命理 Skill，面向支持 MCP 协议的助手，覆盖八字排盘、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水、起名七大领域。
+Liki Skill 是 Liki 命理的 AI 生态形态，覆盖八字排盘、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水、起名七大领域。
 
 它不是"给大模型套个提示词"。排盘由天文历算引擎计算，断语从带经典出处的规则真值表里命中，时辰不清先考时再下结论——同一个问题，任何时候问，都得到同一个有依据的答案。
 

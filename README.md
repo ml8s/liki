@@ -4,8 +4,8 @@
 </h1>
 
 <p align="center">
-  <strong>Reproducible Chinese astrology for AI assistants.</strong><br>
-  BaZi · Zi Wei · Liu Yao · Qi Men · Date Selection · Feng Shui · Naming
+  <strong>Professional Astrology Skill.</strong><br>
+  BaZi · Zi Wei · Liu Yao · Qi Men · Feng Shui · Date Selection · Naming
 </p>
 
 <p align="center">
@@ -16,17 +16,21 @@
   <a href="./README.zh.md"><img alt="中文" src="https://img.shields.io/badge/docs-中文-4A9E6B?style=flat-square"></a>
 </p>
 
-Liki Skill connects Claude, Codex, Cursor, and other MCP hosts to deterministic
-Chinese metaphysics tools. Ask a real question; get a computed chart, a sourced
-reading, and an explicit boundary when evidence is insufficient.
+> Ask your AI assistant a real astrology question — a career move, a
+> relationship, a relocation, a name — and get an answer grounded in a computed
+> chart, not a confident guess. Liki Skill brings the liki.hk engine into
+> Claude, Codex, Cursor and any MCP host: BaZi, Zi Wei, Liuyao, QiMen, Feng
+> Shui, date selection and Chinese naming. Every judgment includes its factors
+> and sources, so you can check it; if your birth hour is unclear, it calibrates
+> against events you know. Free to install and use.
 
 ## What is Liki Skill?
 
-Liki Skill is an open-source Chinese astrology skill for MCP-compatible AI
-assistants. It covers **BaZi** (Four Pillars of Destiny), **Zi Wei Dou Shu**
-(Purple Star astrology), **Liu Yao** (I Ching divination), **Qi Men Dun Jia**
-(strategy and timing), **Feng Shui**, **date selection**, and **Chinese
-naming**.
+Liki Skill is the AI-ecosystem form of **Liki Astrology**. It is powered by a
+professional astrology engine, with AI-assisted interpretation. It covers
+**BaZi** (Four Pillars of Destiny), **Zi Wei Dou Shu** (Purple Star astrology),
+**Liu Yao** (I Ching divination), **Qi Men Dun Jia** (strategy and timing),
+**Feng Shui**, **date selection**, and **Chinese naming**.
 
 It is not a prompt wrapper around a chatbot. Charts are cast by an astronomical engine, readings come from a rule truth table with classical sources, and unclear birth times are calibrated before any judgment — so the same question gets the same grounded answer, every time.
 
@@ -74,7 +78,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 
 ## Why not just ask the LLM directly?
 
-Ask a general-purpose LLM the same chart question three times and you may get three different answers. Chinese metaphysics amplifies small errors: miss a solar-term boundary by one day and the year pillar changes — every reading after it shifts.
+Ask a general-purpose LLM the same chart question three times and you may get three different answers. Chinese astrology amplifies small errors: miss a solar-term boundary by one day and the year pillar changes — every reading after it shifts.
 
 |  | Ask an LLM directly | Liki Skill |
 | --- | --- | --- |
