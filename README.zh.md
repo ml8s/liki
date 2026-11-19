@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="assets/liki-skill-logo.svg" alt="" width="96" align="absmiddle">
+  <img src="assets/logo.svg" alt="" width="96" align="absmiddle">
   Liki Skill
 </h1>
 
