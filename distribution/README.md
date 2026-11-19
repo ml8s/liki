@@ -65,7 +65,9 @@ make distribution-check
 
 ```bash
 make build-expert-deployment
-make build-expert-image AGENTGO_IMAGE=ghcr.io/ml8s/agentgo:v1.0.0
+make -C ../agentgo image IMAGE_REGISTRY=liki-local IMAGE_TAG=latest
+make build-expert-image AGENTGO_IMAGE=liki-local/agentgo:latest
+make test-expert-image AGENTGO_IMAGE=liki-local/agentgo:latest
 ```
 
 `assembly/` 与 `distribution/liki-expert/` 只用于专家镜像；它们不会进入
