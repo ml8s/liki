@@ -1,0 +1,89 @@
+{
+  "commonMarket": {
+    "agent_name_zh": "灵机",
+    "agent_name_en": "Liki",
+    "description_zh": "{display_name}覆盖八字、紫微、六爻、奇门、黄历择日、风水与起名；排盘和断语来自确定性引擎，依据可回溯。传统文化视角，不构成专业建议。",
+    "description_en": "{display_name_en} covers BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, Feng Shui, date selection and naming, with deterministic, traceable readings. Traditional view; not professional advice.",
+    "examples_zh": [
+      "帮我看八字命盘",
+      "宝宝起名，姓陈，2024 年出生",
+      "出生时辰不确定，能先考时吗？"
+    ],
+    "examples_en": [
+      "Read my BaZi chart",
+      "Name my baby, surname Chen, born 2024",
+      "I'm not sure of my birth hour. Can you calibrate it?"
+    ]
+  },
+  "variants": {
+    "free": {
+      "sku": "liki-free",
+      "top": "liki-free",
+      "mcpServers": {
+        "engine": {
+          "type": "streamableHttp",
+          "url": "https://mcp.tokflux.com/engine/mcp"
+        },
+        "counsel": {
+          "type": "streamableHttp",
+          "url": "https://mcp.tokflux.com/counsel/mcp"
+        }
+      },
+      "payment": {
+        "enabled": false
+      }
+    },
+    "pro": {
+      "sku": "liki-pro",
+      "top": "liki-pro",
+      "mcpServers": {
+        "liki": {
+          "type": "streamableHttp",
+          "url": "https://mcp.tokflux.com/mcp"
+        }
+      },
+      "payment": {
+        "enabled": true,
+        "provider": "skillpay"
+      }
+    }
+  },
+  "packages": {
+    "skillhub": {
+      "format": "skill-zip",
+      "free": {
+        "top": "liki-free",
+        "artifact": "liki-free.zip",
+        "market": {
+          "slug": "liki",
+          "display_name": "Liki 命理师",
+          "display_name_en": "Liki Astrologer"
+        }
+      },
+      "pro": {
+        "top": "liki-pro",
+        "artifact": "liki-pro.zip",
+        "market": {
+          "slug": "liki-pro",
+          "display_name": "Liki 命理师（专业版）",
+          "display_name_en": "Liki Astrologer (Pro)"
+        }
+      }
+    },
+    "workbuddy": {
+      "format": "workbuddy",
+      "free": {
+        "top": "liki-free",
+        "artifact": "liki-free.zip",
+        "expert": true,
+        "source": "liki-free"
+      },
+      "pro": {
+        "top": "liki-pro",
+        "artifact": "liki-pro.zip",
+        "expert": true,
+        "source": "liki-pro"
+      }
+    }
+  }
+}

@@ -51,7 +51,6 @@ skillhub-package: ## Build free and pro SkillHub packages
 distribution-package: workbuddy-package skillhub-package ## Build all channel packages
 
 distribution-check: distribution-package ## Verify every channel package deterministically
-	$(PYTHON) scripts/check_expert_docs.py
 	$(PYTHON) scripts/build_channel_package.py --channel workbuddy --variant free --check
 	$(PYTHON) scripts/build_channel_package.py --channel workbuddy --variant pro --check
 	$(PYTHON) scripts/build_channel_package.py --channel skillhub --variant free --check
