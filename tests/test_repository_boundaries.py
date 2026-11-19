@@ -9,14 +9,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class RepositoryBoundaries(unittest.TestCase):
-    def test_tracks_only_skill_distribution(self):
+    def test_tracks_only_distribution_and_expert_assembly(self):
         tracked = subprocess.check_output(
             ["git", "-C", str(ROOT), "ls-files"], text=True
         ).splitlines()
         allowed_prefixes = (
             ".github/", ".githooks/", ".gitignore", "skills/", "tests/",
             "Makefile", "LICENSE",
-            "assets/", "assembly/", "distribution/", "scripts/", "tools/",
+            "assets/", "assembly/", "distribution/", "scripts/",
             "README.md", "README.zh.md",
         )
         allowed_files = {
