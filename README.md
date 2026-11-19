@@ -158,8 +158,14 @@ Issues and pull requests are welcome. Keep skill prompts factual, cite the
 classical source for every rule, and run:
 
 ```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev.txt
+make setup-hooks
 make gate
 ```
+
+`make setup-hooks` configures this checkout so every `git push` first runs
+`make gate`.
 
 ## License
 

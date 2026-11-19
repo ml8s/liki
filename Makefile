@@ -1,4 +1,4 @@
-PYTHON ?= /usr/bin/python3
+PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 IMAGE_REGISTRY ?= liki-local
 IMAGE_TAG ?= local
 AGENTGO_IMAGE ?=
@@ -10,7 +10,7 @@ NPM ?= $(if $(NPM_FROM_PATH),$(NPM_FROM_PATH),$(NPM_FALLBACK))
 NPM_BIN_DIR := $(if $(NPM_FROM_PATH),$(dir $(NPM_FROM_PATH)),$(NODE_BIN))
 export PATH := $(NPM_BIN_DIR):$(PATH)
 
-.PHONY: check test gate docs-lint build-deployment image-assembly workbuddy-package skillhub-package distribution-package distribution-check
+.PHONY: check test gate docs-lint build-deployment image-assembly workbuddy-package skillhub-package distribution-package distribution-check setup-hooks
 
 check: docs-lint distribution-check ## Static repository, documentation, and package checks
 	$(PYTHON) tests/test_repository_boundaries.py
@@ -58,3 +58,8 @@ distribution-check: distribution-package ## Verify every channel package determi
 	$(PYTHON) scripts/build_channel_package.py --channel skillhub --variant pro --check
 
 gate: check test build-deployment ## Full source gate: boundaries, docs, packages, and deployment
+
+setup-hooks: ## Configure Git to run the full gate before push
+	git config core.hooksPath .githooks
+	test -x .githooks/pre-push
+	@echo "✓ Git hooks installed; pre-push now runs make gate"

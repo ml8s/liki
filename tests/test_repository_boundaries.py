@@ -14,7 +14,8 @@ class RepositoryBoundaries(unittest.TestCase):
             ["git", "-C", str(ROOT), "ls-files"], text=True
         ).splitlines()
         allowed_prefixes = (
-            ".github/", ".gitignore", "skills/", "tests/", "Makefile", "LICENSE",
+            ".github/", ".githooks/", ".gitignore", "skills/", "tests/",
+            "Makefile", "LICENSE",
             "assets/", "assembly/", "distribution/", "scripts/", "tools/",
             "README.md", "README.zh.md",
         )
