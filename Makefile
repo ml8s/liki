@@ -9,7 +9,7 @@ NPM ?= $(if $(NPM_FROM_PATH),$(NPM_FROM_PATH),$(NPM_FALLBACK))
 NPM_BIN_DIR := $(if $(NPM_FROM_PATH),$(dir $(NPM_FROM_PATH)),$(NODE_BIN))
 export PATH := $(NPM_BIN_DIR):$(PATH)
 
-.PHONY: check test gate docs-lint build-deployment image-assembly workbuddy-package skillhub-package distribution-package distribution-check setup-hooks
+.PHONY: check test gate docs-lint build-expert-deployment build-expert-image workbuddy-package skillhub-package distribution-package distribution-check setup-hooks
 
 check: docs-lint distribution-check ## Static repository, documentation, and package checks
 	$(PYTHON) tests/test_repository_boundaries.py
@@ -21,11 +21,11 @@ test: ## Skill and distribution contract tests
 	$(PYTHON) tests/test_distribution_contracts.py
 	$(PYTHON) -m pytest tests -q
 
-build-deployment: ## Generate AgentDeployment artifacts for expert assembly
+build-expert-deployment: ## Generate the AgentDeployment artifact for the Liki expert
 	@rm -rf dist/liki-expert && mkdir -p dist
 	$(PYTHON) scripts/generate_deployment.py --out dist
 
-image-assembly: build-deployment ## Build the expert image from an AgentGo base image
+build-expert-image: build-expert-deployment ## Assemble the Liki expert image from an AgentGo base image
 	@test -n "$(AGENTGO_IMAGE)" || { echo "AGENTGO_IMAGE is required" >&2; exit 1; }
 	@rm -rf assembly/dist && mkdir -p assembly/dist/deployment
 	@cp -r dist/liki-expert assembly/dist/deployment/liki-expert
@@ -53,7 +53,7 @@ distribution-check: distribution-package ## Verify every channel package determi
 	$(PYTHON) scripts/build_channel_package.py --channel skillhub --variant free --check
 	$(PYTHON) scripts/build_channel_package.py --channel skillhub --variant pro --check
 
-gate: check test build-deployment ## Full source gate: boundaries, docs, packages, and deployment
+gate: check test build-expert-deployment ## Full source gate: boundaries, docs, packages, and expert deployment
 
 setup-hooks: ## Configure Git to run the full gate before push
 	git config core.hooksPath .githooks

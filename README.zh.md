@@ -16,11 +16,11 @@
   <a href="./README.md"><img alt="English" src="https://img.shields.io/badge/docs-English-4A9E6B?style=flat-square"></a>
 </p>
 
-Liki 命理 — 专业命理分析。Liki Skill 面向支持 MCP 的助手，由专业命理引擎驱动，提供可验证的排盘与 AI 辅助解读。
+Liki 命理 — 专业命理分析。Liki Skill 面向支持 MCP 的助手，由专业计算引擎驱动，提供可验证的排盘与 AI 辅助解读。
 
 ## Liki Skill 是什么
 
-Liki Skill 是 Liki 命理的 AI 生态形态，覆盖八字排盘、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水、起名七大领域。
+Liki Skill 是 Liki 命理面向 AI 助手的分发形态，覆盖八字排盘、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水、起名七大领域。
 
 它不是"给大模型套个提示词"。排盘由天文历算引擎计算，断语从带经典出处的规则真值表里命中，时辰不清先考时再下结论——同一个问题，任何时候问，都得到同一个有依据的答案。
 
@@ -98,7 +98,7 @@ npx skills add ml8s/liki -y
 
 在此之上，160 道命理师大赛真题（Mingli160）用于规则链覆盖与零命中检查，作为手动校准/评估集。
 
-## 隐私与边界
+## 安全与边界
 
 - 出生信息只保留在当前会话：不写档案、不要真实姓名、不进反馈。
 - 城市查询只用内置 WGS-84 地理表，不做外部地理编码请求。
@@ -125,13 +125,29 @@ Skill 本体免费安装使用（`liki-free`）。另有付费的 `liki-pro` 分
 
 ### 和 liki.hk 网页版是什么关系？
 
-同一套引擎与规则体系。liki.hk 面向网页用户，Liki Skill 把同样的能力带进你的 AI 助手。事实核心在 [ml8s/mingligo](https://github.com/ml8s/mingligo)，产品 MCP 在 [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)，本仓库承载可安装 Skill、渠道分发配置与 expert 装配定义。
+同一套引擎与规则体系。liki.hk 面向网页用户，Liki Skill 把同样的能力带进你的 AI 助手。计算库在 [ml8s/mingligo](https://github.com/ml8s/mingligo)，产品 MCP 在 [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)，本仓库承载可安装 Skill、渠道分发配置与 expert 装配定义。
 
 ## 文档与链接
 
 - 官网：[liki.hk](https://liki.hk)
-- 事实核心：[ml8s/mingligo](https://github.com/ml8s/mingligo)
+- 计算库：[ml8s/mingligo](https://github.com/ml8s/mingligo)
 - 产品 MCP：[ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)
-- 许可：MIT
+
+## 参与贡献
+
+欢迎提交 Issue 和 Pull Request。Skill 文案要保持事实可查，每条规则都注明经典出处。提交前运行：
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev.txt
+make setup-hooks
+make gate
+```
+
+`make setup-hooks` 会配置当前 checkout：每次 `git push` 前先运行 `make gate`。
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 发布。
 
 > 懂命理，用 Liki。

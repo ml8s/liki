@@ -15,7 +15,7 @@ import build_channel_package as gen  # noqa: E402
 
 def test_catalog_declares_four_packages():
     for channel, variants in gen.load_catalog()["packages"].items():
-        assert set(variants) - {"maxTurns"} == {"free", "pro"}, channel
+        assert set(variants) - {"maxTurns", "keywords", "plugin"} == {"free", "pro"}, channel
     assert gen.load_package("skillhub", "free")["top"] == "liki-free"
     assert gen.load_package("skillhub", "pro")["top"] == "liki-pro"
     assert gen.load_package("workbuddy", "free")["top"] == "liki-free"
@@ -75,8 +75,6 @@ def test_workbuddy_free_manifest_has_no_payment_flow():
     rendered = files["liki-free/agents/liki-free.md"] + files["liki-free/skills/liki/SKILL.md"]
     assert b"Payment-Needed" not in rendered
     assert b"Payment-Proof" not in rendered
-    assert "liki-free/.mcp.pro.json" not in files
-
 
 def test_skillhub_frontmatter_uses_platform_dialects():
     for variant, slug in (("free", "liki"), ("pro", "liki-pro")):

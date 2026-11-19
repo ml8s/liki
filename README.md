@@ -26,8 +26,8 @@
 
 ## Overview
 
-Liki Skill is the AI-ecosystem form of **Liki Astrology**. It is powered by a
-professional astrology engine, with AI-assisted interpretation. It covers
+Liki Skill is the assistant-facing distribution of **Liki Astrology**. It is powered by a
+professional calculation engine, with AI-assisted interpretation. It covers
 **BaZi** (Four Pillars of Destiny), **Zi Wei Dou Shu** (Purple Star astrology),
 **Liu Yao** (I Ching divination), **Qi Men Dun Jia** (strategy and timing),
 **Feng Shui**, **date selection**, and **Chinese naming**.
@@ -149,7 +149,7 @@ A calculator gives you a chart. Liki Skill gives you the chart plus sourced read
 ## Documentation
 
 - Website: [liki.hk](https://liki.hk)
-- Fact core: [ml8s/mingligo](https://github.com/ml8s/mingligo)
+- Calculation library: [ml8s/mingligo](https://github.com/ml8s/mingligo)
 - Product MCP: [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)
 
 ## Contributing

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "distribution" / "liki-expert" / "deployment.yaml"
 HOST_ADAPTER_PATH = ROOT / "distribution" / "liki-expert" / "host-adapter.md"
 CANONICAL_SKILL = ROOT / "skills" / "liki" / "SKILL.md"
-PROFILE = "liki-expert"
+DEPLOYMENT_NAME = "liki-expert"
 AGENT_NAME = "liki"
 SKILL_TOOLSET_TOOLS = {"list_skills", "load_skill", "load_skill_resource"}
 
@@ -89,7 +89,7 @@ def generate(out: Path) -> Path:
     config = load_config()
     agent_config = validate_agent(config)
     version = git_sha()
-    out_dir = out / PROFILE
+    out_dir = out / DEPLOYMENT_NAME
     shutil.rmtree(out_dir, ignore_errors=True)
     agent_dir = out_dir / "agents" / AGENT_NAME
     agent_dir.mkdir(parents=True, exist_ok=True)
@@ -108,7 +108,7 @@ def generate(out: Path) -> Path:
         "skills": agent_config["skills"],
     }
     deployment = {
-        "metadata": {"name": PROFILE, "version": version},
+        "metadata": {"name": DEPLOYMENT_NAME, "version": version},
         "spec": {"mcpServers": config["mcpServers"], "agents": [agent]},
     }
     manifest = out_dir / "deployment.json"

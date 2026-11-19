@@ -9,11 +9,11 @@ liki-expert/
   deployment.yaml      # 唯一内部 deployment 配置、身份描述与工具白名单
   host-adapter.md      # 仅内部宿主使用；公开渠道包不得包含
 
-catalog.json          # variants、channel packages 和市场元数据的唯一目录
+  catalog.json        # variants、channel packages 和市场元数据的唯一目录
 
 workbuddy/
-  liki-free/           # WorkBuddy 免费专家静态资产与 skill-meta.json
-  liki-pro/            # WorkBuddy pro 静态资产：plugin 元数据、支付 overlay、头像、README、skill-meta.json
+  liki-free/           # WorkBuddy 免费包的定制展示资产、支付 overlay 除外
+  liki-pro/            # WorkBuddy pro 包的定制展示资产、支付 overlay 和 README
 ```
 
 ## 权威源
@@ -22,8 +22,8 @@ workbuddy/
 - 唯一方法论源：[`skills/liki/references/`](../skills/liki/references/)
 - 内部专家装配源：`liki-expert/deployment.yaml`
 - 内部宿主协议：`liki-expert/host-adapter.md`，只在 expert 镜像 instruction 中合并
-- 渠道目录只保存 SKU、MCP、平台差异元数据和渠道 overlay。
-- 市场展示字段（display_name / description_zh / examples / agent_name）不写进源 `skills/liki/SKILL.md`，由 `distribution/catalog.json` 和 WorkBuddy `skill-meta.json` 注入。
+- 渠道目录只保存包名、MCP、平台差异元数据和渠道 overlay。
+- 市场展示字段（display_name / description_zh / examples / agent_name）不写进源 `skills/liki/SKILL.md`，由 `distribution/catalog.json` 和 WorkBuddy `skill-meta.json` 注入；WorkBuddy plugin 的公共结构也在 catalog 中。
 - `author` / `license` 不重复配置，构建时直接从源 `SKILL.md` frontmatter 派生。
 - 渠道包只生成各自平台的字段方言：SkillHub 带 `slug` / `displayName` / `summary`，WorkBuddy 带 `agent_created`；两者都不再输出重复的嵌套 `metadata`。
 
@@ -64,8 +64,8 @@ make distribution-check
 `deployment.json`、instruction 和 `skills/` 复制进 `liki-expert` 镜像：
 
 ```bash
-make build-deployment
-make image-assembly AGENTGO_IMAGE=ghcr.io/ml8s/agentgo:v1.0.0
+make build-expert-deployment
+make build-expert-image AGENTGO_IMAGE=ghcr.io/ml8s/agentgo:v1.0.0
 ```
 
 `assembly/` 与 `distribution/liki-expert/` 只用于专家镜像；它们不会进入

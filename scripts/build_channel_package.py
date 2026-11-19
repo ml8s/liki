@@ -105,20 +105,21 @@ def split_frontmatter() -> tuple[dict[str, Any], str]:
     return frontmatter, body[1:] if body.startswith("\n") else body
 
 
-def canonical_identity(*, pro: bool = False) -> tuple[dict[str, Any], str]:
-    metadata, body = split_frontmatter()
+def canonical_body(*, pro: bool = False) -> str:
+    _frontmatter, body = split_frontmatter()
     if pro:
         overlay = WORKBUDDY_DIR / "liki-pro" / "overlays" / "payment.md"
         if not overlay.is_file():
             raise SystemExit(f"pro payment overlay missing: {overlay}")
         body += "\n" + overlay.read_text(encoding="utf-8").rstrip() + "\n"
-    return metadata, body.rstrip() + "\n"
+    return body.rstrip() + "\n"
 
 
 def load_market(channel: str, variant: str, assets_dir: Path | None = None) -> dict[str, Any]:
     catalog = load_catalog()
     package = load_package(channel, variant)
     common = catalog["commonMarket"]
+    channel_common = catalog["packages"][channel]
     if channel == "skillhub":
         overrides = package["market"]
     elif channel == "workbuddy":
@@ -136,6 +137,8 @@ def load_market(channel: str, variant: str, assets_dir: Path | None = None) -> d
     if not isinstance(source_metadata, dict):
         raise SystemExit("canonical identity metadata must be an object")
     market = dict(common)
+    if channel == "workbuddy":
+        market.update({key: value for key, value in channel_common.items() if key != "plugin"})
     market.update(overrides)
     market["author"] = source_metadata.get("author")
     market["license"] = frontmatter.get("license")
@@ -195,10 +198,10 @@ def methodology_index() -> list[str]:
 def _render_identity(body: str, market: dict[str, Any], heading: str | None = None) -> str:
     body = body.replace("# Liki 命理师", f"# {heading or market['agent_name_zh']}", 1)
     return body.replace(
-        "你是 Liki 命理师，基于确定性引擎和可回溯规则辅助命理分析。",
+        "你是 Liki 命理师，基于可复现计算引擎和可回溯规则辅助命理分析。",
         (
             f"你是{market['agent_name_zh']}（中文）/ {market['agent_name_en']}（英文），"
-            f"{market['profession_zh']}。你基于确定性引擎和可回溯规则辅助命理分析。"
+            f"{market['profession_zh']}。你基于可复现计算引擎和可回溯规则辅助命理分析。"
         ),
         1,
     )
@@ -212,7 +215,7 @@ def skill_doc(
     channel: str,
     include_index: bool = False,
 ) -> str:
-    _frontmatter, body = canonical_identity(pro=variant == "pro")
+    body = canonical_body(pro=variant == "pro")
     doc: dict[str, Any] = {
         "name": skill_name,
         "display_name": market["display_name"],
@@ -247,7 +250,7 @@ def skill_doc(
 
 def agent_doc(variant: str, package_id: str, assets_dir: Path) -> str:
     market = load_market("workbuddy", variant, assets_dir)
-    _frontmatter, body = canonical_identity(pro=variant == "pro")
+    body = canonical_body(pro=variant == "pro")
     max_turns = load_catalog()["packages"]["workbuddy"]["maxTurns"]
     metadata = {
         "name": package_id,
@@ -268,17 +271,18 @@ def agent_doc(variant: str, package_id: str, assets_dir: Path) -> str:
 
 def plugin_doc(variant: str, package_id: str, assets_dir: Path) -> dict[str, Any]:
     market = load_market("workbuddy", variant, assets_dir)
-    plugin = _load_json(
-        assets_dir / ".codebuddy-plugin" / "plugin.json",
-        f"WorkBuddy {variant} plugin template",
-    )
+    catalog = load_catalog()
+    plugin = dict(catalog["packages"]["workbuddy"]["plugin"])
+    display_description = market.get("displayDescription")
+    if not isinstance(display_description, dict):
+        raise SystemExit(f"WorkBuddy/{variant} displayDescription must be an object")
     examples = list(zip(market["examples_zh"], market["examples_en"]))
     if len(examples) != 3:
         raise SystemExit(f"WorkBuddy/{variant} requires exactly 3 quickPrompts")
     tags = plugin.get("tags")
     if not isinstance(tags, list) or len(tags) != 3:
         raise SystemExit(f"WorkBuddy/{variant} requires exactly 3 tags")
-    description_zh = plugin.get("displayDescription", {}).get("zh", "")
+    description_zh = display_description.get("zh", "")
     width = len([char for char in description_zh if not char.isspace()])
     if not 40 <= width <= 50:
         raise SystemExit(f"WorkBuddy/{variant} displayDescription.zh must be 40-50 chars (got {width})")
@@ -312,11 +316,7 @@ def canonical_files(top: str, variant: str) -> dict[str, bytes]:
     files: dict[str, bytes] = {}
     for path in sorted(item for item in SKILL_DIR.rglob("*") if item.is_file()):
         relative = path.relative_to(SKILL_DIR).as_posix()
-        if (
-            relative in {".mcp.pro.json"}
-            or "__pycache__" in relative.split("/")
-            or relative.endswith((".pyc", ".pyo", ".DS_Store"))
-        ):
+        if "__pycache__" in relative.split("/") or relative.endswith((".pyc", ".pyo", ".DS_Store")):
             continue
         if relative == ".mcp.json":
             servers = load_variant(variant)["mcpServers"]
@@ -344,7 +344,6 @@ def package_manifest(channel: str, variant: str) -> dict[str, bytes]:
             f"{top}/{relative}": (assets_dir / relative).read_bytes()
             for relative in (
                 "README.md",
-                ".codebuddy-plugin/plugin.json",
                 "avatars/expert.png",
                 "avatars/expert.svg",
             )

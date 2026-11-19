@@ -1,5 +1,6 @@
 """Trusted skill persona and forbidden retired AI identity contract."""
 
+import json
 import sys
 from pathlib import Path
 
@@ -10,9 +11,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import build_channel_package as gen  # noqa: E402
 
 SKILL_MD = ROOT / "skills/liki/SKILL.md"
-PLUGIN_JSON = (
-    ROOT
-    / "distribution/workbuddy/liki-pro/.codebuddy-plugin/plugin.json"
+GENERATED_PLUGIN = gen.plugin_doc(
+    "pro", "liki-pro", ROOT / "distribution/workbuddy/liki-pro"
 )
 PRO_README = ROOT / "distribution/workbuddy/liki-pro/README.md"
 
@@ -54,7 +54,6 @@ def test_active_surfaces_do_not_use_retired_ai_identity():
     surfaces = {
         SKILL_MD,
         PRO_README,
-        PLUGIN_JSON,
         ROOT / "README.md",
         ROOT / "README.zh.md",
     }
@@ -62,6 +61,9 @@ def test_active_surfaces_do_not_use_retired_ai_identity():
         text = path.read_text(encoding="utf-8")
         for phrase in FORBIDDEN_IDENTITY:
             assert phrase not in text, f"{path.relative_to(ROOT)}: {phrase}"
+    serialized = json.dumps(GENERATED_PLUGIN, ensure_ascii=False)
+    for phrase in FORBIDDEN_IDENTITY:
+        assert phrase not in serialized
 
 
 def test_workbuddy_plugin_uses_astrologer_persona():
