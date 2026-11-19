@@ -106,7 +106,7 @@ def load_market(channel: str, variant: str) -> dict[str, Any]:
         raise SystemExit("canonical identity metadata must be an object")
     market = dict(common)
     if channel == "workbuddy":
-        market.update({key: value for key, value in channel_common.items() if key != "plugin"})
+        market["keywords"] = channel_common["keywords"]
     market.update(overrides)
     market["author"] = source_metadata.get("author")
     market["license"] = frontmatter.get("license")

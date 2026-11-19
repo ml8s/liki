@@ -155,10 +155,10 @@ def wait_for_livez(url: str, container: str, timeout: float) -> None:
                 if response.status == 200:
                     return
                 last_error = RuntimeError(f"/livez returned HTTP {response.status}")
-        except (OSError, urllib.error.URLError) as exc:
-            last_error = exc
         except urllib.error.HTTPError as exc:
             last_error = RuntimeError(f"/livez returned HTTP {exc.code}")
+        except (OSError, urllib.error.URLError) as exc:
+            last_error = exc
         time.sleep(0.5)
     raise SystemExit(f"expert image did not become live within {timeout:g}s: {last_error}")
 

@@ -25,5 +25,5 @@
 ## 升级
 
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
-- MCP 连接以同目录 `.mcp.json` 为准；固定或自建环境时直接替换其中两个 URL（服务名保持 `engine` / `counsel`）。
+- MCP 连接以包根目录的 `.mcp.json` 为准；固定或自建环境时直接替换其中两个 URL（服务名保持 `engine` / `counsel`）。
 - 遇到「工具不存在」或参数校验失败时，执行 `npx skills add ml8s/liki -y` 升级后重试。升级后仍失败按 `references/ops-FEEDBACK.md` 提交反馈。
