@@ -1,0 +1,25 @@
+{
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD024": {
+      "siblings_only": true
+    },
+    "MD026": {
+      "punctuation": ".,;:!。，；：！"
+    },
+    "MD033": {
+    "allowed_elements": ["p", "img", "picture", "source", "br", "a", "strong", "h1"]
+    },
+    "MD041": false,
+    "MD036": false,
+    "MD047": false,
+    "MD060": {
+      "style": "leading_and_trailing"
+    }
+  },
+  "globs": [
+    "README*.md",
+    "skills/**/*.md"
+  ]
+}

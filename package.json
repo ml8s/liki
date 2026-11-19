@@ -1,0 +1,14 @@
+{
+  "name": "liki",
+  "private": true,
+  "engines": {
+    "npm": "11.11.0",
+    "node": "24.14.1"
+  },
+  "scripts": {
+    "lint:docs": "markdownlint-cli2"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "0.24.0"
+  }
+}

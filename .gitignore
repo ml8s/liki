@@ -2,3 +2,4 @@
 Thumbs.db
 .agents/
 __pycache__/
+node_modules/
