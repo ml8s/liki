@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="liki-c3-title">
+  <title id="liki-c3-title">Liki yin-yang fish mark</title>
+  <defs>
+    <linearGradient id="liki-purple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#533afd"/>
+      <stop offset="1" stop-color="#7f5cff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="230" fill="url(#liki-purple)"/>
+  <g transform="translate(147.27826086956522 147.27826086956522) scale(1.424695652173913)">
+    <path d="M256 26 A230 230 0 0 1 256 486 A115 115 0 0 1 256 256 A115 115 0 0 0 256 26 Z" fill="#ffffff"/>
+    <circle cx="256" cy="141" r="52" fill="#ffffff"/>
+  </g>
+</svg>

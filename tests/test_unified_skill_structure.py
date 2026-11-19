@@ -1,0 +1,381 @@
+"""Structural contract for the Liki skill system（综合 liki + 专家包）。
+
+覆盖：
+1. liki 根技能：SKILL.md + 领域路由卡（references/<domain>-ENTRY.md 等）+ 共享运行时文件
+2. WorkBuddy 单专家包：liki（身份源 / plugin.json / skills / avatars / README）
+3. MCP 连接器命名（engine/counsel 与专家端点）
+"""
+import json
+import re
+import sys
+from pathlib import Path
+
+import yaml
+from _helpers import ROOT, SKILL_ROOT
+
+sys.path.insert(0, str(ROOT / "scripts"))
+import build_channel_package as gen  # noqa: E402
+
+DOMAINS = ("natal", "divination", "fengshui", "naming")
+# 顶层领域 = 专家包（1:1）：由生成器 MAPPINGS 派生，杜绝第二份包名清单。
+EXPERT_PACKS = ("liki-pro",)
+
+
+def test_liki_root_has_one_entry_and_domain_routing_entries():
+    assert (SKILL_ROOT / "SKILL.md").is_file()
+    for domain in DOMAINS:
+        assert (SKILL_ROOT / "references" / f"{domain}-ENTRY.md").is_file(), domain
+
+
+def test_shared_runtime_files_are_not_duplicated():
+    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.py")] == [Path("scripts/feedback.py")]
+    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.schema.json")] == [Path("feedback.schema.json")]
+
+
+def test_python_dependency_has_one_skill_root_manifest():
+    manifests = [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("requirements*.txt")]
+    assert manifests == []
+
+
+def test_faq_is_the_single_runtime_failure_entry():
+    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("FAQ.md")] == [Path("references/FAQ.md")]
+    faq = (SKILL_ROOT / "references" / "FAQ.md").read_text(encoding="utf-8")
+    assert "不可用" in faq
+    assert "⛔" in faq and "💬" in faq
+    for entry in DOMAINS:
+        assert "FAQ.md" not in (SKILL_ROOT / "references" / f"{entry}-ENTRY.md").read_text(encoding="utf-8")
+
+
+def test_app_cards_use_standard_contract_sections():
+    required = {"## 流程", "## 边界条件", "## 输出模板"}
+    cards = list(SKILL_ROOT.glob("references/*-app-*.md"))
+    assert len(cards) >= 10
+    for path in cards:
+        lines = {line.strip() for line in path.read_text(encoding="utf-8").splitlines()}
+        assert required <= lines, (path, required - lines)
+
+
+def test_yongshen_decision_has_one_domain_authority():
+    """用神裁决只写在八字域；起名域只消费结果。"""
+    natal = (SKILL_ROOT / "references/natal-bazi-yongshen.md").read_text(encoding="utf-8")
+    naming = (SKILL_ROOT / "references/naming-bazi-yongshen.md").read_text(encoding="utf-8")
+    assert "## 裁决规则" in natal
+    assert "YS-CG-FAKE" in natal
+    assert "## 裁决规则" not in naming
+    assert "八字域" in naming
+
+
+def test_app_cards_declare_output_template_body():
+    """`## 输出模板` 必须给出模板体（代码块 / 表 / 列表），不能只有示例。"""
+    for card in sorted(SKILL_ROOT.glob("references/*-app-*.md")):
+        text = card.read_text(encoding="utf-8")
+        match = re.search(r"^## 输出模板\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
+        assert match, card
+        before = match.group(1).split("### 示例")[0]
+        assert (
+            "```" in before
+            or re.search(r"^\| ?", before, re.M)
+            or re.search(r"^- ", before, re.M)
+        ), card
+
+
+def test_root_entry_is_a_lightweight_router():
+    lines = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").splitlines()
+    assert len(lines) <= 120
+    assert "## 统一硬边界" in lines
+
+
+def test_root_skill_language_protocol_reasons_in_simplified_chinese():
+    """推理固定简体中文以稳定工具判断；可见输出跟随用户语言。"""
+    text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    assert "## 语言协议" in text
+    assert "推理、规划、规则比对和自我校验一律使用简体中文" in text
+    assert "即使用户使用英文或其他语言也是如此" in text
+    assert "工具名、参数名、枚举值、断语 ID、schema key 和代码片段保留原文" in text
+    assert "最终输出语言跟随用户" in text
+    assert "输出语言按「语言协议」跟随用户" in text
+
+
+def test_natal_layers_are_orthogonal():
+    """三层正交：根入口不索引侧层文件；侧入口只索引本层卡，且本层卡齐备。"""
+    root_entry = (SKILL_ROOT / "references" / "natal-ENTRY.md").read_text(encoding="utf-8")
+    assert "八字侧" in root_entry and "紫微侧" in root_entry
+    assert "编排" in root_entry
+    assert "专家" not in root_entry
+    # 明确单侧请求由本命域入口继续路由到侧层入口。
+    assert "references/natal-bazi-ENTRY.md" in root_entry
+    assert "references/natal-ziwei-ENTRY.md" in root_entry
+    for side, other in (("bazi", "ziwei"), ("ziwei", "bazi")):
+        entry = (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
+        assert "## 任务路由" in entry, side
+        assert f"natal-{other}-" not in entry, side
+        cards = {
+            card.name
+            for card in (SKILL_ROOT / "references").glob(f"natal-{side}-*.md")
+            if card.name != f"natal-{side}-ENTRY.md"
+        }
+        routed = set(re.findall(rf"references/(natal-{side}-[A-Za-z0-9_-]+\.md)", entry))
+        assert cards == routed, (side, sorted(cards - routed), sorted(routed - cards))
+
+
+def test_naming_does_not_silently_default_missing_hour():
+    app = (SKILL_ROOT / "references" / "naming-app-naming.md").read_text(encoding="utf-8")
+    calibration = (SKILL_ROOT / "references" / "naming-bazi-calibration.md").read_text(encoding="utf-8")
+    for text in (app, calibration):
+        assert "默认取午时" not in text
+        assert "默认时辰" not in text
+    assert "不排八字" in app
+
+
+def test_natal_card_actions_name_the_side():
+    """卡内动作的每个能力调用都要显式带侧（counsel side 默认 bazi，省略即静默降级）。"""
+    capability = re.compile(r"`(?:本命判断|应期判断)")
+    offenders = []
+    for card in sorted((SKILL_ROOT / "references").glob("natal-app-*.md")):
+        for number, line in enumerate(card.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.startswith("|") or line.startswith("| ---"):
+                continue
+            for cell in line.split("|")[1:-1]:
+                for clause in cell.split("；"):
+                    if capability.search(clause) and "八字侧" not in clause and "紫微侧" not in clause:
+                        offenders.append(f"{card.name}:{number}")
+    assert offenders == []
+
+
+def test_root_mcp_uses_liki_product_surface():
+    text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    # 路由按领域（natal/divination/naming/fengshui），不按专家包 id
+    for domain in DOMAINS:
+        assert domain in text
+    # 路由按领域（natal/divination/fengshui/naming），不按专家包 id
+    assert not re.search(r"liki-(?:natal|divination|fengshui|naming)", text)
+    mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
+    assert "engine" in mcp["mcpServers"]
+    assert "counsel" in mcp["mcpServers"]
+
+
+def test_root_skill_references_no_expert_pack_ids():
+    """自包含契约：根 skill 文本不得引用专家包 id（路由只按领域 + 侧）。"""
+    pack_id = re.compile(r"liki-(?:bazi|ziwei|liuyao|qimen|fengshui|naming)")
+    offenders = []
+    for path in sorted(SKILL_ROOT.rglob("*")):
+        if not path.is_file() or "__pycache__" in path.parts:
+            continue
+        if path.suffix not in {".py", ".md", ".json", ".yaml", ".yml", ".txt"}:
+            continue
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if pack_id.search(line):
+                offenders.append(f"{path.relative_to(SKILL_ROOT)}:{number}")
+    assert offenders == []
+
+
+def test_root_mcp_declares_manual_install_surface():
+    """Embedded and manual clients connect to the free ENGINE + COUNSEL endpoints.
+
+    The free version bypasses the liki-mcp paywall service and talks directly
+    to ENGINE and COUNSEL. Expert packs do not ship their own MCP manifest.
+    """
+    mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
+    assert mcp["mcpServers"] == {
+        "engine": {
+            "type": "streamableHttp",
+            "url": "https://mcp.tokflux.com/engine/mcp",
+        },
+        "counsel": {
+            "type": "streamableHttp",
+            "url": "https://mcp.tokflux.com/counsel/mcp",
+        },
+    }
+
+
+def test_natal_cards_reference_packaged_expert_methodology():
+    """Natal orchestration remains self-contained inside the unified archive.
+
+    根 liki 是方法论权威源：natal 卡引用的方法论卡路径必须解析到根内
+    (references/natal-{bazi,ziwei}-*.md 平铺卡)，且该卡真实存在于根 skill。
+    独立专家包由同步脚本保持一致。
+    """
+    pattern = re.compile(r"(references/natal-(?:bazi|ziwei)-[A-Za-z0-9_.-]+\.md)")
+    for card in sorted((SKILL_ROOT / "references").glob("natal-*.md")):
+        for reference in pattern.findall(card.read_text(encoding="utf-8")):
+            assert (SKILL_ROOT / reference).is_file(), (card, reference)
+
+
+def test_workbuddy_pro_static_channel_assets_exist():
+    for pack in EXPERT_PACKS:
+        root = ROOT / "distribution" / "workbuddy" / pack
+        assert (root / "channel.json").is_file(), pack
+        assert (root / ".codebuddy-plugin" / "plugin.json").is_file(), pack
+        assert (root / "README.md").is_file(), pack
+        assert (root / "avatars").is_dir(), pack
+        # plugin.json 只保存 WorkBuddy 静态平台字段；身份 / 渠道投影由构建器注入。
+        d = json.loads((root / ".codebuddy-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        for f in ["author", "expertType", "displayDescription", "avatar", "categoryId",
+                  "tags", "dependencies"]:
+            assert f in d, (pack, f)
+        assert len(d["tags"]) == 3, pack
+        n = len([c for c in d["displayDescription"]["zh"] if not c.isspace()])
+        assert 40 <= n <= 50, (pack, n)
+        # connector 依赖已退役；MCP 端点由构建器注入的 .mcp.json 显式加载。
+        deps = d.get("dependencies")
+        assert deps == {"mcpServers": "./.mcp.json"}, (pack, deps)
+        projected = {
+            "name", "version", "description", "agents", "agentName",
+            "keywords", "skills", "plugin", "displayName", "profession",
+            "defaultInitPrompt", "quickPrompts",
+        }
+        assert not (projected & d.keys()), (pack, projected & d.keys())
+        generated = gen.plugin_doc("pro", pack, root)
+        assert generated["displayName"] == {"en": "Liki (Pro)", "zh": "灵机（专业版）"}
+        assert generated["profession"] == {
+            "en": "Liki Astrologer (Pro)",
+            "zh": "Liki 命理师（专业版）",
+        }
+        assert len(generated["quickPrompts"]) == 3
+        assert generated["quickPrompts"][0] == generated["defaultInitPrompt"]
+        # 唯一身份 frontmatter（内部部署与市场包共用同一份）
+        identity_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        identity_meta = yaml.safe_load(identity_text.split("---\n", 2)[1])
+        for f in ["name", "description"]:
+            assert f in identity_meta, (pack, f)
+        market = gen.load_market("skillhub", "free")
+        assert market["display_name"]
+        assert market["display_name_en"]
+        assert market["description_en"]
+        assert market["agent_name_zh"] == "灵机"
+        channel_meta = json.loads((root / "channel.json").read_text(encoding="utf-8"))
+        assert channel_meta["maxTurns"] == 40, pack
+        # 付费包的 .mcp.json 由构建器从 pro variant 注入
+        assert gen.load_variant("pro")["mcpServers"]["liki"]["url"] == "https://mcp.tokflux.com/mcp", pack
+
+
+def test_expert_package_manifest_has_shared_methodology():
+    manifest = gen.package_manifest("workbuddy", "pro")
+    cards = [name for name in manifest if name.startswith("liki-pro/skills/liki/references/")]
+    expected = len(list((ROOT / "skills/liki/references").glob("*.md")))
+    assert len(cards) == expected
+
+
+def test_no_legacy_naming_in_skills():
+    legacy = ("liki-analysis", "liki-engine", "liki-master", "liki-usage", "RPC.md")
+    roots = [ROOT / "skills" / "liki"] + [ROOT / "distribution" / "workbuddy" / pack for pack in EXPERT_PACKS]
+    for root in roots:
+        for path in root.rglob("*"):
+            if not path.is_file() or "__pycache__" in path.parts or path.suffix == ".png":
+                continue
+            if path.suffix not in {".py", ".md", ".json", ".yaml", ".yml", ".txt"}:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for old in legacy:
+                assert old not in text, f"{path}: {old}"
+
+
+def test_external_skill_packages_do_not_expose_internal_profile_sync():
+    """`is_calibrated` / `sync_ui` 是内部宿主协议，不进开源或付费 Skill 包。"""
+    forbidden = re.compile(r"\b(?:is_calibrated|sync_ui)\b")
+    external_roots = [SKILL_ROOT] + [ROOT / "distribution" / "workbuddy" / pack for pack in EXPERT_PACKS]
+    for root in external_roots:
+        for path in root.rglob("*"):
+            if not path.is_file() or "__pycache__" in path.parts:
+                continue
+            if path.suffix not in {".py", ".md", ".json", ".yaml", ".yml", ".txt"}:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            hit = forbidden.search(text)
+            assert hit is None, f"{path}: 内部字段暴露 `{hit.group(0)}`"
+
+
+def test_liki_hk_is_not_a_skill_distribution_channel():
+    """liki.hk 只保留品牌 / 技术服务面，不再生成 web skill 分发包。"""
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    assert "build-web-skill-bundle" not in makefile
+    assert not (ROOT / "scripts" / "build-web-skill-bundle.sh").exists()
+
+
+def test_root_skill_routes_close_with_archive_sources():
+    """Root SKILL 路由引用的各方法论域，其平铺卡必须存在于根 skill。
+
+    根 liki 是方法论权威源（自包含）：路由表引用的每个领域，对应方法论卡
+    必须存在于根 skill 内，保证对外归档全能力（评审 P1）。
+    """
+    root_skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    referenced = {domain for domain in DOMAINS if domain in root_skill}
+    assert referenced, "root SKILL.md 未引用任何方法论域"
+
+    for domain in referenced:
+        cards = sorted((SKILL_ROOT / "references").glob(f"{domain}-*.md"))
+        assert cards, f"{domain}: 方法论卡为空"
+
+    # 全部四个方法论域必须完整（根自包含全能力）
+    assert referenced == set(DOMAINS), (
+        f"root 引用域与根方法论域清单不一致: {referenced}"
+    )
+
+
+CARD_TOKEN = re.compile(r"`([A-Za-z0-9_./-]+\.md)`")
+
+
+def _resolve_card_token(skill_root: Path, token: str) -> Path | None:
+    """把卡内 `.md` 引用解析成根 skill 内的唯一文件；解析不出返回 None。
+
+    规范形态只有一种：完整 `references/...` 平铺全路径（另允许 `SKILL.md` 入口自述）。
+    """
+    if token.startswith("references/"):
+        candidate = skill_root / token
+        return candidate if candidate.is_file() else None
+    if token == "SKILL.md":
+        return skill_root / "SKILL.md"
+    return None
+
+
+def test_app_info_words_are_routable_by_side_entries():
+    """app 卡的信息需求词必须被两侧入口的任务路由覆盖（拓扑透明的前提）。"""
+    info = re.compile(r"(?:八字 \+ 紫微|八字|紫微)：([\u4e00-\u9fff\s/]+?)(?:本命|应期)")
+    side_text = "\n".join(
+        (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
+        for side in ("bazi", "ziwei")
+    )
+    missing = []
+    for card in sorted((SKILL_ROOT / "references").glob("natal-app-*.md")):
+        for captured in info.findall(card.read_text(encoding="utf-8")):
+            for word in re.split(r"[\s/]+", captured):
+                if word and word not in side_text:
+                    missing.append(f"{card.name}: {word}")
+    assert missing == [], f"app 信息词未被侧入口路由覆盖: {missing}"
+
+
+def test_domain_app_cards_are_reachable_from_entry():
+    """每个领域 ENTRY 都能到达该域全部 app 卡（无孤儿卡、无重复路由表）。"""
+    for domain in DOMAINS:
+        cards = sorted((SKILL_ROOT / "references").glob(f"{domain}-app-*.md"))
+        assert cards, domain
+        entry = SKILL_ROOT / "references" / f"{domain}-ENTRY.md"
+        seeds = [entry]
+        seen: set[Path] = set()
+        queue = list(seeds)
+        while queue:
+            doc = queue.pop()
+            if doc in seen:
+                continue
+            seen.add(doc)
+            for token in CARD_TOKEN.findall(doc.read_text(encoding="utf-8")):
+                target = _resolve_card_token(SKILL_ROOT, token)
+                if target is not None and target not in seen:
+                    queue.append(target)
+        orphans = [c.relative_to(SKILL_ROOT) for c in cards if c not in seen]
+        assert orphans == [], f"{domain}: app 卡未被 ENTRY 路由（孤儿）: {orphans}"
+
+
+def test_card_references_are_unambiguous_paths():
+    """卡内 `.md` 引用必须使用完整 `references/` 平铺路径（或 `SKILL.md` 自述）。"""
+    offenders = []
+    docs = [SKILL_ROOT / "SKILL.md", SKILL_ROOT / "references" / "FAQ.md"]
+    docs += sorted((SKILL_ROOT / "references").glob("*.md"))
+    for doc in docs:
+        for number, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
+            for token in CARD_TOKEN.findall(line):
+                if _resolve_card_token(SKILL_ROOT, token) is None:
+                    offenders.append(f"{doc.relative_to(SKILL_ROOT)}:{number}: {token}")
+    assert offenders == [], offenders
+
+

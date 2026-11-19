@@ -15,13 +15,14 @@ class RepositoryBoundaries(unittest.TestCase):
         ).splitlines()
         allowed_prefixes = (
             ".github/", ".gitignore", "skills/", "tests/", "Makefile", "LICENSE",
-            "assets/", "README.md", "README.zh.md",
+            "assets/", "distribution/", "scripts/", "tools/", "README.md", "README.zh.md",
         )
         allowed_files = {
             ".markdownlint-cli2.jsonc",
             ".nvmrc",
             "package.json",
             "package-lock.json",
+            "requirements-dev.txt",
         }
         for path in tracked:
             if path in allowed_files:

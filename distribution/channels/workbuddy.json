@@ -1,0 +1,18 @@
+{
+  "format": "workbuddy",
+  "packages": {
+    "free": {
+      "variant": "free",
+      "artifact": "liki-free.zip",
+      "top": "liki-free",
+      "expert": true
+    },
+    "pro": {
+      "variant": "pro",
+      "artifact": "liki-pro.zip",
+      "top": "liki-pro",
+      "source": "liki-pro",
+      "expert": true
+    }
+  }
+}

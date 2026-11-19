@@ -1,0 +1,14 @@
+{
+  "sku": "liki-pro",
+  "top": "liki-pro",
+  "mcpServers": {
+    "liki": {
+      "type": "streamableHttp",
+      "url": "https://mcp.tokflux.com/mcp"
+    }
+  },
+  "payment": {
+    "enabled": true,
+    "provider": "skillpay"
+  }
+}

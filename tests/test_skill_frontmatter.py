@@ -1,0 +1,98 @@
+"""Contract: the unified skill has one valid SKILL.md and bounded app cards."""
+import unittest
+
+import yaml
+from _helpers import SKILL_ROOT
+
+
+class TestSkillFrontmatter(unittest.TestCase):
+    def test_unified_skill_frontmatter_is_valid_yaml(self):
+        txt = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(txt.startswith("---\n"))
+        meta = yaml.safe_load(txt.split("---\n")[1])
+        self.assertIsInstance(meta, dict)
+        self.assertEqual(meta.get("name"), "liki")
+        self.assertIsInstance(meta.get("description"), str)
+        self.assertTrue(meta["description"].strip())
+        self.assertEqual(meta["metadata"].get("author"), "ml8s")
+
+    def test_skill_has_no_nested_skill_entries(self):
+        skills = list(SKILL_ROOT.rglob("SKILL.md"))
+        self.assertEqual([p.relative_to(SKILL_ROOT) for p in skills], [__import__("pathlib").Path("SKILL.md")])
+
+    def test_skills_dir_holds_single_installable_skill(self):
+        """npx skills add ml8s/liki 只装 liki：skills/ 下有且仅有一个 SKILL.md。
+        专家包必须位于 distribution/workbuddy/，否则会被 CLI 误装进任何宿主。"""
+        roots = list(SKILL_ROOT.parent.rglob("SKILL.md"))
+        self.assertEqual([str(p.relative_to(SKILL_ROOT.parent)) for p in roots],
+                         ["liki/SKILL.md"], roots)
+
+    def test_description_within_adk_skilltoolset_limit(self):
+        """ADK skilltoolset: description 1..1024 字节，超限则 ProcessRequest 每轮失败。"""
+        meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
+        n = len(meta["description"].encode("utf-8"))
+        self.assertGreater(n, 0)
+        self.assertLessEqual(n, 1024, f"description {n}B > ADK 1024B")
+
+    def test_frontmatter_is_adk_skilltoolset_compatible(self):
+        """Runtime skilltoolset 只接受 agentskills.io 标准字段；平台元数据必须收进 metadata。"""
+        meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
+        self.assertEqual(
+            set(meta),
+            {"name", "license", "description", "metadata"},
+        )
+        self.assertEqual(meta["metadata"].get("author"), "ml8s")
+        self.assertEqual(meta["metadata"].get("homepage"), "https://liki.hk")
+        self.assertEqual(meta["metadata"].get("repository"), "https://github.com/ml8s/liki")
+        for key in (
+            "slug",
+            "agent_created",
+            "keywords",
+            "display_name",
+            "display_name_en",
+            "description_zh",
+            "description_en",
+            "profession_zh",
+            "profession_en",
+            "examples_zh",
+            "examples_en",
+            "agent_name_zh",
+            "agent_name_en",
+        ):
+            self.assertNotIn(key, meta["metadata"], key)
+
+    def test_frontmatter_has_no_manual_release_version(self):
+        """源码 SKILL.md 不手写版本；渠道包由构建器注入平台投影。"""
+        meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---\n")[1])
+        self.assertNotIn("version", meta["metadata"])
+
+    def test_skill_readable_markdown_lives_in_references(self):
+        """ADK LoadResource 只认 references/assets/scripts：references 外不得有可读 md。"""
+        outside = [
+            p.relative_to(SKILL_ROOT)
+            for p in SKILL_ROOT.rglob("*.md")
+            if "references" not in p.parts
+        ]
+        self.assertEqual(outside, [__import__("pathlib").Path("SKILL.md")], outside)
+
+    def test_app_cards_frontmatter_is_valid_yaml(self):
+        cards = sorted(SKILL_ROOT.glob("references/natal-app-*.md"))
+        self.assertGreater(len(cards), 0)
+        for card in cards:
+            with self.subTest(card=card.name):
+                txt = card.read_text(encoding="utf-8")
+                if not txt.startswith("---\n"):
+                    continue
+                meta = yaml.safe_load(txt.split("---\n")[1])
+                self.assertIsInstance(meta, dict)
+
+    def test_bazi_app_cards_keep_required_reading_bounded(self):
+        cards = sorted(SKILL_ROOT.glob("references/natal-app-*.md"))
+        for card in cards:
+            with self.subTest(card=card.name):
+                count = card.read_text(encoding="utf-8").count("[必读]")
+                self.assertLessEqual(count, 3)
+
+
+if __name__ == "__main__":
+    unittest.main()
