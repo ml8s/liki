@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep this repository a skill distribution, not service source."""
+"""Keep this repository focused on skill distribution and expert assembly."""
 
 import pathlib
 import subprocess
@@ -15,7 +15,8 @@ class RepositoryBoundaries(unittest.TestCase):
         ).splitlines()
         allowed_prefixes = (
             ".github/", ".gitignore", "skills/", "tests/", "Makefile", "LICENSE",
-            "assets/", "distribution/", "scripts/", "tools/", "README.md", "README.zh.md",
+            "assets/", "assembly/", "distribution/", "scripts/", "tools/",
+            "README.md", "README.zh.md",
         )
         allowed_files = {
             ".markdownlint-cli2.jsonc",
@@ -29,7 +30,7 @@ class RepositoryBoundaries(unittest.TestCase):
                 continue
             self.assertTrue(
                 path.startswith(allowed_prefixes),
-                f"implementation or deployment source crossed skill boundary: {path}",
+                f"file is outside skill distribution and expert assembly: {path}",
             )
 
 

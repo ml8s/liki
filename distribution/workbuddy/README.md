@@ -9,8 +9,11 @@ Liki 的 WorkBuddy 渠道包分为 `liki-free`（灵机 / Liki 命理师）与 `
 - WorkBuddy 渠道配置：`distribution/workbuddy/liki-free/channel.json` / `liki-pro/channel.json`
 - WorkBuddy 市场元数据：`distribution/workbuddy/liki-free/skill-meta.json` / `liki-pro/skill-meta.json`
 - 付费行为 overlay：`distribution/workbuddy/liki-pro/overlays/payment.md`
+- 内部专家部署源：`distribution/liki-expert/`（不进入渠道包）
 
 本目录是 WorkBuddy 渠道适配层（free / pro）。zip 包由 `make distribution-package` 在构建时从唯一源组装。
+生产 expert 镜像另由 `assembly/Dockerfile` 基于 AgentGo base image 和
+`distribution/liki-expert/` 配置组装。
 
 ## 包结构
 
