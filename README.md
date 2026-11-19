@@ -24,7 +24,7 @@
 > and sources, so you can check it; if your birth hour is unclear, it calibrates
 > against events you know. Free to install and use.
 
-## What is Liki Skill?
+## Overview
 
 Liki Skill is the AI-ecosystem form of **Liki Astrology**. It is powered by a
 professional astrology engine, with AI-assisted interpretation. It covers
@@ -42,7 +42,7 @@ The wire protocol is [MCP Streamable HTTP](https://modelcontextprotocol.io/speci
 > npx skills add ml8s/liki -y
 > ```
 
-## Install in 30 seconds
+## Quick start
 
 ```bash
 npx skills add ml8s/liki
@@ -56,7 +56,7 @@ npx skills add ml8s/liki -y
 
 Works in Claude Code, Codex, Cursor, WorkBuddy, and any MCP-compatible assistant or IDE.
 
-## What can you ask?
+## Usage
 
 | You want | Ask like this |
 | --- | --- |
@@ -70,7 +70,7 @@ Works in Claude Code, Codex, Cursor, WorkBuddy, and any MCP-compatible assistant
 
 For destiny readings, provide the birth date, exact time when possible, birth city, and gender. If data is incomplete, the Skill asks follow-up questions or enters time calibration — it never silently guesses.
 
-## Why not just ask the LLM directly?
+## Why Liki Skill?
 
 Ask a general-purpose LLM the same chart question three times and you may get three different answers. Chinese astrology amplifies small errors: miss a solar-term boundary by one day and the year pillar changes — every reading after it shifts.
 
@@ -82,7 +82,7 @@ Ask a general-purpose LLM the same chart question three times and you may get th
 | Output | Plain text | Structured JSON + SHA-256 digests, ready to build on |
 | Verification | None | Open source; the whole chain is auditable |
 
-## How Liki Skill stays accurate
+## How it works
 
 ### Cross-checked chart engine
 
@@ -108,7 +108,7 @@ your time + birthplace → normalize → candidate set (each with reasons)
 
 On top of this, Mingli160 — 160 professional competition questions — is used for rule-chain coverage and zero-hit checks as a manual calibration set.
 
-## Privacy and honest boundaries
+## Security and boundaries
 
 - Birth data stays in the current conversation: no profiles, no real names, no feedback payloads.
 - City lookup uses the built-in WGS-84 table; no external geocoding request is made.
@@ -146,11 +146,23 @@ No. Birth data remains in the current conversation context; it is not written to
 
 A calculator gives you a chart. Liki Skill gives you the chart plus sourced readings, boundary handling, and time calibration — inside the AI assistant you already use, with every conclusion traceable to its factors and classical text.
 
-## Documentation and links
+## Documentation
 
 - Website: [liki.hk](https://liki.hk)
 - Fact core: [ml8s/mingligo](https://github.com/ml8s/mingligo)
 - Product MCP: [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)
-- License: MIT
+
+## Contributing
+
+Issues and pull requests are welcome. Keep skill prompts factual, cite the
+classical source for every rule, and run:
+
+```bash
+make gate
+```
+
+## License
+
+Released under the [MIT License](LICENSE).
 
 > For Astrology, use Liki.
