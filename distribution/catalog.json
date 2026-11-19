@@ -17,6 +17,7 @@
   },
   "variants": {
     "free": {
+      "top": "liki-free",
       "mcpServers": {
         "engine": {
           "type": "streamableHttp",
@@ -32,6 +33,7 @@
       }
     },
     "pro": {
+      "top": "liki-pro",
       "mcpServers": {
         "liki": {
           "type": "streamableHttp",
@@ -46,7 +48,6 @@
   "packages": {
     "skillhub": {
       "free": {
-        "top": "liki-free",
         "market": {
           "slug": "liki",
           "display_name": "Liki 命理师",
@@ -54,7 +55,6 @@
         }
       },
       "pro": {
-        "top": "liki-pro",
         "market": {
           "slug": "liki-pro",
           "display_name": "Liki 命理师（专业版）",
@@ -64,6 +64,32 @@
     },
     "workbuddy": {
       "maxTurns": 40,
+      "mcpMeta": {
+        "engine": {
+          "displayName": {"zh": "Liki 排盘引擎", "en": "Liki Chart Engine"},
+          "description": {
+            "zh": "连接后可排八字、紫微、六爻、奇门、黄历与风水盘。",
+            "en": "Connect to cast BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, Feng Shui and almanac charts."
+          },
+          "auth": {"type": "none"}
+        },
+        "counsel": {
+          "displayName": {"zh": "Liki 断语引擎", "en": "Liki Reading Engine"},
+          "description": {
+            "zh": "连接后可按规则命中带出处的断语、因子与应期。",
+            "en": "Connect to match sourced assertions, factors and timing."
+          },
+          "auth": {"type": "none"}
+        },
+        "liki": {
+          "displayName": {"zh": "Liki 专业版", "en": "Liki Pro"},
+          "description": {
+            "zh": "连接后可使用专业版排盘、断语与依据回溯。",
+            "en": "Connect for pro charting, sourced readings and traceable evidence."
+          },
+          "auth": {"type": "none"}
+        }
+      },
       "keywords": [
         "八字合婚",
         "婚姻分析",
@@ -111,12 +137,6 @@
         "dependencies": {
           "mcpServers": "./.mcp.json"
         }
-      },
-      "free": {
-        "top": "liki-free"
-      },
-      "pro": {
-        "top": "liki-pro"
       }
     }
   }

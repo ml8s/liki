@@ -12,7 +12,7 @@ import build_channel_package as gen  # noqa: E402
 
 SKILL_MD = ROOT / "skills/liki/SKILL.md"
 GENERATED_PLUGIN = gen.plugin_doc(
-    "pro", "liki-pro", ROOT / "distribution/workbuddy/liki-pro"
+    "pro", "liki-pro"
 )
 PRO_README = ROOT / "distribution/workbuddy/liki-pro/README.md"
 
@@ -70,7 +70,6 @@ def test_workbuddy_plugin_uses_astrologer_persona():
     plugin = gen.plugin_doc(
         "pro",
         "liki-pro",
-        ROOT / "distribution/workbuddy/liki-pro",
     )
     assert plugin["displayName"] == {"en": "Liki (Pro)", "zh": "灵机（专业版）"}
     assert plugin["profession"] == {

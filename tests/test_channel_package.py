@@ -14,8 +14,7 @@ import build_channel_package as gen  # noqa: E402
 
 
 def test_catalog_declares_four_packages():
-    for channel, variants in gen.load_catalog()["packages"].items():
-        assert set(variants) - {"maxTurns", "keywords", "plugin"} == {"free", "pro"}, channel
+    assert set(gen.load_catalog()["packages"]["skillhub"]) == {"free", "pro"}
     assert gen.load_package("skillhub", "free")["top"] == "liki-free"
     assert gen.load_package("skillhub", "pro")["top"] == "liki-pro"
     assert gen.load_package("workbuddy", "free")["top"] == "liki-free"
@@ -93,8 +92,7 @@ def test_skillhub_frontmatter_uses_platform_dialects():
 def test_workbuddy_plugin_is_projected_from_market_metadata():
     for variant in ("free", "pro"):
         package = gen.load_package("workbuddy", variant)
-        assets = ROOT / "distribution/workbuddy" / package["top"]
-        plugin = gen.plugin_doc(variant, package["top"], assets)
+        plugin = gen.plugin_doc(variant, package["top"])
         expected_display = "灵机（专业版）" if variant == "pro" else "灵机"
         expected_profession = "Liki Astrologer (Pro)" if variant == "pro" else "Liki Astrologer"
         assert plugin["displayName"]["zh"] == expected_display
