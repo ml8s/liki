@@ -38,7 +38,7 @@ npx skills add ml8s/liki
 > npx skills add ml8s/liki -y
 > ```
 
-通过 `npx` 安装需要本机有 Node.js；Skill 运行时不依赖本地 Node。装完即用，Skill 通过托管的免费 engine/counsel MCP 面工作，不需要配置任何 API key；付费渠道变体可切换到聚合 `hk.liki/liki` 端点；不想碰命令行，可以直接用 [liki.hk](https://liki.hk) 网页版排盘。提示更新时执行：
+通过 `npx` 安装需要本机有 Node.js；Skill 运行时不依赖本地 Node。装完即用，Skill 通过托管的免费 engine/counsel MCP 面工作，不需要配置任何 API key；付费渠道变体使用产品 MCP 端点；不想碰命令行，可以直接用 [liki.hk](https://liki.hk) 网页版排盘。提示更新时执行：
 
 ```bash
 npx skills add ml8s/liki -y
@@ -125,7 +125,7 @@ Skill 本体免费安装使用（`liki-free`）。另有付费的 `liki-pro` 分
 
 ### 和 liki.hk 网页版是什么关系？
 
-同一套引擎与规则体系。liki.hk 面向网页用户，Liki Skill 把同样的能力带进你的 AI 助手。事实核心在 [ml8s/mingligo](https://github.com/ml8s/mingligo)，产品 MCP 在 [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)，本仓库只承载可安装的 Skill 文件。
+同一套引擎与规则体系。liki.hk 面向网页用户，Liki Skill 把同样的能力带进你的 AI 助手。事实核心在 [ml8s/mingligo](https://github.com/ml8s/mingligo)，产品 MCP 在 [ml8s/liki-mcp](https://github.com/ml8s/liki-mcp)，本仓库承载可安装 Skill、渠道分发配置与 expert 装配定义。
 
 ## 文档与链接
 

@@ -2,7 +2,6 @@ PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 IMAGE_REGISTRY ?= liki-local
 IMAGE_TAG ?= local
 AGENTGO_IMAGE ?=
-DEPLOYMENT_PROFILES ?= liki-expert
 NODE_BIN := $(HOME)/.nvm/versions/node/v$(shell cat .nvmrc)/bin
 NPM_FROM_PATH := $(shell command -v npm 2>/dev/null)
 NPM_FALLBACK := $(NODE_BIN)/npm
@@ -23,15 +22,13 @@ test: ## Skill and distribution contract tests
 	$(PYTHON) -m pytest tests -q
 
 build-deployment: ## Generate AgentDeployment artifacts for expert assembly
-	@rm -rf dist/$(DEPLOYMENT_PROFILES) && mkdir -p dist
-	@set -eu; for profile in $(DEPLOYMENT_PROFILES); do \
-		$(PYTHON) scripts/generate_deployment.py --profile "$$profile" --out dist; \
-	done
+	@rm -rf dist/liki-expert && mkdir -p dist
+	$(PYTHON) scripts/generate_deployment.py --out dist
 
 image-assembly: build-deployment ## Build the expert image from an AgentGo base image
 	@test -n "$(AGENTGO_IMAGE)" || { echo "AGENTGO_IMAGE is required" >&2; exit 1; }
 	@rm -rf assembly/dist && mkdir -p assembly/dist/deployment
-	@cp -r "dist/$(DEPLOYMENT_PROFILES)" "assembly/dist/deployment/$(DEPLOYMENT_PROFILES)"
+	@cp -r dist/liki-expert assembly/dist/deployment/liki-expert
 	@cp -r skills assembly/dist/skills
 	docker build -f assembly/Dockerfile \
 		--build-arg BASE_IMAGE="$(AGENTGO_IMAGE)" \

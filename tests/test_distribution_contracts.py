@@ -16,11 +16,6 @@ class DistributionContracts(unittest.TestCase):
         self.assertEqual(servers["engine"]["url"], "https://mcp.tokflux.com/engine/mcp")
         self.assertEqual(servers["counsel"]["url"], "https://mcp.tokflux.com/counsel/mcp")
 
-    def test_pro_overlay_uses_product_mcp(self):
-        declaration = json.loads((ROOT / "skills/liki/.mcp.pro.json").read_text(encoding="utf-8"))
-        self.assertEqual(list(declaration["mcpServers"]), ["liki"])
-        self.assertEqual(declaration["mcpServers"]["liki"]["url"], "https://mcp.tokflux.com/mcp")
-
     def test_readmes_direct_users_to_current_endpoint_and_upgrade(self):
         for name in ("README.md", "README.zh.md"):
             text = (ROOT / name).read_text(encoding="utf-8")

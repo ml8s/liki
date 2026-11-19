@@ -71,7 +71,7 @@ def load_variant(variant: str) -> dict[str, Any]:
         value = load_catalog()["variants"][variant]
     except KeyError as exc:
         raise SystemExit(f"unknown package variant: {variant}") from exc
-    for key in ("sku", "top", "mcpServers", "payment"):
+    for key in ("mcpServers", "payment"):
         if key not in value:
             raise SystemExit(f"variant {variant} missing {key}")
     return value
@@ -82,9 +82,13 @@ def load_package(channel: str, variant: str) -> dict[str, Any]:
         package = load_catalog()["packages"][channel][variant]
     except KeyError as exc:
         raise SystemExit(f"unknown channel package: {channel}/{variant}") from exc
-    if package.get("variant", variant) != variant:
-        raise SystemExit(f"channel package {channel}/{variant} points to another variant")
+    if "top" not in package:
+        raise SystemExit(f"channel package {channel}/{variant} missing top")
     return package
+
+
+def package_top(channel: str, variant: str) -> str:
+    return load_package(channel, variant)["top"]
 
 
 def split_frontmatter() -> tuple[dict[str, Any], str]:
@@ -118,7 +122,7 @@ def load_market(channel: str, variant: str, assets_dir: Path | None = None) -> d
     if channel == "skillhub":
         overrides = package["market"]
     elif channel == "workbuddy":
-        assets_dir = assets_dir or WORKBUDDY_DIR / package["source"]
+        assets_dir = assets_dir or WORKBUDDY_DIR / package["top"]
         overrides = _load_json(
             assets_dir / "skill-meta.json", f"WorkBuddy {variant} market metadata"
         )
@@ -244,7 +248,7 @@ def skill_doc(
 def agent_doc(variant: str, package_id: str, assets_dir: Path) -> str:
     market = load_market("workbuddy", variant, assets_dir)
     _frontmatter, body = canonical_identity(pro=variant == "pro")
-    channel = _load_json(assets_dir / "channel.json", f"WorkBuddy {variant} channel config")
+    max_turns = load_catalog()["packages"]["workbuddy"]["maxTurns"]
     metadata = {
         "name": package_id,
         "description": market["description_en"],
@@ -256,7 +260,7 @@ def agent_doc(variant: str, package_id: str, assets_dir: Path) -> str:
             "en": market["profession_en"],
             "zh": market["profession_zh"],
         },
-        "maxTurns": channel["maxTurns"],
+        "maxTurns": max_turns,
     }
     heading = market["agent_display_name_zh"]
     return _frontmatter_block(metadata) + _render_identity(body, market, heading=heading)
@@ -308,7 +312,11 @@ def canonical_files(top: str, variant: str) -> dict[str, bytes]:
     files: dict[str, bytes] = {}
     for path in sorted(item for item in SKILL_DIR.rglob("*") if item.is_file()):
         relative = path.relative_to(SKILL_DIR).as_posix()
-        if "__pycache__" in relative.split("/") or relative.endswith((".pyc", ".pyo", ".DS_Store")):
+        if (
+            relative in {".mcp.pro.json"}
+            or "__pycache__" in relative.split("/")
+            or relative.endswith((".pyc", ".pyo", ".DS_Store"))
+        ):
             continue
         if relative == ".mcp.json":
             servers = load_variant(variant)["mcpServers"]
@@ -331,7 +339,7 @@ def package_manifest(channel: str, variant: str) -> dict[str, bytes]:
     if channel == "skillhub":
         files = canonical_files(top, variant)
     elif channel == "workbuddy":
-        assets_dir = WORKBUDDY_DIR / package["source"]
+        assets_dir = WORKBUDDY_DIR / top
         files = {
             f"{top}/{relative}": (assets_dir / relative).read_bytes()
             for relative in (
@@ -365,14 +373,14 @@ def package_manifest(channel: str, variant: str) -> dict[str, bytes]:
         files[f"{top}/skills/liki/scripts/feedback.py"] = (SKILL_DIR / "scripts" / "feedback.py").read_bytes()
     else:
         raise SystemExit(f"unsupported channel: {channel}")
-    files["__artifact__"] = package["artifact"].encode()
+    files["__artifact__"] = f"{top}.zip".encode()
     return files
 
 
 def artifact_path(channel: str, variant: str) -> Path:
     out = ROOT / "dist" / channel
     out.mkdir(parents=True, exist_ok=True)
-    return out / load_package(channel, variant)["artifact"]
+    return out / f"{package_top(channel, variant)}.zip"
 
 
 def _display_path(target: Path) -> Path:
@@ -394,8 +402,8 @@ def _write_zip(target: Path, files: dict[str, bytes]) -> None:
 
 def build(channel: str, variant: str, out: Path | None = None) -> Path:
     files = package_manifest(channel, variant)
-    artifact = files.pop("__artifact__").decode()
-    target = out or artifact_path(channel, variant).parent / artifact
+    files.pop("__artifact__")
+    target = out or artifact_path(channel, variant)
     _write_zip(target, files)
     print(f"[build-channel-package] ✓ {_display_path(target)} ({target.stat().st_size} bytes)")
     return target
@@ -403,8 +411,8 @@ def build(channel: str, variant: str, out: Path | None = None) -> Path:
 
 def check(channel: str, variant: str, out: Path | None = None) -> int:
     expected = package_manifest(channel, variant)
-    artifact = expected.pop("__artifact__").decode()
-    target = out or artifact_path(channel, variant).parent / artifact
+    expected.pop("__artifact__")
+    target = out or artifact_path(channel, variant)
     if not target.is_file():
         print(f"[build-channel-package] ✗ artifact missing: {target}")
         return 1

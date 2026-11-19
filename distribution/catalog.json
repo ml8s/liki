@@ -17,8 +17,6 @@
   },
   "variants": {
     "free": {
-      "sku": "liki-free",
-      "top": "liki-free",
       "mcpServers": {
         "engine": {
           "type": "streamableHttp",
@@ -34,8 +32,6 @@
       }
     },
     "pro": {
-      "sku": "liki-pro",
-      "top": "liki-pro",
       "mcpServers": {
         "liki": {
           "type": "streamableHttp",
@@ -43,17 +39,14 @@
         }
       },
       "payment": {
-        "enabled": true,
-        "provider": "skillpay"
+        "enabled": true
       }
     }
   },
   "packages": {
     "skillhub": {
-      "format": "skill-zip",
       "free": {
         "top": "liki-free",
-        "artifact": "liki-free.zip",
         "market": {
           "slug": "liki",
           "display_name": "Liki 命理师",
@@ -62,7 +55,6 @@
       },
       "pro": {
         "top": "liki-pro",
-        "artifact": "liki-pro.zip",
         "market": {
           "slug": "liki-pro",
           "display_name": "Liki 命理师（专业版）",
@@ -71,18 +63,12 @@
       }
     },
     "workbuddy": {
-      "format": "workbuddy",
+      "maxTurns": 40,
       "free": {
-        "top": "liki-free",
-        "artifact": "liki-free.zip",
-        "expert": true,
-        "source": "liki-free"
+        "top": "liki-free"
       },
       "pro": {
-        "top": "liki-pro",
-        "artifact": "liki-pro.zip",
-        "expert": true,
-        "source": "liki-pro"
+        "top": "liki-pro"
       }
     }
   }

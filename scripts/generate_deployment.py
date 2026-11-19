@@ -52,8 +52,6 @@ def load_config() -> dict[str, Any]:
     config = yaml.safe_load(_read(CONFIG_PATH))
     if not isinstance(config, dict):
         raise SystemExit(f"deployment config must be an object: {CONFIG_PATH}")
-    if config.get("profile") != PROFILE:
-        raise SystemExit(f"unsupported deployment profile: {config.get('profile')!r}")
     for key in ("description", "mcpServers", "agent"):
         if key not in config:
             raise SystemExit(f"deployment config missing {key}")
@@ -121,11 +119,8 @@ def generate(out: Path) -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate the Liki expert deployment")
-    parser.add_argument("--profile", choices=(PROFILE,), default=PROFILE)
     parser.add_argument("--out", type=Path, default=Path("dist"))
     args = parser.parse_args()
-    if args.profile != PROFILE:
-        raise SystemExit(f"unsupported deployment profile: {args.profile}")
     generate(args.out)
     return 0
 

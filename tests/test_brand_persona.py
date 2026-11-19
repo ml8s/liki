@@ -57,7 +57,6 @@ def test_active_surfaces_do_not_use_retired_ai_identity():
         PLUGIN_JSON,
         ROOT / "README.md",
         ROOT / "README.zh.md",
-        ROOT / "skills/liki/.mcp.pro.json",
     }
     for path in surfaces:
         text = path.read_text(encoding="utf-8")

@@ -20,7 +20,7 @@ class ExpertDeploymentTest(unittest.TestCase):
     def generate(self):
         script = ROOT / "scripts/generate_deployment.py"
         subprocess.run(
-            [sys.executable, str(script), "--profile", "liki-expert", "--out", str(self.out)],
+            [sys.executable, str(script), "--out", str(self.out)],
             check=True,
         )
         manifest = self.out / "liki-expert" / "deployment.json"

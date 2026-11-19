@@ -48,7 +48,7 @@ The wire protocol is [MCP Streamable HTTP](https://modelcontextprotocol.io/speci
 npx skills add ml8s/liki
 ```
 
-Installing via `npx` requires Node.js; the skill itself has no local Node.js runtime dependency. It talks to the hosted free engine and counsel MCP surfaces — no API keys, no configuration. Paid channel variants can switch to the aggregate `hk.liki/liki` endpoint. Prefer no terminal? Charting is free at [liki.hk](https://liki.hk). Update when prompted:
+Installing via `npx` requires Node.js; the skill itself has no local Node.js runtime dependency. It talks to the hosted free engine and counsel MCP surfaces — no API keys, no configuration. Paid channel variants use the product MCP endpoint. Prefer no terminal? Charting is free at [liki.hk](https://liki.hk). Update when prompted:
 
 ```bash
 npx skills add ml8s/liki -y

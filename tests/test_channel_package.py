@@ -15,16 +15,15 @@ import build_channel_package as gen  # noqa: E402
 
 def test_catalog_declares_four_packages():
     for channel, variants in gen.load_catalog()["packages"].items():
-        assert set(variants) - {"format"} == {"free", "pro"}, channel
-    assert gen.load_package("skillhub", "free")["artifact"] == "liki-free.zip"
-    assert gen.load_package("skillhub", "pro")["artifact"] == "liki-pro.zip"
+        assert set(variants) - {"maxTurns"} == {"free", "pro"}, channel
+    assert gen.load_package("skillhub", "free")["top"] == "liki-free"
+    assert gen.load_package("skillhub", "pro")["top"] == "liki-pro"
     assert gen.load_package("workbuddy", "free")["top"] == "liki-free"
-    assert gen.load_package("workbuddy", "pro")["expert"] is True
+    assert gen.load_package("workbuddy", "pro")["top"] == "liki-pro"
+    assert gen.load_catalog()["packages"]["workbuddy"]["maxTurns"] == 40
 
     free = gen.load_variant("free")
     pro = gen.load_variant("pro")
-    assert free["sku"] == "liki-free"
-    assert pro["sku"] == "liki-pro"
     assert set(free["mcpServers"]) == {"engine", "counsel"}
     assert set(pro["mcpServers"]) == {"liki"}
     assert free["payment"]["enabled"] is False
@@ -76,6 +75,7 @@ def test_workbuddy_free_manifest_has_no_payment_flow():
     rendered = files["liki-free/agents/liki-free.md"] + files["liki-free/skills/liki/SKILL.md"]
     assert b"Payment-Needed" not in rendered
     assert b"Payment-Proof" not in rendered
+    assert "liki-free/.mcp.pro.json" not in files
 
 
 def test_skillhub_frontmatter_uses_platform_dialects():
@@ -95,7 +95,7 @@ def test_skillhub_frontmatter_uses_platform_dialects():
 def test_workbuddy_plugin_is_projected_from_market_metadata():
     for variant in ("free", "pro"):
         package = gen.load_package("workbuddy", variant)
-        assets = ROOT / "distribution/workbuddy" / package["source"]
+        assets = ROOT / "distribution/workbuddy" / package["top"]
         plugin = gen.plugin_doc(variant, package["top"], assets)
         expected_display = "灵机（专业版）" if variant == "pro" else "灵机"
         expected_profession = "Liki Astrologer (Pro)" if variant == "pro" else "Liki Astrologer"

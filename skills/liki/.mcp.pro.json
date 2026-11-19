@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "liki": {
-      "type": "streamableHttp",
-      "url": "https://mcp.tokflux.com/mcp"
-    }
-  }
-}
